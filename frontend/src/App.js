@@ -2,6 +2,7 @@ import './App.css';
 import { Routes, Route } from 'react-router-dom';
 import AdminHomePage from './pages/AdminHomePage';
 import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
           <Route path='/' element={<LandingPage />} />
           <Route path='/adminHomePage' element={<AdminHomePage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </header>
     </div>
