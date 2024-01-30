@@ -38,9 +38,9 @@ const Header = () => {
               <li>Booking Details</li>
             </Link>
 
-            <a href="/myFavorite" className="cursor-pointer">
+            <Link to="/myFavourite" className="cursor-pointer">
               <li>My Favourite</li>
-            </a>
+            </Link>
           </ul>
         </div>
         {userInfo ? (
@@ -71,8 +71,8 @@ const Header = () => {
             className="hidden cursor-pointer  pr-4 md:flex"
             onClick={() => {
               navigate("/login");
-              handleClick();
-              toggleDropdown();
+              setShowMenu(false);
+              setShowDropdown(false);
             }}
           >
             Member Log In
@@ -103,7 +103,7 @@ const Header = () => {
                 Booking Details
               </div>
             </Link>
-            <Link to="/myFavorite" onClick={handleClick}>
+            <Link to="/myFavourite" onClick={handleClick}>
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
                 My Favourite
@@ -138,8 +138,8 @@ const Header = () => {
             className="my-4 flex h-16 w-full cursor-pointer items-center justify-center  bg-theme-dark-blue p-4 text-center text-white"
             onClick={() => {
               navigate("/login");
-              handleClick();
-              toggleDropdown();
+              setShowMenu(false);
+              setShowDropdown(false);
             }}
           >
             Member Log In

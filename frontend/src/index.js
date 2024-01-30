@@ -31,7 +31,7 @@ const router = createBrowserRouter(
       {/* private routes */}
       <Route path="" element={<PrivateRoute />}>
         <Route path="/booking" element={<BookingPage />} />
-        <Route path="/myFavorite" element={<MyFavouritePage />} />
+        <Route path="/myFavourite" element={<MyFavouritePage />} />
       </Route>
     </Route>,
   ),
