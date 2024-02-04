@@ -17,6 +17,11 @@ import LoginPage from "./pages/LoginPage";
 import BookingPage from "./pages/BookingPage";
 import reportWebVitals from "./reportWebVitals";
 import MyFavouritePage from "./pages/MyFavouritePage";
+import UserManagementAddPage from "./pages/admin/UserManagement/UserManagementAddPage";
+import UserManagementEditPage from "./pages/admin/UserManagement/UserManagementEditPage";
+import RoomManagementAddPage from "./pages/admin/RoomManagement/RoomManagementAddPage";
+import RoomManagementEditPage from "./pages/admin/RoomManagement/RoomManagementEditPage";
+import RoomManagementPage from "./pages/admin/RoomManagement/RoomManagementPage";
 import { persistor, store } from "./store";
 import { PersistGate } from "redux-persist/integration/react";
 
@@ -32,6 +37,23 @@ const router = createBrowserRouter(
       <Route path="" element={<PrivateRoute />}>
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/myFavourite" element={<MyFavouritePage />} />
+        <Route
+          path="/userManagementAddPage"
+          element={<UserManagementAddPage />}
+        />
+        <Route
+          path="/userManagementEditPage"
+          element={<UserManagementEditPage />}
+        />
+        <Route
+          path="/roomManagementAddPage"
+          element={<RoomManagementAddPage />}
+        />
+        <Route
+          path="/roomManagementEditPage"
+          element={<RoomManagementEditPage />}
+        />
+        <Route path="/roomManagementPage" element={<RoomManagementPage />} />
       </Route>
     </Route>,
   ),
