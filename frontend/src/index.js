@@ -9,16 +9,17 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { store } from "./store";
 import { Provider } from "react-redux";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminHomePage from "./pages/AdminHomePage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import BookingPage from "./pages/BookingPage";
-
 import reportWebVitals from "./reportWebVitals";
 import MyFavouritePage from "./pages/MyFavouritePage";
+import { persistor, store } from './store';
+import { PersistGate } from 'redux-persist/integration/react';
+
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -42,9 +43,11 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-        <RouterProvider router={router} />
-      </GoogleOAuthProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+          <RouterProvider router={router} />
+        </GoogleOAuthProvider>
+      </PersistGate>
     </Provider>
   </React.StrictMode>,
 );
