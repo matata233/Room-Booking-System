@@ -56,13 +56,13 @@ const AdminInputForm = (props) => {
                   }}
                 >
                   {labels.map((label) => (
-                    <TextField 
-                    id="outlined-basic"
-                    label={label} 
-                    margin="normal"
-                    size="small"
-                    variant="outlined"
-                    sx={{ display: "flex", justifyContent: "center" }}
+                    <TextField
+                      id="outlined-basic"
+                      label={label}
+                      margin="normal"
+                      size="small"
+                      variant="outlined"
+                      sx={{ display: "flex", justifyContent: "center" }}
                     />
                   ))}
                 </CardContent>
