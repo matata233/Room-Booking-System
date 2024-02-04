@@ -16,9 +16,13 @@ import AdminHomePage from "./pages/AdminHomePage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import BookingPage from "./pages/BookingPage";
+import UserManagementAddPage from "./pages/admin/UserManagement/UserManagementAddPage";
+import UserManagementEditPage from "./pages/admin/UserManagement/UserManagementEditPage";
 
 import reportWebVitals from "./reportWebVitals";
 import MyFavouritePage from "./pages/MyFavouritePage";
+import RoomManagementAddPage from "./pages/admin/RoomManagement/RoomManagementAddPage";
+import RoomManagementEditPage from "./pages/admin/RoomManagement/RoomManagementEditPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,6 +36,10 @@ const router = createBrowserRouter(
       <Route path="" element={<PrivateRoute />}>
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/myFavourite" element={<MyFavouritePage />} />
+        <Route path="/userManagementAddPage" element={<UserManagementAddPage />} />
+        <Route path="/userManagementEditPage" element={<UserManagementEditPage />} />
+        <Route path="/roomManagementAddPage" element={<RoomManagementAddPage />} />
+        <Route path="/roomManagementEditPage" element={<RoomManagementEditPage />} />
       </Route>
     </Route>,
   ),
