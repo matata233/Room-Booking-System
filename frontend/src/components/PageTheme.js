@@ -1,9 +1,12 @@
-import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
+import {
+  createTheme,
+  ThemeProvider as MuiThemeProvider,
+} from "@mui/material/styles";
 
 const PageTheme = createTheme({
   palette: {
     primary: {
-      main: '#FFA500', 
+      main: "#FFA500",
     },
   },
 });
