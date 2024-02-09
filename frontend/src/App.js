@@ -1,18 +1,16 @@
-import './App.css';
-import { Routes, Route } from 'react-router-dom';
-import AdminHomePage from './pages/AdminHomePage';
-import LandingPage from './pages/LandingPage';
+import { Outlet } from "react-router-dom";
+import Header from "./components/Header";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-      <Routes>
-          <Route path='/' element={<LandingPage />} />
-          <Route path='/adminHomePage' element={<AdminHomePage />} />
-        </Routes>
-      </header>
-    </div>
+    <>
+      <Header />
+      <main className="py-3">
+        <div className="container">
+          <Outlet />
+        </div>
+      </main>
+    </>
   );
 }
 
