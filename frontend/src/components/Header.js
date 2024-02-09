@@ -15,7 +15,7 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
- 
+
   const handleLogout = () => {
     try {
       dispatch(logout());
