@@ -1,4 +1,4 @@
-import { AbstractService } from './AbstractService';
+import { AbstractService } from "./AbstractService";
 import {UserDTO} from "../model/dto/UserDTO";
 
 export class UserService extends AbstractService {

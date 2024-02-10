@@ -3,14 +3,14 @@ import {AbstractDTO} from "../model/dto/AbstractDTO";
 export abstract class AbstractRepository {
 
     public async findAll(): Promise<AbstractDTO[]> {
-        return Promise.reject("Not implement")
+        return Promise.reject("Not implement");
     }
 
     public async findById(id: number): Promise<AbstractDTO> {
-        return Promise.reject("Not implement")
+        return Promise.reject("Not implement");
     }
 
     public async create(abstractDTO: AbstractDTO): Promise<AbstractDTO> {
-        return Promise.reject("Not implement")
+        return Promise.reject("Not implement");
     }
 }
