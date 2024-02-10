@@ -1,0 +1,25 @@
+@startuml
+
+' Abstract classes
+
+abstract class AbstractRepository {
+    +abstract getAll(): Promise<AbstractEntity>;
+    +abstract getById(id: number): Promise<AbstractEntity>;
+    +abstract create(dto: AbstractDTO): Promise<AbstractEntity>;
+    +abstract update(id: number, dto: AbstractDTO): Promise<AbstractEntity>;
+    -databse Database
+}
+
+' Concrete controller classes
+class BookingRepository extends AbstractRepository {
+    +getAvailableRooms(criteria: Criteria): Promise<List<Room>>
+}
+
+class RoomRepository extends AbstractRepository {
+}
+
+class UserRepository extends AbstractRepository {
++getByEmail(email: string): Promise<User>
+}
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+
+' Abstract classes
+
+abstract class AbstractService {
+    +abstract getAll(): List<AbstractDTO>;
+    +abstract getById(id: number): AbstractDTO;
+    +abstract create(dto: AbstractDTO): AbstractDTO;
+    +abstract update(id: number, dto: AbstractDTO): AbstractDTO;
+    -abstractRepository AbstractRepository;
+}
+
+' Concrete controller classes
+class BookingRepository extends AbstractService {
+    +getAvailableRooms(criteria: Criteria): List<RoomDTO>
+}
+
+class RoomRepository extends AbstractService {
+}
+
+class UserRepository extends AbstractService {
++getByEmail(email: string): UserDTO
+}
+
+@enduml
