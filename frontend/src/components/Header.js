@@ -25,7 +25,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed z-10 h-20 w-screen bg-white font-poppins drop-shadow-md">
+    <header className="font-amazon-ember text-md fixed z-10 h-20 w-full bg-white drop-shadow-md">
       <div className="flex h-full w-full items-center justify-between px-6">
         <div className="flex items-center md:gap-20">
           <Link to="/" className="cursor-pointer">

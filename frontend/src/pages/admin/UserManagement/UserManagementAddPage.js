@@ -8,12 +8,14 @@ const UserManagementAddPage = () => {
   const buttonText = "Add New User";
 
   return (
-    <AdminInputForm
-      firstlyHeader={firstlyHeader}
-      secondaryHeader={secondaryHeader}
-      labels={labels}
-      buttonText={buttonText}
-    />
+    <div className="flex h-full w-full items-center justify-center">
+      <AdminInputForm
+        firstlyHeader={firstlyHeader}
+        secondaryHeader={secondaryHeader}
+        labels={labels}
+        buttonText={buttonText}
+      />
+    </div>
   );
 };
 

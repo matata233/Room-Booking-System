@@ -8,12 +8,14 @@ const UserManagementEditPage = () => {
   const buttonText = "Complete";
 
   return (
-    <AdminInputForm
-      firstlyHeader={firstlyHeader}
-      secondaryHeader={secondaryHeader}
-      labels={labels}
-      buttonText={buttonText}
-    />
+    <div className="flex  w-full items-center justify-center">
+      <AdminInputForm
+        firstlyHeader={firstlyHeader}
+        secondaryHeader={secondaryHeader}
+        labels={labels}
+        buttonText={buttonText}
+      />
+    </div>
   );
 };
 
