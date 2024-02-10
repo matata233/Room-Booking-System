@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { HiOutlineBars3, HiXMark } from "react-icons/hi2";
@@ -7,9 +7,23 @@ import logo from "../assets/logo.png";
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
-  const handleClick = () => setShowMenu(!showMenu);
   const [showDropdown, setShowDropdown] = useState(false);
 
+  const [popHeader, setPopHeader] = useState(false);
+
+  const scrollHeader = () => {
+    if (window.scrollY >= 20) {
+      setPopHeader(true);
+    } else {
+      setPopHeader(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", scrollHeader);
+  }, []);
+
+  const handleClick = () => setShowMenu(!showMenu);
   const toggleDropdown = () => setShowDropdown(!showDropdown);
 
   const { userInfo } = useSelector((state) => state.auth);
@@ -26,7 +40,9 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed z-10 h-20 w-screen bg-white font-poppins drop-shadow-md">
+    <header
+      className={`fixed z-10 h-20 w-full bg-white font-poppins ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md" : ""}`}
+    >
       <div className="flex h-full w-full items-center justify-between px-6">
         <div className="flex items-center md:gap-20">
           <Link to="/" className="cursor-pointer">
@@ -59,7 +75,7 @@ const Header = () => {
             <div
               className={
                 showDropdown
-                  ? "absolute top-20 w-full cursor-pointer rounded border-gray-500 bg-white p-4"
+                  ? "absolute top-20 w-full cursor-pointer rounded bg-white p-4 drop-shadow-md"
                   : "hidden"
               }
               onClick={handleLogout}

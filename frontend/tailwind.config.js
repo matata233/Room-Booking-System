@@ -3,9 +3,6 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
-      spacing: {
-        870: "870px",
-      },
       colors: {
         theme: {
           blue: "#659FDF",
@@ -16,7 +13,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        poppins: ["Poppins"],
+        poppins: ["Poppins", "sans-serif"],
+        "amazon-ember": ["AmazonEmber", "sans-serif"],
       },
     },
   },
