@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import useSearchData from "../../../hooks/useSearchData";
 import usePaginateData from "../../../hooks/usePaginateData";
 import useSortData from "../../../hooks/useSortData";
@@ -49,7 +50,7 @@ const UserManagementPage = () => {
     <div className="flex flex-col gap-y-4">
       <div className="flex flex-col gap-y-2 sm:flex-row sm:justify-between">
         {/* Search Bar */}
-        <div className="font-amazon-ember flex flex-grow gap-x-2">
+        <div className="flex flex-grow gap-x-2 font-amazon-ember">
           <input
             type="text"
             placeholder="Search"
@@ -73,8 +74,14 @@ const UserManagementPage = () => {
           </div>
         </div>
 
-        {/* Select All + Delete Selected  (mobile) */}
+        {/* Add New Room + Select All (mobile)  + Delete Selected */}
         <div className="flex justify-start gap-x-4 ">
+          <Link
+            to="/roomManagementAddPage"
+            className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-theme-dark-blue transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:h-10"
+          >
+            Add New Room
+          </Link>
           <a
             href="#"
             className={`flex h-8 w-8 items-center justify-center  rounded-lg border-2 border-theme-orange p-1.5 text-theme-orange transition-colors duration-300  ease-in-out hover:bg-theme-orange hover:text-white md:hidden ${
@@ -93,7 +100,7 @@ const UserManagementPage = () => {
 
           <a
             href="#"
-            className="flex h-8  w-8 items-center justify-center rounded-lg border-2 border-red-500 p-1.5 text-red-500 transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white md:w-16"
+            className="flex h-8  w-8 items-center justify-center rounded-lg border-2 border-red-500 p-1.5 text-red-500 transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white md:h-10 md:w-16"
             onClick={() => {
               // pop up window to confirm delete
               // Delete the selected rows
@@ -110,7 +117,7 @@ const UserManagementPage = () => {
         <table className="min-w-full divide-y">
           <thead className="sticky top-0 z-10 border-b-2 border-gray-200 bg-gray-50">
             <tr>
-              <th className="font-amazon-ember p-3 text-left font-medium uppercase tracking-wider text-gray-500">
+              <th className="p-3 text-left font-amazon-ember font-medium uppercase tracking-wider text-gray-500">
                 <input
                   type="checkbox"
                   onChange={(e) => {
@@ -134,7 +141,7 @@ const UserManagementPage = () => {
                 <th
                   key={header.key}
                   onClick={() => sortBy(header.key)} // Use the key for sorting
-                  className="font-amazon-ember cursor-pointer p-3 text-left text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700"
+                  className="cursor-pointer p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700"
                 >
                   <div className="flex items-center gap-3">
                     {header.display} <FaSort />
@@ -148,12 +155,12 @@ const UserManagementPage = () => {
               ].map((header) => (
                 <th
                   key={header.key}
-                  className="font-amazon-ember p-3 text-left text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700"
+                  className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700"
                 >
                   {header.display}
                 </th>
               ))}
-              <th className="font-amazon-ember p-3 text-left text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
+              <th className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
                 Action
               </th>
             </tr>
@@ -163,7 +170,7 @@ const UserManagementPage = () => {
               <tr>
                 <td
                   colSpan="7"
-                  className="text-md font-amazon-ember whitespace-nowrap p-3 text-center font-medium text-gray-900"
+                  className="text-md whitespace-nowrap p-3 text-center font-amazon-ember font-medium text-gray-900"
                 >
                   No result
                 </td>
@@ -252,7 +259,7 @@ const UserManagementPage = () => {
       <div className="grid h-[calc(100vh-15rem)] grid-cols-1 gap-4 overflow-x-auto rounded-lg border-y-2 sm:grid-cols-2 md:hidden ">
         {displayedData.length === 0 ? (
           <div className="col-span-1 flex h-full items-center justify-center sm:col-span-2">
-            <div className="text-md font-amazon-ember whitespace-nowrap p-3 font-medium text-gray-900">
+            <div className="text-md whitespace-nowrap p-3 font-amazon-ember font-medium text-gray-900">
               No result
             </div>
           </div>
@@ -264,14 +271,14 @@ const UserManagementPage = () => {
               onClick={() => toggleRowSelection(row.roomId)}
             >
               {/* room id */}
-              <div className="font-amazon-ember break-words text-sm text-gray-900">
+              <div className="break-words font-amazon-ember text-sm text-gray-900">
                 <span className="font-bold text-theme-dark-orange">ID: </span>
                 {`${row.roomId}`}
               </div>
 
               {/* Location + Equipments */}
               <div className="flex gap-x-10 md:justify-between">
-                <div className="font-amazon-ember break-words text-sm text-gray-500">
+                <div className="break-words font-amazon-ember text-sm text-gray-500">
                   <span className="block font-bold text-theme-dark-orange">
                     Location:
                   </span>
@@ -294,7 +301,7 @@ const UserManagementPage = () => {
                     </li>
                   </ul>
                 </div>
-                <div className="font-amazon-ember break-words text-sm text-gray-500">
+                <div className="break-words font-amazon-ember text-sm text-gray-500">
                   <span className="block font-bold text-theme-dark-orange">
                     Equipments:
                   </span>
