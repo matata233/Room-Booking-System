@@ -13,7 +13,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        poppins: ["Poppins"],
+        poppins: ["Poppins", "sans-serif"],
+        "amazon-ember": ["AmazonEmber", "sans-serif"],
       },
     },
   },
