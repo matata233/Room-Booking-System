@@ -1,26 +1,28 @@
 import React, { useState, useMemo } from "react";
 import useSearchData from "../../../hooks/useSearchData";
 import usePaginateData from "../../../hooks/usePaginateData";
-import useSortData from "../../../hooks/useSortData";
 import useRowSelection from "../../../hooks/useRowSelection";
+import useSortData from "../../../hooks/useSortData";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { FaSort } from "react-icons/fa6";
 import { PiSelectionAllFill } from "react-icons/pi";
-import dummyRooms from "../../../dummyRooms";
+import dummyUsers from "../../../dummyUsers";
 import Pagination from "../../../components/Pagination";
 
 const UserManagementPage = () => {
-  const data = useMemo(() => dummyRooms, []);
+  const data = useMemo(() => dummyUsers, []);
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const { sortedData, sortBy } = useSortData(dummyRooms);
+  const { sortedData, sortBy } = useSortData(dummyUsers);
   const searchedData = useSearchData(sortedData, search, selectedCategory, [
+    "avatar",
     "is_active",
+    "user_id",
   ]);
   const displayedData = usePaginateData(searchedData, currentPage, rowsPerPage);
 
@@ -29,7 +31,7 @@ const UserManagementPage = () => {
     setSelectedRows,
     toggleRowSelection,
     toggleAllSelection,
-  } = useRowSelection(dummyRooms, "roomId");
+  } = useRowSelection(dummyUsers, "user_id");
 
   const handleChangePage = (newPage) => {
     setCurrentPage(newPage);
@@ -65,10 +67,9 @@ const UserManagementPage = () => {
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
               <option value="all">All</option>
-              <option value="roomId">Room Id</option>
-              <option value="location">Location</option>
-              <option value="equipments">Equipments</option>
-              <option value="capacity">Capacity</option>
+              <option value="email">Email</option>
+              <option value="firstName">First Name</option>
+              <option value="lastName">Last Name</option>
             </select>
           </div>
         </div>
@@ -115,7 +116,7 @@ const UserManagementPage = () => {
                   type="checkbox"
                   onChange={(e) => {
                     if (e.target.checked) {
-                      setSelectedRows(searchedData.map((row) => row.roomId));
+                      setSelectedRows(searchedData.map((row) => row.user_id));
                     } else {
                       setSelectedRows([]);
                     }
@@ -128,29 +129,19 @@ const UserManagementPage = () => {
                 />
               </th>
               {[
-                { key: "roomId", display: "Room Id" },
-                { key: "numSeat", display: "Capacity" },
+                { key: "email", display: "Email" },
+                { key: "firstName", display: "First Name" },
+                { key: "lastName", display: "Last Name" },
+                { key: "role", display: "Role" },
               ].map((header) => (
                 <th
-                  key={header.key}
+                  key={header.key} // Use the key for React's key prop
                   onClick={() => sortBy(header.key)} // Use the key for sorting
                   className="font-amazon-ember cursor-pointer p-3 text-left text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700"
                 >
                   <div className="flex items-center gap-3">
                     {header.display} <FaSort />
                   </div>
-                </th>
-              ))}
-              {[
-                { key: "location", display: "Location" },
-                { key: "equipments", display: "Equipments" },
-                { key: "is_active", display: "Status" },
-              ].map((header) => (
-                <th
-                  key={header.key}
-                  className="font-amazon-ember p-3 text-left text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700"
-                >
-                  {header.display}
                 </th>
               ))}
               <th className="font-amazon-ember p-3 text-left text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
@@ -162,7 +153,7 @@ const UserManagementPage = () => {
             {displayedData.length === 0 ? (
               <tr>
                 <td
-                  colSpan="7"
+                  colSpan="6"
                   className="text-md font-amazon-ember whitespace-nowrap p-3 text-center font-medium text-gray-900"
                 >
                   No result
@@ -171,57 +162,51 @@ const UserManagementPage = () => {
             ) : (
               displayedData.map((row) => (
                 <tr
-                  key={row.roomId}
-                  className={`font-amazon-ember hover:bg-theme-orange hover:bg-opacity-10 ${selectedRows.includes(row.roomId) ? "bg-theme-orange bg-opacity-10" : ""}`}
-                  onClick={() => toggleRowSelection(row.roomId)}
+                  key={row.user_id}
+                  className={`font-amazon-ember hover:bg-theme-orange hover:bg-opacity-10 ${selectedRows.includes(row.user_id) ? "bg-theme-orange bg-opacity-10" : ""}`}
+                  onClick={() => toggleRowSelection(row.user_id)}
                 >
                   <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                     <input
                       type="checkbox"
-                      checked={selectedRows.includes(row.roomId)}
+                      checked={selectedRows.includes(row.user_id)}
                       className="accent-theme-orange"
                     />
                   </td>
-                  <td className="whitespace-nowrap p-3 text-sm text-gray-900">
-                    {row.roomId}
+                  <td className="whitespace-nowrap p-3">
+                    <div className="flex items-center">
+                      <div className="relative h-8 w-8 flex-shrink-0">
+                        <img
+                          className="h-8 w-8 rounded-full"
+                          src={row.avatar}
+                          alt="avatar"
+                        />
+                        {row.is_active && (
+                          <>
+                            <span className="absolute  right-0.5 top-1 h-3 w-3 rounded-full border-2 border-white bg-green-500"></span>
+                            <span className="absolute  right-0.5 top-1 h-3 w-3 animate-ping rounded-full  bg-green-500"></span>
+                          </>
+                        )}
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {row.email}
+                        </div>
+                      </div>
+                    </div>
                   </td>
                   <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                    {row.numSeat}
+                    {row.firstName}
                   </td>
                   <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                    <ul>
-                      <li>
-                        <span className="text-theme-blue">City:</span>{" "}
-                        {row.location.city}
-                      </li>
-                      <li>
-                        <span className="text-theme-blue">Building:</span>{" "}
-                        {row.location.building}
-                      </li>
-                      <li>
-                        <span className="text-theme-blue">Floor:</span>{" "}
-                        {row.location.floor}
-                      </li>
-                      <li>
-                        <span className="text-theme-blue">Room:</span>{" "}
-                        {row.location.room}
-                      </li>
-                    </ul>
+                    {row.lastName}
                   </td>
-                  <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                    <ul>
-                      {row.equipments.map((equipment, index) => (
-                        <li key={index}>{equipment}</li>
-                      ))}
-                    </ul>
-                  </td>
-
-                  <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                    {row.is_active ? (
-                      <div className="h-4 w-4 rounded-full bg-green-500"></div>
-                    ) : (
-                      <div className="h-4 w-4 rounded-full  bg-red-500"></div>
-                    )}
+                  <td className="whitespace-nowrap p-3">
+                    <span
+                      className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${row.role === "ADMIN" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}
+                    >
+                      {row.role}
+                    </span>
                   </td>
                   <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
                     <div className="flex justify-start">
@@ -259,62 +244,42 @@ const UserManagementPage = () => {
         ) : (
           displayedData.map((row) => (
             <div
-              key={row.roomId}
-              className={`space-y-3 rounded-lg p-4 shadow hover:bg-theme-orange hover:bg-opacity-10  ${selectedRows.includes(row.roomId) ? "bg-theme-orange bg-opacity-10" : ""}`}
-              onClick={() => toggleRowSelection(row.roomId)}
+              key={row.user_id}
+              className={`space-y-3 rounded-lg p-4 shadow hover:bg-theme-orange hover:bg-opacity-10  ${selectedRows.includes(row.user_id) ? "bg-theme-orange bg-opacity-10" : ""}`}
+              onClick={() => toggleRowSelection(row.user_id)}
             >
-              {/* room id */}
-              <div className="font-amazon-ember break-words text-sm text-gray-900">
-                <span className="font-bold text-theme-dark-orange">ID: </span>
-                {`${row.roomId}`}
-              </div>
-
-              {/* Location + Equipments */}
-              <div className="flex gap-x-10 md:justify-between">
-                <div className="font-amazon-ember break-words text-sm text-gray-500">
-                  <span className="block font-bold text-theme-dark-orange">
-                    Location:
-                  </span>
-                  <ul>
-                    <li>
-                      <span className="text-theme-blue">City:</span>{" "}
-                      {row.location.city}
-                    </li>
-                    <li>
-                      <span className="text-theme-blue">Building:</span>{" "}
-                      {row.location.building}
-                    </li>
-                    <li>
-                      <span className="text-theme-blue">Floor:</span>{" "}
-                      {row.location.floor}
-                    </li>
-                    <li>
-                      <span className="text-theme-blue">Room:</span>{" "}
-                      {row.location.room}
-                    </li>
-                  </ul>
-                </div>
-                <div className="font-amazon-ember break-words text-sm text-gray-500">
-                  <span className="block font-bold text-theme-dark-orange">
-                    Equipments:
-                  </span>
-                  <ul>
-                    {row.equipments.map((equipment, index) => (
-                      <li key={index}>{equipment}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* status + action */}
-              <div className="flex items-center justify-between space-x-2">
-                <div className="inline-flex items-center">
-                  {row.is_active ? (
-                    <div className="h-4 w-4 rounded-full bg-green-500"></div>
-                  ) : (
-                    <div className="h-4 w-4 rounded-full  bg-red-500"></div>
+              {/* avatar + name */}
+              <div className="flex items-center">
+                <div className="relative h-8 w-8 flex-shrink-0">
+                  <img
+                    className="h-8 w-8 rounded-full"
+                    src={row.avatar}
+                    alt="avatar"
+                  />
+                  {row.is_active && (
+                    <>
+                      <span className="absolute  right-0.5 top-1 h-3 w-3 rounded-full border-2 border-white bg-green-500"></span>
+                      <span className="absolute  right-0.5 top-1 h-3 w-3 animate-ping rounded-full  bg-green-500"></span>
+                    </>
                   )}
                 </div>
+                <div className="ml-2">
+                  <div className="font-amazon-ember break-words text-sm font-medium text-gray-900">
+                    {row.firstName} {row.lastName}
+                  </div>
+                </div>
+              </div>
+              {/* email */}
+              <div className="font-amazon-ember break-words text-xs text-gray-700">
+                {row.email}
+              </div>
+              {/* role + action */}
+              <div className="flex items-center justify-between space-x-2">
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${row.role === "ADMIN" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}
+                >
+                  {row.role}
+                </span>
                 <div className="flex space-x-6">
                   <button
                     className="text-indigo-600 hover:text-indigo-900 "
