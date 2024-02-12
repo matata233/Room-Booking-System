@@ -41,7 +41,11 @@ const Header = () => {
 
   return (
     <header
+<<<<<<< HEAD
       className={`fixed z-10 h-20 w-full bg-white font-poppins ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md" : ""}`}
+=======
+      className={`fixed z-10 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md" : ""}`}
+>>>>>>> main
     >
       <div className="flex h-full w-full items-center justify-between px-6">
         <div className="flex items-center md:gap-20">
@@ -51,11 +55,17 @@ const Header = () => {
           </Link>
 
           <ul className={userInfo ? "hidden md:flex md:gap-10" : "hidden"}>
-            <Link to="/booking" className="cursor-pointer">
+            <Link
+              to="/booking"
+              className="cursor-pointer hover:text-theme-orange"
+            >
               <li>Booking Details</li>
             </Link>
 
-            <Link to="/myFavourite" className="cursor-pointer">
+            <Link
+              to="/myFavourite"
+              className="cursor-pointer hover:text-theme-orange"
+            >
               <li>My Favourite</li>
             </Link>
           </ul>
@@ -75,7 +85,11 @@ const Header = () => {
             <div
               className={
                 showDropdown
+<<<<<<< HEAD
                   ? "absolute top-20 w-full cursor-pointer rounded bg-white p-4 drop-shadow-md"
+=======
+                  ? "absolute top-20 w-full cursor-pointer rounded bg-white p-4 drop-shadow-md hover:text-theme-orange"
+>>>>>>> main
                   : "hidden"
               }
               onClick={handleLogout}
@@ -85,7 +99,7 @@ const Header = () => {
           </div>
         ) : (
           <div
-            className="hidden cursor-pointer  pr-4 md:flex"
+            className="mr-4 hidden cursor-pointer rounded-lg bg-theme-orange px-4 py-2 text-theme-dark-blue transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white md:flex"
             onClick={() => {
               navigate("/login");
               setShowMenu(false);
@@ -141,7 +155,7 @@ const Header = () => {
               <div
                 className={
                   showDropdown
-                    ? "absolute top-24 w-full rounded border-gray-500 bg-white p-4"
+                    ? "absolute top-24 w-full rounded border-gray-500 bg-white p-4 hover:text-theme-orange"
                     : "hidden"
                 }
                 onClick={handleLogout}

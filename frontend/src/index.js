@@ -19,6 +19,7 @@ import reportWebVitals from "./reportWebVitals";
 import MyFavouritePage from "./pages/MyFavouritePage";
 import UserManagementAddPage from "./pages/admin/UserManagement/UserManagementAddPage";
 import UserManagementEditPage from "./pages/admin/UserManagement/UserManagementEditPage";
+import UserManagementPage from "./pages/admin/UserManagement/UserManagementPage";
 import RoomManagementAddPage from "./pages/admin/RoomManagement/RoomManagementAddPage";
 import RoomManagementEditPage from "./pages/admin/RoomManagement/RoomManagementEditPage";
 import RoomManagementPage from "./pages/admin/RoomManagement/RoomManagementPage";
@@ -44,6 +45,7 @@ const router = createBrowserRouter(
           path="/userManagementEditPage"
           element={<UserManagementEditPage />}
         />
+        <Route path="/userManagementPage" element={<UserManagementPage />} />
         <Route
           path="/roomManagementAddPage"
           element={<RoomManagementAddPage />}
