@@ -41,7 +41,11 @@ const Header = () => {
 
   return (
     <header
+<<<<<<< HEAD
+      className={`fixed z-10 h-20 w-full bg-white font-poppins ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md" : ""}`}
+=======
       className={`fixed z-10 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md" : ""}`}
+>>>>>>> main
     >
       <div className="flex h-full w-full items-center justify-between px-6">
         <div className="flex items-center md:gap-20">
@@ -81,7 +85,11 @@ const Header = () => {
             <div
               className={
                 showDropdown
+<<<<<<< HEAD
+                  ? "absolute top-20 w-full cursor-pointer rounded bg-white p-4 drop-shadow-md"
+=======
                   ? "absolute top-20 w-full cursor-pointer rounded bg-white p-4 drop-shadow-md hover:text-theme-orange"
+>>>>>>> main
                   : "hidden"
               }
               onClick={handleLogout}
