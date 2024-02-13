@@ -1,3 +1,5 @@
+import React from "react";
+import { Link } from "react-router-dom";
 import RoomMngtSVG from "../../../assets/room-mngt.svg";
 import UserMngtSVG from "../../../assets/user-mngt.svg";
 import RoomIconSVG from "../../../assets/room-icon.svg";
@@ -39,13 +41,12 @@ function AdminHomePage() {
           />
           <h2 className="p-3 text-2xl">Room Management</h2>
           <div className="m-5">
-            <button
-              type="button"
-              href="#"
+            <Link
+              to="/roomManagementPage"
               className="rounded bg-theme-orange px-8 py-0.5 text-theme-dark-blue transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
             >
               Go
-            </button>
+            </Link>
           </div>
         </div>
         <div className="mx-10 flex w-auto flex-col items-center bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:translate-y-2 hover:shadow-2xl md:mx-0 md:w-8/12 md:px-9">
@@ -56,13 +57,12 @@ function AdminHomePage() {
           />
           <h2 className="p-3 text-2xl">User Management</h2>
           <div className="m-5">
-            <button
-              type="button"
-              href="#"
+            <Link
+              to="/userManagementPage"
               className="rounded bg-theme-orange px-8 py-0.5 text-theme-dark-blue transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
             >
               Go
-            </button>
+            </Link>
           </div>
         </div>
       </div>

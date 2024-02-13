@@ -11,7 +11,7 @@ import { PiSelectionAllFill } from "react-icons/pi";
 import dummyRooms from "../../../dummyRooms";
 import Pagination from "../../../components/Pagination";
 
-const UserManagementPage = () => {
+const RoomManagementPage = () => {
   const data = useMemo(() => dummyRooms, []);
 
   const [search, setSearch] = useState("");
@@ -356,4 +356,4 @@ const UserManagementPage = () => {
   );
 };
 
-export default UserManagementPage;
+export default RoomManagementPage;
