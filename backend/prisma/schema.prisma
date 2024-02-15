@@ -1,6 +1,8 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Run "prisma db push" to push this schema to the database
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,4 +10,118 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model bookings {
+  booking_id     Int              @id @default(autoincrement())
+  created_by     Int
+  created_at     DateTime         @db.Timestamp(6)
+  start_time     DateTime         @db.Timestamp(6)
+  end_time       DateTime         @db.Timestamp(6)
+  status         String
+  users          users            @relation(fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  bookings_rooms bookings_rooms[]
+  users_bookings users_bookings[]
+}
+
+model bookings_rooms {
+  booking_id Int
+  room_id    Int
+  bookings   bookings @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
+  rooms      rooms    @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([booking_id, room_id])
+}
+
+model buildings {
+  building_id Int     @id @default(autoincrement())
+  city_id     String  @db.Char(3)
+  code        String
+  address     String
+  lon         Decimal @db.Decimal(9, 6)
+  lat         Decimal @db.Decimal(9, 6)
+  is_active   Boolean
+  cities      cities  @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction)
+  rooms       rooms[]
+  users       users[]
+
+  @@unique([city_id, code])
+}
+
+model cities {
+  city_id        String      @id @db.Char(3)
+  name           String
+  province_state String
+  buildings      buildings[]
+}
+
+model equipments {
+  equipment_id     Int                @id @default(autoincrement())
+  code             String             @unique
+  description      String
+  rooms_equipments rooms_equipments[]
+}
+
+model roles {
+  role_id     Int           @id @default(autoincrement())
+  name        String
+  users_roles users_roles[]
+}
+
+model rooms {
+  room_id          Int                @id @default(autoincrement())
+  building_id      Int
+  floor            Int
+  code             String
+  name             String?
+  seats            Int
+  is_active        Boolean
+  bookings_rooms   bookings_rooms[]
+  buildings        buildings          @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
+  rooms_equipments rooms_equipments[]
+
+  @@unique([building_id, floor, code])
+}
+
+model rooms_equipments {
+  room_id      Int
+  equipment_id Int
+  equipments   equipments @relation(fields: [equipment_id], references: [equipment_id], onDelete: NoAction, onUpdate: NoAction)
+  rooms        rooms      @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([room_id, equipment_id])
+}
+
+model users {
+  user_id        Int              @id @default(autoincrement())
+  username       String           @unique
+  first_name     String
+  last_name      String
+  email          String           @unique
+  building_id    Int
+  floor          Int
+  desk           Int
+  is_active      Boolean
+  bookings       bookings[]
+  buildings      buildings        @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
+  users_bookings users_bookings[]
+  users_roles    users_roles[]
+}
+
+model users_bookings {
+  user_id    Int
+  booking_id Int
+  bookings   bookings @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, booking_id])
+}
+
+model users_roles {
+  user_id Int
+  role_id Int
+  roles   roles @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction)
+  users   users @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, role_id])
 }
