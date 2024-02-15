@@ -2,12 +2,9 @@ import React from "react";
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import { ThemeProvider } from "@mui/system";
-import PageTheme from "./PageTheme";
+import { Link } from "react-router-dom";
 
 const AdminInputForm = (props) => {
   const firstlyHeader = props.firstlyHeader;
@@ -16,7 +13,6 @@ const AdminInputForm = (props) => {
   const buttonText = props.buttonText;
 
   return (
-    <ThemeProvider theme={PageTheme}>
       <Container
         fixed
         style={{
@@ -28,7 +24,7 @@ const AdminInputForm = (props) => {
       >
         <Stack spacing={2}>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <p style={{ fontSize: "30px" }} className="font-poppins">
+            <p style={{ fontSize: "30px" }} >
               {firstlyHeader}
             </p>
           </div>
@@ -37,12 +33,13 @@ const AdminInputForm = (props) => {
               padding: "10px",
               height: "60vh",
               width: "60vw",
-              border: "3px solid grey",
+              border: "2px solid #232f3e",
+              backgroundColor: "#f2f2f2"
             }}
           >
             <Stack spacing={2}>
               <div style={{ display: "flex", justifyContent: "center" }}>
-                <p style={{ fontSize: "20px" }} className="font-poppins">
+                <p style={{ fontSize: "20px" }}>
                   {secondaryHeader}
                 </p>
               </div>
@@ -51,7 +48,7 @@ const AdminInputForm = (props) => {
                   style={{
                     backgroundColor: "#f2f2f2",
                     width: "50vh",
-                    border: "1px solid grey",
+                    border: "solid grey",
                     borderRadius: "8px",
                   }}
                 >
@@ -68,15 +65,17 @@ const AdminInputForm = (props) => {
                 </CardContent>
               </div>
             </Stack>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <CardActions>
-                <Button className="text-theme-orange">{buttonText}</Button>
-              </CardActions>
+            <div style={{ display: "flex", justifyContent: "center", marginTop:"20px" }}>
+                <Link
+                  to="/roomManagementAddPage"
+                  className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-theme-dark-blue transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:h-10"
+                >
+                  {buttonText}
+                </Link>
             </div>
           </Card>
         </Stack>
       </Container>
-    </ThemeProvider>
   );
 };
 

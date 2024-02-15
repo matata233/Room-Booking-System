@@ -1,9 +1,10 @@
-import React from "react";
+import React from "react"
+import BookingStepper from "../components/BookingStepper";
 
 const BookingPage = () => {
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      BookingPage
+    <div className="flex  flex-col items-center justify-center font-amazon-ember">
+        <BookingStepper/>
     </div>
   );
 };
