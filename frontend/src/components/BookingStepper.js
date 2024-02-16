@@ -4,8 +4,16 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#f19e38",
+    },
+  },
+});
 
 const BookingStepper = () => {
   const steps = ["Login", "Booking", "Review", "Complete"];
@@ -30,72 +38,90 @@ const BookingStepper = () => {
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Stepper
-        activeStep={activeStep}
-        alternativeLabel
-        sx={{
-          "& .MuiStepLabel-label": {
-            fontSize: "16px", 
-            fontWeight: "bold", 
-            fontFamily: "AmazonEmber"
-          },
-          '& .MuiStepIcon-root': { // Target the step icon (number circle)
-            backgroundColor: 'green', // Change the background color
-            borderRadius: '50%', // Make it a circle
-            width: 40, // Change the width (size)
-            height: 40, // Change the height (size)
-            '& .MuiStepIcon-text': { // Target the text inside the circle
-              fill: 'white', // Change the text color
-            }
-          },
-          '& .MuiStepIcon-text':{
-            color:'red'
-          }
+    <ThemeProvider theme={theme}>
+      <Box sx={{ width: "100%" }}>
+        <Stepper
+          activeStep={activeStep}
+          alternativeLabel
+          sx={{
+            "& .MuiStepLabel-label": {
+              fontSize: "16px",
+              fontWeight: "bold",
+              fontFamily: "AmazonEmber"
+            },
+            "& .MuiStepIcon-root": {
+              backgroundColor: "#252f3d",
+              borderRadius: "50%",
+              width: 40,
+              height: 40,
+              marginTop:"-6px",
+              "& .MuiStepIcon-text": {
+                fill: "white",
+              },
+            },
+            
+          }}
+        >
+          {steps.map((label, index) => {
+            const stepProps = {};
+            const labelProps = {};
+            return (
+              <Step key={label} {...stepProps}>
+                <StepLabel {...labelProps}>{label}</StepLabel>
+              </Step>
+            );
+          })}
+        </Stepper>
 
-        }}
-      >
-        {steps.map((label, index) => {
-          const stepProps = {};
-          const labelProps = {};
-          return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
-            </Step>
-          );
-        })}
-      </Stepper>
-
-      {activeStep === steps.length ? (
-        <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you're finished!
-          </Typography>
-
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <Button onClick={handleReset}>Back to Home Page</Button>
-          </Box>
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
+        {activeStep === steps.length ? (
+          <React.Fragment>
+            <div class="ms-4 p-20">Congrats! - You're finished!</div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "20px",
+              }}
+              class="inline-button"
             >
-              Back
-            </Button>
-            <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
-            </Button>
-          </Box>
-        </React.Fragment>
-      )}
-    </Box>
+              <Link
+                className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-theme-dark-blue transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:h-10"
+                onClick={handleReset}
+              >
+                Back to Home Page
+              </Link>
+            </div>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <div class="ms-4 p-20">Step {activeStep + 1}</div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "20px",
+              }}
+            >
+              <Button
+                onClick={handleBack}
+                disabled={activeStep === 0}
+                color="inherit"
+              >
+                Back
+              </Button>
+
+              <Link
+                className="ml-4 flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-theme-dark-blue transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:h-10"
+                onClick={handleNext}
+              >
+                {activeStep === 1 ? "Book Now" : activeStep === 2 ? "Confirm" : "Finish"}
+              </Link>
+            </div>
+          </React.Fragment>
+        )}
+      </Box>
+    </ThemeProvider>
   );
 };
 
