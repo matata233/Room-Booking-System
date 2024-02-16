@@ -37,6 +37,12 @@ const BookingStepper = () => {
     setCompleted(new Set([0]));
   };
 
+  const handleStepClick = (step) => {
+    if (step < activeStep) {
+      setActiveStep(step);
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ width: "100%" }}>
@@ -54,20 +60,31 @@ const BookingStepper = () => {
               borderRadius: "50%",
               width: 40,
               height: 40,
-              marginTop:"-6px",
+              marginTop: "-6px",
               "& .MuiStepIcon-text": {
-                fill: "white",
+                fill: "white"
               },
+              position: "relative", 
+              zIndex: 1, 
+              "&:hover": {
+                transform: "scale(1.5)", 
+                cursor: "pointer"              },
             },
-            
+            "& .MuiStepIcon-root.Mui-active": {
+              marginTop: "-20px",
+              width: 60,
+              height: 60,
+              transition: "transform 0.3s"
+            }
           }}
         >
           {steps.map((label, index) => {
-            const stepProps = {};
-            const labelProps = {};
+            const stepProps = {
+              onClick: () => handleStepClick(index),
+            };
             return (
               <Step key={label} {...stepProps}>
-                <StepLabel {...labelProps}>{label}</StepLabel>
+                <StepLabel>{label}</StepLabel>
               </Step>
             );
           })}
@@ -115,7 +132,11 @@ const BookingStepper = () => {
                 className="ml-4 flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-theme-dark-blue transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:h-10"
                 onClick={handleNext}
               >
-                {activeStep === 1 ? "Book Now" : activeStep === 2 ? "Confirm" : "Finish"}
+                {activeStep === 1
+                  ? "Book Now"
+                  : activeStep === 2
+                    ? "Confirm"
+                    : "Finish"}
               </Link>
             </div>
           </React.Fragment>
