@@ -46,7 +46,7 @@ const LoginPage = () => {
     }
   };
   return (
-    <div className="flex h-[calc(100vh-15rem)] w-full items-center justify-center">
+    <div className="flex  flex-col items-center justify-center font-amazon-ember">
       <GoogleLogin
         onSuccess={handleLogin}
         onError={() => {

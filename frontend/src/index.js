@@ -25,6 +25,7 @@ import RoomManagementEditPage from "./pages/admin/RoomManagement/RoomManagementE
 import RoomManagementPage from "./pages/admin/RoomManagement/RoomManagementPage";
 import { persistor, store } from "./store";
 import { PersistGate } from "redux-persist/integration/react";
+import { StyledEngineProvider } from "@mui/material/styles";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -66,11 +67,15 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-          <RouterProvider router={router} />
-        </GoogleOAuthProvider>
-      </PersistGate>
+      <StyledEngineProvider injectFirst>
+        <PersistGate loading={null} persistor={persistor}>
+          <GoogleOAuthProvider
+            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+          >
+            <RouterProvider router={router} />
+          </GoogleOAuthProvider>
+        </PersistGate>
+      </StyledEngineProvider>
     </Provider>
   </React.StrictMode>,
 );
