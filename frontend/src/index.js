@@ -38,6 +38,8 @@ const router = createBrowserRouter(
       <Route path="" element={<PrivateRoute />}>
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/myFavourite" element={<MyFavouritePage />} />
+
+        <Route path="/userManagementPage" element={<UserManagementPage />} />
         <Route
           path="/userManagementAddPage"
           element={<UserManagementAddPage />}
@@ -46,7 +48,7 @@ const router = createBrowserRouter(
           path="/userManagementEditPage"
           element={<UserManagementEditPage />}
         />
-        <Route path="/userManagementPage" element={<UserManagementPage />} />
+        <Route path="/roomManagementPage" element={<RoomManagementPage />} />
         <Route
           path="/roomManagementAddPage"
           element={<RoomManagementAddPage />}
@@ -55,9 +57,11 @@ const router = createBrowserRouter(
           path="/roomManagementEditPage"
           element={<RoomManagementEditPage />}
         />
-        <Route path="/roomManagementPage" element={<RoomManagementPage />} />
+
         <Route path="/adminHomePage" element={<AdminHomePage />} />
       </Route>
+
+      {/* Admin routes */}
     </Route>,
   ),
 );

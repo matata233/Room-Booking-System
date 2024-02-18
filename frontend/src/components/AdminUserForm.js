@@ -5,7 +5,7 @@ import PageTheme from "./PageTheme";
 import dummyBuildings from "../dummyData/dummyBuildings";
 import AutoDropdown from "./AutoDropdown";
 import ToggleBuilding from "./ToggleBuilding";
-import AddBuildingForm from "./AddBuildingForm";
+import AddBuilding from "./AddBuilding";
 
 const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
   const [extBuilding, setExtBuilding] = useState(true);
@@ -34,7 +34,10 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
       <div className="flex  flex-col items-center justify-center font-amazon-ember">
         <div className="group relative  pl-3">
           <div className="absolute inset-0 transform rounded-3xl bg-gradient-to-br from-orange-300 to-theme-orange shadow-lg duration-300 group-hover:-rotate-3 sm:group-hover:-rotate-6"></div>
-          <form className="relative flex-col rounded-3xl bg-white p-4 shadow-lg sm:p-10">
+          <form
+            onSubmit={handleSubmit}
+            className="relative flex-col rounded-3xl bg-white p-4 shadow-lg sm:p-10"
+          >
             <h1 className="px-10 text-center text-xl text-theme-dark-blue sm:px-20 md:px-32 md:text-2xl">
               {firstlyHeader}
             </h1>
@@ -128,7 +131,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
               </div>
 
               <div className={`relative ${extBuilding ? "hidden" : ""}`}>
-                <AddBuildingForm
+                <AddBuilding
                   cityId={cityId}
                   setCityId={setCityId}
                   code={code}
@@ -141,7 +144,6 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   setLon={setLon}
                   lat={lat}
                   setLat={setLat}
-                  handleSubmit={handleSubmit}
                 />
               </div>
               <div className="relative flex justify-between gap-x-8 ">

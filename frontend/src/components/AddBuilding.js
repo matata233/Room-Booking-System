@@ -1,6 +1,12 @@
 import React from "react";
-import { TextField, Switch, FormControlLabel, Typography } from "@mui/material";
-const AddBuildingForm = ({
+import {
+  TextField,
+  Switch,
+  FormControlLabel,
+  FormGroup,
+  Typography,
+} from "@mui/material";
+const AddBuilding = ({
   cityId,
   setCityId,
   code,
@@ -13,13 +19,9 @@ const AddBuildingForm = ({
   setLon,
   lat,
   setLat,
-  handleSubmit,
 }) => {
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3"
-    >
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
       <TextField
         label="City ID"
         value={cityId}
@@ -48,19 +50,24 @@ const AddBuildingForm = ({
         }}
       />
 
-      <FormControlLabel
-        control={
-          <Switch
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-            name="isActive"
-            color="primary"
-          />
-        }
-        label={
-          <Typography style={{ fontFamily: "AmazonEmber" }}>Active</Typography>
-        }
-      />
+      <FormGroup>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              name="isActive"
+              color="primary"
+            />
+          }
+          label={
+            <Typography style={{ fontFamily: "AmazonEmber" }}>
+              Active
+            </Typography>
+          }
+        />
+      </FormGroup>
+
       <TextField
         label="Address"
         value={address}
@@ -103,8 +110,8 @@ const AddBuildingForm = ({
           className: "text-sm md:text-base font-amazon-ember",
         }}
       />
-    </form>
+    </div>
   );
 };
 
-export default AddBuildingForm;
+export default AddBuilding;
