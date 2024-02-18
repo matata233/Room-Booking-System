@@ -6,6 +6,7 @@ import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import { Link } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const theme = createTheme({
   palette: {
@@ -16,6 +17,8 @@ const theme = createTheme({
 });
 
 const BookingStepper = () => {
+  const matches = useMediaQuery(theme.breakpoints.down("md"));
+
   const steps = ["Login", "Booking", "Review", "Complete"];
   const [activeStep, setActiveStep] = React.useState(1);
   const [completed, setCompleted] = React.useState(new Set([0]));
@@ -51,31 +54,33 @@ const BookingStepper = () => {
           alternativeLabel
           sx={{
             "& .MuiStepLabel-label": {
-              fontSize: "16px",
+              fontSize: matches ? "12px" : "16px",
               fontWeight: "bold",
-              fontFamily: "AmazonEmber"
+              fontFamily: "AmazonEmber",
             },
             "& .MuiStepIcon-root": {
               backgroundColor: "#252f3d",
               borderRadius: "50%",
-              width: 40,
-              height: 40,
+              width: matches ? 30 : 40,
+              height: matches ? 30 : 40,
               marginTop: "-6px",
               "& .MuiStepIcon-text": {
-                fill: "white"
+                fill: "white",
               },
-              position: "relative", 
-              zIndex: 1, 
+              position: "relative",
+              zIndex: 1,
               "&:hover": {
-                transform: "scale(1.5)", 
-                cursor: "pointer"              },
+                transform: "scale(1.2)",
+                cursor: "pointer",
+                transition: "transform 0.3s",
+              },
             },
             "& .MuiStepIcon-root.Mui-active": {
-              marginTop: "-20px",
-              width: 60,
-              height: 60,
-              transition: "transform 0.3s"
-            }
+              marginTop: matches ? "-10px" : "-15px",
+              width: matches ? 40 : 50,
+              height: matches ? 40 : 50,
+              transition: "transform 0.3s",
+            },
           }}
         >
           {steps.map((label, index) => {
