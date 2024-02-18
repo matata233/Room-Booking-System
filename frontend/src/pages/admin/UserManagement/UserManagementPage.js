@@ -252,7 +252,7 @@ const UserManagementPage = () => {
           displayedData.map((row) => (
             <div
               key={row.user_id}
-              className={`space-y-3 rounded-lg p-4 shadow hover:bg-theme-orange hover:bg-opacity-10  ${selectedRows.includes(row.user_id) ? "bg-theme-orange bg-opacity-10" : ""}`}
+              className={`max-h-40 space-y-3 rounded-lg p-4 shadow hover:bg-theme-orange hover:bg-opacity-10  ${selectedRows.includes(row.user_id) ? "bg-theme-orange bg-opacity-10" : ""}`}
               onClick={() => toggleRowSelection(row.user_id)}
             >
               {/* avatar + name */}
