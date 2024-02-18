@@ -53,7 +53,7 @@ const BookingStepper = () => {
             "& .MuiStepLabel-label": {
               fontSize: "16px",
               fontWeight: "bold",
-              fontFamily: "AmazonEmber"
+              fontFamily: "AmazonEmber",
             },
             "& .MuiStepIcon-root": {
               backgroundColor: "#252f3d",
@@ -62,20 +62,21 @@ const BookingStepper = () => {
               height: 40,
               marginTop: "-6px",
               "& .MuiStepIcon-text": {
-                fill: "white"
+                fill: "white",
               },
-              position: "relative", 
-              zIndex: 1, 
+              position: "relative",
+              zIndex: 1,
               "&:hover": {
-                transform: "scale(1.5)", 
-                cursor: "pointer"              },
+                transform: "scale(1.5)",
+                cursor: "pointer",
+              },
             },
             "& .MuiStepIcon-root.Mui-active": {
               marginTop: "-20px",
               width: 60,
               height: 60,
-              transition: "transform 0.3s"
-            }
+              transition: "transform 0.3s",
+            },
           }}
         >
           {steps.map((label, index) => {
@@ -90,7 +91,7 @@ const BookingStepper = () => {
           })}
         </Stepper>
 
-        {activeStep === steps.length ? (
+        {/* {activeStep === steps.length ? (
           <React.Fragment>
             <div class="ms-4 p-20">Congrats! - You're finished!</div>
             <div
@@ -140,7 +141,7 @@ const BookingStepper = () => {
               </Link>
             </div>
           </React.Fragment>
-        )}
+        )} */}
       </Box>
     </ThemeProvider>
   );
