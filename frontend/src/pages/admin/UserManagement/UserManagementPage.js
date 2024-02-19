@@ -79,13 +79,13 @@ const UserManagementPage = () => {
         <div className="flex justify-start gap-x-4 ">
           <Link
             to="/userManagementAddPage"
-            className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-sm text-theme-dark-blue transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:h-10 md:text-base"
+            className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-sm text-theme-dark-blue transition-colors  duration-300 ease-in-out   md:h-10 md:text-base"
           >
             Add New User
           </Link>
           <a
             href="#"
-            className={`flex h-8 w-8 items-center justify-center  rounded-lg border-2 border-theme-orange p-1.5 text-theme-orange transition-colors duration-300  ease-in-out hover:bg-theme-orange hover:text-white md:hidden ${
+            className={`flex h-8 w-8 items-center justify-center  rounded-lg border-2 border-theme-orange p-1.5 text-theme-orange transition-colors duration-300  ease-in-out md:hidden ${
               searchedData.length > 0 &&
               selectedRows.length === searchedData.length
                 ? "bg-theme-orange text-white"
@@ -101,7 +101,7 @@ const UserManagementPage = () => {
 
           <a
             href="#"
-            className="flex h-8  w-8 items-center justify-center rounded-lg border-2 border-red-500 p-1.5 text-red-500 transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white md:h-10 md:w-16"
+            className="flex h-8  w-8 items-center justify-center rounded-lg border-2 border-red-500 p-1.5 text-red-500 transition-colors duration-300 ease-in-out  md:h-10 md:w-16"
             onClick={() => {
               // pop up window to confirm delete
               // Delete the selected rows
@@ -252,7 +252,7 @@ const UserManagementPage = () => {
           displayedData.map((row) => (
             <div
               key={row.user_id}
-              className={`max-h-40 space-y-3 rounded-lg p-4 shadow hover:bg-theme-orange hover:bg-opacity-10  ${selectedRows.includes(row.user_id) ? "bg-theme-orange bg-opacity-10" : ""}`}
+              className={`max-h-40 space-y-3 rounded-lg p-4 shadow  ${selectedRows.includes(row.user_id) ? "bg-theme-orange bg-opacity-10" : ""}`}
               onClick={() => toggleRowSelection(row.user_id)}
             >
               {/* avatar + name */}
