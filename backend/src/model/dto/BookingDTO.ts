@@ -1,11 +1,20 @@
-import {AbstractDTO} from "./AbstractDTO";
+import AbstractDTO from "./AbstractDTO";
+import UserDTO from "./UserDTO";
+import RoomDTO from "./RoomDTO";
 //TODO: Until frontend team decide what data they want, there will be changed here
-export class BookingDTO extends AbstractDTO{
-    private bookingId: number;
-    private createdBy?: number;
-    private createdAt?: Date;
-    private startTime?: Date;
-    private duration?: number;
-    private endTime?: Date;
-    private status?: string;
+export default class BookingDTO extends AbstractDTO {
+    public bookingId: number;
+    public createdBy?: number;
+    public createdAt?: Date;
+    public startTime?: Date;
+    public endTime?: Date;
+    public status?: string;
+
+    public userDTOs?: UserDTO[];
+    public roomDTO?: RoomDTO;
+
+    constructor(bookingId: number) {
+        super();
+        this.bookingId = bookingId;
+    }
 }

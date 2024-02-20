@@ -1,23 +1,30 @@
 import express from "express";
-import userRouter from "./routes/router";
-import {UserController} from "./controller/UserController";
+import {PrismaClient} from "@prisma/client";
+import RoomController from "./controller/RoomController";
+import RoomService from "./service/RoomService";
+import RoomRepository from "./repository/RoomRepository";
+import cors from "cors";
 
 const app = express();
+// Registers middleware
+app.use(express.json());
+app.use(cors());
 
-// example below, to be removed later
-// keep in mind there will be dependency between controller-service-repository, and they are likely singleton
-const userController: UserController = new UserController();
-const endpoint: string = "/awsome-booking/api/v1";
+const database = new PrismaClient();
+// const userController = new UserController();
+const roomController = new RoomController(new RoomService(new RoomRepository(database)));
 
-// Home route
-app.get("/", (req, res) => res.send("Welcome to the Awsome Booking app!"));
+const endpoint: string = "/aws-room-booking/api/v1";
 
-// Another route
-app.get("/api/data", (req, res) => {
-    res.json({ message: "Here is your data from Awsome Booking!" });
+// sample route
+app.get(`${endpoint}/`, (req, res) => res.send("Welcome to the Awsome Booking app!"));
+
+// Another sample route
+app.get(`${endpoint}/api/data`, (req, res) => {
+    res.json({message: "Here is your data from Awsome Booking!"});
 });
 
-// Additional routes can be added here following the same pattern
-app.use(`${endpoint}/user`, userRouter);
+// Room routes
+app.get(`${endpoint}/rooms`, roomController.getAll);
 
 export default app;

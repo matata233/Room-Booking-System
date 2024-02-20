@@ -1,10 +1,16 @@
 import {PrismaClient} from "@prisma/client";
+import RoomRepository from "../src/repository/RoomRepository";
+import RoomDTO from "../src/model/dto/RoomDTO";
+import RoomService from "../src/service/RoomService";
+import {database} from "../src/routes/router";
 
-it("test db", async function () {
+it("test api /rooms/", async function () {
     // 1. Make sure you have correctly installed PostgreSQL locally
     // 2. Make sure you have correctly set up the DATABASE_URL in the .env file
     // 3. Run "prisma db push" to sync the schema.prisma file with the db
     const db = new PrismaClient();
+    const roomRepo = new RoomRepository(database);
+    const roomService = new RoomService(roomRepo);
 
     // Remove all existing data
     await db.rooms_equipments.deleteMany({});
@@ -13,12 +19,12 @@ it("test db", async function () {
     await db.buildings.deleteMany({});
     await db.cities.deleteMany({});
 
-    // await db.bookings.deleteMany({});
-    // await db.bookings_rooms.deleteMany({});
-    // await db.roles.deleteMany({});
-    // await db.users.deleteMany({});
-    // await db.users_bookings.deleteMany({});
-    // await db.users_roles.deleteMany({});
+    await db.bookings.deleteMany({});
+    await db.bookings_rooms.deleteMany({});
+    await db.roles.deleteMany({});
+    await db.users.deleteMany({});
+    await db.users_bookings.deleteMany({});
+    await db.users_roles.deleteMany({});
 
     // Create cities
     await db.cities.createMany({
@@ -60,8 +66,15 @@ it("test db", async function () {
         data: {building_id: YVR32.building_id, floor: 1, code: "102", name: "Trafalgar", seats: 6, is_active: true},
     });
 
-    console.log("cities:", await db.cities.findMany());
-    console.log("equipments:", await db.equipments.findMany());
-    console.log("rooms:", await db.rooms.findMany());
-    console.log("rooms_equipments:", await db.rooms_equipments.findMany());
+    let roomDTOs: RoomDTO[] = await roomRepo.findAll();
+
+    // console.log("cities:", await db.cities.findMany());
+    // console.log("equipments:", await db.equipments.findMany());
+    // console.log("rooms:", await db.rooms.findMany());
+    // console.log("rooms_equipments:", await db.rooms_equipments.findMany());
+    console.dir(roomDTOs, {depth: null});
+    console.log(JSON.stringify(roomDTOs, null, 2));
+    roomDTOs = await roomService.getAll();
+    console.dir(roomDTOs, {depth: null});
+    console.log(JSON.stringify(roomDTOs, null, 2));
 });
