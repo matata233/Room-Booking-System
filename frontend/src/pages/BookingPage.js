@@ -3,7 +3,7 @@ import BookingStepper from "../components/BookingStepper";
 
 const BookingPage = () => {
   return (
-    <div className="flex items-center justify-center font-amazon-ember">
+    <div className="flex  flex-col items-center justify-center font-amazon-ember">
       <BookingStepper />
     </div>
   );

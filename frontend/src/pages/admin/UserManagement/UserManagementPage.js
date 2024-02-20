@@ -8,7 +8,7 @@ import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { FaSort } from "react-icons/fa6";
 import { PiSelectionAllFill } from "react-icons/pi";
-import dummyUsers from "../../../dummyUsers";
+import dummyUsers from "../../../dummyData/dummyUsers";
 import Pagination from "../../../components/Pagination";
 
 const UserManagementPage = () => {
@@ -79,7 +79,7 @@ const UserManagementPage = () => {
         <div className="flex justify-start gap-x-4 ">
           <Link
             to="/userManagementAddPage"
-            className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-theme-dark-blue transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:h-10"
+            className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-sm text-theme-dark-blue transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:h-10 md:text-base"
           >
             Add New User
           </Link>

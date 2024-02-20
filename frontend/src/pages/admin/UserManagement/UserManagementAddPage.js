@@ -1,21 +1,17 @@
 import React from "react";
-import AdminInputForm from "../../../components/AdminInputForm";
+import AdminUserForm from "../../../components/AdminUserForm";
 
 const UserManagementAddPage = () => {
   const firstlyHeader = "User Management";
   const secondaryHeader = "Add User";
-  const labels = ["First Name", "Last Name", "Email", "Location"];
   const buttonText = "Add New User";
 
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      <AdminInputForm
-        firstlyHeader={firstlyHeader}
-        secondaryHeader={secondaryHeader}
-        labels={labels}
-        buttonText={buttonText}
-      />
-    </div>
+    <AdminUserForm
+      firstlyHeader={firstlyHeader}
+      secondaryHeader={secondaryHeader}
+      buttonText={buttonText}
+    />
   );
 };
 

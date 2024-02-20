@@ -2,6 +2,7 @@
     "extends": "@tsconfig/node-lts/tsconfig.json",
     "compilerOptions": {
         "outDir": "out",
+        "removeComments": true
     },
     "include": [
         "src/**/*",
