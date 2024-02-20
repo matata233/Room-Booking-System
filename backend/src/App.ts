@@ -1,17 +1,30 @@
 import express from "express";
-import router from "./routes/router";
+import {PrismaClient} from "@prisma/client";
+import RoomController from "./controller/RoomController";
+import RoomService from "./service/RoomService";
+import RoomRepository from "./repository/RoomRepository";
+import cors from "cors";
 
 const app = express();
+// Registers middleware
+app.use(express.json());
+app.use(cors());
+
+const database = new PrismaClient();
+// const userController = new UserController();
+const roomController = new RoomController(new RoomService(new RoomRepository(database)));
+
 const endpoint: string = "/aws-room-booking/api/v1";
 
-app.use(`${endpoint}`, router);
-
 // sample route
-// app.get("/", (req, res) => res.send("Welcome to the Awsome Booking app!"));
-//
-// // Another sample route
-// app.get("/api/data", (req, res) => {
-//     res.json({ message: "Here is your data from Awsome Booking!" });
-// });
+app.get(`${endpoint}/`, (req, res) => res.send("Welcome to the Awsome Booking app!"));
+
+// Another sample route
+app.get(`${endpoint}/api/data`, (req, res) => {
+    res.json({message: "Here is your data from Awsome Booking!"});
+});
+
+// Room routes
+app.get(`${endpoint}/rooms`, roomController.getAll);
 
 export default app;
