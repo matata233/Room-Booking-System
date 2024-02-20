@@ -19,7 +19,7 @@ function LandingPage() {
           </div>
           <div className="absolute bottom-5 m-5">
             <Link
-              to="/bookingPage"
+              to="/booking"
               className="rounded border-2 border-white px-12 py-2 text-white transition-colors duration-300  ease-in-out hover:bg-zinc-800 hover:bg-opacity-60"
             >
               Book Now
