@@ -1,8 +1,12 @@
-import {User} from "../model/entity/User";
-//TODO: Once prisma is set there will be changed here
-class UserDTO {
-}
+import AbstractRepository from "./AbstractRepository";
+import AbstractDTO from "../model/dto/AbstractDTO";
 
-export class UserRepository {
-    private users: User[] = []; // Mock database
+export default class UserRepository extends AbstractRepository {
+    findAll(): Promise<AbstractDTO[]> {
+        return Promise.reject([]);
+    }
+
+    findById(id: number): Promise<AbstractDTO | null> {
+        return Promise.reject(undefined);
+    }
 }

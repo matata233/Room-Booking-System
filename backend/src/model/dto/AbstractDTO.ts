@@ -1,2 +1,1 @@
-export abstract class AbstractDTO {
-}
+export default abstract class AbstractDTO {}

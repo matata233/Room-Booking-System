@@ -1,18 +1,24 @@
-import {AbstractDTO} from "./AbstractDTO";
-import {EquipmentDTO} from "./EquipmentDTO";
-import {BookingDTO} from "./BookingDTO";
+import AbstractDTO from "./AbstractDTO";
+import EquipmentDTO from "./EquipmentDTO";
+import BookingDTO from "./BookingDTO";
+import CityDTO from "./CityDTO";
+import BuildingDTO from "./BuildingDTO";
 
-//TODO: Until frontend team decide what data they want, there will be changed here
-export class RoomDTO extends AbstractDTO{
-    private roomId: number;
-    private cityId: number;
-    private buildingId: number;
-    private roomNumber?: string;
-    private floorNumber?: number;
-    private roomName?: string;
-    private numberOfSeats?: number;
-    private isActive?: boolean;
+export default class RoomDTO extends AbstractDTO {
+    public roomId: number;
+    public floorNumber?: number;
+    public roomCode?: string;
+    public roomName?: string | null;
+    public numberOfSeats?: number;
+    public isActive?: boolean;
 
-    private equipmentDtos?: EquipmentDTO[];
-    private bookingDtos?: BookingDTO[];
+    public city?: CityDTO;
+    public building?: BuildingDTO;
+    public equipmentList?: EquipmentDTO[];
+    public bookingList?: BookingDTO[];
+
+    constructor(roomId: number) {
+        super();
+        this.roomId = roomId;
+    }
 }

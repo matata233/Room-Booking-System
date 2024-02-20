@@ -1,3 +1,1 @@
-export abstract class AbstractEntity {
-    // for stretch goal use
-}
+export default abstract class AbstractEntity {}

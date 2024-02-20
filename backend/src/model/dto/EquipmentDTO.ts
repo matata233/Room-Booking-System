@@ -1,7 +1,13 @@
-import {AbstractEntity} from "../entity/AbstractEntity";
-import {AbstractDTO} from "./AbstractDTO";
-//TODO: Until frontend team decide what data they want, there will be changed here
-export class EquipmentDTO extends AbstractDTO{
-    private equipmentId: string;
-    private description?: string;
+import AbstractDTO from "./AbstractDTO";
+import RoomDTO from "./RoomDTO";
+
+export default class EquipmentDTO extends AbstractDTO {
+    public equipmentId: string;
+    public description?: string;
+    public roomDTOs?: RoomDTO[];
+
+    constructor(equipmentId: string) {
+        super();
+        this.equipmentId = equipmentId;
+    }
 }

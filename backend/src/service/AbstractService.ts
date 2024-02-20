@@ -1,6 +1,6 @@
-import {AbstractDTO} from "../model/dto/AbstractDTO";
+import AbstractDTO from "../model/dto/AbstractDTO";
 
-export abstract class AbstractService {
+export default abstract class AbstractService {
     // you may need more than one repository, e.g. booking
 
     public abstract getAll(): Promise<AbstractDTO[]>;

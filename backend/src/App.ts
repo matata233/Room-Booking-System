@@ -1,23 +1,17 @@
 import express from "express";
-import userRouter from "./routes/router";
-import {UserController} from "./controller/UserController";
+import router from "./routes/router";
 
 const app = express();
+const endpoint: string = "/aws-room-booking/api/v1";
 
-// example below, to be removed later
-// keep in mind there will be dependency between controller-service-repository, and they are likely singleton
-const userController: UserController = new UserController();
-const endpoint: string = "/awsome-booking/api/v1";
+app.use(`${endpoint}`, router);
 
-// Home route
-app.get("/", (req, res) => res.send("Welcome to the Awsome Booking app!"));
-
-// Another route
-app.get("/api/data", (req, res) => {
-    res.json({ message: "Here is your data from Awsome Booking!" });
-});
-
-// Additional routes can be added here following the same pattern
-app.use(`${endpoint}/user`, userRouter);
+// sample route
+// app.get("/", (req, res) => res.send("Welcome to the Awsome Booking app!"));
+//
+// // Another sample route
+// app.get("/api/data", (req, res) => {
+//     res.json({ message: "Here is your data from Awsome Booking!" });
+// });
 
 export default app;

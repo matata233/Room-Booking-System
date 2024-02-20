@@ -1,16 +1,13 @@
-import {AbstractDTO} from "../model/dto/AbstractDTO";
-//TODO: Once prisma is set there will be changed here
-export abstract class AbstractRepository {
+import AbstractDTO from "../model/dto/AbstractDTO";
+import {PrismaClient} from "@prisma/client";
 
-    public async findAll(): Promise<AbstractDTO[]> {
-        return Promise.reject("Not implement");
+export default abstract class AbstractRepository {
+    protected db;
+
+    constructor(database: PrismaClient) {
+        this.db = database;
     }
 
-    public async findById(id: number): Promise<AbstractDTO> {
-        return Promise.reject("Not implement");
-    }
-
-    public async create(abstractDTO: AbstractDTO): Promise<AbstractDTO> {
-        return Promise.reject("Not implement");
-    }
+    public abstract findAll(): Promise<AbstractDTO[]>;
+    public abstract findById(id: number): Promise<AbstractDTO | null>;
 }
