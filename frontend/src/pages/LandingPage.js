@@ -111,6 +111,7 @@ function LandingPage() {
       <div className="hidden md:flex  md:flex-col md:justify-center">
         <img src={logo} alt="logo" className="h-[80vh] object-cover" />
       </div>
+
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { HiOutlineBars3, HiXMark } from "react-icons/hi2";
 import { logout } from "../slices/authSlice";
 import logo from "../assets/logo.png";
+import AvatarDropdown from "./AvatarDropdown";
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -41,7 +42,7 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed z-10 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md" : ""}`}
+      className={`fixed z-20 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md" : ""}`}
     >
       <div className="flex h-full w-full items-center justify-between px-6">
         <div className="flex items-center md:gap-20">
@@ -81,12 +82,11 @@ const Header = () => {
             <div
               className={
                 showDropdown
-                  ? "absolute top-20 w-full cursor-pointer rounded bg-white p-4 drop-shadow-md hover:text-theme-orange"
+                  ? "absolute right-0 top-16 z-20 w-40  divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
                   : "hidden"
               }
-              onClick={handleLogout}
             >
-              Logout
+              <AvatarDropdown handleLogout={handleLogout} />
             </div>
           </div>
         ) : (
@@ -147,12 +147,11 @@ const Header = () => {
               <div
                 className={
                   showDropdown
-                    ? "absolute top-24 w-full rounded border-gray-500 bg-white p-4 hover:text-theme-orange"
+                    ? "absolute  top-24 z-20 w-full  divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
                     : "hidden"
                 }
-                onClick={handleLogout}
               >
-                Logout
+                <AvatarDropdown handleLogout={handleLogout} />
               </div>
             </div>
           </>

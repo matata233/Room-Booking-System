@@ -6,7 +6,7 @@ import {
 const PageTheme = createTheme({
   palette: {
     primary: {
-      main: "#FFA500",
+      main: "#f19e38",
     },
   },
 });

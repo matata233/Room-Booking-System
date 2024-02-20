@@ -36,10 +36,10 @@ model bookings_rooms {
 model buildings {
   building_id Int     @id @default(autoincrement())
   city_id     String  @db.Char(3)
-  code        String
+  code        Int
   address     String
-  lon         Decimal @db.Decimal(9, 6)
   lat         Decimal @db.Decimal(9, 6)
+  lon         Decimal @db.Decimal(9, 6)
   is_active   Boolean
   cities      cities  @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction)
   rooms       rooms[]
@@ -56,16 +56,9 @@ model cities {
 }
 
 model equipments {
-  equipment_id     Int                @id @default(autoincrement())
-  code             String             @unique
+  equipment_id     String             @id @db.Char(2)
   description      String
   rooms_equipments rooms_equipments[]
-}
-
-model roles {
-  role_id     Int           @id @default(autoincrement())
-  name        String
-  users_roles users_roles[]
 }
 
 model rooms {
@@ -85,7 +78,7 @@ model rooms {
 
 model rooms_equipments {
   room_id      Int
-  equipment_id Int
+  equipment_id String  @db.Char(2)
   equipments   equipments @relation(fields: [equipment_id], references: [equipment_id], onDelete: NoAction, onUpdate: NoAction)
   rooms        rooms      @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -101,11 +94,11 @@ model users {
   building_id    Int
   floor          Int
   desk           Int
+  role           Int
   is_active      Boolean
   bookings       bookings[]
   buildings      buildings        @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
   users_bookings users_bookings[]
-  users_roles    users_roles[]
 }
 
 model users_bookings {
@@ -115,13 +108,4 @@ model users_bookings {
   users      users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, booking_id])
-}
-
-model users_roles {
-  user_id Int
-  role_id Int
-  roles   roles @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction)
-  users   users @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([user_id, role_id])
 }
