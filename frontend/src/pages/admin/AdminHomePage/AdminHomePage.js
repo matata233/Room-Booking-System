@@ -43,7 +43,7 @@ function AdminHomePage() {
           <div className="m-5">
             <Link
               to="/roomManagementPage"
-              className="rounded bg-theme-orange px-8 py-0.5 text-theme-dark-blue transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+              className="rounded bg-theme-orange px-8 py-0.5 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
             >
               Go
             </Link>

@@ -1,17 +1,15 @@
 import React from "react";
-import AdminInputForm from "../../../components/AdminInputForm";
+import AdminRoomForm from "../../../components/AdminRoomForm";
 
 const RoomManagementEditPage = () => {
   const firstlyHeader = "Room Management";
   const secondaryHeader = "Edit Room";
-  const labels = ["Room No.", "Room Location", "Capacity"];
   const buttonText = "Complete";
 
   return (
-    <AdminInputForm
+    <AdminRoomForm
       firstlyHeader={firstlyHeader}
       secondaryHeader={secondaryHeader}
-      labels={labels}
       buttonText={buttonText}
     />
   );
