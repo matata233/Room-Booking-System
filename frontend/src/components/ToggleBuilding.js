@@ -4,7 +4,7 @@ const ToggleBuilding = ({ extBuilding, setExtBuilding, setBuilding }) => {
   return (
     <div className="relative h-8 w-2/3 rounded-md bg-gray-200 md:h-10">
       <div className="flex h-full w-full items-center">
-        <a
+        <div
           className={
             "flex w-full cursor-pointer justify-center text-[9px] text-gray-400 sm:text-xs md:text-sm"
           }
@@ -14,8 +14,8 @@ const ToggleBuilding = ({ extBuilding, setExtBuilding, setBuilding }) => {
           }}
         >
           Existing building
-        </a>
-        <a
+        </div>
+        <div
           className={
             "flex w-full cursor-pointer justify-center  text-[9px] text-gray-400 sm:text-xs md:text-sm"
           }
@@ -25,7 +25,7 @@ const ToggleBuilding = ({ extBuilding, setExtBuilding, setBuilding }) => {
           }}
         >
           New building
-        </a>
+        </div>
       </div>
 
       <span

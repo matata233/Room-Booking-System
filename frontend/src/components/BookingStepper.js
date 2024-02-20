@@ -95,7 +95,7 @@ const BookingStepper = () => {
           })}
         </Stepper>
 
-        {activeStep === steps.length ? (
+        {/* {activeStep === steps.length ? (
           <React.Fragment>
             <div class="ms-4 p-20">Congrats! - You're finished!</div>
             <div
@@ -145,7 +145,7 @@ const BookingStepper = () => {
               </Link>
             </div>
           </React.Fragment>
-        )}
+        )} */}
       </Box>
     </ThemeProvider>
   );
