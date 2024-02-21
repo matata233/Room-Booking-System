@@ -36,7 +36,7 @@ export const toRoomEntity = (roomDTO: RoomDTO) => {
         code: roomDTO.roomCode,
         name: roomDTO.roomName,
         seats: roomDTO.numberOfSeats,
-        is_active: roomDTO.isActive,
+        is_active: roomDTO.isActive
     };
 };
 

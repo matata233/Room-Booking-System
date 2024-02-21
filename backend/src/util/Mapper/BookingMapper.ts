@@ -17,6 +17,6 @@ export const toBookingEntity = (bookingDTO: BookingDTO) => {
         created_by: bookingDTO.createdBy,
         start_time: bookingDTO.startTime,
         end_time: bookingDTO.endTime,
-        status: bookingDTO.status,
+        status: bookingDTO.status
     };
 };
