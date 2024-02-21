@@ -101,7 +101,7 @@ function LandingPage() {
         </div>
         <div className="m-5 hidden md:block">
           <Link
-            to="/bookingPage"
+            to="/booking"
             className="rounded bg-theme-orange px-12 py-3 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
           >
             Book Now
@@ -111,7 +111,6 @@ function LandingPage() {
       <div className="hidden md:flex  md:flex-col md:justify-center">
         <img src={logo} alt="logo" className="h-[80vh] object-cover" />
       </div>
-
     </div>
   );
 }
