@@ -19,7 +19,7 @@ const Pagination = ({
     if (
       !isNaN(pageNumber) &&
       pageNumber >= 1 &&
-      pageNumber < Math.ceil(count / rowsPerPage)
+      pageNumber <= Math.ceil(count / rowsPerPage)
     ) {
       handleChangePage(pageNumber);
     }
@@ -29,18 +29,19 @@ const Pagination = ({
   };
 
   const totalPages = Math.ceil(count / rowsPerPage);
+  console.log(totalPages);
   const from = (currentPage - 1) * rowsPerPage + 1;
   const to = Math.min(currentPage * rowsPerPage, count);
 
   return (
-    <div className="font-amazon-ember flex items-center justify-between gap-x-6 md:justify-normal ">
+    <div className="flex items-center justify-between gap-x-6 font-amazon-ember md:justify-normal ">
       {/* page number */}
       <div className="flex flex-col">
         <div className="flex items-center justify-center">
           <button
             onClick={() => handleChangePage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="text-gray-500 transition-colors  duration-300 ease-in-out hover:text-theme-orange"
+            className={`text-gray-500 transition-colors  duration-300 ease-in-out ${currentPage === 1 ? "cursor-not-allowed" : "hover:text-theme-orange"}`}
           >
             <IoIosArrowDropleftCircle className="size-6  md:size-8" />
           </button>
@@ -50,7 +51,7 @@ const Pagination = ({
           <button
             onClick={() => handleChangePage(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="text-gray-500 transition-colors   duration-300 ease-in-out hover:text-theme-orange"
+            className={`text-gray-500 transition-colors  duration-300 ease-in-out ${currentPage === totalPages ? "cursor-not-allowed" : "hover:text-theme-orange"}`}
           >
             <IoIosArrowDroprightCircle className="size-6 md:size-8" />
           </button>
