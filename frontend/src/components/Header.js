@@ -24,6 +24,17 @@ const Header = () => {
     window.addEventListener("scroll", scrollHeader);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest("#avatar-dropdown")) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
   const handleClick = () => setShowMenu(!showMenu);
   const toggleDropdown = () => setShowDropdown(!showDropdown);
 
@@ -59,12 +70,12 @@ const Header = () => {
               <li>Booking Details</li>
             </Link>
 
-            <Link
+            {/* <Link
               to="/myFavourite"
               className="cursor-pointer hover:text-theme-orange"
             >
               <li>My Favourite</li>
-            </Link>
+            </Link> */}
             <Link
               to="/userManagementPage"
               className="cursor-pointer hover:text-theme-orange"
@@ -80,9 +91,12 @@ const Header = () => {
           </ul>
         </div>
         {userInfo ? (
-          <div className="relative hidden  items-center justify-end md:flex">
+          <div
+            id="avatar-dropdown"
+            className="relative hidden  items-center justify-end md:flex "
+          >
             <div
-              className="hidden cursor-pointer items-center justify-end gap-8 rounded p-2 text-center text-theme-orange hover:border-2 hover:border-theme-blue md:flex"
+              className="hidden cursor-pointer items-center justify-end gap-8 rounded p-2 text-center  text-theme-orange hover:border-2 hover:border-theme-blue md:flex"
               onClick={toggleDropdown}
             >
               <div> {`Hi, ${userInfo.given_name}`}</div>
@@ -98,7 +112,10 @@ const Header = () => {
                   : "hidden"
               }
             >
-              <AvatarDropdown handleLogout={handleLogout} />
+              <AvatarDropdown
+                handleLogout={handleLogout}
+                toggleDropdown={toggleDropdown}
+              />
             </div>
           </div>
         ) : (
@@ -138,26 +155,29 @@ const Header = () => {
                 Booking Details
               </div>
             </Link>
-            <Link to="/myFavourite" onClick={handleClick}>
+            {/* <Link to="/myFavourite" onClick={handleClick}>
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
                 My Favourite
               </div>
-            </Link>
-            <Link to="/userManagement" onClick={handleClick}>
+            </Link> */}
+            <Link to="/userManagementPage" onClick={handleClick}>
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
                 User Management
               </div>
             </Link>
-            <Link to="/roomManagement" onClick={handleClick}>
+            <Link to="/roomManagementPage" onClick={handleClick}>
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
                 Room Management
               </div>
             </Link>
 
-            <div className="relative items-center justify-center">
+            <div
+              id="avatar-dropdown"
+              className="relative items-center justify-center "
+            >
               <div
                 className="my-4 flex h-16 w-full cursor-pointer items-center justify-center gap-6 p-4 text-center text-theme-orange hover:border-2 hover:border-theme-blue md:flex"
                 onClick={toggleDropdown}
@@ -175,7 +195,10 @@ const Header = () => {
                     : "hidden"
                 }
               >
-                <AvatarDropdown handleLogout={handleLogout} />
+                <AvatarDropdown
+                  handleLogout={handleLogout}
+                  toggleDropdown={toggleDropdown}
+                />
               </div>
             </div>
           </>
