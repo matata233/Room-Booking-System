@@ -161,13 +161,13 @@ const Header = () => {
                 My Favourite
               </div>
             </Link> */}
-            <Link to="/userManagement" onClick={handleClick}>
+            <Link to="/userManagementPage" onClick={handleClick}>
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
                 User Management
               </div>
             </Link>
-            <Link to="/roomManagement" onClick={handleClick}>
+            <Link to="/roomManagementPage" onClick={handleClick}>
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
                 Room Management
