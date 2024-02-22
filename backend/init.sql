@@ -49,6 +49,8 @@ CREATE TABLE rooms_equipments
     FOREIGN KEY (equipment_id) REFERENCES equipments (equipment_id)
 );
 
+CREATE TYPE role AS ENUM ('admin', 'staff');
+
 CREATE TABLE users
 (
     user_id     SERIAL PRIMARY KEY,
@@ -59,7 +61,7 @@ CREATE TABLE users
     building_id INT     NOT NULL,
     floor       INT     NOT NULL,
     desk        INT     NOT NULL,
-    role        INT     NOT NULL,
+    role        role    NOT NULL,
     is_active   BOOLEAN NOT NULL,
     FOREIGN KEY (building_id) REFERENCES buildings (building_id)
 );
@@ -1078,5 +1080,5 @@ VALUES (339, 7, 1, '007.A', NULL, 10, TRUE),
        (348, 7, 2, 'F', 'Conference', 5, TRUE);
 
 INSERT INTO users (user_id, username, first_name, last_name, email, building_id, floor, desk, role, is_active)
-VALUES (1, 'jli', 'John', 'Li', 'jli12378@gmail.com', 1, 1, 101, 0, TRUE),
-       (2, 'tsimpson', 'Taylor', 'Simpson', 'tsimpson82348@gmail.com', 1, 1, 102, 1, TRUE);
+VALUES (1, 'jli', 'John', 'Li', 'jli12378@gmail.com', 1, 1, 101, 'admin', TRUE),
+       (2, 'tsimpson', 'Taylor', 'Simpson', 'tsimpson82348@gmail.com', 1, 1, 102, 'staff', TRUE);

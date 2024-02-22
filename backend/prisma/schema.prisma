@@ -4,7 +4,7 @@
 // Run "prisma db push" to push this schema to the database
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -79,7 +79,7 @@ model rooms {
 
 model rooms_equipments {
   room_id      Int
-  equipment_id String  @db.Char(2)
+  equipment_id String     @db.Char(2)
   equipments   equipments @relation(fields: [equipment_id], references: [equipment_id], onDelete: NoAction, onUpdate: NoAction)
   rooms        rooms      @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -95,7 +95,7 @@ model users {
   building_id    Int
   floor          Int
   desk           Int
-  role           Int
+  role           role
   is_active      Boolean
   bookings       bookings[]
   buildings      buildings        @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
@@ -109,4 +109,9 @@ model users_bookings {
   users      users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, booking_id])
+}
+
+enum role {
+  admin
+  staff
 }
