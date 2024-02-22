@@ -26,6 +26,14 @@ const TimeDropdowns = () => {
     return options;
   };
 
+  // Function to filter past dates
+  const filterPassedTime = (time) => {
+    const currentDate = new Date();
+    const selectedDate = new Date(time);
+
+    return currentDate.getTime() < selectedDate.getTime();
+  };
+
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
       <div>Date</div>
@@ -33,7 +41,15 @@ const TimeDropdowns = () => {
         selected={startDate}
         onChange={(date) => setStartDate(date)}
         dateFormat="MMMM d, yyyy"
+        minDate={new Date()}
+        showTimeSelect
+        filterDate={filterPassedTime}
         className="mb-4 block w-full appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+      />
+      <input
+        type="time"
+        value={startTime}
+        onChange={(event) => setStartTime(event.target.value)}
       />
       <div>Start Time</div>
       <div className="relative">
