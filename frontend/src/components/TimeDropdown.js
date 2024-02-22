@@ -31,6 +31,7 @@ const TimeDropdowns = () => {
       <div>Date</div>
       <DatePicker
         selected={startDate}
+        minDate={new Date()}
         onChange={(date) => setStartDate(date)}
         dateFormat="MMMM d, yyyy"
         className="mb-4 block w-full appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
