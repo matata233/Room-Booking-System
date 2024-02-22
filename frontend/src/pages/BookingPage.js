@@ -18,7 +18,7 @@ const BookingPage = () => {
           <div className="flex flex-col gap-3">
             <h2>Select Time</h2>
             <TimeDropdowns />
-            <h2>Meeting Type</h2>
+            {/* <h2>Meeting Type</h2>
             <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
               <div className="relative">
                 <select className="block w-full appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none">
@@ -33,7 +33,7 @@ const BookingPage = () => {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
             <h2>Priority</h2>
             <DrapAndDrop />
             <h2>Enter all user email</h2>
