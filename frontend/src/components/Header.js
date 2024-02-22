@@ -51,7 +51,7 @@ const Header = () => {
             <img src={logo} alt="logo" className="w-10" />
           </Link>
 
-          <ul className={userInfo ? "hidden md:flex md:gap-10" : "hidden"}>
+          <ul className={userInfo ? "hidden md:flex md:gap-6" : "hidden"}>
             <Link
               to="/booking"
               className="cursor-pointer hover:text-theme-orange"
@@ -64,6 +64,18 @@ const Header = () => {
               className="cursor-pointer hover:text-theme-orange"
             >
               <li>My Favourite</li>
+            </Link>
+            <Link
+              to="/userManagementPage"
+              className="cursor-pointer hover:text-theme-orange"
+            >
+              <li>User Management</li>
+            </Link>
+            <Link
+              to="/roomManagementPage"
+              className="cursor-pointer hover:text-theme-orange"
+            >
+              <li>Room Management</li>
             </Link>
           </ul>
         </div>
@@ -130,6 +142,18 @@ const Header = () => {
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
                 My Favourite
+              </div>
+            </Link>
+            <Link to="/userManagement" onClick={handleClick}>
+              {" "}
+              <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
+                User Management
+              </div>
+            </Link>
+            <Link to="/roomManagement" onClick={handleClick}>
+              {" "}
+              <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
+                Room Management
               </div>
             </Link>
 
