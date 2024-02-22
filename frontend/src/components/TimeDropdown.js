@@ -19,19 +19,13 @@ const TimeDropdowns = () => {
   const generateTimeOptions = () => {
     const options = [];
     for (let i = 0; i < 24; i++) {
-      const hour = i < 10 ? `0${i}` : `${i}`;
-      options.push(`${hour}:00`);
-      options.push(`${hour}:30`);
+      for (let j = 0; j < 60; j += 15) {
+        const hour = i < 10 ? `0${i}` : `${i}`;
+        const minute = j === 0 ? "00" : `${j}`;
+        options.push(`${hour}:${minute}`);
+      }
     }
     return options;
-  };
-
-  // Function to filter past dates
-  const filterPassedTime = (time) => {
-    const currentDate = new Date();
-    const selectedDate = new Date(time);
-
-    return currentDate.getTime() < selectedDate.getTime();
   };
 
   return (
@@ -39,17 +33,10 @@ const TimeDropdowns = () => {
       <div>Date</div>
       <DatePicker
         selected={startDate}
+        minDate={new Date()}
         onChange={(date) => setStartDate(date)}
         dateFormat="MMMM d, yyyy"
-        minDate={new Date()}
-        showTimeSelect
-        filterDate={filterPassedTime}
         className="mb-4 block w-full appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-      />
-      <input
-        type="time"
-        value={startTime}
-        onChange={(event) => setStartTime(event.target.value)}
       />
       <div>Start Time</div>
       <div className="relative">

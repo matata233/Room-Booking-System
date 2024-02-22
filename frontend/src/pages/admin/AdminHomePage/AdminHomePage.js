@@ -33,7 +33,7 @@ function AdminHomePage() {
         </div>
       </div>
       <div className="my-1 flex flex-col gap-5 md:flex-row md:gap-8">
-        <div className="mx-10 flex w-auto flex-col items-center bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:translate-y-2 hover:shadow-2xl md:mx-0 md:w-8/12 md:px-9">
+        <div className="mx-10 flex w-auto flex-col items-center bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:mx-0 md:w-8/12 md:px-9">
           <img
             className="h-40 object-cover md:h-60"
             alt="Meeting Room"
@@ -49,7 +49,7 @@ function AdminHomePage() {
             </Link>
           </div>
         </div>
-        <div className="mx-10 flex w-auto flex-col items-center bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:translate-y-2 hover:shadow-2xl md:mx-0 md:w-8/12 md:px-9">
+        <div className="mx-10 flex w-auto flex-col items-center bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:mx-0 md:w-8/12 md:px-9">
           <img
             className="h-40 object-cover md:h-60"
             alt="Meeting Room"

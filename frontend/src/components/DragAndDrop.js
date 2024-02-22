@@ -53,11 +53,7 @@ const DrapAndDrop = () => {
     },
     {
       id: 3,
-      item: "AV Equipment",
-    },
-    {
-      id: 4,
-      item: "CV Equipment",
+      item: "Equipment",
     },
   ]);
 

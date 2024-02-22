@@ -11,7 +11,7 @@ function LandingPage() {
     <div className="flex flex-row font-amazon-ember md:w-screen">
       <div className="flex flex-col md:w-10/12">
         <h1 className="m-3 text-[40px] md:text-[50px]">
-          Book Your Booking Room Today
+          Book Your Meeting Room Today
         </h1>
         <div className="relative flex flex-col items-center md:hidden">
           <div className="">
