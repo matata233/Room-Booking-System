@@ -13,20 +13,20 @@ export default class RoomRepository extends AbstractRepository {
             include: {
                 buildings: {
                     include: {
-                        cities: true,
-                    },
+                        cities: true
+                    }
                 },
                 bookings_rooms: {
                     include: {
-                        bookings: true,
-                    },
+                        bookings: true
+                    }
                 },
                 rooms_equipments: {
                     include: {
-                        equipments: true,
-                    },
-                },
-            },
+                        equipments: true
+                    }
+                }
+            }
         });
         const roomDTOs: RoomDTO[] = [];
         for (const room of roomList) {

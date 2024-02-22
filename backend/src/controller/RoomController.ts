@@ -23,7 +23,7 @@ export default class RoomController extends AbstractController {
                 return super.onReject(
                     res,
                     ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while fetching rooms.",
+                    "An error occurred while fetching rooms."
                 );
             }
         }
