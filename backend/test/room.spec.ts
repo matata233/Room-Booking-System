@@ -2,14 +2,13 @@ import {PrismaClient} from "@prisma/client";
 import RoomRepository from "../src/repository/RoomRepository";
 import RoomDTO from "../src/model/dto/RoomDTO";
 import RoomService from "../src/service/RoomService";
-import {database} from "../src/routes/router";
 
 it("test api /rooms/", async function () {
     // 1. Make sure you have correctly installed PostgreSQL locally
     // 2. Make sure you have correctly set up the DATABASE_URL in the .env file
     // 3. Run "prisma db push" to sync the schema.prisma file with the db
     const db = new PrismaClient();
-    const roomRepo = new RoomRepository(database);
+    const roomRepo = new RoomRepository(db);
     const roomService = new RoomService(roomRepo);
 
     // Remove all existing data
@@ -21,49 +20,47 @@ it("test api /rooms/", async function () {
 
     await db.bookings.deleteMany({});
     await db.bookings_rooms.deleteMany({});
-    await db.roles.deleteMany({});
     await db.users.deleteMany({});
     await db.users_bookings.deleteMany({});
-    await db.users_roles.deleteMany({});
 
     // Create cities
     await db.cities.createMany({
         data: [
             {city_id: "YVR", name: "Vancouver", province_state: "BC"},
             {city_id: "YYZ", name: "Toronto", province_state: "ON"},
-            {city_id: "YUL", name: "Montreal", province_state: "QC"},
-        ],
+            {city_id: "YUL", name: "Montreal", province_state: "QC"}
+        ]
     });
 
     // Create buildings
     const YVR32 = await db.buildings.create({
-        data: {city_id: "YVR", code: "32", address: "BC", lon: 0.11111, lat: 0.22222, is_active: true},
+        data: {city_id: "YVR", code: 32, address: "BC", lon: 0.11111, lat: 0.22222, is_active: true}
     });
 
     // Create equipments
     const AV = await db.equipments.create({
-        data: {code: "AV", description: "Audio/Video Equipment"},
+        data: {equipment_id: "AV", description: "Audio/Video Equipment"}
     });
 
     const VC = await db.equipments.create({
-        data: {code: "VC", description: "Video Conference Equipment"},
+        data: {equipment_id: "VC", description: "Video Conference Equipment"}
     });
 
     // Create rooms
     const YVR32_01_101 = await db.rooms.create({
-        data: {building_id: YVR32.building_id, floor: 1, code: "101", name: "Stanley", seats: 4, is_active: true},
+        data: {building_id: YVR32.building_id, floor: 1, code: "101", name: "Stanley", seats: 4, is_active: true}
     });
 
     await db.rooms_equipments.create({
-        data: {room_id: YVR32_01_101.room_id, equipment_id: AV.equipment_id},
+        data: {room_id: YVR32_01_101.room_id, equipment_id: AV.equipment_id}
     });
 
     await db.rooms_equipments.create({
-        data: {room_id: YVR32_01_101.room_id, equipment_id: VC.equipment_id},
+        data: {room_id: YVR32_01_101.room_id, equipment_id: VC.equipment_id}
     });
 
     const YVR32_01_102 = await db.rooms.create({
-        data: {building_id: YVR32.building_id, floor: 1, code: "102", name: "Trafalgar", seats: 6, is_active: true},
+        data: {building_id: YVR32.building_id, floor: 1, code: "102", name: "Trafalgar", seats: 6, is_active: true}
     });
 
     let roomDTOs: RoomDTO[] = await roomRepo.findAll();
