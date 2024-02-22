@@ -19,9 +19,11 @@ const TimeDropdowns = () => {
   const generateTimeOptions = () => {
     const options = [];
     for (let i = 0; i < 24; i++) {
-      const hour = i < 10 ? `0${i}` : `${i}`;
-      options.push(`${hour}:00`);
-      options.push(`${hour}:30`);
+      for (let j = 0; j < 60; j += 15) {
+        const hour = i < 10 ? `0${i}` : `${i}`;
+        const minute = j === 0 ? "00" : `${j}`;
+        options.push(`${hour}:${minute}`);
+      }
     }
     return options;
   };
