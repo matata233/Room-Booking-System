@@ -11,7 +11,7 @@ function LandingPage() {
     <div className="flex flex-row font-amazon-ember md:w-screen">
       <div className="flex flex-col md:w-10/12">
         <h1 className="m-3 text-[40px] md:text-[50px]">
-          Book Your Booking Room Today
+          Book Your Meeting Room Today
         </h1>
         <div className="relative flex flex-col items-center md:hidden">
           <div className="">
@@ -101,7 +101,7 @@ function LandingPage() {
         </div>
         <div className="m-5 hidden md:block">
           <Link
-            to="/bookingPage"
+            to="/booking"
             className="rounded bg-theme-orange px-12 py-3 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
           >
             Book Now
@@ -111,7 +111,6 @@ function LandingPage() {
       <div className="hidden md:flex  md:flex-col md:justify-center">
         <img src={logo} alt="logo" className="h-[80vh] object-cover" />
       </div>
-
     </div>
   );
 }

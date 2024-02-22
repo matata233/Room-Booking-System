@@ -13,7 +13,7 @@ const persistConfig = {
 };
 
 const reducers = combineReducers({
-  api: apiSlice,
+  api: apiSlice.reducer,
   auth: authReducer,
 });
 
