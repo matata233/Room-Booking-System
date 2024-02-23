@@ -29,13 +29,13 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
     // Handle form submission here
   };
   const equipments = [
-    { id: "AV", description: "AV" },
-    { id: "CV", description: "CV" },
+    { id: "AV", description: "Audio/Visual Equipment" },
+    { id: "VC", description: "Video Conference Equipment" },
   ];
 
   return (
     <ThemeProvider theme={PageTheme}>
-      <div className="flex  flex-col items-center justify-center font-amazon-ember">
+      <div className="flex  items-center justify-center font-amazon-ember">
         <div className="group relative  pl-3">
           <div className="absolute inset-0 transform rounded-3xl bg-gradient-to-br from-orange-300 to-theme-orange shadow-lg duration-300 group-hover:-rotate-3 sm:group-hover:-rotate-6"></div>
           <form
@@ -156,7 +156,7 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                     >
                       <input
                         type="checkbox"
-                        className="border-blue-gray-200 peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border transition-all  checked:border-theme-orange checked:bg-theme-orange "
+                        className="peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-200 transition-all  checked:border-theme-orange checked:bg-theme-orange "
                         id={item.id}
                       />
                       <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-theme-dark-blue opacity-0 transition-opacity peer-checked:opacity-100">
@@ -180,7 +180,7 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                       className="cursor-pointer select-none text-theme-dark-blue"
                       htmlFor={item.id}
                     >
-                      {item.id}
+                      {item.description}
                     </label>
                   </div>
                 ))}

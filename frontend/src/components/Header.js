@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { HiOutlineBars3, HiXMark } from "react-icons/hi2";
 import { logout } from "../slices/authSlice";
 import logo from "../assets/logo.png";
-import AvatarDropdown from "./AvatarDropdown";
+import Navbar from "./Navbar";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -35,7 +36,7 @@ const Header = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  const handleClick = () => setShowMenu(!showMenu);
+  const toggleMenu = () => setShowMenu(!showMenu);
   const toggleDropdown = () => setShowDropdown(!showDropdown);
 
   const { userInfo } = useSelector((state) => state.auth);
@@ -51,40 +52,54 @@ const Header = () => {
     }
   };
 
+  const location = useLocation();
+  const isRoomManagementPage = location.pathname === "/roomManagementPage";
+  const isUserManagementPage = location.pathname === "/userManagementPage";
+  const isBookingPage = location.pathname === "/booking";
+  const isBookingHistoryPage = location.pathname === "/bookingHistory";
+
   return (
     <header
-      className={`fixed z-20 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md" : ""}`}
+      className={`fixed z-20 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md md:drop-shadow-none" : ""}`}
     >
+      {/* Laptop */}
       <div className="flex h-full w-full items-center justify-between px-6">
-        <div className="flex items-center md:gap-20">
+        <div className="flex items-center md:gap-10 lg:gap-20">
           <Link to="/" className="cursor-pointer">
             {" "}
             <img src={logo} alt="logo" className="w-10" />
           </Link>
 
-          <ul className={userInfo ? "hidden md:flex md:gap-6" : "hidden"}>
+          {/* Navbar */}
+          <ul
+            className={
+              userInfo
+                ? "hidden md:flex md:gap-6 md:text-sm lg:text-base"
+                : "hidden"
+            }
+          >
             <Link
               to="/booking"
-              className="cursor-pointer hover:text-theme-orange"
+              className={`${isBookingPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
             >
-              <li>Booking Details</li>
+              <li>Book a Room</li>
+            </Link>
+            <Link
+              to="/bookingHistory"
+              className={`${isBookingHistoryPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
+            >
+              <li>Booking History</li>
             </Link>
 
-            {/* <Link
-              to="/myFavourite"
-              className="cursor-pointer hover:text-theme-orange"
-            >
-              <li>My Favourite</li>
-            </Link> */}
             <Link
               to="/userManagementPage"
-              className="cursor-pointer hover:text-theme-orange"
+              className={`${isUserManagementPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
             >
               <li>User Management</li>
             </Link>
             <Link
               to="/roomManagementPage"
-              className="cursor-pointer hover:text-theme-orange"
+              className={`${isRoomManagementPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
             >
               <li>Room Management</li>
             </Link>
@@ -96,11 +111,12 @@ const Header = () => {
             className="relative hidden  items-center justify-end md:flex "
           >
             <div
-              className="hidden cursor-pointer items-center justify-end gap-8 rounded p-2 text-center  text-theme-orange hover:border-2 hover:border-theme-blue md:flex"
+              className="hidden cursor-pointer items-center justify-end  rounded p-2 text-center  text-theme-orange hover:border-2 hover:border-theme-blue md:flex"
               onClick={toggleDropdown}
             >
-              <div> {`Hi, ${userInfo.given_name}`}</div>
-              <div className="h-10 w-10 overflow-hidden rounded-full">
+              <IoMdArrowDropdown className="size-4 lg:size-6" />
+              <div className="mr-2 text-sm lg:mr-4 lg:text-base">{`Hi, ${userInfo.given_name}`}</div>
+              <div className="size-8 overflow-hidden rounded-full lg:size-10">
                 <img src={userInfo.picture} alt="google picture" />
               </div>
             </div>
@@ -112,10 +128,15 @@ const Header = () => {
                   : "hidden"
               }
             >
-              <AvatarDropdown
-                handleLogout={handleLogout}
-                toggleDropdown={toggleDropdown}
-              />
+              <div className="py-1">
+                <div
+                  className="cursor-pointer px-4 py-2 text-sm  text-white hover:text-red-500 md:text-gray-500"
+                  id="logout"
+                  onClick={handleLogout}
+                >
+                  Log Out
+                </div>
+              </div>
             </div>
           </div>
         ) : (
@@ -131,7 +152,7 @@ const Header = () => {
           </div>
         )}
 
-        <div className="cursor-pointer md:hidden" onClick={handleClick}>
+        <div className="cursor-pointer md:hidden" onClick={toggleMenu}>
           {showMenu ? (
             <HiXMark className="size-12 cursor-pointer" />
           ) : (
@@ -140,27 +161,28 @@ const Header = () => {
         </div>
       </div>
 
+      {/* Mobile */}
       <div
         className={
           showMenu
-            ? "absolute w-full cursor-pointer flex-col items-center bg-white px-4 text-center md:hidden"
+            ? "absolute w-full  flex-col items-center bg-white px-4 text-center md:hidden"
             : "hidden"
         }
       >
         {userInfo ? (
           <>
-            <Link to="/booking" onClick={handleClick}>
+            {/* <Link to="/bookingHistory" onClick={handleClick}>
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
-                Booking Details
+                Booking History
               </div>
             </Link>
-            {/* <Link to="/myFavourite" onClick={handleClick}>
+            <Link to="/myFavourite" onClick={handleClick}>
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
                 My Favourite
               </div>
-            </Link> */}
+            </Link>
             <Link to="/userManagementPage" onClick={handleClick}>
               {" "}
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
@@ -172,23 +194,27 @@ const Header = () => {
               <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
                 Room Management
               </div>
-            </Link>
+            </Link> */}
+
+            <div className="w-full  divide-y divide-gray-100  bg-theme-dark-blue">
+              <Navbar
+                handleLogout={handleLogout}
+                handleNavbarClick={toggleMenu}
+              />
+            </div>
 
             <div
               id="avatar-dropdown"
               className="relative items-center justify-center "
             >
-              <div
-                className="my-4 flex h-16 w-full cursor-pointer items-center justify-center gap-6 p-4 text-center text-theme-orange hover:border-2 hover:border-theme-blue md:flex"
-                onClick={toggleDropdown}
-              >
+              <div className="my-4 flex h-16 w-full  items-center justify-center gap-6 p-4 text-center text-theme-orange md:flex">
                 <div> {`Hi, ${userInfo.given_name}`}</div>
                 <div className="h-10 w-10 overflow-hidden rounded-full">
                   <img src={userInfo.picture} alt="google picture" />
                 </div>
               </div>
 
-              <div
+              {/* <div
                 className={
                   showDropdown
                     ? "absolute  top-24 z-20 w-full  divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
@@ -199,7 +225,7 @@ const Header = () => {
                   handleLogout={handleLogout}
                   toggleDropdown={toggleDropdown}
                 />
-              </div>
+              </div> */}
             </div>
           </>
         ) : (

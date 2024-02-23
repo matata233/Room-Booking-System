@@ -57,7 +57,7 @@ const RoomManagementPage = () => {
   };
 
   return (
-    <div className="flex  flex-col justify-center gap-y-4 px-10 sm:px-0">
+    <div className="flex flex-col justify-center gap-y-4 px-10 sm:px-0">
       <div className="flex flex-col gap-y-2 sm:flex-row sm:justify-between">
         {/* Search Bar */}
         <div className="flex flex-grow gap-x-2 font-amazon-ember">
@@ -91,7 +91,6 @@ const RoomManagementPage = () => {
           <Link
             to="/roomManagementAddPage"
             className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-sm text-theme-dark-blue transition-colors duration-300 ease-in-out  hover:bg-theme-dark-orange hover:text-white   md:h-10 md:text-base"
-
           >
             Add New Room
           </Link>

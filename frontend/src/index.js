@@ -26,6 +26,7 @@ import RoomManagementPage from "./pages/admin/RoomManagement/RoomManagementPage"
 import { persistor, store } from "./store";
 import { PersistGate } from "redux-persist/integration/react";
 import { StyledEngineProvider } from "@mui/material/styles";
+import BookingHistoryPage from "./pages/BookingHistoryPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,6 +37,7 @@ const router = createBrowserRouter(
 
       {/* private routes */}
       <Route path="" element={<PrivateRoute />}>
+        <Route path="/bookingHistory" element={<BookingHistoryPage />} />
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/myFavourite" element={<MyFavouritePage />} />
 
