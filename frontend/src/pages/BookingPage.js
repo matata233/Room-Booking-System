@@ -1,17 +1,25 @@
 import React, { useState, useMemo } from "react";
 import BookingStepper from "../components/BookingStepper";
 import DragAndDrop from "../components/DragAndDrop";
+import UserEquipInput from "../components/UserEquipInput";
 import UserEmailInput from "../components/UserEmailInput";
 import TimeDropdowns from "../components/TimeDropdown";
 import StartSearchGIF from "../assets/start-search.gif";
 // import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
 import Pagination from "../components/Pagination";
-import dummyRooms from "../dummyData/dummyRooms";
+import dummyRoomBooking from "../dummyData/dummyRoomBooking";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link } from "react-router-dom";
+import Loader from "../components/Loader";
+import UserRoomCountInput from "../components/UserRoomCountInput";
 
 const BookingPage = () => {
-  const data = useMemo(() => dummyRooms, []);
+  const data = useMemo(
+    () => dummyRoomBooking.filter((room) => room.is_active),
+    [],
+  );
+  const [loading, setLoading] = useState(false); // Temporary
+  const [showInitialImage, setShowInitialImage] = useState(true); // Temporary
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,6 +39,18 @@ const BookingPage = () => {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
   const paginatedData = data.slice(startIndex, endIndex);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setShowInitialImage(false); // Hide the initial image
+    setLoading(true);
+    setTimeout(() => {
+      // Temporary
+      setLoading(false);
+    }, 1000);
+  };
+
+  const [roomCount, setRoomCount] = useState(1);
 
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
@@ -59,23 +79,42 @@ const BookingPage = () => {
                 </div>
               </div>
             </div> */}
+            <h2>Equipments</h2>
+            <UserEquipInput />
             <h2>Priority</h2>
             <DragAndDrop />
+            <h2>Number of Rooms </h2>
+            <UserRoomCountInput
+              roomCount={roomCount}
+              setRoomCount={setRoomCount}
+            />
             <h2>Enter all user email</h2>
-            <UserEmailInput />
-            <div className="my-4 flex w-80 justify-center">
-              <button
-                type="submit"
-                className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
-              >
-                Submit
-              </button>
-            </div>
+            <form onSubmit={handleSubmit}>
+              <UserEmailInput roomCount={roomCount} />
+              <div className="my-4 flex w-80 justify-center">
+                <button
+                  type="submit"
+                  className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
         </div>
         <div className="flex basis-2/3 flex-col">
           <div className="mb-4 text-xl font-semibold">Available Rooms</div>
-          {paginatedData.length > 0 ? (
+          {showInitialImage ? ( // Temporary: showInitialImage and Loading
+            <div className="flex items-center justify-center">
+              <img
+                src={StartSearchGIF}
+                alt="Start Search SVG"
+                className="w-full lg:w-1/2"
+              />
+            </div>
+          ) : loading ? (
+            <Loader />
+          ) : paginatedData.length > 0 ? (
             <div className="flex flex-col gap-4">
               {paginatedData.map((room) => (
                 <div
@@ -91,13 +130,10 @@ const BookingPage = () => {
                       />
                     </div>
                     <div className="mt-6 flex flex-col xl:ml-6 xl:mt-0">
-                      <div className="font-semibold">
-                        Room ID: {room.roomId}
-                      </div>
-                      <div className="mt-2">
-                        <span className="font-semibold">Location:</span>{" "}
-                        {room.location.city}, {room.location.building}, Floor{" "}
-                        {room.location.floor}, Room {room.location.room}
+                      <div className="mt-2 text-lg text-theme-orange">
+                        {room.location.city} {room.location.building}, Floor{" "}
+                        {room.location.floor}, {room.location.roomName},{" "}
+                        {room.location.roomCode}
                       </div>
                       <div className="mt-2">
                         <span className="font-semibold">Equipments:</span>{" "}
@@ -106,10 +142,6 @@ const BookingPage = () => {
                       <div className="mt-2">
                         <span className="font-semibold">Number of Seats:</span>{" "}
                         {room.numSeat}
-                      </div>
-                      <div className="mt-2">
-                        <span className="font-semibold">Is Active:</span>{" "}
-                        {room.is_active ? "Yes" : "No"}
                       </div>
                     </div>
                   </div>
@@ -132,15 +164,18 @@ const BookingPage = () => {
               className="w-full lg:w-1/2"
             />
           )}
-          <div className="my-4">
-            <Pagination
-              currentPage={currentPage}
-              rowsPerPage={rowsPerPage}
-              count={data.length}
-              handleChangePage={handleChangePage}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-          </div>
+          {!showInitialImage && // Temporary: showInitialImage and Loading
+            !loading && (
+              <div className="my-4">
+                <Pagination
+                  currentPage={currentPage}
+                  rowsPerPage={rowsPerPage}
+                  count={data.length}
+                  handleChangePage={handleChangePage}
+                  handleChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+              </div>
+            )}
         </div>
       </div>
     </div>
