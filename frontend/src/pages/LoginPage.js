@@ -5,10 +5,8 @@ import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
 import { setCredentials, logout } from "../slices/authSlice";
 
-// import { useCookies } from 'react-cookie';
 
 const LoginPage = () => {
-  // const [cookies, setCookie] = useCookies(['auth-token'])
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -17,29 +15,45 @@ const LoginPage = () => {
   // 'search' returns a string containing all the query parameters.
   const searchParams = new URLSearchParams(search); // extract the query parameter and its value
   const redirect = searchParams.get("redirect") || "/";
+  const backendUrl = 'http://localhost:3001/aws-room-booking/api/v1/users/login'
+  const sendTokenToBackend = async (token) => {
+    try {
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }), //
+      });
 
-  const handleLogin = (res) => {
+      if (!response.ok) {
+        throw new Error('Failed to login');
+      }
+
+      const backendData = await response.json();
+      return backendData; // This should include the backend session token and any other info
+    } catch (error) {
+      console.error('Error sending token to backend', error);
+      throw error;
+    }
+  };
+
+  const handleLogin = async (res) => {
     try {
       const decodedUserInfo = jwtDecode(res.credential);
       setUserInfo(decodedUserInfo);
       console.log(decodedUserInfo);
-      dispatch(setCredentials({ ...decodedUserInfo }));
+      const backendResponse = await sendTokenToBackend(res.credential);
+      console.log('Backend response', backendResponse);
+      dispatch(setCredentials({...decodedUserInfo}));
+      // Update credentials in redux store with backend response if needed
+      // dispatch(setCredentials({ ...decodedUserInfo, ...backendResponse }));
       navigate(redirect);
     } catch (err) {
       console.log(err);
     }
 
-    // setCookie('auth-token', res.credential, { path: '/', maxAge: 3600 });
-    // setUser(jwtdecode(token));
-    // navigate("/")//go to landing page
   };
-  // const login = useGoogleLogin({
-  //     onSuccess: tokenResponse => {
-  //         console.log(tokenResponse);
-  //         setUser(tokenResponse);
-  //     },
-  //     onError: () => console.log('Login Failed'),
-  // });
 
   const handleLogout = () => {
     try {
