@@ -45,7 +45,7 @@ export default class UserController extends AbstractController {
             //Extract the Google OAuth token from the request body
             const googleToken = req.body.token;
             if (!googleToken) {
-                return res.status(400).json({ message: "Token is required" });
+                return res.status(400).json({message: "Token is required"});
             }
 
             // Use the Google token and work with user data
@@ -59,17 +59,16 @@ export default class UserController extends AbstractController {
                 message: "Welcome",
                 token: jwtToken
             });
-
         } catch (error) {
             // Handle errors
             if (error instanceof UnauthorizedError) {
-                return res.status(401).json({ message: "Unauthorized Request" });
+                return res.status(401).json({message: "Unauthorized Request"});
             }
             if (error instanceof NotFoundError) {
-                return res.status(404).json({ message: "User Not Found" });
+                return res.status(404).json({message: "User Not Found"});
             }
             // Generic server error
-            return res.status(500).json({ message: "Internal Server Error" });
+            return res.status(500).json({message: "Internal Server Error"});
         }
     }
 }

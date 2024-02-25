@@ -3,9 +3,6 @@ import {PrismaClient} from "@prisma/client";
 import RoomController from "./controller/RoomController";
 import RoomService from "./service/RoomService";
 import RoomRepository from "./repository/RoomRepository";
-import UserController from "./controller/UserController";
-import UserService from "./service/UserService";
-import UserRepository from "./repository/UserRepository";
 import cors from "cors";
 
 import UserController from "./controller/UserController";
@@ -19,7 +16,6 @@ app.use(cors());
 
 const database = new PrismaClient();
 
-const userController = new UserController(new UserService(new UserRepository(database)));
 const roomController = new RoomController(new RoomService(new RoomRepository(database)));
 const userController = new UserController(new UserService(new UserRepository(database)));
 
@@ -36,12 +32,10 @@ app.get(`${endpoint}/api/data`, (req, res) => {
 // Room routes
 app.get(`${endpoint}/rooms`, roomController.getAll);
 
-
 //login route
 app.post(`${endpoint}/users/login`, userController.login);
 
 // User routes
 app.get(`${endpoint}/users`, userController.getAll);
-
 
 export default app;
