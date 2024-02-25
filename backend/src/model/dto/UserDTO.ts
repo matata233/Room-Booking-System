@@ -11,7 +11,7 @@ export default class UserDTO extends AbstractDTO {
     public lastName?: string;
     public email?: string;
     public isActive?: boolean;
-    public userRoles?: UserRole[];
+    public userRole?: UserRole;
     public buildingDTO?: BuildingDTO;
     public cityDTO?: CityDTO;
     public bookingDTOs?: BookingDTO[];

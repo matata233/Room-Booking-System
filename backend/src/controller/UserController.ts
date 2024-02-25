@@ -31,7 +31,7 @@ export default class UserController extends AbstractController {
                 return res.status(400).json({ message: "Token is required" });
             }
 
-            // Validate the token and work with user data
+            // Use the Google token and work with user data
             const userData = await this.userService.validateGoogleToken(googleToken);
 
             // Generate a JWT token with user information

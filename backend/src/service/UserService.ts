@@ -4,6 +4,7 @@ import AbstractDTO from "../model/dto/AbstractDTO";
 import UserRepository from "../repository/UserRepository";
 import { jwtDecode } from "jwt-decode";
 import { PrismaClient } from "@prisma/client";
+import {UserRole} from "../util/enum/UserRole";
 
 interface GoogleUser {
     email: string;
@@ -61,6 +62,7 @@ export default class UserService extends AbstractService {
                         firstName: decodedUserInfo.given_name,
                         lastName: decodedUserInfo.family_name,
                         isActive: true,
+                        userRole: UserRole.STAFF //default to giving staff (user) privileges?
                     }
                 })
             }
