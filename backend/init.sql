@@ -1080,5 +1080,14 @@ VALUES (339, 7, 1, '007.A', NULL, 10, TRUE),
        (348, 7, 2, 'F', 'Conference', 5, TRUE);
 
 INSERT INTO users (user_id, username, first_name, last_name, email, building_id, floor, desk, role, is_active)
-VALUES (1, 'jli', 'John', 'Li', 'jli12378@gmail.com', 1, 1, 101, 'admin', TRUE),
-       (2, 'tsimpson', 'Taylor', 'Simpson', 'tsimpson82348@gmail.com', 1, 1, 102, 'staff', TRUE);
+VALUES (1, 'bbrown5888', 'Bob', 'Brown', 'bbrown5888@example.com', 2, 1, 105, 'staff', 'TRUE'),
+       (2, 'cdavis1530', 'Charlie', 'Davis', 'cdavis1530@example.com', 2, 1, 101, 'admin', 'FALSE'),
+       (3, 'djohnson5652', 'Diana', 'Johnson', 'djohnson5652@example.com', 1, 1, 100, 'admin', 'FALSE'),
+       (4, 'gdavis3737', 'George', 'Davis', 'gdavis3737@example.com', 3, 2, 100, 'staff', 'TRUE'),
+       (5, 'fdavis3529', 'Fiona', 'Davis', 'fdavis3529@example.com', 3, 2, 102, 'staff', 'TRUE'),
+       (6, 'hmiller1868', 'Hannah', 'Miller', 'hmiller1868@example.com', 3, 3, 105, 'admin', 'TRUE'),
+       (7, 'hgarcia1209', 'Hannah', 'Garcia', 'hgarcia1209@example.com', 1, 3, 105, 'admin', 'FALSE'),
+       (8, 'cgarcia7408', 'Charlie', 'Garcia', 'cgarcia7408@example.com', 2, 2, 104, 'staff', 'TRUE'),
+       (9, 'dbrown5140', 'Diana', 'Brown', 'dbrown5140@example.com', 2, 3, 101, 'staff', 'TRUE'),
+       (10, 'dmiller5815', 'Diana', 'Miller', 'dmiller5815@example.com', 2, 1, 104, 'admin', 'TRUE');
+
