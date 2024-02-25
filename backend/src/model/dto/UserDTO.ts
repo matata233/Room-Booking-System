@@ -10,10 +10,12 @@ export default class UserDTO extends AbstractDTO {
     public firstName?: string;
     public lastName?: string;
     public email?: string;
+    public buildingId?: number;
+    public floor?: number;
+    public desk?: number;
     public isActive?: boolean;
-    public userRoles?: UserRole[];
-    public buildingDTO?: BuildingDTO;
-    public cityDTO?: CityDTO;
+    public userRoles?: UserRole;
+    // public buildingDTO?: BuildingDTO;
     public bookingDTOs?: BookingDTO[];
 
     constructor(userId: number) {
