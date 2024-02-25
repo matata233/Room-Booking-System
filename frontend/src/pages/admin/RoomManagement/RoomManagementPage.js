@@ -79,7 +79,7 @@ const RoomManagementPage = () => {
               <option value="roomId">Room Id</option>
               <option value="roomName">Room Name</option>
               <option value="roomCode">Room Code</option>
-              <option value="building">Address</option>
+              <option value="building">Location</option>
               <option value="equipmentList">Equipments</option>
               <option value="numberOfSeats">Capacity</option>
             </select>
@@ -171,7 +171,7 @@ const RoomManagementPage = () => {
                     </th>
                   ))}
                   {[
-                    { key: "address", display: "Address" },
+                    { key: "location", display: "Location" },
                     { key: "equipments", display: "Equipments" },
                     { key: "isActive", display: "Status" },
                   ].map((header) => (
@@ -191,7 +191,7 @@ const RoomManagementPage = () => {
                 {displayedData.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan="8"
                       className="text-md whitespace-nowrap p-3 text-center font-amazon-ember font-medium text-gray-900"
                     >
                       No result
@@ -226,8 +226,8 @@ const RoomManagementPage = () => {
                       <td className="whitespace-nowrap p-3 text-sm text-gray-500">
                         <ul>
                           <li>
-                            <span className="text-theme-blue">City:</span>{" "}
-                            {`${row.city.name}, ${row.city.province_state}`}
+                            <span className="text-theme-blue">Address:</span>{" "}
+                            {row.building.address}
                           </li>
                           <li>
                             <span className="text-theme-blue">Building:</span>{" "}
@@ -324,12 +324,12 @@ const RoomManagementPage = () => {
                   <div className="flex gap-x-10 md:justify-between">
                     <div className="break-words font-amazon-ember text-sm text-gray-500">
                       <span className="block font-bold text-theme-dark-orange">
-                        Address:
+                        Location:
                       </span>
                       <ul>
                         <li>
-                          <span className="text-theme-blue">City:</span>{" "}
-                          {`${row.city.name}, ${row.city.province_state}`}
+                          <span className="text-theme-blue">Address:</span>{" "}
+                          {row.building.address}
                         </li>
                         <li>
                           <span className="text-theme-blue">Building:</span>{" "}
