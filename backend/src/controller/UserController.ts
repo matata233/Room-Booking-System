@@ -1,7 +1,7 @@
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 import UserService from "../service/UserService";
-import {UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
+import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
@@ -48,7 +48,7 @@ export default class UserController extends AbstractController {
             if (error instanceof UnauthorizedError) {
                 return res.status(401).json({ message: "Unauthorized Request" });
             }
-            if (error instanceof UserNotFoundError) {
+            if (error instanceof NotFoundError) {
                 return res.status(404).json({ message: "User Not Found" });
             }
             // Generic server error

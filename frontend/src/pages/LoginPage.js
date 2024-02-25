@@ -59,6 +59,7 @@ const LoginPage = () => {
     try {
       dispatch(logout());
       setUserInfo(null);
+      googleLogout();
       navigate("/login");
     } catch (error) {
       console.error("Logout failed", error);
