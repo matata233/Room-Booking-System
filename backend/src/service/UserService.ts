@@ -15,8 +15,10 @@ interface GoogleUser {
 
 const prisma = new PrismaClient();
 
+
+
 export default class UserService extends AbstractService {
-    private userRepo: UserRepository;
+    private userRepo: UserRepository; // The repository for the User model
 
     constructor(userRepo: UserRepository) {
         super();
@@ -24,7 +26,7 @@ export default class UserService extends AbstractService {
     }
 
     public async getAll(): Promise<UserDTO[]> {
-        return Promise.reject("Not implemented");
+        return this.userRepo.findAll(); // Get all users. Data type: UserDTO[]
     }
 
     public async getById(id: number): Promise<UserDTO> {

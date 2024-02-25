@@ -4,9 +4,30 @@ import {toRoomDTO} from "../util/Mapper/RoomMapper";
 import {PrismaClient} from "@prisma/client";
 
 export default class RoomRepository extends AbstractRepository {
+    /**
+     * Constructs a new instance of the RoomRepository class.
+     * The PrismaClient instance used for database operations.
+     */
     constructor(database: PrismaClient) {
         super(database);
     }
+
+    /* ******* Just for reference, from Prisma schema *******
+    model rooms {
+    room_id          Int                @id @default(autoincrement())
+    building_id      Int
+    floor            Int
+    code             String
+    name             String?
+    seats            Int
+    is_active        Boolean
+    bookings_rooms   bookings_rooms[]
+    buildings        buildings          @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
+    rooms_equipments rooms_equipments[]
+
+    @@unique([building_id, floor, code])
+}
+    */
 
     public async findAll(): Promise<RoomDTO[]> {
         const roomList = await this.db.rooms.findMany({
@@ -29,6 +50,7 @@ export default class RoomRepository extends AbstractRepository {
             }
         });
         const roomDTOs: RoomDTO[] = [];
+        // Convert each room to a RoomDTO and add it to the array
         for (const room of roomList) {
             roomDTOs.push(toRoomDTO(room, room.buildings.cities, room.buildings, room.rooms_equipments));
         }
