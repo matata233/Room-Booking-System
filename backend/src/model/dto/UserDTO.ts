@@ -3,7 +3,7 @@ import AbstractDTO from "./AbstractDTO";
 import BookingDTO from "./BookingDTO";
 import BuildingDTO from "./BuildingDTO";
 import CityDTO from "./CityDTO";
-// TODO - not done
+// TODO
 export default class UserDTO extends AbstractDTO {
     public userId: number;
     public userName?: string;
