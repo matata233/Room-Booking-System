@@ -33,5 +33,6 @@ app.get(`${endpoint}/rooms`, roomController.getAll);
 
 // User routes
 app.get(`${endpoint}/users`, userController.getAll);
+app.get(`${endpoint}/users/:id`, userController.getById);
 
 export default app;
