@@ -3,6 +3,8 @@ import AbstractDTO from "../model/dto/AbstractDTO";
 import UserDTO from "../model/dto/UserDTO";
 import {PrismaClient} from "@prisma/client/extension";
 import {toUserDTO} from "../util/Mapper/UserMapper";
+import {role} from "@prisma/client";
+import {jwtDecode} from "jwt-decode";
 
 /*
 For reference from Prisma schema:
@@ -23,6 +25,12 @@ users_bookings users_bookings[]
 }
 */
 
+interface GoogleUser {
+    email: string;
+    name: string;
+    given_name: string;
+    family_name: string;
+}
 export default class UserRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
         super(database);
@@ -48,5 +56,42 @@ export default class UserRepository extends AbstractRepository {
 
     findById(id: number): Promise<AbstractDTO | null> {
         return Promise.reject(undefined);
+    }
+
+    public async validateGoogleToken(googleToken: string): Promise<UserDTO> {
+        try {
+            //Decode the JWT token received from Google
+            const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
+            if (!decodedUserInfo) {
+                throw new Error("Invalid token");
+            }
+
+            // Attempt to fetch the user by email
+
+            // // If user doesn't exist, create a new user
+            // if (!user) {
+            //     user = await prisma.users.create({
+            //         data: {
+            //             user_id: 1,
+            //             email: decodedUserInfo.email,
+            //             first_name: decodedUserInfo.given_name,
+            //             last_name: decodedUserInfo.family_name,
+            //             is_active: true,
+            //             role: role.staff //default to giving staff (user) privileges?
+            //         }
+            //     });
+            // }
+            //
+            // // Return the user data
+            // return user;
+            return Promise.reject("Not implemented");
+        } catch (error) {
+            console.error("Error validating Google token:", error);
+            throw error;
+        }
+    }
+
+    public async generateJwtToken(userDTO: UserDTO): Promise<string> {
+        return Promise.reject("Not implemented");
     }
 }
