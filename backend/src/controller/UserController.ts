@@ -5,8 +5,9 @@ import {UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 
 export default class UserController extends AbstractController {
-    private userService: UserService;
+    private userService: UserService; // The service for the User model
 
+    // Constructs a new instance of the UserController class.
     constructor(userService: UserService) {
         super();
         this.userService = userService;
@@ -14,7 +15,7 @@ export default class UserController extends AbstractController {
 
     public getAll = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const users = await this.userService.getAll();
+            const users = await this.userService.getAll(); // Get all users. Data type: UserDTO[]
             return super.onResolve(res, users);
         } catch (error: unknown) {
             if (error instanceof UnauthorizedError) {

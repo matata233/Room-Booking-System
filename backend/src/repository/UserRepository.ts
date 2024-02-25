@@ -2,8 +2,10 @@ import AbstractRepository from "./AbstractRepository";
 import AbstractDTO from "../model/dto/AbstractDTO";
 import UserDTO from "../model/dto/UserDTO";
 import {PrismaClient} from "@prisma/client/extension";
+import {toUserDTO} from "../util/Mapper/UserMapper";
 
 export default class UserRepository extends AbstractRepository {
+    // The repository for the User model. This class is responsible for handling all database operations for the User model.
     constructor(database: PrismaClient) {
         super(database);
     }
@@ -21,7 +23,7 @@ export default class UserRepository extends AbstractRepository {
 
         const userDTOs: UserDTO[] = [];
         for (const user of userList) {
-            // userDTOs.push(user);
+            userDTOs.push(toUserDTO(user, user.bookings));
         }
         return userDTOs;
     }

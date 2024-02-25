@@ -1,8 +1,11 @@
 import AbstractService from "./AbstractService";
 import UserDTO from "../model/dto/UserDTO";
 import AbstractDTO from "../model/dto/AbstractDTO";
+import UserRepository from "../repository/UserRepository";
 
 export default class UserService extends AbstractService {
+    private userRepo: UserRepository; // The repository for the User model
+
     public async getAll(): Promise<UserDTO[]> {
         return Promise.reject("Not implemented");
     }

@@ -4,6 +4,10 @@ import {toRoomDTO} from "../util/Mapper/RoomMapper";
 import {PrismaClient} from "@prisma/client";
 
 export default class RoomRepository extends AbstractRepository {
+    /**
+     * Constructs a new instance of the RoomRepository class.
+     * @param {PrismaClient} database - The PrismaClient instance used for database operations.
+     */
     constructor(database: PrismaClient) {
         super(database);
     }
