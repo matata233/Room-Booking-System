@@ -29,23 +29,19 @@ export default class UserRepository extends AbstractRepository {
     }
 
     public async findAll(): Promise<UserDTO[]> {
-        // const userList = await this.db.users.findMany({
-        //     include: {
-        //         bookings: {
-        //             include: {
-        //                 bookings_rooms: true
-        //             }
-        //         }
-        //     }
-        // });
-        const userList = await this.db.users.findMany();
+        const userList = await this.db.users.findMany({
+            include: {
+                buildings: {
+                    include: {
+                        cities: true
+                    }
+                }
+            }
+        });
 
         const userDTOs: UserDTO[] = [];
-        // for (const user of userList) {
-        //     userDTOs.push(toUserDTO(user, user.bookings));
-        // }
         for (const user of userList) {
-            userDTOs.push(toUserDTO(user));
+            userDTOs.push(toUserDTO(user, user.buildings.cities, user.buildings));
         }
         return userDTOs;
     }

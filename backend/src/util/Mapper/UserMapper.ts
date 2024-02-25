@@ -1,29 +1,27 @@
-import {users, bookings} from "@prisma/client";
+import {bookings, buildings, cities, users} from "@prisma/client";
 import UserDTO from "../../model/dto/UserDTO";
 import BookingDTO from "../../model/dto/BookingDTO";
-import {UserRole} from "../../util/enum/UserRole";
+import BuildingDTO from "../../model/dto/BuildingDTO";
+import CityDTO from "../../model/dto/CityDTO";
 
-export const toUserDTO = (user: users): UserDTO => {
+export const toUserDTO = (user: users, city: cities, building: buildings): UserDTO => {
     const userDTO = new UserDTO(user.user_id);
-    userDTO.userName = user.username;
+    userDTO.username = user.username;
     userDTO.firstName = user.first_name;
     userDTO.lastName = user.last_name;
     userDTO.email = user.email;
-    userDTO.buildingId = user.building_id;
     userDTO.floor = user.floor;
     userDTO.desk = user.desk;
     userDTO.isActive = user.is_active;
-    // Map the Prisma enum (string) to TypeScript enum (number)
-    const roleMapping = {
-        admin: UserRole.ADMIN,
-        staff: UserRole.STAFF
-    };
-    userDTO.userRoles = roleMapping[user.role]; // Use the mapping to assign the correct enum value
+    userDTO.role = user.role;
 
-    // userDTO.bookingDTOs = [];
-    // for (const booking of booked) {
-    //     userDTO.bookingDTOs.push(mapBookingToDTO(booking));
-    // }
+    userDTO.building = new BuildingDTO(building.building_id); // Create a new BuildingDTO with the building_id
+    userDTO.building.code = building.code;
+    userDTO.building.address = building.address;
+
+    userDTO.city = new CityDTO(city.city_id);
+    userDTO.city.name = city.name;
+    userDTO.city.province_state = city.province_state;
 
     return userDTO;
 };
