@@ -70,4 +70,26 @@ export default class UserRepository extends AbstractRepository {
 
         return userDTO;
     }
+
+    public async findByEmail(email: string): Promise<UserDTO> {
+        const user = await this.db.users.findUnique({
+            where: {
+                email: email
+            },
+            include: {
+                buildings: {
+                    include: {
+                        cities: true
+                    }
+                }
+            }
+        });
+
+        if (!user) {
+            throw new NotFoundError(`User not found with email: ${email}`);
+        }
+
+        const userDTO = toUserDTO(user, user.buildings.cities, user.buildings);
+        return userDTO;
+    }
 }
