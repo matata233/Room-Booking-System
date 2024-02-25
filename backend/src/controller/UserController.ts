@@ -39,7 +39,6 @@ export default class UserController extends AbstractController {
             const user = await this.userService.getById(userId);
             return super.onResolve(res, user);
         } catch (error: unknown) {
-            // Handle not found or unauthorized errors
             if (error instanceof NotFoundError) {
                 return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
             } else if (error instanceof UnauthorizedError) {
@@ -55,19 +54,15 @@ export default class UserController extends AbstractController {
         }
     };
 
-    // Inside UserController
-
     public getByEmail = async (req: Request, res: Response): Promise<Response> => {
         try {
             const {email} = req.body;
             if (!email) {
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Email is required.");
             }
-            // more logic here if necessary
             const user = await this.userService.getByEmail(email);
             return super.onResolve(res, user);
         } catch (error: unknown) {
-            // Handle not found or unauthorized errors
             if (error instanceof NotFoundError) {
                 return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
             } else if (error instanceof UnauthorizedError) {
