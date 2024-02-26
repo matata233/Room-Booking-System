@@ -109,8 +109,9 @@ export default class UserRepository extends AbstractRepository {
             }
 
             // Attempt to fetch the user by email
-
-            // // If user doesn't exist, create a new user
+            let user = this.findByEmail(decodedUserInfo.email);
+            
+            // If user doesn't exist, create a new user
             // if (!user) {
             //     user = await prisma.users.create({
             //         data: {
