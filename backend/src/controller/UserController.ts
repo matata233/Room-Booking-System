@@ -91,7 +91,7 @@ export default class UserController extends AbstractController {
             //Extract the Google OAuth token from the request body
             const googleToken = req.body.token;
             if (!googleToken) {
-                return res.status(400).json({message: "Token is required"});
+                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Token is required.");
             }
             const jwtToken = await this.userService.login(googleToken);
 
