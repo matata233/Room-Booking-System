@@ -30,12 +30,58 @@ export default class UserController extends AbstractController {
         }
     };
 
-    public getById(req: Request, res: Response): Promise<Response> {
-        return Promise.reject("Not implemented");
-    }
+    public getById = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const userId = parseInt(req.params.id);
+            if (isNaN(userId)) {
+                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Invalid user ID.");
+            }
+            const user = await this.userService.getById(userId);
+            return super.onResolve(res, user);
+        } catch (error: unknown) {
+            if (error instanceof NotFoundError) {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
+            } else if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                // Generic error handling
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while fetching user details."
+                );
+            }
+        }
+    };
+
+    public getByEmail = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const {email} = req.body;
+            if (!email) {
+                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Email is required.");
+            }
+            const user = await this.userService.getByEmail(email);
+            return super.onResolve(res, user);
+        } catch (error: unknown) {
+            if (error instanceof NotFoundError) {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
+            } else if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                // Generic error handling
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while fetching user details by email."
+                );
+            }
+        }
+    };
+
     public create(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     }
+
     public update(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     }

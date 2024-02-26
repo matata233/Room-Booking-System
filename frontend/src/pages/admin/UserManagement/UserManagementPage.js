@@ -8,22 +8,34 @@ import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { FaSort } from "react-icons/fa6";
 import { PiSelectionAllFill } from "react-icons/pi";
-import dummyUsers from "../../../dummyData/dummyUsers";
 import Pagination from "../../../components/Pagination";
+import { useGetUsersQuery } from "../../../slices/usersApiSlice";
+import Loader from "../../../components/Loader";
+import Message from "../../../components/Message";
 
 const UserManagementPage = () => {
-  const data = useMemo(() => dummyUsers, []);
+  const { data: users, error, isLoading, refetch } = useGetUsersQuery();
+
+  const usersData = useMemo(() => {
+    if (isLoading || !users || !users.result) {
+      return [];
+    }
+    return users.result;
+  }, [isLoading, users]);
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const { sortedData, sortBy } = useSortData(dummyUsers);
+  const { sortedData, sortBy } = useSortData(usersData);
   const searchedData = useSearchData(sortedData, search, selectedCategory, [
-    "avatar",
-    "is_active",
-    "user_id",
+    "userId",
+    "floor",
+    "desk",
+    "isActive",
+    "city",
+    "building",
   ]);
   const displayedData = usePaginateData(searchedData, currentPage, rowsPerPage);
 
@@ -32,7 +44,7 @@ const UserManagementPage = () => {
     setSelectedRows,
     toggleRowSelection,
     toggleAllSelection,
-  } = useRowSelection(dummyUsers, "user_id");
+  } = useRowSelection(usersData, "userId");
 
   const handleChangePage = (newPage) => {
     setCurrentPage(newPage);
@@ -68,6 +80,7 @@ const UserManagementPage = () => {
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
               <option value="all">All</option>
+              <option value="username">Username</option>
               <option value="email">Email</option>
               <option value="firstName">First Name</option>
               <option value="lastName">Last Name</option>
@@ -113,199 +126,202 @@ const UserManagementPage = () => {
         </div>
       </div>
 
-      {/* Data Table */}
-      <div className="hidden  h-[calc(100vh-15rem)] overflow-x-auto rounded-lg shadow md:block">
-        <table className="min-w-full divide-y">
-          <thead className="sticky top-0 z-10 border-b-2 border-gray-200 bg-gray-50">
-            <tr>
-              <th className="p-3 text-left font-amazon-ember font-medium uppercase tracking-wider text-gray-500">
-                <input
-                  type="checkbox"
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedRows(searchedData.map((row) => row.user_id));
-                    } else {
-                      setSelectedRows([]);
-                    }
-                  }}
-                  checked={
-                    searchedData.length > 0 &&
-                    selectedRows.length === searchedData.length
-                  }
-                  className="accent-theme-orange"
-                />
-              </th>
-              {[
-                { key: "email", display: "Email" },
-                { key: "firstName", display: "First Name" },
-                { key: "lastName", display: "Last Name" },
-                { key: "role", display: "Role" },
-              ].map((header) => (
-                <th
-                  key={header.key} // Use the key for React's key prop
-                  onClick={() => sortBy(header.key)} // Use the key for sorting
-                  className="cursor-pointer p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700"
-                >
-                  <div className="flex items-center gap-3">
-                    {header.display} <FaSort />
-                  </div>
-                </th>
-              ))}
-              <th className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {displayedData.length === 0 ? (
-              <tr>
-                <td
-                  colSpan="6"
-                  className="text-md whitespace-nowrap p-3 text-center font-amazon-ember font-medium text-gray-900"
-                >
-                  No result
-                </td>
-              </tr>
-            ) : (
-              displayedData.map((row) => (
-                <tr
-                  key={row.user_id}
-                  className={`font-amazon-ember hover:bg-theme-orange hover:bg-opacity-10 ${selectedRows.includes(row.user_id) ? "bg-theme-orange bg-opacity-10" : ""}`}
-                  onClick={() => toggleRowSelection(row.user_id)}
-                >
-                  <td className="whitespace-nowrap p-3 text-sm text-gray-900">
+      {isLoading ? (
+        <Loader />
+      ) : error ? (
+        <Message severity="error">{error.data.message}</Message>
+      ) : (
+        <>
+          {/* Data Table */}
+          <div className="hidden  h-[calc(100vh-15rem)] overflow-x-auto rounded-lg shadow md:block">
+            <table className="min-w-full divide-y">
+              <thead className="sticky top-0 z-10 border-b-2 border-gray-200 bg-gray-50">
+                <tr>
+                  <th className="p-3 text-left font-amazon-ember font-medium uppercase tracking-wider text-gray-500">
                     <input
                       type="checkbox"
-                      checked={selectedRows.includes(row.user_id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedRows(
+                            searchedData.map((row) => row.userId),
+                          );
+                        } else {
+                          setSelectedRows([]);
+                        }
+                      }}
+                      checked={
+                        searchedData.length > 0 &&
+                        selectedRows.length === searchedData.length
+                      }
                       className="accent-theme-orange"
                     />
-                  </td>
-                  <td className="whitespace-nowrap p-3">
-                    <div className="flex items-center">
-                      <div className="relative h-8 w-8 flex-shrink-0">
-                        <img
-                          className="h-8 w-8 rounded-full"
-                          src={row.avatar}
-                          alt="avatar"
+                  </th>
+                  {[
+                    { key: "username", display: "Username" },
+                    { key: "email", display: "Email" },
+                    { key: "firstName", display: "First Name" },
+                    { key: "lastName", display: "Last Name" },
+                    { key: "role", display: "Role" },
+                  ].map((header) => (
+                    <th
+                      key={header.key} // Use the key for React's key prop
+                      onClick={() => sortBy(header.key)} // Use the key for sorting
+                      className="cursor-pointer p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700"
+                    >
+                      <div className="flex items-center gap-3">
+                        {header.display} <FaSort />
+                      </div>
+                    </th>
+                  ))}
+                  <th className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
+                    Status
+                  </th>
+
+                  <th className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {displayedData.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="7"
+                      className="text-md whitespace-nowrap p-3 text-center font-amazon-ember font-medium text-gray-900"
+                    >
+                      No result
+                    </td>
+                  </tr>
+                ) : (
+                  displayedData.map((row) => (
+                    <tr
+                      key={row.userId}
+                      className={`font-amazon-ember hover:bg-theme-orange hover:bg-opacity-10 ${selectedRows.includes(row.userId) ? "bg-theme-orange bg-opacity-10" : ""}`}
+                      onClick={() => toggleRowSelection(row.userId)}
+                    >
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.includes(row.userId)}
+                          className="accent-theme-orange"
                         />
-                        {row.is_active && (
-                          <>
-                            <span className="absolute  right-0.5 top-1 h-3 w-3 rounded-full border-2 border-white bg-green-500"></span>
-                            <span className="absolute  right-0.5 top-1 h-3 w-3 animate-ping rounded-full  bg-green-500"></span>
-                          </>
+                      </td>
+                      <td className="whitespace-nowrap p-3">{row.username}</td>
+                      <td className="ext-sm whitespace-nowrap p-3 text-gray-500">
+                        {row.email}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
+                        {row.firstName}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
+                        {row.lastName}
+                      </td>
+                      <td className="whitespace-nowrap p-3">
+                        <span
+                          className={`inline-flex rounded-full px-2 text-xs font-semibold uppercase leading-5 ${row.role === "admin" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}
+                        >
+                          {row.role}
+                        </span>
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
+                        {row.isActive ? (
+                          <div className="h-4 w-4 rounded-full bg-green-500"></div>
+                        ) : (
+                          <div className="h-4 w-4 rounded-full  bg-red-500"></div>
                         )}
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {row.email}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
+                        <div className="flex justify-start">
+                          <a
+                            href="#"
+                            className="mr-6 text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <FaEdit className="size-6" />
+                          </a>
+                          <a
+                            href="#"
+                            className="text-red-600 hover:text-red-900"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MdDelete className="size-6" />
+                          </a>
                         </div>
-                      </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* mobile */}
+          <div className="grid h-[calc(100vh-15rem)] grid-cols-1 gap-4 overflow-x-auto rounded-lg border-y-2 sm:grid-cols-2 md:hidden ">
+            {displayedData.length === 0 ? (
+              <div className="col-span-1 flex h-full items-center justify-center sm:col-span-2">
+                <div className="text-md whitespace-nowrap p-3 font-amazon-ember font-medium text-gray-900">
+                  No result
+                </div>
+              </div>
+            ) : (
+              displayedData.map((row) => (
+                <div
+                  key={row.userId}
+                  className={`max-h-40 space-y-3 rounded-lg p-4 shadow  ${selectedRows.includes(row.userId) ? "bg-theme-orange bg-opacity-10" : ""}`}
+                  onClick={() => toggleRowSelection(row.userId)}
+                >
+                  {/* avatar + name */}
+                  <div className="flex items-center justify-between">
+                    <div className="break-words font-amazon-ember text-sm font-medium text-gray-900">
+                      {row.firstName} {row.lastName}
                     </div>
-                  </td>
-                  <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                    {row.firstName}
-                  </td>
-                  <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                    {row.lastName}
-                  </td>
-                  <td className="whitespace-nowrap p-3">
                     <span
-                      className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${row.role === "ADMIN" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium uppercase  ${row.role === "admin" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}
                     >
                       {row.role}
                     </span>
-                  </td>
-                  <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
-                    <div className="flex justify-start">
-                      <a
-                        href="#"
-                        className="mr-6 text-indigo-600 hover:text-indigo-900"
+                  </div>
+                  {/* username */}
+                  <div className="break-words font-amazon-ember text-sm text-gray-900">
+                    <span className="font-bold text-theme-dark-orange">
+                      Username:{" "}
+                    </span>
+                    {`${row.username}`}
+                  </div>
+                  {/* email */}
+                  <div className="break-words font-amazon-ember text-sm text-gray-700">
+                    {row.email}
+                  </div>
+                  {/* status + action */}
+                  <div className="flex items-center justify-between space-x-2">
+                    <div className="inline-flex items-center">
+                      {row.isActive ? (
+                        <div className="h-4 w-4 rounded-full bg-green-500"></div>
+                      ) : (
+                        <div className="h-4 w-4 rounded-full  bg-red-500"></div>
+                      )}
+                    </div>
+                    <div className="flex space-x-6">
+                      <button
+                        className="text-indigo-600 hover:text-indigo-900 "
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <FaEdit className="size-6" />
-                      </a>
-                      <a
-                        href="#"
+                        <FaEdit className="size-5" />
+                      </button>
+                      <button
                         className="text-red-600 hover:text-red-900"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <MdDelete className="size-6" />
-                      </a>
+                        <MdDelete className="size-5" />
+                      </button>
                     </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* mobile */}
-      <div className="grid h-[calc(100vh-15rem)] grid-cols-1 gap-4 overflow-x-auto rounded-lg border-y-2 sm:grid-cols-2 md:hidden ">
-        {displayedData.length === 0 ? (
-          <div className="col-span-1 flex h-full items-center justify-center sm:col-span-2">
-            <div className="text-md whitespace-nowrap p-3 font-amazon-ember font-medium text-gray-900">
-              No result
-            </div>
-          </div>
-        ) : (
-          displayedData.map((row) => (
-            <div
-              key={row.user_id}
-              className={`max-h-40 space-y-3 rounded-lg p-4 shadow  ${selectedRows.includes(row.user_id) ? "bg-theme-orange bg-opacity-10" : ""}`}
-              onClick={() => toggleRowSelection(row.user_id)}
-            >
-              {/* avatar + name */}
-              <div className="flex items-center">
-                <div className="relative h-8 w-8 flex-shrink-0">
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src={row.avatar}
-                    alt="avatar"
-                  />
-                  {row.is_active && (
-                    <>
-                      <span className="absolute  right-0.5 top-1 h-3 w-3 rounded-full border-2 border-white bg-green-500"></span>
-                      <span className="absolute  right-0.5 top-1 h-3 w-3 animate-ping rounded-full  bg-green-500"></span>
-                    </>
-                  )}
-                </div>
-                <div className="ml-2">
-                  <div className="break-words font-amazon-ember text-sm font-medium text-gray-900">
-                    {row.firstName} {row.lastName}
                   </div>
                 </div>
-              </div>
-              {/* email */}
-              <div className="break-words font-amazon-ember text-xs text-gray-700">
-                {row.email}
-              </div>
-              {/* role + action */}
-              <div className="flex items-center justify-between space-x-2">
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${row.role === "ADMIN" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}
-                >
-                  {row.role}
-                </span>
-                <div className="flex space-x-6">
-                  <button
-                    className="text-indigo-600 hover:text-indigo-900 "
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <FaEdit className="size-5" />
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-900"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MdDelete className="size-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+              ))
+            )}
+          </div>
+        </>
+      )}
 
       {/* Pagination */}
       <div>

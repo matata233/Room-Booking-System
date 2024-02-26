@@ -4,6 +4,8 @@ export default class ResponseCodeMessage {
     public static UNAUTHORIZED_REQUEST_CODE = 401;
     public static UNAUTHORIZED_REQUEST_MSG = "Unauthorized Request:";
 
+    public static BAD_REQUEST_ERROR_CODE = 400;
+
     public static NOT_FOUND_CODE = 404;
     public static NOT_FOUND_MSG = "Not Found:";
 
