@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import AbstractDTO from "../model/dto/AbstractDTO"; 
+import AbstractDTO from "../model/dto/AbstractDTO";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 
 export default abstract class AbstractController {

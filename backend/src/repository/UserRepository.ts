@@ -3,6 +3,8 @@ import AbstractDTO from "../model/dto/AbstractDTO";
 import UserDTO from "../model/dto/UserDTO";
 import {PrismaClient} from "@prisma/client/extension";
 import {toUserDTO} from "../util/Mapper/UserMapper";
+import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
+import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 
 /*
 For reference from Prisma schema:
@@ -46,7 +48,48 @@ export default class UserRepository extends AbstractRepository {
         return userDTOs;
     }
 
-    findById(id: number): Promise<AbstractDTO | null> {
-        return Promise.reject(undefined);
+    public async findById(id: number): Promise<UserDTO> {
+        const user = await this.db.users.findUnique({
+            where: {
+                user_id: id
+            },
+            include: {
+                buildings: {
+                    include: {
+                        cities: true
+                    }
+                }
+            }
+        });
+
+        if (!user) {
+            //not found
+            return Promise.reject(new NotFoundError(`User not found with id: ${id}`));
+        }
+        const userDTO = toUserDTO(user, user.buildings.cities, user.buildings);
+
+        return userDTO;
+    }
+
+    public async findByEmail(email: string): Promise<UserDTO> {
+        const user = await this.db.users.findUnique({
+            where: {
+                email: email
+            },
+            include: {
+                buildings: {
+                    include: {
+                        cities: true
+                    }
+                }
+            }
+        });
+
+        if (!user) {
+            throw new NotFoundError(`User not found with email: ${email}`);
+        }
+
+        const userDTO = toUserDTO(user, user.buildings.cities, user.buildings);
+        return userDTO;
     }
 }

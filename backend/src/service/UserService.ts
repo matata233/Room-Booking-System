@@ -16,7 +16,11 @@ export default class UserService extends AbstractService {
     }
 
     public async getById(id: number): Promise<UserDTO> {
-        return Promise.reject("Not implemented");
+        return this.userRepo.findById(id);
+    }
+
+    public async getByEmail(email: string): Promise<UserDTO> {
+        return this.userRepo.findByEmail(email);
     }
 
     create(dto: AbstractDTO): Promise<AbstractDTO> {
