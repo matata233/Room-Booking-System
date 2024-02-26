@@ -1,11 +1,9 @@
 import AbstractRepository from "./AbstractRepository";
-import AbstractDTO from "../model/dto/AbstractDTO";
 import UserDTO from "../model/dto/UserDTO";
 import {PrismaClient} from "@prisma/client/extension";
 import {toUserDTO} from "../util/Mapper/UserMapper";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
-import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
 /*
 For reference from Prisma schema:
@@ -32,6 +30,7 @@ interface GoogleUser {
     given_name: string;
     family_name: string;
 }
+
 export default class UserRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
         super(database);
@@ -93,7 +92,7 @@ export default class UserRepository extends AbstractRepository {
         });
 
         if (!user) {
-            throw new NotFoundError(`User not found with email: ${email}`);
+            return Promise.reject(new NotFoundError(`User not found with email: ${email}`));
         }
 
         const userDTO = toUserDTO(user, user.buildings.cities, user.buildings);
@@ -101,37 +100,43 @@ export default class UserRepository extends AbstractRepository {
     }
 
     public async validateGoogleToken(googleToken: string): Promise<UserDTO> {
-        try {
-            //Decode the JWT token received from Google
-            const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
-            if (!decodedUserInfo) {
-                throw new Error("Invalid token");
-            }
 
-            // Attempt to fetch the user by email
-            let user = this.findByEmail(decodedUserInfo.email);
-            
-            // If user doesn't exist, create a new user
-            // if (!user) {
-            //     user = await prisma.users.create({
-            //         data: {
-            //             user_id: 1,
-            //             email: decodedUserInfo.email,
-            //             first_name: decodedUserInfo.given_name,
-            //             last_name: decodedUserInfo.family_name,
-            //             is_active: true,
-            //             role: role.staff //default to giving staff (user) privileges?
-            //         }
-            //     });
-            // }
-            //
-            // // Return the user data
-            // return user;
-            return Promise.reject("Not implemented");
-        } catch (error) {
-            console.error("Error validating Google token:", error);
-            throw error;
+        //Decode the JWT token received from Google
+        const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
+        if (!decodedUserInfo) {
+            throw new Error("Invalid token");
         }
+
+        // fetch the user by email
+        let user: UserDTO;
+        try {
+            user = await this.findByEmail(decodedUserInfo.email);
+        } catch (error){
+            if (error instanceof NotFoundError) {
+                // assuming if user is not found we throw an UnauthorizedError
+                return Promise.reject(new UnauthorizedError(`User ${decodedUserInfo.email} is not authorized`));
+            } else {
+                return Promise.reject(error);
+            }
+        }
+
+        // If somehow we want to create new user here?
+        // if () {
+        //     user = await prisma.users.create({
+        //         data: {
+        //             user_id: 1,
+        //             email: decodedUserInfo.email,
+        //             first_name: decodedUserInfo.given_name,
+        //             last_name: decodedUserInfo.family_name,
+        //             is_active: true,
+        //             role: role.staff //default to giving staff (user) privileges?
+        //         }
+        //     });
+        // }
+
+        // Return the user data
+        return user;
+
     }
 
     public async generateJwtToken(userDTO: UserDTO): Promise<string> {

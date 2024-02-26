@@ -103,13 +103,16 @@ export default class UserController extends AbstractController {
         } catch (error) {
             // Handle errors
             if (error instanceof UnauthorizedError) {
-                return res.status(401).json({message: "Unauthorized Request"});
+                return super.onReject(res, error.code, error.message);
+            }else if (error instanceof NotFoundError) {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
+            }else {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "Unexpected error occurred while login."
+                );
             }
-            if (error instanceof NotFoundError) {
-                return res.status(404).json({message: "User Not Found"});
-            }
-            // Generic server error
-            return res.status(500).json({message: "Internal Server Error"});
         }
     }
 }
