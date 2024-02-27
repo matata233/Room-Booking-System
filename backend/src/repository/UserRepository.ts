@@ -4,6 +4,7 @@ import {PrismaClient} from "@prisma/client/extension";
 import {toUserDTO} from "../util/Mapper/UserMapper";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import {jwtDecode} from "jwt-decode";
+import jwt from 'jsonwebtoken';
 
 /*
 For reference from Prisma schema:
@@ -100,9 +101,10 @@ export default class UserRepository extends AbstractRepository {
     }
 
     public async validateGoogleToken(googleToken: string): Promise<UserDTO> {
-
+        console.log("In userRepo.validateGoogleToken")
         //Decode the JWT token received from Google
         const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
+        console.log(decodedUserInfo)
         if (!decodedUserInfo) {
             throw new Error("Invalid token");
         }
@@ -111,6 +113,7 @@ export default class UserRepository extends AbstractRepository {
         let user: UserDTO;
         try {
             user = await this.findByEmail(decodedUserInfo.email);
+            console.log(JSON.stringify(user));
         } catch (error){
             if (error instanceof NotFoundError) {
                 // assuming if user is not found we throw an UnauthorizedError
@@ -119,27 +122,24 @@ export default class UserRepository extends AbstractRepository {
                 return Promise.reject(error);
             }
         }
-
-        // If somehow we want to create new user here?
-        // if () {
-        //     user = await prisma.users.create({
-        //         data: {
-        //             user_id: 1,
-        //             email: decodedUserInfo.email,
-        //             first_name: decodedUserInfo.given_name,
-        //             last_name: decodedUserInfo.family_name,
-        //             is_active: true,
-        //             role: role.staff //default to giving staff (user) privileges?
-        //         }
-        //     });
-        // }
-
         // Return the user data
+        console.log(JSON.stringify(user));
         return user;
-
     }
 
     public async generateJwtToken(userDTO: UserDTO): Promise<string> {
-        return Promise.reject("Not implemented");
+        // return Promise.resolve("1234")
+        const payload = JSON.stringify(UserDTO); //payload:undefined
+        // const token = jwt.sign({payload}, 'my_secret_key');
+        return new Promise((resolve, reject) => {
+            jwt.sign(payload, 'my_secret_key', { expiresIn: '1h' }, (err, token) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    // @ts-ignore
+                    resolve(token);
+                }
+            });
+        });
     }
 }

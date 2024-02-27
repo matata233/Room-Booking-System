@@ -86,14 +86,19 @@ export default class UserController extends AbstractController {
         return Promise.reject("Not implemented");
     }
 
-    public async login(req: Request, res: Response): Promise<Response> {
+    //arrow function =>
+    public login = async (req: Request, res: Response): Promise<Response> => {
         try {
             //Extract the Google OAuth token from the request body
-            const googleToken = req.body.token;
+            const googleToken: string = req.body.token;
+            console.log(googleToken)
             if (!googleToken) {
+                //throw new
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Token is required.");
             }
+            console.log("Entering userService.login");
             const jwtToken = await this.userService.login(googleToken);
+            console.log("Finished userService.login")
 
             // Send the JWT token back to frontend
             return res.status(200).json({
@@ -114,5 +119,5 @@ export default class UserController extends AbstractController {
                 );
             }
         }
-    }
+    };
 }
