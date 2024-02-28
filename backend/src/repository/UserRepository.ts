@@ -101,8 +101,6 @@ export default class UserRepository extends AbstractRepository {
     }
 
     public async validateGoogleToken(googleToken: string): Promise<UserDTO> {
-        console.log("In userRepo.validateGoogleToken")
-        //Decode the JWT token received from Google
         const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
         console.log(decodedUserInfo)
         if (!decodedUserInfo) {
@@ -113,30 +111,38 @@ export default class UserRepository extends AbstractRepository {
         let user: UserDTO;
         try {
             user = await this.findByEmail(decodedUserInfo.email);
-            console.log(JSON.stringify(user));
         } catch (error){
             if (error instanceof NotFoundError) {
-                // assuming if user is not found we throw an UnauthorizedError
                 return Promise.reject(new UnauthorizedError(`User ${decodedUserInfo.email} is not authorized`));
             } else {
                 return Promise.reject(error);
             }
         }
+        //reject authorization for inactive users
+        if (!user.isActive){
+            return Promise.reject(new UnauthorizedError(`User ${decodedUserInfo.email} is no longer active`));
+        }
         // Return the user data
-        console.log(JSON.stringify(user));
         return user;
     }
 
     public async generateJwtToken(userDTO: UserDTO): Promise<string> {
-        // return Promise.resolve("1234")
-        const payload = JSON.stringify(UserDTO); //payload:undefined
-        // const token = jwt.sign({payload}, 'my_secret_key');
+        const payload = {
+            userId: userDTO.userId,
+            username: userDTO.username,
+            firstName: userDTO.firstName,
+            lastName: userDTO.lastName,
+            email: userDTO.email,
+            floor: userDTO.floor,
+            desk: userDTO.desk,
+            isActive: userDTO.isActive,
+            roles: userDTO.role,
+        };
         return new Promise((resolve, reject) => {
             jwt.sign(payload, 'my_secret_key', { expiresIn: '1h' }, (err, token) => {
-                if (err) {
+                if (err || !token ) {
                     reject(err);
                 } else {
-                    // @ts-ignore
                     resolve(token);
                 }
             });

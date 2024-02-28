@@ -91,16 +91,13 @@ export default class UserController extends AbstractController {
         try {
             //Extract the Google OAuth token from the request body
             const googleToken: string = req.body.token;
-            console.log(googleToken)
             if (!googleToken) {
                 //throw new
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Token is required.");
             }
-            console.log("Entering userService.login");
             const jwtToken = await this.userService.login(googleToken);
-            console.log("Finished userService.login")
 
-            // Send the JWT token back to frontend
+            // Send generated JWT token back to frontend
             return res.status(200).json({
                 message: "Welcome",
                 token: jwtToken

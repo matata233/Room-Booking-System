@@ -32,11 +32,8 @@ export default class UserService extends AbstractService {
     }
 
     public login = async(googleToken: string): Promise<string> => {
-        console.log("Entering userRepo")
-        
         const userData = await this.userRepo.validateGoogleToken(googleToken);
-        console.log("userRepo.validateGoogleToken completed")
-        return this.userRepo.generateJwtToken(userData);
-        // return Promise.resolve("abc");
+        const token = await this.userRepo.generateJwtToken(userData);
+        return token;
     }
 }
