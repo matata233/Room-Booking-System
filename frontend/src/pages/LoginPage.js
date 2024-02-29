@@ -15,6 +15,7 @@ const LoginPage = () => {
   // 'search' returns a string containing all the query parameters.
   const searchParams = new URLSearchParams(search); // extract the query parameter and its value
   const redirect = searchParams.get("redirect") || "/";
+  //local testing url value, will have to change once deployed
   const backendUrl = 'http://localhost:3001/aws-room-booking/api/v1/users/login'
   const sendTokenToBackend = async (credential) => {
     try {
@@ -39,11 +40,10 @@ const LoginPage = () => {
     try {
       const decodedUserInfo = jwtDecode(res.credential);
       setUserInfo(decodedUserInfo);
-      const backendResponse = await sendTokenToBackend(res.credential);
-      console.log('Backend response', backendResponse);
+      //local testing login endpoint
+      // const backendResponse = await sendTokenToBackend(res.credential);
+      // console.log('Backend response', backendResponse);
       dispatch(setCredentials({...decodedUserInfo}));
-      // Update credentials in redux store with backend response if needed
-      // dispatch(setCredentials({ ...decodedUserInfo, ...backendResponse }));
       navigate(redirect);
     } catch (err) {
       console.log(err);
