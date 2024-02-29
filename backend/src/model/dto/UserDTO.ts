@@ -1,5 +1,8 @@
 import AbstractDTO from "./AbstractDTO";
 import BuildingDTO from "./BuildingDTO";
+import CityDTO from "./CityDTO";
+import {role} from "@prisma/client";
+
 export default class UserDTO extends AbstractDTO {
     public userId: number;
     public username?: string;
@@ -18,6 +21,3 @@ export default class UserDTO extends AbstractDTO {
         this.userId = userId;
     }
 }
-import CityDTO from "./CityDTO";
-import {role} from "@prisma/client";
-

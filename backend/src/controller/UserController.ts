@@ -86,13 +86,12 @@ export default class UserController extends AbstractController {
         return Promise.reject("Not implemented");
     }
 
-    //arrow function =>
+
     public login = async (req: Request, res: Response): Promise<Response> => {
         try {
             //Extract the Google OAuth token from the request body
             const googleToken: string = req.body.token;
             if (!googleToken) {
-                //throw new
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Token is required.");
             }
             const jwtToken = await this.userService.login(googleToken);

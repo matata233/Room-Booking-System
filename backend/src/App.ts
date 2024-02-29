@@ -3,11 +3,10 @@ import {PrismaClient} from "@prisma/client";
 import RoomController from "./controller/RoomController";
 import RoomService from "./service/RoomService";
 import RoomRepository from "./repository/RoomRepository";
-import cors from "cors";
-
 import UserController from "./controller/UserController";
 import UserService from "./service/UserService";
 import UserRepository from "./repository/UserRepository";
+import cors from "cors";
 
 const app = express();
 // Registers middleware
