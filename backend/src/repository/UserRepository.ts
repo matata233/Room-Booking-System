@@ -1,10 +1,10 @@
 import AbstractRepository from "./AbstractRepository";
-import AbstractDTO from "../model/dto/AbstractDTO";
 import UserDTO from "../model/dto/UserDTO";
 import {PrismaClient} from "@prisma/client/extension";
 import {toUserDTO} from "../util/Mapper/UserMapper";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
-import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
+import {jwtDecode} from "jwt-decode";
+import jwt from 'jsonwebtoken';
 
 /*
 For reference from Prisma schema:
@@ -24,6 +24,13 @@ buildings      buildings        @relation(fields: [building_id], references: [bu
 users_bookings users_bookings[]
 }
 */
+
+interface GoogleUser {
+    email: string;
+    name: string;
+    given_name: string;
+    family_name: string;
+}
 
 export default class UserRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
@@ -86,10 +93,75 @@ export default class UserRepository extends AbstractRepository {
         });
 
         if (!user) {
-            throw new NotFoundError(`User not found with email: ${email}`);
+            return Promise.reject(new NotFoundError(`User not found with email: ${email}`));
         }
 
         const userDTO = toUserDTO(user, user.buildings.cities, user.buildings);
         return userDTO;
+    }
+
+    public async validateGoogleToken(googleToken: string): Promise<UserDTO> {
+        const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
+        if (!decodedUserInfo) {
+            throw new Error("Invalid token");
+        }
+
+        // fetch the user by email
+        let user: UserDTO;
+        try {
+            user = await this.findByEmail(decodedUserInfo.email);
+        } catch (error){
+            if (error instanceof NotFoundError) {
+                return Promise.reject(new UnauthorizedError(`User ${decodedUserInfo.email} is not authorized`));
+            } else {
+                return Promise.reject(error);
+            }
+        }
+        //reject authorization for inactive users
+        if (!user.isActive){
+            return Promise.reject(new UnauthorizedError(`User ${decodedUserInfo.email} is no longer active`));
+        }
+        // Return the user data
+        return user;
+    }
+
+    public async generateJwtToken(userDTO: UserDTO): Promise<string> {
+        const payload = {
+            userId: userDTO.userId,
+            username: userDTO.username,
+            firstName: userDTO.firstName,
+            lastName: userDTO.lastName,
+            email: userDTO.email,
+            floor: userDTO.floor,
+            desk: userDTO.desk,
+            isActive: userDTO.isActive,
+            role: userDTO.role,
+        };
+        return new Promise((resolve, reject) => {
+            jwt.sign(payload, 'my_secret_key', { expiresIn: '1h' }, (err, token) => {
+                if (err || !token ) {
+                    reject(err);
+                } else {
+                    resolve(token);
+                }
+            });
+        });
+    }
+    //Helper function that decodes our token and checks if role == admin
+    public async validateAdmin(token: string): Promise<boolean> {
+        const user: UserDTO = jwtDecode(token);
+        if (user.role == 'admin'){
+            return Promise.resolve(true);
+        }
+        return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
+    }
+    //Helper function that decodes our token and checks if role == admin or role == user
+    public async validateUser(token: string): Promise<boolean> {
+        const user: UserDTO = jwtDecode(token);
+        //either admin or staff will be authorized
+        if (user.role == 'admin' || user.role == 'staff'){
+            return Promise.resolve(true);
+        }
+        return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
     }
 }

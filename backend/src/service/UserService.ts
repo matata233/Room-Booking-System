@@ -30,4 +30,10 @@ export default class UserService extends AbstractService {
     update(id: number, dto: AbstractDTO): Promise<AbstractDTO> {
         return Promise.reject("Not implemented");
     }
+
+    public login = async(googleToken: string): Promise<string> => {
+        const userData = await this.userRepo.validateGoogleToken(googleToken);
+        const token = await this.userRepo.generateJwtToken(userData);
+        return token;
+    }
 }

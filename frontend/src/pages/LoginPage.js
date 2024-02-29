@@ -5,10 +5,8 @@ import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
 import { setCredentials, logout } from "../slices/authSlice";
 
-// import { useCookies } from 'react-cookie';
 
 const LoginPage = () => {
-  // const [cookies, setCookie] = useCookies(['auth-token'])
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -17,34 +15,47 @@ const LoginPage = () => {
   // 'search' returns a string containing all the query parameters.
   const searchParams = new URLSearchParams(search); // extract the query parameter and its value
   const redirect = searchParams.get("redirect") || "/";
+  //local testing url value, will have to change once deployed
+  const backendUrl = 'http://localhost:3001/aws-room-booking/api/v1/users/login'
+  const sendTokenToBackend = async (credential) => {
+    try {
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: credential }),
+      });
 
-  const handleLogin = (res) => {
+      const backendData = await response.json();
+      console.log(backendData);
+      return backendData; // This should include the backend session token
+    } catch (error) {
+      console.error('Error sending token to backend', error);
+      throw error;
+    }
+  };
+
+  const handleLogin = async (res) => {
     try {
       const decodedUserInfo = jwtDecode(res.credential);
       setUserInfo(decodedUserInfo);
-      console.log(decodedUserInfo);
-      dispatch(setCredentials({ ...decodedUserInfo }));
+      //local testing login endpoint
+      // const backendResponse = await sendTokenToBackend(res.credential);
+      // console.log('Backend response', backendResponse);
+      dispatch(setCredentials({...decodedUserInfo}));
       navigate(redirect);
     } catch (err) {
       console.log(err);
     }
 
-    // setCookie('auth-token', res.credential, { path: '/', maxAge: 3600 });
-    // setUser(jwtdecode(token));
-    // navigate("/")//go to landing page
   };
-  // const login = useGoogleLogin({
-  //     onSuccess: tokenResponse => {
-  //         console.log(tokenResponse);
-  //         setUser(tokenResponse);
-  //     },
-  //     onError: () => console.log('Login Failed'),
-  // });
 
   const handleLogout = () => {
     try {
       dispatch(logout());
       setUserInfo(null);
+      googleLogout();
       navigate("/login");
     } catch (error) {
       console.error("Logout failed", error);

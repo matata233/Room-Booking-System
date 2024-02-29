@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 const database = new PrismaClient();
-// const userController = new UserController();
+
 const roomController = new RoomController(new RoomService(new RoomRepository(database)));
 const userController = new UserController(new UserService(new UserRepository(database)));
 
@@ -30,6 +30,9 @@ app.get(`${endpoint}/api/data`, (req, res) => {
 
 // Room routes
 app.get(`${endpoint}/rooms`, roomController.getAll);
+
+//login route
+app.post(`${endpoint}/users/login`, userController.login);
 
 // User routes
 app.get(`${endpoint}/users`, userController.getAll);
