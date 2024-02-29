@@ -102,7 +102,6 @@ export default class UserRepository extends AbstractRepository {
 
     public async validateGoogleToken(googleToken: string): Promise<UserDTO> {
         const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
-        console.log(decodedUserInfo)
         if (!decodedUserInfo) {
             throw new Error("Invalid token");
         }
@@ -136,7 +135,7 @@ export default class UserRepository extends AbstractRepository {
             floor: userDTO.floor,
             desk: userDTO.desk,
             isActive: userDTO.isActive,
-            roles: userDTO.role,
+            role: userDTO.role,
         };
         return new Promise((resolve, reject) => {
             jwt.sign(payload, 'my_secret_key', { expiresIn: '1h' }, (err, token) => {
@@ -147,5 +146,24 @@ export default class UserRepository extends AbstractRepository {
                 }
             });
         });
+    }
+    //Helper function that decodes our token and checks if role == admin
+    public async validateAdmin(token: string): Promise<boolean> {
+        const user: UserDTO = jwtDecode(token);
+        console.log(user)
+        if (user.role == 'admin'){
+            return Promise.resolve(true);
+        }
+        return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
+    }
+
+    public async validateUser(token: string): Promise<boolean> {
+        const user: UserDTO = jwtDecode(token);
+        console.log(user)
+        //either admin or staff will be authorized
+        if (user.role == 'admin' || user.role == 'staff'){
+            return Promise.resolve(true);
+        }
+        return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
     }
 }
