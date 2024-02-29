@@ -150,16 +150,14 @@ export default class UserRepository extends AbstractRepository {
     //Helper function that decodes our token and checks if role == admin
     public async validateAdmin(token: string): Promise<boolean> {
         const user: UserDTO = jwtDecode(token);
-        console.log(user)
         if (user.role == 'admin'){
             return Promise.resolve(true);
         }
         return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
     }
-
+    //Helper function that decodes our token and checks if role == admin or role == user
     public async validateUser(token: string): Promise<boolean> {
         const user: UserDTO = jwtDecode(token);
-        console.log(user)
         //either admin or staff will be authorized
         if (user.role == 'admin' || user.role == 'staff'){
             return Promise.resolve(true);

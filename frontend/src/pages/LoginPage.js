@@ -16,22 +16,19 @@ const LoginPage = () => {
   const searchParams = new URLSearchParams(search); // extract the query parameter and its value
   const redirect = searchParams.get("redirect") || "/";
   const backendUrl = 'http://localhost:3001/aws-room-booking/api/v1/users/login'
-  const sendTokenToBackend = async (token) => {
+  const sendTokenToBackend = async (credential) => {
     try {
       const response = await fetch(backendUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token }), //
+        body: JSON.stringify({ token: credential }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to login');
-      }
-
       const backendData = await response.json();
-      return backendData; // This should include the backend session token and any other info
+      console.log(backendData);
+      return backendData; // This should include the backend session token
     } catch (error) {
       console.error('Error sending token to backend', error);
       throw error;
@@ -42,7 +39,6 @@ const LoginPage = () => {
     try {
       const decodedUserInfo = jwtDecode(res.credential);
       setUserInfo(decodedUserInfo);
-      console.log(decodedUserInfo);
       const backendResponse = await sendTokenToBackend(res.credential);
       console.log('Backend response', backendResponse);
       dispatch(setCredentials({...decodedUserInfo}));
