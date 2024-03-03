@@ -14,6 +14,7 @@ const AdminRoute = () => {
     if (!userInfo) {
       navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
     } else if (userInfo.role !== "admin") {
+      // Check if user is not an admin
       toast.warn("Access denied.");
       navigate("/");
     } else {
@@ -21,7 +22,6 @@ const AdminRoute = () => {
     }
   }, [userInfo, navigate, location.pathname]);
 
-  // If user is an admin, render the Outlet, otherwise render null or alternative content
   return isAdmin ? <Outlet /> : null;
 };
 

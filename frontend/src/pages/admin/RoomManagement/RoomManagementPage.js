@@ -6,7 +6,7 @@ import useSortData from "../../../hooks/useSortData";
 import useRowSelection from "../../../hooks/useRowSelection";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { FaSort } from "react-icons/fa6";
+import { FaSort, FaXmark, FaCheck } from "react-icons/fa6";
 import { PiSelectionAllFill } from "react-icons/pi";
 import Pagination from "../../../components/Pagination";
 import { useGetRoomsQuery } from "../../../slices/roomsApiSlice";
@@ -76,11 +76,12 @@ const RoomManagementPage = () => {
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
               <option value="all">All</option>
-              <option value="roomId">Room Id</option>
+              <option value="roomId">Room ID</option>
+              <option value="city.cityId">City Code</option>
+              <option value="building.code">Building Code</option>
+              <option value="floorNumber">Floor</option>
+              <option value="roomCode">Room Number</option>
               <option value="roomName">Room Name</option>
-              <option value="roomCode">Room Code</option>
-              <option value="building">Location</option>
-              <option value="equipmentList">Equipments</option>
               <option value="numberOfSeats">Capacity</option>
             </select>
           </div>
@@ -156,8 +157,11 @@ const RoomManagementPage = () => {
                   </th>
                   {[
                     { key: "roomId", display: "Room Id" },
+                    { key: "city.cityId", display: "City Code" },
+                    { key: "building.code", display: "Building Code" },
+                    { key: "floorNumber", display: "Floor" },
+                    { key: "roomCode", display: "Room Number" },
                     { key: "roomName", display: "Room Name" },
-                    { key: "roomCode", display: "Room Code" },
                     { key: "numberOfSeats", display: "Capacity" },
                   ].map((header) => (
                     <th
@@ -171,9 +175,8 @@ const RoomManagementPage = () => {
                     </th>
                   ))}
                   {[
-                    { key: "location", display: "Location" },
                     { key: "equipments", display: "Equipments" },
-                    { key: "isActive", display: "Status" },
+                    { key: "isActive", display: "Is Active" },
                   ].map((header) => (
                     <th
                       key={header.key}
@@ -191,7 +194,7 @@ const RoomManagementPage = () => {
                 {displayedData.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="8"
+                      colSpan="10"
                       className="text-md whitespace-nowrap p-3 text-center font-amazon-ember font-medium text-gray-900"
                     >
                       No result
@@ -215,31 +218,25 @@ const RoomManagementPage = () => {
                         {row.roomId}
                       </td>
                       <td className="whitespace-nowrap p-3 text-sm text-gray-900">
-                        {row.roomName}
+                        {row.city.cityId}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
+                        {row.building.code}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
+                        {String(row.floorNumber).padStart(2, "0")}
                       </td>
                       <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                         {row.roomCode}
                       </td>
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
+                        {row.roomName}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                         {row.numberOfSeats}
                       </td>
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                        <ul>
-                          <li>
-                            <span className="text-theme-blue">Address:</span>{" "}
-                            {row.building.address}
-                          </li>
-                          <li>
-                            <span className="text-theme-blue">Building:</span>{" "}
-                            {row.building.code}
-                          </li>
-                          <li>
-                            <span className="text-theme-blue">Floor:</span>{" "}
-                            {row.floorNumber}
-                          </li>
-                        </ul>
-                      </td>
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
+
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                         <ul>
                           {row.equipmentList.length > 0 ? (
                             row.equipmentList.map((equipment, index) => (
@@ -255,9 +252,9 @@ const RoomManagementPage = () => {
 
                       <td className="whitespace-nowrap p-3 text-sm text-gray-500">
                         {row.isActive ? (
-                          <div className="h-4 w-4 rounded-full bg-green-500"></div>
+                          <FaCheck className="size-6 text-green-500" />
                         ) : (
-                          <div className="h-4 w-4 rounded-full  bg-red-500"></div>
+                          <FaXmark className="size-6 text-red-500" />
                         )}
                       </td>
                       <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
@@ -300,72 +297,42 @@ const RoomManagementPage = () => {
                   className={`space-y-3 rounded-lg p-4 shadow   ${selectedRows.includes(row.roomId) ? "bg-theme-orange bg-opacity-10" : ""}`}
                   onClick={() => toggleRowSelection(row.roomId)}
                 >
-                  <div className="font-amazon-ember text-sm text-gray-900">
-                    {`${row.roomName} - ${row.roomCode}`}
+                  <div className="font-amazon-ember text-base text-gray-900">
+                    {`${row.city.cityId}${row.building.code} ${String(row.floorNumber).padStart(2, "0")}.${row.roomCode} ${row.roomName}`}
                   </div>
 
-                  {/* room id  + capacity*/}
-                  <div className="flex gap-x-[86px]">
-                    <div className="break-words font-amazon-ember text-sm text-gray-900">
-                      <span className="font-bold text-theme-dark-orange">
-                        ID:{" "}
-                      </span>
-                      {`${row.roomId}`}
-                    </div>
-                    <div className="break-words font-amazon-ember text-sm text-gray-900">
-                      <span className="font-bold text-theme-dark-orange">
-                        Capacity:{" "}
-                      </span>
-                      {`${row.numberOfSeats}`}
-                    </div>
+                  <div className="break-words font-amazon-ember text-sm text-gray-500">
+                    <span className="block font-bold text-theme-dark-orange">
+                      Equipments:
+                    </span>
+                    <ul>
+                      {row.equipmentList.length > 0 ? (
+                        row.equipmentList.map((equipment, index) => (
+                          <li
+                            key={index}
+                          >{`${equipment.equipmentId}: ${equipment.description}`}</li>
+                        ))
+                      ) : (
+                        <li>None</li>
+                      )}
+                    </ul>
                   </div>
-
-                  {/* Location + Equipments */}
-                  <div className="flex gap-x-10 md:justify-between">
-                    <div className="break-words font-amazon-ember text-sm text-gray-500">
-                      <span className="block font-bold text-theme-dark-orange">
-                        Location:
-                      </span>
-                      <ul>
-                        <li>
-                          <span className="text-theme-blue">Address:</span>{" "}
-                          {row.building.address}
-                        </li>
-                        <li>
-                          <span className="text-theme-blue">Building:</span>{" "}
-                          {row.building.code}
-                        </li>
-                        <li>
-                          <span className="text-theme-blue">Floor:</span>{" "}
-                          {row.floorNumber}
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="break-words font-amazon-ember text-sm text-gray-500">
-                      <span className="block font-bold text-theme-dark-orange">
-                        Equipments:
-                      </span>
-                      <ul>
-                        {row.equipmentList.length > 0 ? (
-                          row.equipmentList.map((equipment, index) => (
-                            <li
-                              key={index}
-                            >{`${equipment.equipmentId}: ${equipment.description}`}</li>
-                          ))
-                        ) : (
-                          <li>None</li>
-                        )}
-                      </ul>
-                    </div>
+                  <div className="font-amazon-ember text-sm text-gray-500">
+                    <span className="mr-2 font-bold text-theme-dark-orange">
+                      Capacity:
+                    </span>
+                    {row.numberOfSeats}
                   </div>
-
                   {/* status + action */}
                   <div className="flex items-center justify-between space-x-2">
                     <div className="inline-flex items-center">
+                      <span className="mr-2 text-sm text-theme-dark-orange">
+                        Is Active:{" "}
+                      </span>
                       {row.isActive ? (
-                        <div className="h-4 w-4 rounded-full bg-green-500"></div>
+                        <FaCheck className="size-4 text-green-500" />
                       ) : (
-                        <div className="h-4 w-4 rounded-full  bg-red-500"></div>
+                        <FaXmark className="size-4 text-red-500" />
                       )}
                     </div>
                     <div className="flex space-x-6">
