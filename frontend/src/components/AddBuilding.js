@@ -23,9 +23,10 @@ const AddBuilding = ({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
       <TextField
-        label="City ID"
+        label="City Code"
         value={cityId}
         size="small"
+        required
         variant="standard"
         onChange={(e) => setCityId(e.target.value)}
         InputLabelProps={{
@@ -36,9 +37,10 @@ const AddBuilding = ({
         }}
       />
       <TextField
-        label="Code"
+        label="Building Code"
         value={code}
         size="small"
+        required
         variant="standard"
         onChange={(e) => setCode(e.target.value)}
         type="number"
@@ -72,6 +74,7 @@ const AddBuilding = ({
         label="Address"
         value={address}
         size="small"
+        required
         variant="standard"
         onChange={(e) => setAddress(e.target.value)}
         InputLabelProps={{
@@ -86,6 +89,7 @@ const AddBuilding = ({
         label="Longitude"
         value={lon}
         size="small"
+        required
         variant="standard"
         onChange={(e) => setLon(e.target.value)}
         type="number"
@@ -100,6 +104,7 @@ const AddBuilding = ({
         label="Latitude"
         value={lat}
         size="small"
+        required
         variant="standard"
         onChange={(e) => setLat(e.target.value)}
         type="number"

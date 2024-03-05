@@ -23,7 +23,7 @@ const UserManagementAddPage = () => {
       </div>
 
       <div className="relative flex w-full  items-center justify-center lg:hidden">
-        <div className="absolute w-full border-t-2 border-dashed border-theme-orange"></div>
+        <div className="absolute w-5/6 border-t-2 border-dashed border-theme-orange"></div>
         <span className="z-10 bg-white px-2 text-sm text-theme-orange">OR</span>
       </div>
       <FileUpload />

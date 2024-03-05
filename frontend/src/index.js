@@ -35,6 +35,7 @@ const router = createBrowserRouter(
       {/* All public routes */}
       <Route index element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+
       {/* private routes */}
       <Route path="" element={<PrivateRoute />}>
         <Route path="/bookingHistory" element={<BookingHistoryPage />} />
