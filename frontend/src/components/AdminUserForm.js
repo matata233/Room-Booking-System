@@ -53,6 +53,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                     id="firstName"
                     label="First Name"
                     size="small"
+                    required
                     variant="standard"
                     className="w-full"
                     InputLabelProps={{
@@ -67,6 +68,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                     id="lastName"
                     label="Last Name"
                     size="small"
+                    required
                     variant="standard"
                     className="w-full"
                     InputLabelProps={{
@@ -85,6 +87,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   label="Email"
                   size="small"
                   type="email"
+                  required
                   variant="standard"
                   className="w-full"
                   InputLabelProps={{
@@ -100,7 +103,8 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   id="username"
                   label="Username"
                   size="small"
-                  type="email"
+                  type="text"
+                  required
                   variant="standard"
                   className="w-full"
                   InputLabelProps={{
@@ -151,6 +155,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   id="floor"
                   label="Floor"
                   size="small"
+                  required
                   variant="standard"
                   type="number"
                   className="w-full"
@@ -165,6 +170,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   id="desk"
                   label="Desk"
                   size="small"
+                  required
                   variant="standard"
                   type="number"
                   className="w-full"
