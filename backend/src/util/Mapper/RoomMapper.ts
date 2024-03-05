@@ -33,7 +33,7 @@ export const toRoomDTO = (room: rooms, city: cities, building: buildings, equipm
     roomDTO.building = new BuildingDTO(building.building_id); // Create a new BuildingDTO with the building_id
     roomDTO.building.code = building.code;
     roomDTO.building.address = building.address;
-    roomDTO.building.is_active = building.is_active;
+    roomDTO.building.isActive = building.is_active;
 
     roomDTO.city = new CityDTO(city.city_id);
     roomDTO.city.name = city.name;

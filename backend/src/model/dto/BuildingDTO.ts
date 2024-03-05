@@ -10,10 +10,10 @@ export default class BuildingDTO extends AbstractDTO {
     public address?: string;
     public lat?: number;
     public lon?: number;
-    public is_active?: boolean;
-    public cityDTO?: CityDTO;
-    public roomDTOs?: RoomDTO[];
-    public userDTOs?: UserDTO[];
+    public isActive?: boolean;
+    public city?: CityDTO;
+    public rooms?: RoomDTO[];
+    public users?: UserDTO[];
 
     constructor(buildingId: number) {
         super();
