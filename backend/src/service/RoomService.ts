@@ -16,7 +16,7 @@ export default class RoomService extends AbstractService {
     }
 
     public getById(id: number): Promise<RoomDTO> {
-        return Promise.reject("Not implemented");
+        return this.roomRepo.findById(id);
     }
 
     public create(dto: RoomDTO): Promise<RoomDTO> {
