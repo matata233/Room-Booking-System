@@ -2,6 +2,7 @@ import AbstractRepository from "./AbstractRepository";
 import RoomDTO from "../model/dto/RoomDTO";
 import {toRoomDTO} from "../util/Mapper/RoomMapper";
 import {PrismaClient} from "@prisma/client";
+import { NotFoundError } from "../util/exception/AWSRoomBookingSystemError";
 
 export default class RoomRepository extends AbstractRepository {
     /**
@@ -57,7 +58,35 @@ export default class RoomRepository extends AbstractRepository {
         return roomDTOs;
     }
 
-    public findById(id: number): Promise<RoomDTO | null> {
-        return Promise.reject(undefined);
+    public async findById(id: number): Promise<RoomDTO> {
+        const room = await this.db.rooms.findUnique({
+            where: {
+                room_id: id
+            },
+            include: {
+                buildings: {
+                    include: {
+                        cities: true
+                    }
+                },
+                bookings_rooms: {
+                    include: {
+                        bookings: true
+                    }
+                },
+                rooms_equipments: {
+                    include: {
+                        equipments: true
+                    }
+                }
+            }
+        });
+
+        if (!room) {
+            return Promise.reject(new NotFoundError(`Room not found with id: ${id}`));
+        }
+
+        const roomDTO = toRoomDTO(room, room.buildings.cities, room.buildings, room.rooms_equipments);
+        return roomDTO;
     }
 }
