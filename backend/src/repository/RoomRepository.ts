@@ -2,7 +2,7 @@ import AbstractRepository from "./AbstractRepository";
 import RoomDTO from "../model/dto/RoomDTO";
 import {toRoomDTO} from "../util/Mapper/RoomMapper";
 import {PrismaClient} from "@prisma/client";
-import { NotFoundError } from "../util/exception/AWSRoomBookingSystemError";
+import {NotFoundError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class RoomRepository extends AbstractRepository {
     /**
@@ -87,6 +87,38 @@ export default class RoomRepository extends AbstractRepository {
         }
 
         const roomDTO = toRoomDTO(room, room.buildings.cities, room.buildings, room.rooms_equipments);
+        return roomDTO;
+    }
+
+    public async create(dto: RoomDTO): Promise<RoomDTO> {
+        const newRoom = await this.db.$transaction(async (tx) => {
+            const roomAdded = await tx.rooms.create({
+                data: {
+                    building_id: dto.building!.buildingId!,
+                    floor: dto.floorNumber!,
+                    code: dto.roomCode!,
+                    name: dto.roomName,
+                    seats: dto.numberOfSeats!,
+                    is_active: dto.isActive!
+                }
+            });
+
+            const equipmentPromises = dto.equipmentList!.map((equipment) =>
+                tx.rooms_equipments.create({
+                    data: {
+                        room_id: roomAdded.room_id,
+                        equipment_id: equipment.equipmentId!
+                    }
+                })
+            );
+
+            await Promise.all(equipmentPromises);
+
+            return roomAdded;
+        });
+
+        const roomDTO = new RoomDTO();
+        roomDTO.roomId = newRoom.room_id;
         return roomDTO;
     }
 }

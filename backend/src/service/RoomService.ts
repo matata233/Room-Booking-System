@@ -1,13 +1,17 @@
 import AbstractService from "./AbstractService";
 import RoomRepository from "../repository/RoomRepository";
 import RoomDTO from "../model/dto/RoomDTO";
+import BuildingRepository from "../repository/BuildingRepository";
+import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class RoomService extends AbstractService {
     private roomRepo: RoomRepository; // The repository for the Room model
+    private bldgRepo: BuildingRepository;
 
-    constructor(roomRepo: RoomRepository) {
+    constructor(roomRepo: RoomRepository, bldgRepo: BuildingRepository) {
         super();
         this.roomRepo = roomRepo;
+        this.bldgRepo = bldgRepo;
     }
 
     public getAll(): Promise<RoomDTO[]> {
@@ -19,8 +23,43 @@ export default class RoomService extends AbstractService {
         return this.roomRepo.findById(id);
     }
 
-    public create(dto: RoomDTO): Promise<RoomDTO> {
-        return Promise.reject("Not implemented");
+    public async create(dto: RoomDTO): Promise<RoomDTO> {
+        if (!dto.building || !dto.building.buildingId) {
+            throw new BadRequestError("Invalid building ID");
+        }
+        try {
+            await this.bldgRepo.findById(dto.building.buildingId);
+        } catch (e) {
+            throw new BadRequestError("Building does not exist");
+        }
+        if (typeof dto.floorNumber !== "number") {
+            throw new BadRequestError("Invalid floor number");
+        }
+        if (typeof dto.roomCode !== "string") {
+            throw new BadRequestError("Invalid room code");
+        }
+        if (typeof dto.roomName !== "string" && dto.roomName !== null) {
+            throw new BadRequestError("Invalid room name");
+        }
+        if (typeof dto.numberOfSeats !== "number") {
+            throw new BadRequestError("Invalid number of seats");
+        }
+        if (!Array.isArray(dto.equipmentList)) {
+            throw new BadRequestError("Invalid equipment list");
+        }
+        for (const equipment of dto.equipmentList) {
+            if (typeof equipment.equipmentId !== "string" || !["AV", "VC"].includes(equipment.equipmentId)) {
+                throw new BadRequestError("Invalid equipment id");
+            }
+        }
+        if (typeof dto.isActive !== "boolean") {
+            throw new BadRequestError("Invalid is active");
+        }
+        try {
+            return await this.roomRepo.create(dto);
+        } catch (e) {
+            throw new BadRequestError("Room already exists");
+        }
     }
 
     public update(id: number, dto: RoomDTO): Promise<RoomDTO> {

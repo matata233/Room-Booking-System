@@ -5,14 +5,16 @@ import UserDTO from "../../model/dto/UserDTO";
 import RoomDTO from "../../model/dto/RoomDTO";
 
 export const toBuildingDTO = (building: buildings, city: cities, users: users[], rooms: rooms[]): BuildingDTO => {
-    const buildingDTO = new BuildingDTO(building.building_id);
+    const buildingDTO = new BuildingDTO();
+    buildingDTO.buildingId = building.building_id;
     buildingDTO.code = building.code;
     buildingDTO.address = building.address;
     buildingDTO.lat = building.lat.toNumber(); // convert decimal to number
     buildingDTO.lon = building.lon.toNumber(); // convert decimal to number
     buildingDTO.isActive = building.is_active;
 
-    buildingDTO.city = new CityDTO(city.city_id);
+    buildingDTO.city = new CityDTO();
+    buildingDTO.city.cityId = city.city_id;
     buildingDTO.city.name = city.name;
     buildingDTO.city.province_state = city.province_state;
 
@@ -30,7 +32,8 @@ export const toBuildingDTO = (building: buildings, city: cities, users: users[],
 };
 
 const mapUserToDTO = (user: users): UserDTO => {
-    const userDTO = new UserDTO(user.user_id);
+    const userDTO = new UserDTO();
+    userDTO.userId = user.user_id;
     userDTO.username = user.username;
     userDTO.firstName = user.first_name;
     userDTO.lastName = user.last_name;
@@ -43,7 +46,7 @@ const mapUserToDTO = (user: users): UserDTO => {
 };
 
 const mapRoomToDTO = (room: rooms): RoomDTO => {
-    const roomDTO = new RoomDTO(room.room_id);
+    const roomDTO = new RoomDTO();
     roomDTO.floorNumber = room.floor;
     roomDTO.roomCode = room.code;
     roomDTO.roomName = room.name;
