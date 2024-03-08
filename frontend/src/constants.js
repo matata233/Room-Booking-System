@@ -3,3 +3,4 @@ export const BASE_URL =
 // export const BASE_URL = "http://localhost:3001/aws-room-booking/api/v1";
 export const ROOMS_URL = "/rooms";
 export const USERS_URL = "/users";
+export const BUILDINGS_URL = "/buildings";
