@@ -2,7 +2,8 @@ import {bookings} from "@prisma/client";
 import BookingDTO from "../../model/dto/BookingDTO";
 
 export const toBookingDTO = (booking: bookings): BookingDTO => {
-    const bookingDTO = new BookingDTO(booking.booking_id);
+    const bookingDTO = new BookingDTO();
+    bookingDTO.bookingId = booking.booking_id;
     bookingDTO.createdBy = booking.created_by;
     bookingDTO.createdAt = booking.created_at;
     bookingDTO.startTime = booking.start_time;
