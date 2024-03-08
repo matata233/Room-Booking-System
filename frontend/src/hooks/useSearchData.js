@@ -6,6 +6,16 @@ const useSearchData = (
   selectedCategory,
   excludeFields = [],
 ) => {
+  // Get nested value from object (eg. city.cityId)
+  const getNestedValue = (object, path) => {
+    return path
+      .split(".")
+      .reduce(
+        (obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined),
+        object,
+      );
+  };
+
   const searchNested = (value, query) => {
     if (typeof value === "object" && value !== null) {
       // nested value is an object
@@ -34,7 +44,8 @@ const useSearchData = (
         );
       } else {
         // When searching in a specific category, search within the selected category without considering excluded fields
-        return searchNested(row[selectedCategory], searchQuery);
+        const value = getNestedValue(row, selectedCategory);
+        return searchNested(value, searchQuery);
       }
     });
   }, [data, searchQuery, selectedCategory, excludeFields]);

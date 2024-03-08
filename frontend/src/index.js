@@ -11,6 +11,7 @@ import {
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Provider } from "react-redux";
 import PrivateRoute from "./components/PrivateRoute";
+import AdminRoute from "./components/AdminRoute";
 import AdminHomePage from "./pages/admin/AdminHomePage/AdminHomePage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -43,8 +44,11 @@ const router = createBrowserRouter(
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/bookingReview" element={<BookingReviewPage />} />
         <Route path="/bookingComplete" element={<BookingCompletePage />} />
-        <Route path="/myFavourite" element={<MyFavouritePage />} />
+      </Route>
 
+      {/* Admin routes */}
+      <Route path="" element={<AdminRoute />}>
+        <Route path="/adminHomePage" element={<AdminHomePage />} />
         <Route path="/userManagementPage" element={<UserManagementPage />} />
         <Route
           path="/userManagementAddPage"
@@ -63,11 +67,7 @@ const router = createBrowserRouter(
           path="/roomManagementEditPage"
           element={<RoomManagementEditPage />}
         />
-
-        <Route path="/adminHomePage" element={<AdminHomePage />} />
       </Route>
-
-      {/* Admin routes */}
     </Route>,
   ),
 );

@@ -34,6 +34,7 @@ export default function AutoDropdown({
         <TextField
           {...params}
           label={label}
+          required
           size="small"
           InputLabelProps={{
             ...params.InputLabelProps,

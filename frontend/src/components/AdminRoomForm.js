@@ -68,9 +68,10 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   />
 
                   <TextField
-                    id="seats"
-                    label="Seats"
+                    id="capacity"
+                    label="Capacity"
                     size="small"
+                    required
                     variant="standard"
                     type="number"
                     className="w-full"
@@ -123,6 +124,7 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   id="floor"
                   label="Floor"
                   size="small"
+                  required
                   variant="standard"
                   type="number"
                   className="w-full"
@@ -137,6 +139,7 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   id="code"
                   label="Room Code"
                   size="small"
+                  required
                   variant="standard"
                   className="w-full"
                   InputLabelProps={{

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
-const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = true }) => {
+const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
   // Inside your component
   const location = useLocation();
   const isRoomManagementPage = location.pathname === "/roomManagementPage";
