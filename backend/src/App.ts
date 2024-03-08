@@ -18,7 +18,7 @@ app.use(cors());
 
 const database = new PrismaClient();
 
-const roomController = new RoomController(new RoomService(new RoomRepository(database)));
+const roomController = new RoomController(new RoomService(new RoomRepository(database), new BuildingRepository(database)));
 const userController = new UserController(new UserService(new UserRepository(database)));
 const buildingController = new BuildingController(new BuildingService(new BuildingRepository(database)));
 const endpoint: string = "/aws-room-booking/api/v1";
@@ -34,6 +34,7 @@ app.get(`${endpoint}/api/data`, (req, res) => {
 // Room routes
 app.get(`${endpoint}/rooms`, roomController.getAll);
 app.get(`${endpoint}/rooms/:id`, roomController.getById);
+app.post(`${endpoint}/rooms/create`, roomController.create);
 
 //login route
 app.post(`${endpoint}/users/login`, userController.login);

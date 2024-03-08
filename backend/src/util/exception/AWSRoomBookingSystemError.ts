@@ -23,3 +23,11 @@ export class RequestConflictError extends Error {
         super(ResponseCodeMessage.REQUEST_CONFLICT_MSG + message);
     }
 }
+
+export class BadRequestError extends Error {
+    public readonly code = ResponseCodeMessage.BAD_REQUEST_ERROR_CODE;
+
+    constructor(message?: string) {
+        super(message);
+    }
+}

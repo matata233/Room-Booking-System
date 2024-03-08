@@ -119,6 +119,8 @@ VALUES (1, 'YVR', 32, '32 Vancouver St, Vancouver, BC A1B 2C3', 49.280299, -123.
        (6, 'YYZ', 34, '34 Toronto St, Toronto, ON D1E 2F3', 43.649982, -79.380446, TRUE),
        (7, 'YUL', 22, '22 Montreal St, Montreal, QC G1H 2I3', 45.502746, -73.560693, TRUE);
 
+SELECT setval('buildings_building_id_seq', (SELECT MAX(building_id) FROM buildings));
+
 INSERT INTO equipments (equipment_id, description)
 VALUES ('AV', 'Audio visual equipment in room'),
        ('VC', 'Video Conference equipment in room');
@@ -1089,6 +1091,8 @@ VALUES (339, 7, 1, '007.A', NULL, 10, TRUE),
        (347, 7, 2, 'E', 'Conference', 5, TRUE),
        (348, 7, 2, 'F', 'Conference', 5, TRUE);
 
+SELECT setval('rooms_room_id_seq', (SELECT MAX(room_id) FROM rooms));
+
 INSERT INTO users (user_id, username, first_name, last_name, email, building_id, floor, desk, role, is_active)
 VALUES (1, 'bbrown5888', 'Bob', 'Brown', 'bbrown5888@example.com', 2, 1, 105, 'staff', TRUE),
        (2, 'cdavis1530', 'Charlie', 'Davis', 'cdavis1530@example.com', 2, 1, 101, 'admin', FALSE),
@@ -1102,3 +1106,5 @@ VALUES (1, 'bbrown5888', 'Bob', 'Brown', 'bbrown5888@example.com', 2, 1, 105, 's
        (10, 'dmiller5815', 'Diana', 'Miller', 'dmiller5815@example.com', 2, 1, 104, 'admin', TRUE),
        (11, 'team7awsome01', 'AWSome', 'Team7', 'team7awsome01@gmail.com', 1, 1, 1, 'admin', TRUE),
        (12, 'team7awsomeuser01', 'AWSomeUser', 'Team7', 'team7awsomeuser01@gmail.com', 1, 1, 1, 'staff', TRUE);
+
+SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));

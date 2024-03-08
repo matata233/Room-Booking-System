@@ -5,7 +5,7 @@ import CityDTO from "./CityDTO";
 import BuildingDTO from "./BuildingDTO";
 
 export default class RoomDTO extends AbstractDTO {
-    public roomId: number;
+    public roomId?: number;
     public floorNumber?: number;
     public roomCode?: string;
     public roomName?: string | null;
@@ -17,8 +17,7 @@ export default class RoomDTO extends AbstractDTO {
     public equipmentList?: EquipmentDTO[];
     public bookingList?: BookingDTO[];
 
-    constructor(roomId: number) {
+    constructor() {
         super();
-        this.roomId = roomId;
     }
 }
