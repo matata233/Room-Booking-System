@@ -16,6 +16,8 @@ import AdminHomePage from "./pages/admin/AdminHomePage/AdminHomePage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import BookingPage from "./pages/BookingPage";
+import BookingReviewPage from "./pages/BookingReviewPage";
+import BookingCompletePage from "./pages/BookingCompletePage";
 import reportWebVitals from "./reportWebVitals";
 import MyFavouritePage from "./pages/MyFavouritePage";
 import UserManagementAddPage from "./pages/admin/UserManagement/UserManagementAddPage";
@@ -40,7 +42,10 @@ const router = createBrowserRouter(
       <Route path="" element={<PrivateRoute />}>
         <Route path="/bookingHistory" element={<BookingHistoryPage />} />
         <Route path="/booking" element={<BookingPage />} />
+        <Route path="/bookingReview" element={<BookingReviewPage />} />
+        <Route path="/bookingComplete" element={<BookingCompletePage />} />
       </Route>
+
       {/* Admin routes */}
       <Route path="" element={<AdminRoute />}>
         <Route path="/adminHomePage" element={<AdminHomePage />} />
