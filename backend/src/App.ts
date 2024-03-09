@@ -13,12 +13,15 @@ import cors from "cors";
 
 const app = express();
 // Registers middleware
-app.use(express.json());
-app.use(cors());
+app.use(express.json()); // Enable JSON body parsing for all routes
+app.use(cors()); // Enable CORS for all routes, COURS is a security feature to prevent unauthorized access to the server
 
 const database = new PrismaClient();
 
-const roomController = new RoomController(new RoomService(new RoomRepository(database), new BuildingRepository(database)));
+// Create instances of the controllers and services
+const roomController = new RoomController(
+    new RoomService(new RoomRepository(database), new BuildingRepository(database))
+);
 const userController = new UserController(new UserService(new UserRepository(database)));
 const buildingController = new BuildingController(new BuildingService(new BuildingRepository(database)));
 const endpoint: string = "/aws-room-booking/api/v1";

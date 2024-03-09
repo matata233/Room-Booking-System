@@ -2,8 +2,6 @@ import AbstractService from "./AbstractService";
 import UserDTO from "../model/dto/UserDTO";
 import AbstractDTO from "../model/dto/AbstractDTO";
 import UserRepository from "../repository/UserRepository";
-import CityDTO from "../model/dto/CityDTO";
-import BuildingDTO from "../model/dto/BuildingDTO";
 
 export default class UserService extends AbstractService {
     private userRepo: UserRepository; // The repository for the User model
@@ -26,30 +24,25 @@ export default class UserService extends AbstractService {
         return this.userRepo.findByEmail(email); // Get user by email. Data type: UserDTO
     }
 
-    // create(dto: AbstractDTO): Promise<AbstractDTO> {
-    //     return Promise.reject("Not implemented");
-    // }
-
+    // Create a new user
     public async create(
-        userName: string,
+        username: string,
         firstName: string,
         lastName: string,
         email: string,
-        floor: string,
+        floor: number,
         desk: number,
-        isActive: boolean,
-        role: role,
-        city: CityDTO,
-        building: BuildingDTO
+        building: number
     ): Promise<UserDTO> {
-        return this.userRepo.create(userName, firstName, lastName, email, floor, desk, isActive, role, city, building);
+        return this.userRepo.create(username, firstName, lastName, email, floor, desk, building);
     }
 
+    // Update user details
     update(id: number, dto: AbstractDTO): Promise<AbstractDTO> {
         return Promise.reject("Not implemented");
     }
 
-    public login = async(googleToken: string): Promise<string> => {
+    public login = async (googleToken: string): Promise<string> => {
         const userData = await this.userRepo.validateGoogleToken(googleToken);
         const token = await this.userRepo.generateJwtToken(userData);
         return token;

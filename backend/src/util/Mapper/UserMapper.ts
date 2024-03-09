@@ -11,7 +11,7 @@ import CityDTO from "../../model/dto/CityDTO";
  * @param building: buildings - the building object from the database (Prisma)
  */
 export const toUserDTO = (user: users, city: cities, building: buildings): UserDTO => {
-    const userDTO = new UserDTO();
+    const userDTO = new UserDTO(); // create a new instance of the UserDTO class. This is the object that will be returned
     userDTO.userId = user.user_id;
     userDTO.username = user.username;
     userDTO.firstName = user.first_name;

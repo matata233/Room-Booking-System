@@ -4,9 +4,10 @@ import {PrismaClient} from "@prisma/client/extension";
 import {toUserDTO} from "../util/Mapper/UserMapper";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import {jwtDecode} from "jwt-decode";
-import jwt from 'jsonwebtoken';
-import { bookings } from "@prisma/client";
-import BuildingDTO from '../model/dto/BuildingDTO';
+import jwt from "jsonwebtoken";
+import {bookings} from "@prisma/client";
+import BuildingDTO from "../model/dto/BuildingDTO";
+import CityDTO from "../model/dto/CityDTO";
 
 interface GoogleUser {
     email: string;
@@ -18,12 +19,14 @@ interface GoogleUser {
 
 // The repository for the User model class that extends the AbstractRepository class
 export default class UserRepository extends AbstractRepository {
-    constructor(database: PrismaClient) { // The PrismaClient instance
+    constructor(database: PrismaClient) {
+        // The PrismaClient instance
         super(database);
     }
 
     public async findAll(): Promise<UserDTO[]> {
         const userList = await this.db.users.findMany({
+            // Get all users. users is the table name in the database.
             include: {
                 buildings: {
                     include: {
@@ -92,7 +95,7 @@ export default class UserRepository extends AbstractRepository {
         if (!decodedUserInfo) {
             return Promise.reject(new UnauthorizedError(`Invalid token`));
         }
-        if (Date.now() >= decodedUserInfo.exp*1000) {
+        if (Date.now() >= decodedUserInfo.exp * 1000) {
             return Promise.reject(new UnauthorizedError(`Expired token`));
         }
         // fetch the user by email
@@ -124,11 +127,11 @@ export default class UserRepository extends AbstractRepository {
             floor: userDTO.floor,
             desk: userDTO.desk,
             isActive: userDTO.isActive,
-            role: userDTO.role,
+            role: userDTO.role
         };
         return new Promise((resolve, reject) => {
             jwt.sign(payload, "my_secret_key", {expiresIn: "1h"}, (err, token) => {
-                if (err || !token ) {
+                if (err || !token) {
                     reject(err);
                 } else {
                     resolve(token);
@@ -154,44 +157,47 @@ export default class UserRepository extends AbstractRepository {
         return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
     }
 
-    // user creation. Return the userDTO
+    // user creation
     public async create(
-        userName: string,
+        username: string,
         firstName: string,
         lastName: string,
         email: string,
-        buildingId: number,
         floor: number,
         desk: number,
-        role: any,
-        isActive: boolean,
-        bookings: bookings[],
-        building: undefined
-        ): Promise<UserDTO> {
+        building: number
+    ): Promise<UserDTO> {
         // create a new user in the database by calling the PrismaClient create method
-            const user = await this.db.users.create({
-                data: {
-                    username: userName,
-                    first_name: firstName,
-                    last_name: lastName,
-                    email: email,
-                    building_id: buildingId,
-                    floor: floor,
-                    desk: desk,
-                    role: role,
-                    is_active: isActive,
-                    // bookings needs to be created separately because it is a separate table
-                    bookings: {
-                        create: bookings
-                    },
-                    buildings: building
+        const newUser = await this.db.users.create({
+            data: {
+                username: username,
+                first_name: firstName,
+                last_name: lastName,
+                email: email,
+                building_id: building,
+                floor: floor,
+                desk: desk,
+                role: "staff",
+                is_active: true,
+                bookings: {
+                    create: [] // Create an empty array of bookings. New users have no bookings
+                },
+                events: {
+                    create: [] // Create an empty array of events. New users have no events
                 }
-            });
-        return toUserDTO(user, building.cities, building); // toUserDTO (user, city, building)
-    };
+            }
+        });
+        // get the building and city details for the user using the building_id
+        const getBuilding = await this.db.buildings.findUnique({
+            where: {
+                building_id: building
+            },
+            include: {
+                cities: true
+            }
+        });
 
-// const userDTOs: UserDTO[] = [];
-// for (const user of userList) {
-//     userDTOs.push(toUserDTO(user, user.buildings.cities, user.buildings));
-// }
-// return userDTOs;
+        const newUserDTO = getBuilding ? toUserDTO(newUser, getBuilding.cities, getBuilding) : ({} as UserDTO);
+        return newUserDTO;
+    }
+}

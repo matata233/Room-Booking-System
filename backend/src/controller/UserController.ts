@@ -3,6 +3,7 @@ import {Request, Response} from "express";
 import UserService from "../service/UserService";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
+import {toUserDTO} from "../util/Mapper/UserMapper";
 
 export default class UserController extends AbstractController {
     private userService: UserService; // The service for the User model
@@ -30,6 +31,7 @@ export default class UserController extends AbstractController {
         }
     };
 
+    // Get user by ID. eg. /users/1
     public getById = async (req: Request, res: Response): Promise<Response> => {
         try {
             const userId = parseInt(req.params.id);
@@ -54,6 +56,7 @@ export default class UserController extends AbstractController {
         }
     };
 
+    // Get user by email. eg. /users/email
     public getByEmail = async (req: Request, res: Response): Promise<Response> => {
         try {
             const {email} = req.body; // Extract the email from the request body, equivalent to const email = req.body.email;
@@ -78,31 +81,42 @@ export default class UserController extends AbstractController {
         }
     };
 
+    // Create a new user. eg. /users/create
+    /*
+    params for user creating request: {
+        "username": "string",
+        "firstName": "string",
+        "lastName": "string",
+        "email": "string",
+        "floor": "number",
+        "desk": "number",
+        "building": "number". Note: building is the building_id    }
+    */
     public create = async (req: Request, res: Response): Promise<Response> => {
         try {
             // Extract the user details from the request body
-            const {username, firstName, lastName, email, floor, desk, isActive, role, city, building} = req.body;
-            // req.body.
+            const {username, firstName, lastName, email, floor, desk, building} = req.body;
+            // Check if all fields are present and of the correct type
             if (
-                !username ||
-                !firstName ||
-                !lastName ||
-                !email ||
-                !floor ||
-                !desk ||
-                !isActive ||
-                !role ||
-                !city ||
-                !building
+                typeof username !== "string" ||
+                typeof firstName !== "string" ||
+                typeof lastName !== "string" ||
+                typeof email !== "string" ||
+                typeof floor !== "number" ||
+                typeof desk !== "number"
+                // typeof isActive !== "boolean" ||
+                // typeof role !== "string" ||
+                // typeof city !== "string" ||
+                // typeof building !== "number"
             ) {
                 return super.onReject(
                     res,
                     ResponseCodeMessage.BAD_REQUEST_ERROR_CODE,
-                    "All fields are required so please fill them all with correct values."
+                    "All fields are required and must be of the correct type."
                 );
             }
             // Create a new user
-            const newUser = await this.userService.create(req.body);
+            const newUser = await this.userService.create(username, firstName, lastName, email, floor, desk, building);
             return super.onResolve(res, newUser); // Return the newly created user
         } catch (error: unknown) {
             if (error instanceof UnauthorizedError) {
@@ -139,9 +153,9 @@ export default class UserController extends AbstractController {
             // Handle errors
             if (error instanceof UnauthorizedError) {
                 return super.onReject(res, error.code, error.message);
-            }else if (error instanceof NotFoundError) {
+            } else if (error instanceof NotFoundError) {
                 return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
-            }else {
+            } else {
                 return super.onReject(
                     res,
                     ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
