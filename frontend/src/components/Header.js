@@ -57,6 +57,7 @@ const Header = () => {
   const isUserManagementPage = location.pathname === "/userManagementPage";
   const isBookingPage = location.pathname === "/booking";
   const isBookingHistoryPage = location.pathname === "/bookingHistory";
+  const isUserAvailability = location.pathname === "/userAvailability";
 
   return (
     <header
@@ -90,7 +91,12 @@ const Header = () => {
             >
               <li>Booking History</li>
             </Link>
-
+            <Link
+              to="/userAvailability"
+              className={`${isUserAvailability ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
+            >
+              <li>User Availability</li>
+            </Link>
             {userInfo && userInfo.role === "admin" && (
               <Link
                 to="/userManagementPage"
