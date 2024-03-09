@@ -16,6 +16,7 @@ export default class UserDTO extends AbstractDTO {
     public city?: CityDTO;
     public building?: BuildingDTO;
 
+    // Constructs a new instance of the UserDTO class.
     constructor(userId: number) {
         super();
         this.userId = userId;

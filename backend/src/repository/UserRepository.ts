@@ -5,25 +5,8 @@ import {toUserDTO} from "../util/Mapper/UserMapper";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import {jwtDecode} from "jwt-decode";
 import jwt from 'jsonwebtoken';
-
-/*
-For reference from Prisma schema:
-model users {
-user_id        Int              @id @default(autoincrement())
-username       String           @unique
-first_name     String
-last_name      String
-email          String           @unique
-building_id    Int
-floor          Int
-desk           Int
-role           role
-is_active      Boolean
-bookings       bookings[]
-buildings      buildings        @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
-users_bookings users_bookings[]
-}
-*/
+import { bookings } from "@prisma/client";
+import BuildingDTO from '../model/dto/BuildingDTO';
 
 interface GoogleUser {
     email: string;
@@ -32,8 +15,9 @@ interface GoogleUser {
     family_name: string;
 }
 
+// The repository for the User model class that extends the AbstractRepository class
 export default class UserRepository extends AbstractRepository {
-    constructor(database: PrismaClient) {
+    constructor(database: PrismaClient) { // The PrismaClient instance
         super(database);
     }
 
@@ -50,12 +34,14 @@ export default class UserRepository extends AbstractRepository {
 
         const userDTOs: UserDTO[] = [];
         for (const user of userList) {
+            // toUserDTO is a function that maps the user to the UserDTO
             userDTOs.push(toUserDTO(user, user.buildings.cities, user.buildings));
         }
         return userDTOs;
     }
 
     public async findById(id: number): Promise<UserDTO> {
+        // find the user by id and include the building and city
         const user = await this.db.users.findUnique({
             where: {
                 user_id: id
@@ -110,7 +96,7 @@ export default class UserRepository extends AbstractRepository {
         let user: UserDTO;
         try {
             user = await this.findByEmail(decodedUserInfo.email);
-        } catch (error){
+        } catch (error) {
             if (error instanceof NotFoundError) {
                 return Promise.reject(new UnauthorizedError(`User ${decodedUserInfo.email} is not authorized`));
             } else {
@@ -118,7 +104,7 @@ export default class UserRepository extends AbstractRepository {
             }
         }
         //reject authorization for inactive users
-        if (!user.isActive){
+        if (!user.isActive) {
             return Promise.reject(new UnauthorizedError(`User ${decodedUserInfo.email} is no longer active`));
         }
         // Return the user data
@@ -138,7 +124,7 @@ export default class UserRepository extends AbstractRepository {
             role: userDTO.role,
         };
         return new Promise((resolve, reject) => {
-            jwt.sign(payload, 'my_secret_key', { expiresIn: '1h' }, (err, token) => {
+            jwt.sign(payload, "my_secret_key", {expiresIn: "1h"}, (err, token) => {
                 if (err || !token ) {
                     reject(err);
                 } else {
@@ -150,7 +136,7 @@ export default class UserRepository extends AbstractRepository {
     //Helper function that decodes our token and checks if role == admin
     public async validateAdmin(token: string): Promise<boolean> {
         const user: UserDTO = jwtDecode(token);
-        if (user.role == 'admin'){
+        if (user.role === "admin") {
             return Promise.resolve(true);
         }
         return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
@@ -159,9 +145,50 @@ export default class UserRepository extends AbstractRepository {
     public async validateUser(token: string): Promise<boolean> {
         const user: UserDTO = jwtDecode(token);
         //either admin or staff will be authorized
-        if (user.role == 'admin' || user.role == 'staff'){
+        if (user.role === "admin" || user.role === "staff") {
             return Promise.resolve(true);
         }
         return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
     }
-}
+
+    // user creation. Return the userDTO
+    public async create(
+        userName: string,
+        firstName: string,
+        lastName: string,
+        email: string,
+        buildingId: number,
+        floor: number,
+        desk: number,
+        role: any,
+        isActive: boolean,
+        bookings: bookings[],
+        building: undefined
+        ): Promise<UserDTO> {
+        // create a new user in the database by calling the PrismaClient create method
+            const user = await this.db.users.create({
+                data: {
+                    username: userName,
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: email,
+                    building_id: buildingId,
+                    floor: floor,
+                    desk: desk,
+                    role: role,
+                    is_active: isActive,
+                    // bookings needs to be created separately because it is a separate table
+                    bookings: {
+                        create: bookings
+                    },
+                    buildings: building
+                }
+            });
+        return toUserDTO(user, building.cities, building); // toUserDTO (user, city, building)
+    };
+
+// const userDTOs: UserDTO[] = [];
+// for (const user of userList) {
+//     userDTOs.push(toUserDTO(user, user.buildings.cities, user.buildings));
+// }
+// return userDTOs;

@@ -56,7 +56,7 @@ export default class UserController extends AbstractController {
 
     public getByEmail = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const {email} = req.body;
+            const {email} = req.body; // Extract the email from the request body, equivalent to const email = req.body.email;
             if (!email) {
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Email is required.");
             }
@@ -78,14 +78,48 @@ export default class UserController extends AbstractController {
         }
     };
 
-    public create(req: Request, res: Response): Promise<Response> {
-        return Promise.reject("Not implemented");
-    }
+    public create = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            // Extract the user details from the request body
+            const {username, firstName, lastName, email, floor, desk, isActive, role, city, building} = req.body;
+            // req.body.
+            if (
+                !username ||
+                !firstName ||
+                !lastName ||
+                !email ||
+                !floor ||
+                !desk ||
+                !isActive ||
+                !role ||
+                !city ||
+                !building
+            ) {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.BAD_REQUEST_ERROR_CODE,
+                    "All fields are required so please fill them all with correct values."
+                );
+            }
+            // Create a new user
+            const newUser = await this.userService.create(req.body);
+            return super.onResolve(res, newUser); // Return the newly created user
+        } catch (error: unknown) {
+            if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while creating a user."
+                );
+            }
+        }
+    };
 
     public update(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     }
-
 
     public login = async (req: Request, res: Response): Promise<Response> => {
         try {

@@ -4,8 +4,14 @@ import BookingDTO from "../../model/dto/BookingDTO";
 import BuildingDTO from "../../model/dto/BuildingDTO";
 import CityDTO from "../../model/dto/CityDTO";
 
+// the main function to map the user to the UserDTO which is used in the service layer
+/*
+ * @param user: users - the user object from the database (Prisma)
+ * @param city: cities - the city object from the database (Prisma)
+ * @param building: buildings - the building object from the database (Prisma)
+ */
 export const toUserDTO = (user: users, city: cities, building: buildings): UserDTO => {
-    const userDTO = new UserDTO(user.user_id);
+    const userDTO = new UserDTO(user.user_id); // Create a new UserDTO with the user_id
     userDTO.username = user.username;
     userDTO.firstName = user.first_name;
     userDTO.lastName = user.last_name;
@@ -19,13 +25,14 @@ export const toUserDTO = (user: users, city: cities, building: buildings): UserD
     userDTO.building.code = building.code;
     userDTO.building.address = building.address;
 
-    userDTO.city = new CityDTO(city.city_id);
+    userDTO.city = new CityDTO(city.city_id); // Create a new CityDTO with the city_id, parameter city is the city object
     userDTO.city.name = city.name;
     userDTO.city.province_state = city.province_state;
 
     return userDTO;
 };
 
+// the main function to map the booking to the BookingDTO which is used in the service layer
 const mapBookingToDTO = (booking: bookings): BookingDTO => {
     const bookingDTO = new BookingDTO(booking.booking_id);
     bookingDTO.createdBy = booking.created_by;
