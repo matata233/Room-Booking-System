@@ -4,62 +4,42 @@ import "react-datepicker/dist/react-datepicker.css";
 import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
 import { MdDelete } from "react-icons/md";
 import PlusButtonSVG from "../assets/plus-button.svg";
+import { v4 as uuidv4 } from "uuid";
 
 const TimeSelect = () => {
-  const [timeEntries, setTimeEntries] = useState([
-    {
-      id: 1,
-      startDate: new Date(),
-      startTime: "",
-      endTime: "",
-      submitted: false,
-    },
-  ]);
+  const initialTimeEntriesState = () => ({
+    id: uuidv4(),
+    startDate: new Date(),
+    startTime: "00:00",
+    endTime: "00:00",
+    submitted: false,
+  });
 
-  const handleStartTimeChange = (e, index) => {
-    const updatedEntries = [...timeEntries];
-    updatedEntries[index].startTime = e.target.value;
-    setTimeEntries(updatedEntries);
-  };
+  const [timeEntries, setTimeEntries] = useState([initialTimeEntriesState()]);
 
-  const handleEndTimeChange = (e, index) => {
+  const handleChangeDateTime = (key, value, index) => {
     const updatedEntries = [...timeEntries];
-    updatedEntries[index].endTime = e.target.value;
-    setTimeEntries(updatedEntries);
-  };
-
-  const handleDateChange = (date, index) => {
-    const updatedEntries = [...timeEntries];
-    updatedEntries[index].startDate = date;
+    updatedEntries[index][key] = value;
     setTimeEntries(updatedEntries);
   };
 
   const handleAddEntry = () => {
     setTimeEntries((prevEntries) => [
       ...prevEntries,
-      {
-        id: prevEntries.length + 1,
-        startDate: new Date(),
-        startTime: "",
-        endTime: "",
-        submitted: false,
-      },
+      initialTimeEntriesState(),
     ]);
   };
 
-  const handleDeleteEntry = (index) => {
-    setTimeEntries((prevEntries) => [
-      ...prevEntries.slice(0, index),
-      ...prevEntries.slice(index + 1),
-    ]);
+  const handleDeleteEntry = (id) => {
+    setTimeEntries((prevEntries) => prevEntries.filter((x) => x.id !== id));
   };
 
   const generateTimeOptions = () => {
     const options = [];
     for (let i = 0; i < 24; i++) {
       for (let j = 0; j < 60; j += 15) {
-        const hour = i < 10 ? `0${i}` : `${i}`;
-        const minute = j === 0 ? "00" : `${j}`;
+        const hour = String(i).padStart(2, "0");
+        const minute = String(j).padStart(2, "0");
         options.push(`${hour}:${minute}`);
       }
     }
@@ -81,15 +61,17 @@ const TimeSelect = () => {
             entry.submitted ? "bg-zinc-300" : "bg-zinc-200"
           }`}
         >
-          <div className="flex flex-row gap-10 p-4">
+          <div className="flex flex-col items-center gap-2 p-4 md:flex-row md:gap-6 lg:gap-10">
             <div>
               <div>Date</div>
               <DatePicker
                 selected={entry.startDate}
                 minDate={new Date()}
-                onChange={(date) => handleDateChange(date, index)}
+                onChange={(date) =>
+                  handleChangeDateTime("startDate", date, index)
+                }
                 dateFormat="MMMM d, yyyy"
-                className={`mb-4 block w-64 appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none ${
+                className={`mb-4 block w-60 appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none md:w-40 xl:w-64 ${
                   entry.submitted && "pointer-events-none opacity-50"
                 }`}
                 disabled={entry.submitted}
@@ -99,11 +81,13 @@ const TimeSelect = () => {
               <div>Start Time</div>
               <div className="relative">
                 <select
-                  className={`block w-64 appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none ${
+                  className={`mb-4 block w-60  appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none md:w-40 xl:w-64 ${
                     entry.submitted && "pointer-events-none opacity-50"
                   }`}
                   value={entry.startTime}
-                  onChange={(e) => handleStartTimeChange(e, index)}
+                  onChange={(e) =>
+                    handleChangeDateTime("startTime", e.target.value, index)
+                  }
                   disabled={entry.submitted}
                 >
                   {generateTimeOptions().map((option, optionIndex) => (
@@ -125,11 +109,13 @@ const TimeSelect = () => {
               <div>End Time</div>
               <div className="relative">
                 <select
-                  className={`block w-64 appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none ${
+                  className={`mb-4  block  w-60 appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none md:w-40 xl:w-64 ${
                     entry.submitted && "pointer-events-none opacity-50"
                   }`}
                   value={entry.endTime}
-                  onChange={(e) => handleEndTimeChange(e, index)}
+                  onChange={(e) =>
+                    handleChangeDateTime("endTime", e.target.value, index)
+                  }
                   disabled={entry.submitted}
                 >
                   {generateTimeOptions().map((option, optionIndex) => (
@@ -149,12 +135,12 @@ const TimeSelect = () => {
             </div>
             <button
               type="button"
-              onClick={() => handleDeleteEntry(index)}
+              onClick={() => handleDeleteEntry(entry.id)}
               className="px-2 py-1 text-red-500"
             >
               <MdDelete className="size-5" />
             </button>
-            <div className="my-4 flex justify-center">
+            <div className="flex justify-center">
               <button
                 type="button"
                 onClick={() => handleSubmit(index)}
