@@ -1,12 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
 import { MdDelete } from "react-icons/md";
 import PlusButtonSVG from "../assets/plus-button.svg";
 import { v4 as uuidv4 } from "uuid";
+import {
+  setTimeEntries,
+  addTimeEntry,
+  deleteTimeEntry,
+  submitTimeEntry,
+} from "../slices/userAvailabilitySlice";
 
 const TimeSelect = () => {
+  const dispatch = useDispatch();
+  const timeEntries = useSelector(
+    (state) => state.userAvailability.timeEntries,
+  );
+
   const initialTimeEntriesState = () => ({
     id: uuidv4(),
     startDate: new Date(),
@@ -15,23 +27,25 @@ const TimeSelect = () => {
     submitted: false,
   });
 
-  const [timeEntries, setTimeEntries] = useState([initialTimeEntriesState()]);
-
   const handleChangeDateTime = (key, value, index) => {
     const updatedEntries = [...timeEntries];
-    updatedEntries[index][key] = value;
-    setTimeEntries(updatedEntries);
+    updatedEntries[index] = {
+      ...updatedEntries[index],
+      [key]: value,
+    };
+    dispatch(setTimeEntries(updatedEntries));
   };
 
   const handleAddEntry = () => {
-    setTimeEntries((prevEntries) => [
-      ...prevEntries,
-      initialTimeEntriesState(),
-    ]);
+    dispatch(addTimeEntry(initialTimeEntriesState()));
   };
 
   const handleDeleteEntry = (id) => {
-    setTimeEntries((prevEntries) => prevEntries.filter((x) => x.id !== id));
+    dispatch(deleteTimeEntry(id));
+  };
+
+  const handleSubmit = (id) => {
+    dispatch(submitTimeEntry(id));
   };
 
   const generateTimeOptions = () => {
@@ -44,12 +58,6 @@ const TimeSelect = () => {
       }
     }
     return options;
-  };
-
-  const handleSubmit = (index) => {
-    const updatedEntries = [...timeEntries];
-    updatedEntries[index].submitted = true;
-    setTimeEntries(updatedEntries);
   };
 
   return (
@@ -143,7 +151,7 @@ const TimeSelect = () => {
             <div className="flex justify-center">
               <button
                 type="button"
-                onClick={() => handleSubmit(index)}
+                onClick={() => handleSubmit(entry.id)}
                 className={`rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white ${
                   entry.submitted && "pointer-events-none opacity-50"
                 }`}
