@@ -6,7 +6,7 @@ import useRowSelection from "../../../hooks/useRowSelection";
 import useSortData from "../../../hooks/useSortData";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { FaSort } from "react-icons/fa6";
+import { FaSort, FaXmark, FaCheck } from "react-icons/fa6";
 import { PiSelectionAllFill } from "react-icons/pi";
 import Pagination from "../../../components/Pagination";
 import { useGetUsersQuery } from "../../../slices/usersApiSlice";
@@ -174,7 +174,7 @@ const UserManagementPage = () => {
                     </th>
                   ))}
                   <th className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
-                    Status
+                    Is Active
                   </th>
 
                   <th className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
@@ -223,11 +223,12 @@ const UserManagementPage = () => {
                           {row.role}
                         </span>
                       </td>
+
                       <td className="whitespace-nowrap p-3 text-sm text-gray-500">
                         {row.isActive ? (
-                          <div className="h-4 w-4 rounded-full bg-green-500"></div>
+                          <FaCheck className="size-6 text-green-500" />
                         ) : (
-                          <div className="h-4 w-4 rounded-full  bg-red-500"></div>
+                          <FaXmark className="size-6 text-red-500" />
                         )}
                       </td>
                       <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
@@ -256,7 +257,7 @@ const UserManagementPage = () => {
           </div>
 
           {/* mobile */}
-          <div className="grid h-[calc(100vh-15rem)] grid-cols-1 gap-4 overflow-x-auto rounded-lg border-y-2 sm:grid-cols-2 md:hidden ">
+          <div className="grid h-[calc(100vh-15rem)]  grid-cols-1 gap-4 overflow-x-auto rounded-lg border-y-2 font-amazon-ember sm:grid-cols-2 md:hidden ">
             {displayedData.length === 0 ? (
               <div className="col-span-1 flex h-full items-center justify-center sm:col-span-2">
                 <div className="text-md whitespace-nowrap p-3 font-amazon-ember font-medium text-gray-900">
@@ -282,23 +283,26 @@ const UserManagementPage = () => {
                     </span>
                   </div>
                   {/* username */}
-                  <div className="break-words font-amazon-ember text-sm text-gray-900">
+                  <div className="break-words text-sm text-gray-900">
                     <span className="font-bold text-theme-dark-orange">
                       Username:{" "}
                     </span>
                     {`${row.username}`}
                   </div>
                   {/* email */}
-                  <div className="break-words font-amazon-ember text-sm text-gray-700">
+                  <div className="break-words  text-sm text-gray-700">
                     {row.email}
                   </div>
                   {/* status + action */}
-                  <div className="flex items-center justify-between space-x-2">
+                  <div className="flex items-center  justify-between space-x-2 text-sm">
                     <div className="inline-flex items-center">
+                      <span className="mr-2 font-bold text-theme-dark-orange">
+                        Is Active:{" "}
+                      </span>
                       {row.isActive ? (
-                        <div className="h-4 w-4 rounded-full bg-green-500"></div>
+                        <FaCheck className="size-4 text-green-500" />
                       ) : (
-                        <div className="h-4 w-4 rounded-full  bg-red-500"></div>
+                        <FaXmark className="size-4 text-red-500" />
                       )}
                     </div>
                     <div className="flex space-x-6">

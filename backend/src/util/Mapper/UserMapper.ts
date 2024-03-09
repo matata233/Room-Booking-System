@@ -11,7 +11,8 @@ import CityDTO from "../../model/dto/CityDTO";
  * @param building: buildings - the building object from the database (Prisma)
  */
 export const toUserDTO = (user: users, city: cities, building: buildings): UserDTO => {
-    const userDTO = new UserDTO(user.user_id); // Create a new UserDTO with the user_id
+    const userDTO = new UserDTO();
+    userDTO.userId = user.user_id;
     userDTO.username = user.username;
     userDTO.firstName = user.first_name;
     userDTO.lastName = user.last_name;
@@ -21,11 +22,13 @@ export const toUserDTO = (user: users, city: cities, building: buildings): UserD
     userDTO.isActive = user.is_active;
     userDTO.role = user.role;
 
-    userDTO.building = new BuildingDTO(building.building_id); // Create a new BuildingDTO with the building_id
+    userDTO.building = new BuildingDTO();
+    userDTO.building.buildingId = building.building_id;
     userDTO.building.code = building.code;
     userDTO.building.address = building.address;
 
-    userDTO.city = new CityDTO(city.city_id); // Create a new CityDTO with the city_id, parameter city is the city object
+    userDTO.city = new CityDTO();
+    userDTO.city.cityId = city.city_id;
     userDTO.city.name = city.name;
     userDTO.city.province_state = city.province_state;
 
@@ -34,7 +37,8 @@ export const toUserDTO = (user: users, city: cities, building: buildings): UserD
 
 // the main function to map the booking to the BookingDTO which is used in the service layer
 const mapBookingToDTO = (booking: bookings): BookingDTO => {
-    const bookingDTO = new BookingDTO(booking.booking_id);
+    const bookingDTO = new BookingDTO();
+    bookingDTO.bookingId = booking.booking_id;
     bookingDTO.createdBy = booking.created_by;
     bookingDTO.createdAt = booking.created_at;
     bookingDTO.startTime = booking.start_time;

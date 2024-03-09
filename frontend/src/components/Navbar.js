@@ -1,13 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
-const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = true }) => {
+const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
   // Inside your component
   const location = useLocation();
   const isRoomManagementPage = location.pathname === "/roomManagementPage";
   const isUserManagementPage = location.pathname === "/userManagementPage";
   const isBookingPage = location.pathname === "/booking";
   const isBookingHistoryPage = location.pathname === "/bookingHistory";
+  const isUserAvailability = location.pathname === "/userAvailability";
 
   return (
     <>
@@ -28,6 +29,14 @@ const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = true }) => {
           onClick={handleNavbarClick}
         >
           Booking History
+        </Link>
+        <Link
+          to={"/userAvailability"}
+          className={`block  px-4 py-2 text-sm   ${isUserAvailability ? "cursor-not-allowed text-gray-500 md:text-gray-300" : "text-white hover:text-theme-orange  md:text-gray-500"}`}
+          id="user-availability"
+          onClick={handleNavbarClick}
+        >
+          User Availability
         </Link>
       </div>
       <div className={`py-1 ${isAdmin ? "" : "hidden"}`}>

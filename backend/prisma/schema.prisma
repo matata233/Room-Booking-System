@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Run "prisma db push" to push this schema to the database
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
@@ -98,6 +93,7 @@ model users {
   role           role
   is_active      Boolean
   bookings       bookings[]
+  events         events[]
   buildings      buildings        @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
   users_bookings users_bookings[]
 }
@@ -109,6 +105,15 @@ model users_bookings {
   users      users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, booking_id])
+}
+
+model events {
+  event_id   Int      @id @default(autoincrement())
+  created_by Int
+  start_time DateTime @db.Timestamp(6)
+  end_time   DateTime @db.Timestamp(6)
+  is_active  Boolean
+  users      users    @relation(fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum role {

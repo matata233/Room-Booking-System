@@ -103,7 +103,9 @@ const BookingPage = () => {
           </div>
         </div>
         <div className="flex basis-2/3 flex-col">
-          <div className="mb-4 text-xl font-semibold">Available Rooms</div>
+          <div className="flex items-center justify-between">
+            <div className="mb-4 text-xl font-semibold">Available Rooms</div>
+          </div>
           {showInitialImage ? ( // Temporary: showInitialImage and Loading
             <div className="flex items-center justify-center">
               <img
@@ -116,6 +118,14 @@ const BookingPage = () => {
             <Loader />
           ) : paginatedData.length > 0 ? (
             <div className="flex flex-col gap-4">
+              <div className="mb-4 flex items-center justify-center xl:justify-end">
+              <Link
+                to="/bookingReview"
+                className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+              >
+                Submit
+              </Link>
+            </div>
               {paginatedData.map((room) => (
                 <div
                   key={room.roomId}

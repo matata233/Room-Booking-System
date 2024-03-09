@@ -6,9 +6,13 @@ import dummyBuildings from "../dummyData/dummyBuildings";
 import AutoDropdown from "./AutoDropdown";
 import ToggleBuilding from "./ToggleBuilding";
 import AddBuilding from "./AddBuilding";
+import { useGetBuildingsQuery } from "../slices/buildingsApiSlice";
+import MoreInfo from "./MoreInfo";
 
 const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
-  const [extBuilding, setExtBuilding] = useState(true);
+  const { data: buildings, error, isLoading, refetch } = useGetBuildingsQuery();
+
+  //  const [extBuilding, setExtBuilding] = useState(true);
   const [building, setBuilding] = useState(null);
 
   const [cityId, setCityId] = useState("");
@@ -17,12 +21,6 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
   const [lon, setLon] = useState("");
   const [lat, setLat] = useState("");
   const [isActive, setIsActive] = useState(true);
-
-  const buildings = dummyBuildings;
-
-  const buildingOptions = buildings.map((building) => {
-    return `${building.city_id}${building.code} ${building.address} ${building.lon} ${building.lat}`;
-  });
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -53,6 +51,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                     id="firstName"
                     label="First Name"
                     size="small"
+                    required
                     variant="standard"
                     className="w-full"
                     InputLabelProps={{
@@ -67,6 +66,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                     id="lastName"
                     label="Last Name"
                     size="small"
+                    required
                     variant="standard"
                     className="w-full"
                     InputLabelProps={{
@@ -85,6 +85,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   label="Email"
                   size="small"
                   type="email"
+                  required
                   variant="standard"
                   className="w-full"
                   InputLabelProps={{
@@ -100,7 +101,8 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   id="username"
                   label="Username"
                   size="small"
-                  type="email"
+                  type="text"
+                  required
                   variant="standard"
                   className="w-full"
                   InputLabelProps={{
@@ -113,24 +115,46 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
               </div>
 
               {/* Toggle Existing/New building */}
-              <ToggleBuilding
+              {/* <ToggleBuilding
                 extBuilding={extBuilding}
                 setExtBuilding={setExtBuilding}
                 setBuilding={setBuilding}
-              />
+              /> */}
 
-              {/* Autocomplete */}
-              <div className={`relative ${extBuilding ? "" : "hidden"}`}>
-                <AutoDropdown
-                  label="Building"
-                  options={buildingOptions}
-                  selectedValue={building}
-                  setSelectedValue={setBuilding}
-                  className="w-full"
-                />
+              <div className="relative">
+                <div className="flex justify-between">
+                  {/* Autocomplete */}
+                  <div className="grow">
+                    <AutoDropdown
+                      label="Building"
+                      options={
+                        isLoading
+                          ? [{ label: "Loading...", value: null }]
+                          : error
+                            ? [
+                                {
+                                  label: "Error fetching buildings",
+                                  value: null,
+                                },
+                              ]
+                            : buildings.result.map((building) => ({
+                                label: `${building.city.cityId} ${building.code}`,
+                                value: building.id,
+                              }))
+                      }
+                      isLoading={isLoading}
+                      error={error}
+                      selectedValue={building}
+                      setSelectedValue={setBuilding}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <MoreInfo info={"Nearest airport code | Building number "} />
+                </div>
               </div>
-
-              <div className={`relative ${extBuilding ? "hidden" : ""}`}>
+              {/* 
+              <div className="relative">
                 <AddBuilding
                   cityId={cityId}
                   setCityId={setCityId}
@@ -145,12 +169,13 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   lat={lat}
                   setLat={setLat}
                 />
-              </div>
+              </div> */}
               <div className="relative flex justify-between gap-x-8 ">
                 <TextField
                   id="floor"
                   label="Floor"
                   size="small"
+                  required
                   variant="standard"
                   type="number"
                   className="w-full"
@@ -165,6 +190,7 @@ const AdminUserForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   id="desk"
                   label="Desk"
                   size="small"
+                  required
                   variant="standard"
                   type="number"
                   className="w-full"

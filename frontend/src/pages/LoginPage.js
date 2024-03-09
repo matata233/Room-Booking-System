@@ -4,57 +4,35 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
 import { setCredentials, logout } from "../slices/authSlice";
-
+import { useLoginMutation } from "../slices/usersApiSlice";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
-  const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [login, { isLoading }] = useLoginMutation();
   const { search } = useLocation(); // 'useLocation' hook returns the location object from the current URL
   // 'search' returns a string containing all the query parameters.
   const searchParams = new URLSearchParams(search); // extract the query parameter and its value
   const redirect = searchParams.get("redirect") || "/";
-  //local testing url value, will have to change once deployed
-  const backendUrl = 'http://localhost:3001/aws-room-booking/api/v1/users/login'
-  const sendTokenToBackend = async (credential) => {
-    try {
-      const response = await fetch(backendUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: credential }),
-      });
-
-      const backendData = await response.json();
-      console.log(backendData);
-      return backendData; // This should include the backend session token
-    } catch (error) {
-      console.error('Error sending token to backend', error);
-      throw error;
-    }
-  };
 
   const handleLogin = async (res) => {
     try {
-      const decodedUserInfo = jwtDecode(res.credential);
-      setUserInfo(decodedUserInfo);
-      //local testing login endpoint
-      // const backendResponse = await sendTokenToBackend(res.credential);
-      // console.log('Backend response', backendResponse);
-      dispatch(setCredentials({...decodedUserInfo}));
+      const response = await login({ token: res.credential }).unwrap();
+      const decodedUserInfo = jwtDecode(response.token);
+      const avatarLink = jwtDecode(res.credential).picture; // get the user's avatar link from the token
+      dispatch(setCredentials({ ...decodedUserInfo, avatar: avatarLink }));
+      console.log({ ...decodedUserInfo, avatar: avatarLink });
       navigate(redirect);
     } catch (err) {
-      console.log(err);
+      toast.error(err?.data?.error || "Login failed");
     }
-
   };
 
   const handleLogout = () => {
     try {
       dispatch(logout());
-      setUserInfo(null);
       googleLogout();
       navigate("/login");
     } catch (error) {
