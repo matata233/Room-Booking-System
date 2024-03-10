@@ -50,6 +50,16 @@ app.put(`${endpoint}/users/email`, userController.getByEmail); //using put becau
 app.post(`${endpoint}/users/create`, userController.create);
 
 // Booking route
+/*
+    Currently taking the following input as parameter:
+    {
+        startTime: 'YYYY-MM-DDTHH-MM-SSSZ',
+        endTime: 'YYYY-MM-DDTHH-MM-SSSZ',
+        attendees: 'id1,id2,id3,...',
+        equipments: 'eq1,eq2,eq3,...',
+        priority: 'prio1,prio2,prio3,...'
+    }
+*/
 app.get( `${endpoint}/booking/available-room`, bookingController.getAvailableRooms );
 
 // Building routes
