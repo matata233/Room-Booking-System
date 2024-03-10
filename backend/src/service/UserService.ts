@@ -4,27 +4,25 @@ import AbstractDTO from "../model/dto/AbstractDTO";
 import UserRepository from "../repository/UserRepository";
 
 export default class UserService extends AbstractService {
-    private userRepo: UserRepository; // The repository for the User model
+    private userRepo: UserRepository;
 
-    // Constructs a new instance of the UserService class.
     constructor(userRepo: UserRepository) {
-        super(); // Calls the constructor of the AbstractService class
-        this.userRepo = userRepo; // Set the userRepo property to the userRepo parameter
+        super();
+        this.userRepo = userRepo;
     }
 
     public async getAll(): Promise<UserDTO[]> {
-        return this.userRepo.findAll(); // Get all users. Data type: UserDTO[]
+        return this.userRepo.findAll();
     }
 
     public async getById(id: number): Promise<UserDTO> {
-        return this.userRepo.findById(id); // Get user by ID. Data type: UserDTO
+        return this.userRepo.findById(id);
     }
 
     public async getByEmail(email: string): Promise<UserDTO> {
-        return this.userRepo.findByEmail(email); // Get user by email. Data type: UserDTO
+        return this.userRepo.findByEmail(email);
     }
 
-    // Create a new user
     public async create(
         username: string,
         firstName: string,

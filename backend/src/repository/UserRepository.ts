@@ -5,9 +5,6 @@ import {toUserDTO} from "../util/Mapper/UserMapper";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import {jwtDecode} from "jwt-decode";
 import jwt from "jsonwebtoken";
-import {bookings} from "@prisma/client";
-import BuildingDTO from "../model/dto/BuildingDTO";
-import CityDTO from "../model/dto/CityDTO";
 
 interface GoogleUser {
     email: string;
@@ -17,7 +14,6 @@ interface GoogleUser {
     exp: number;
 }
 
-// The repository for the User model class that extends the AbstractRepository class
 export default class UserRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
         // The PrismaClient instance
@@ -157,7 +153,6 @@ export default class UserRepository extends AbstractRepository {
         return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
     }
 
-    // user creation
     public async create(
         username: string,
         firstName: string,
@@ -167,7 +162,6 @@ export default class UserRepository extends AbstractRepository {
         desk: number,
         building: number
     ): Promise<UserDTO> {
-        // create a new user in the database by calling the PrismaClient create method
         const newUser = await this.db.users.create({
             data: {
                 username: username,
@@ -180,10 +174,10 @@ export default class UserRepository extends AbstractRepository {
                 role: "staff",
                 is_active: true,
                 bookings: {
-                    create: [] // Create an empty array of bookings. New users have no bookings
+                    create: [] // New users have no bookings
                 },
                 events: {
-                    create: [] // Create an empty array of events. New users have no events
+                    create: [] // New users have no events
                 }
             }
         });
@@ -196,7 +190,6 @@ export default class UserRepository extends AbstractRepository {
                 cities: true
             }
         });
-
         const newUserDTO = getBuilding ? toUserDTO(newUser, getBuilding.cities, getBuilding) : ({} as UserDTO);
         return newUserDTO;
     }

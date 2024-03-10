@@ -3,10 +3,9 @@ import {Request, Response} from "express";
 import UserService from "../service/UserService";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
-import {toUserDTO} from "../util/Mapper/UserMapper";
 
 export default class UserController extends AbstractController {
-    private userService: UserService; // The service for the User model
+    private userService: UserService;
 
     // Constructs a new instance of the UserController class.
     constructor(userService: UserService) {
@@ -16,7 +15,7 @@ export default class UserController extends AbstractController {
 
     public getAll = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const users = await this.userService.getAll(); // Get all users. Data type: UserDTO[]
+            const users = await this.userService.getAll();
             return super.onResolve(res, users);
         } catch (error: unknown) {
             if (error instanceof UnauthorizedError) {
@@ -31,7 +30,6 @@ export default class UserController extends AbstractController {
         }
     };
 
-    // Get user by ID. eg. /users/1
     public getById = async (req: Request, res: Response): Promise<Response> => {
         try {
             const userId = parseInt(req.params.id);
@@ -56,7 +54,6 @@ export default class UserController extends AbstractController {
         }
     };
 
-    // Get user by email. eg. /users/email
     public getByEmail = async (req: Request, res: Response): Promise<Response> => {
         try {
             const {email} = req.body; // Extract the email from the request body, equivalent to const email = req.body.email;
@@ -81,22 +78,9 @@ export default class UserController extends AbstractController {
         }
     };
 
-    // Create a new user. eg. /users/create
-    /*
-    params for user creating request: {
-        "username": "string",
-        "firstName": "string",
-        "lastName": "string",
-        "email": "string",
-        "floor": "number",
-        "desk": "number",
-        "building": "number". Note: building is the building_id    }
-    */
     public create = async (req: Request, res: Response): Promise<Response> => {
         try {
-            // Extract the user details from the request body
             const {username, firstName, lastName, email, floor, desk, building} = req.body;
-            // Check if all fields are present and of the correct type
             if (
                 typeof username !== "string" ||
                 typeof firstName !== "string" ||
@@ -104,10 +88,6 @@ export default class UserController extends AbstractController {
                 typeof email !== "string" ||
                 typeof floor !== "number" ||
                 typeof desk !== "number"
-                // typeof isActive !== "boolean" ||
-                // typeof role !== "string" ||
-                // typeof city !== "string" ||
-                // typeof building !== "number"
             ) {
                 return super.onReject(
                     res,
@@ -115,9 +95,8 @@ export default class UserController extends AbstractController {
                     "All fields are required and must be of the correct type."
                 );
             }
-            // Create a new user
             const newUser = await this.userService.create(username, firstName, lastName, email, floor, desk, building);
-            return super.onResolve(res, newUser); // Return the newly created user
+            return super.onResolve(res, newUser);
         } catch (error: unknown) {
             if (error instanceof UnauthorizedError) {
                 return super.onReject(res, error.code, error.message);
