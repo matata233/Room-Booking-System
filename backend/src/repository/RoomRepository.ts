@@ -121,4 +121,57 @@ export default class RoomRepository extends AbstractRepository {
         roomDTO.roomId = newRoom.room_id;
         return roomDTO;
     }
+
+    public async updateById(id: number, dto: RoomDTO): Promise<RoomDTO> {
+        return await this.db.$transaction(async (tx) => {
+            const existingRoom = await tx.rooms.findUnique({
+                where: { room_id: id },
+            });
+
+            if (!existingRoom) {
+                return Promise.reject(new NotFoundError(`Room not found with id: ${id}`));
+            }
+
+            const updateData: any = {
+                building_id: dto.building!.buildingId!,
+                floor: dto.floorNumber!,
+                code: dto.roomCode!,
+                name: dto.roomName,
+                seats: dto.numberOfSeats!,
+                is_active: dto.isActive!,
+            };
+
+            if (dto.equipmentList) {
+                updateData.rooms_equipments = {
+                    deleteMany: {},
+                    create: dto.equipmentList.map(equipment => ({
+                        equipment_id: equipment.equipmentId!,
+                    })),
+                };
+            }
+
+            const updatedRoom = await tx.rooms.update({
+                where: { room_id: id },
+                data: updateData,
+                include: {
+                    buildings: {
+                        include: {
+                            cities: true
+                        }
+                    },
+                    bookings_rooms: {
+                        include: {
+                            bookings: true
+                        }
+                    },
+                    rooms_equipments: {
+                        include: {
+                            equipments: true
+                        }
+                    }
+                }
+            });
+            return toRoomDTO(updatedRoom, updatedRoom.buildings.cities, updatedRoom.buildings, updatedRoom.rooms_equipments);
+        });
+    }
 }

@@ -63,6 +63,7 @@ export default class RoomService extends AbstractService {
     }
 
     public update(id: number, dto: RoomDTO): Promise<RoomDTO> {
-        return Promise.reject("Not implemented");
+        return this.roomRepo.updateById(id, dto);
+        // return Promise.reject("Not implemented");
     }
 }
