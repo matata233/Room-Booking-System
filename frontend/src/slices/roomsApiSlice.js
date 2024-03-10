@@ -10,7 +10,16 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
       providesTags: ["Room"],
       keepUnusedDataFor: 5,
     }),
+
+    createRoom: builder.mutation({
+      query: (newRoom) => ({
+        url: `${ROOMS_URL}/create`,
+        method: "POST",
+        body: newRoom,
+      }),
+      invalidatesTags: ["Room"],
+    }),
   }),
 });
 
-export const { useGetRoomsQuery } = roomsApiSlice;
+export const { useGetRoomsQuery, useCreateRoomMutation } = roomsApiSlice;

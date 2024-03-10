@@ -7,7 +7,7 @@ export const buildingsApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: BUILDINGS_URL,
       }),
-      providesTags: ["BUILDING"],
+      providesTags: ["Building"],
       keepUnusedDataFor: 5,
     }),
   }),
