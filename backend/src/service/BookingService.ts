@@ -21,6 +21,14 @@ export default class BookingService extends AbstractService {
     }
 
     public create(dto: BookingDTO): Promise<BookingDTO> {
+        return this.bookingRepository.create(
+            dto.createdByUsername!,
+            dto.createdAt?.toISOString()!,
+            dto.startTime?.toISOString()!,
+            dto.endTime?.toISOString()!,
+            dto.roomDTO?.map( entry => String(entry.roomId) )!,
+            dto.userDTOs?.map( entry => entry.username! )!
+        );
         return Promise.reject( "Not Implemented" );
     }
 

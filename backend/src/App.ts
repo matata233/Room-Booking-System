@@ -53,14 +53,15 @@ app.post(`${endpoint}/users/create`, userController.create);
 /*
     Currently taking the following input as parameter:
     {
-        startTime: 'YYYY-MM-DDTHH-MM-SSSZ',
-        endTime: 'YYYY-MM-DDTHH-MM-SSSZ',
+        startTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
+        endTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
         attendees: 'id1,id2,id3,...',
         equipments: 'eq1,eq2,eq3,...',
         priority: 'prio1,prio2,prio3,...'
     }
 */
 app.get( `${endpoint}/booking/available-room`, bookingController.getAvailableRooms );
+app.post( `${endpoint}/booking/create`, bookingController.create )
 
 // Building routes
 app.get(`${endpoint}/buildings`, buildingController.getAll);

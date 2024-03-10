@@ -13,6 +13,8 @@ export default class BookingDTO extends AbstractDTO {
     public userDTOs?: UserDTO[];
     public roomDTO?: RoomDTO[];
 
+    public createdByUsername?: string;
+
     constructor() {
         super();
     }
