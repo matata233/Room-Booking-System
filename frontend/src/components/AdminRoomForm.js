@@ -1,37 +1,90 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TextField } from "@mui/material";
 import { ThemeProvider } from "@mui/system";
 import PageTheme from "./PageTheme";
-import dummyBuildings from "../dummyData/dummyBuildings";
 import AutoDropdown from "./AutoDropdown";
 import ToggleBuilding from "./ToggleBuilding";
 import AddBuilding from "./AddBuilding";
+import { useGetBuildingsQuery } from "../slices/buildingsApiSlice";
+import MoreInfo from "./MoreInfo";
+import { toast } from "react-toastify";
 
-const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
-  const [extBuilding, setExtBuilding] = useState(true);
+const AdminRoomForm = ({
+  firstlyHeader,
+  secondaryHeader,
+  buttonText,
+  handleSubmit,
+  initialValues = {},
+}) => {
+  const { data: buildings, error, isLoading, refetch } = useGetBuildingsQuery();
+
+  // const [extBuilding, setExtBuilding] = useState(true);
   const [building, setBuilding] = useState(null);
+  const [buildingId, setBuildingId] = useState(0);
+  const [floorNumber, setFloorNumber] = useState(null);
+  const [roomCode, setRoomCode] = useState(null);
+  const [equipmentIds, setEquipmentIds] = useState([]);
+  const [roomName, setRoomName] = useState("");
+  const [numberOfSeats, setNumberOfSeats] = useState(null);
 
-  const [cityId, setCityId] = useState("");
-  const [code, setCode] = useState("");
-  const [address, setAddress] = useState("");
-  const [lon, setLon] = useState("");
-  const [lat, setLat] = useState("");
-  const [isActive, setIsActive] = useState(true);
-
-  const buildings = dummyBuildings;
-
-  const buildingOptions = buildings.map((building) => {
-    return `${building.city_id}${building.code} ${building.address} ${building.lon} ${building.lat}`;
-  });
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Handle form submission here
-  };
   const equipments = [
     { id: "AV", description: "Audio/Visual Equipment" },
     { id: "VC", description: "Video Conference Equipment" },
   ];
+
+  useEffect(() => {
+    setBuildingId(building?.value);
+  }, [building]);
+
+  const validateRoomData = (data) => {
+    const errors = [];
+
+    if (!Number.isInteger(data.floorNumber) || data.floorNumber <= 0) {
+      errors.push("invalid floor number");
+    }
+
+    if (!Number.isInteger(data.numberOfSeats) || data.numberOfSeats <= 0) {
+      errors.push("invalid capacity");
+    }
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const formData = {
+      buildingId,
+      floorNumber: parseInt(floorNumber),
+      roomCode,
+      equipmentIds,
+      roomName,
+      numberOfSeats: parseInt(numberOfSeats),
+      isActive: true,
+    };
+    const validation = validateRoomData(formData);
+    if (validation.isValid) {
+      handleSubmit(formData);
+    } else {
+      const validationErrors = validation.errors
+        .map((error, index) => `${index + 1}. ${error}`)
+        .join(" ; ");
+
+      toast.error(`Room data validation failed: ${validationErrors}`);
+    }
+  };
+
+  const handleEquipmentsChange = (event) => {
+    const { id, checked } = event.target;
+    setEquipmentIds((currentIds) => {
+      if (checked) {
+        return [...currentIds, id];
+      } else {
+        return currentIds.filter((equipmentId) => equipmentId !== id);
+      }
+    });
+  };
 
   return (
     <ThemeProvider theme={PageTheme}>
@@ -39,7 +92,7 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
         <div className="group relative  pl-3">
           <div className="absolute inset-0 transform rounded-3xl bg-gradient-to-br from-orange-300 to-theme-orange shadow-lg duration-300 group-hover:-rotate-3 sm:group-hover:-rotate-6"></div>
           <form
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
             className="relative flex-col rounded-3xl bg-white p-4 shadow-lg sm:p-10"
           >
             <h1 className="px-10 text-center text-xl text-theme-dark-blue sm:px-20 md:px-32 md:text-2xl">
@@ -59,6 +112,8 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                     size="small"
                     variant="standard"
                     className="w-full"
+                    value={roomName}
+                    onChange={(event) => setRoomName(event.target.value)}
                     InputLabelProps={{
                       className: "text-sm md:text-base font-amazon-ember",
                     }}
@@ -68,12 +123,15 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   />
 
                   <TextField
-                    id="seats"
-                    label="Seats"
+                    id="capacity"
+                    label="Capacity"
                     size="small"
+                    required
                     variant="standard"
                     type="number"
                     className="w-full"
+                    value={numberOfSeats}
+                    onChange={(event) => setNumberOfSeats(event.target.value)}
                     InputLabelProps={{
                       className: "text-sm md:text-base font-amazon-ember",
                     }}
@@ -85,24 +143,46 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
               </div>
 
               {/* Toggle Existing/New building */}
-              <ToggleBuilding
+              {/* <ToggleBuilding
                 extBuilding={extBuilding}
                 setExtBuilding={setExtBuilding}
                 setBuilding={setBuilding}
-              />
+              /> */}
 
-              {/* Autocomplete */}
-              <div className={`relative ${extBuilding ? "" : "hidden"}`}>
-                <AutoDropdown
-                  label="Building"
-                  options={buildingOptions}
-                  selectedValue={building}
-                  setSelectedValue={setBuilding}
-                  className="w-full"
-                />
+              <div className="relative">
+                <div className="flex justify-between">
+                  {/* Autocomplete */}
+                  <div className="grow">
+                    <AutoDropdown
+                      label="Building"
+                      options={
+                        isLoading
+                          ? [{ label: "Loading...", value: null }]
+                          : error
+                            ? [
+                                {
+                                  label: "Error fetching buildings",
+                                  value: null,
+                                },
+                              ]
+                            : buildings.result.map((building) => ({
+                                label: `${building.city.cityId} ${building.code}`,
+                                value: building.buildingId,
+                              }))
+                      }
+                      isLoading={isLoading}
+                      error={error}
+                      selectedValue={building}
+                      setSelectedValue={setBuilding}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <MoreInfo info={"Nearest airport code | Building number "} />
+                </div>
               </div>
 
-              <div className={`relative ${extBuilding ? "hidden" : ""}`}>
+              {/* <div className={`relative ${extBuilding ? "hidden" : ""}`}>
                 <AddBuilding
                   cityId={cityId}
                   setCityId={setCityId}
@@ -117,15 +197,18 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                   lat={lat}
                   setLat={setLat}
                 />
-              </div>
+              </div> */}
               <div className="relative flex justify-between gap-x-8 ">
                 <TextField
                   id="floor"
                   label="Floor"
                   size="small"
+                  required
                   variant="standard"
                   type="number"
-                  className="w-full"
+                  className="w-full flex-1"
+                  value={floorNumber}
+                  onChange={(event) => setFloorNumber(event.target.value)}
                   InputLabelProps={{
                     className: "text-sm md:text-base font-amazon-ember",
                   }}
@@ -133,23 +216,33 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                     className: "text-sm md:text-base font-amazon-ember",
                   }}
                 />
-                <TextField
-                  id="code"
-                  label="Room Code"
-                  size="small"
-                  variant="standard"
-                  className="w-full"
-                  InputLabelProps={{
-                    className: "text-sm md:text-base font-amazon-ember",
-                  }}
-                  inputProps={{
-                    className: "text-sm md:text-base font-amazon-ember",
-                  }}
-                />
+
+                <div className="flex flex-1 justify-between">
+                  <TextField
+                    id="code"
+                    label="Room Code"
+                    size="small"
+                    required
+                    variant="standard"
+                    className="w-full"
+                    value={roomCode}
+                    onChange={(event) => setRoomCode(event.target.value)}
+                    InputLabelProps={{
+                      className: "text-sm md:text-base font-amazon-ember",
+                    }}
+                    inputProps={{
+                      className: "text-sm md:text-base font-amazon-ember",
+                    }}
+                  />
+                  <div className="flex-none">
+                    <MoreInfo info={'Eg. "101"'} />
+                  </div>
+                </div>
               </div>
+
               <div className="relative flex items-center justify-start gap-4">
                 {equipments.map((item) => (
-                  <div className="flex gap-x-4">
+                  <div className="flex gap-x-4" key={item.id}>
                     <label
                       className="relative flex cursor-pointer items-center rounded-full"
                       htmlFor={item.id}
@@ -158,6 +251,8 @@ const AdminRoomForm = ({ firstlyHeader, secondaryHeader, buttonText }) => {
                         type="checkbox"
                         className="peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-200 transition-all  checked:border-theme-orange checked:bg-theme-orange "
                         id={item.id}
+                        onChange={handleEquipmentsChange}
+                        checked={equipmentIds.includes(item.id)}
                       />
                       <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-theme-dark-blue opacity-0 transition-opacity peer-checked:opacity-100">
                         <svg

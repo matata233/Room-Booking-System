@@ -57,6 +57,7 @@ const Header = () => {
   const isUserManagementPage = location.pathname === "/userManagementPage";
   const isBookingPage = location.pathname === "/booking";
   const isBookingHistoryPage = location.pathname === "/bookingHistory";
+  const isUserAvailability = location.pathname === "/userAvailability";
 
   return (
     <header
@@ -90,19 +91,28 @@ const Header = () => {
             >
               <li>Booking History</li>
             </Link>
-
             <Link
-              to="/userManagementPage"
-              className={`${isUserManagementPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
+              to="/userAvailability"
+              className={`${isUserAvailability ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
             >
-              <li>User Management</li>
+              <li>User Availability</li>
             </Link>
-            <Link
-              to="/roomManagementPage"
-              className={`${isRoomManagementPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
-            >
-              <li>Room Management</li>
-            </Link>
+            {userInfo && userInfo.role === "admin" && (
+              <Link
+                to="/userManagementPage"
+                className={`${isUserManagementPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
+              >
+                <li>User Management</li>
+              </Link>
+            )}
+            {userInfo && userInfo.role === "admin" && (
+              <Link
+                to="/roomManagementPage"
+                className={`${isRoomManagementPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
+              >
+                <li>Room Management</li>
+              </Link>
+            )}
           </ul>
         </div>
         {userInfo ? (
@@ -115,9 +125,9 @@ const Header = () => {
               onClick={toggleDropdown}
             >
               <IoMdArrowDropdown className="size-4 lg:size-6" />
-              <div className="mr-2 text-sm lg:mr-4 lg:text-base">{`Hi, ${userInfo.given_name}`}</div>
+              <div className="mr-2 text-sm lg:mr-4 lg:text-base">{`Hi, ${userInfo.firstName}`}</div>
               <div className="size-8 overflow-hidden rounded-full lg:size-10">
-                <img src={userInfo.picture} alt="google picture" />
+                <img src={userInfo.avatar} alt="google picture" />
               </div>
             </div>
 
@@ -200,6 +210,7 @@ const Header = () => {
               <Navbar
                 handleLogout={handleLogout}
                 handleNavbarClick={toggleMenu}
+                isAdmin={userInfo && userInfo.role === "admin"}
               />
             </div>
 
@@ -208,9 +219,9 @@ const Header = () => {
               className="relative items-center justify-center "
             >
               <div className="my-4 flex h-16 w-full  items-center justify-center gap-6 p-4 text-center text-theme-orange md:flex">
-                <div> {`Hi, ${userInfo.given_name}`}</div>
+                <div> {`Hi, ${userInfo.firstName}`}</div>
                 <div className="h-10 w-10 overflow-hidden rounded-full">
-                  <img src={userInfo.picture} alt="google picture" />
+                  <img src={userInfo.avatar} alt="google picture" />
                 </div>
               </div>
 

@@ -1,15 +1,15 @@
 import React from "react";
+import BookingStepper from "../components/BookingStepper";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link } from "react-router-dom";
 
-const BookingHistoryPage = () => {
+const BookingReviewPage = () => {
   return (
     <div>
       <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
-      <h1 className="text-2xl text-center font-semibold">
-          Booking History
-        </h1>
-        <div className="mx-6 mb-10 bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+        <BookingStepper />
+
+        <div className="mx-6 bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
           <div className="flex flex-col items-center justify-between lg:flex-row">
             <div>
               <img
@@ -93,8 +93,27 @@ const BookingHistoryPage = () => {
           </div>
         </div>
       </div>
+
+      <div className="flex flex-col items-center">
+        <div className="mt-10 flex justify-center">
+          <Link
+            to="/bookingComplete"
+            className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+          >
+            Confirm
+          </Link>
+        </div>
+        <div className="my-2 flex justify-center">
+          <Link
+            to="/booking"
+            className="rounded bg-theme-dark-blue px-12 py-2 text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white"
+          >
+            Cancel
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default BookingHistoryPage;
+export default BookingReviewPage;

@@ -6,6 +6,9 @@ import RoomRepository from "./repository/RoomRepository";
 import UserController from "./controller/UserController";
 import UserService from "./service/UserService";
 import UserRepository from "./repository/UserRepository";
+import BuildingController from "./controller/BuildingController";
+import BuildingService from "./service/BuildingService";
+import BuildingRepository from "./repository/BuildingRepository";
 import cors from "cors";
 import BookingController from "./controller/BookingController";
 import BookingService from "./service/BookingService";
@@ -19,9 +22,9 @@ app.use(cors());
 const database = new PrismaClient();
 
 const bookingController = new BookingController( new BookingService( new BookingRepository( database )));
-const roomController = new RoomController(new RoomService(new RoomRepository(database)));
+const roomController = new RoomController(new RoomService(new RoomRepository(database), new BuildingRepository(database)));
 const userController = new UserController(new UserService(new UserRepository(database)));
-
+const buildingController = new BuildingController(new BuildingService(new BuildingRepository(database)));
 const endpoint: string = "/aws-room-booking/api/v1";
 
 // Sample route
@@ -34,6 +37,8 @@ app.get(`${endpoint}/api/data`, (req, res) => {
 
 // Room routes
 app.get(`${endpoint}/rooms`, roomController.getAll);
+app.get(`${endpoint}/rooms/:id`, roomController.getById);
+app.post(`${endpoint}/rooms/create`, roomController.create);
 
 //login route
 app.post(`${endpoint}/users/login`, userController.login);
@@ -41,10 +46,14 @@ app.post(`${endpoint}/users/login`, userController.login);
 // User routes
 app.get(`${endpoint}/users`, userController.getAll);
 app.get(`${endpoint}/users/:id`, userController.getById);
-app.put(`${endpoint}/users/email`, userController.getByEmail);//using put because get cannot handle req.body
+app.put(`${endpoint}/users/email`, userController.getByEmail); //using put because get cannot handle req.body
 app.post(`${endpoint}/users/create`, userController.create);
 
 // Booking route
 app.get( `${endpoint}/booking/available-room`, bookingController.getAvailableRooms );
+
+// Building routes
+app.get(`${endpoint}/buildings`, buildingController.getAll);
+app.get(`${endpoint}/buildings/:id`, buildingController.getById);
 
 export default app;

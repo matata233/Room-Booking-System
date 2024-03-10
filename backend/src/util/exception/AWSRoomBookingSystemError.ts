@@ -31,3 +31,11 @@ export class UnavailableAttendeesError extends Error {
         super( ResponseCodeMessage.UNAVAILABLE_ATTENDEES_MSG + message );
     }
 }
+
+export class BadRequestError extends Error {
+    public readonly code = ResponseCodeMessage.BAD_REQUEST_ERROR_CODE;
+
+    constructor(message?: string) {
+        super(message);
+    }
+}

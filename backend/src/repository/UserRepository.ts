@@ -30,6 +30,7 @@ interface GoogleUser {
     name: string;
     given_name: string;
     family_name: string;
+    exp: number;
 }
 
 export default class UserRepository extends AbstractRepository {
@@ -103,9 +104,11 @@ export default class UserRepository extends AbstractRepository {
     public async validateGoogleToken(googleToken: string): Promise<UserDTO> {
         const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
         if (!decodedUserInfo) {
-            throw new Error("Invalid token");
+            return Promise.reject(new UnauthorizedError(`Invalid token`));
         }
-
+        if (Date.now() >= decodedUserInfo.exp*1000) {
+            return Promise.reject(new UnauthorizedError(`Expired token`));
+        }
         // fetch the user by email
         let user: UserDTO;
         try {

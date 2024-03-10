@@ -37,7 +37,6 @@ export default class BookingController extends AbstractController {
             return super.onResolve( res, rooms );
         })
         .catch( ( err: NotFoundError ) => {
-            // if( err instanceof NotFoundError )
             return super.onReject( res, ResponseCodeMessage.NOT_FOUND_CODE, err.message );
         })
         .catch( ( err: UnavailableAttendeesError ) => {

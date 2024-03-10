@@ -69,7 +69,6 @@ export default class BookingRepository extends AbstractRepository {
                 }
             }
         });
-        return Promise.reject( "Not Implemented" );
     }
 
     public getCityId( user_id: string ): Promise<string> {

@@ -3,7 +3,7 @@ import UserDTO from "./UserDTO";
 import RoomDTO from "./RoomDTO";
 //TODO: Until frontend team decide what data they want, there will be changed here
 export default class BookingDTO extends AbstractDTO {
-    public bookingId: number;
+    public bookingId?: number;
     public createdBy?: number;
     public createdAt?: Date;
     public startTime?: Date;
@@ -13,8 +13,7 @@ export default class BookingDTO extends AbstractDTO {
     public userDTOs?: UserDTO[];
     public roomDTO?: RoomDTO[];
 
-    constructor(bookingId: number) {
+    constructor() {
         super();
-        this.bookingId = bookingId;
     }
 }

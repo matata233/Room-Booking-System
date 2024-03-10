@@ -11,10 +11,13 @@ import {
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Provider } from "react-redux";
 import PrivateRoute from "./components/PrivateRoute";
+import AdminRoute from "./components/AdminRoute";
 import AdminHomePage from "./pages/admin/AdminHomePage/AdminHomePage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import BookingPage from "./pages/BookingPage";
+import BookingReviewPage from "./pages/BookingReviewPage";
+import BookingCompletePage from "./pages/BookingCompletePage";
 import reportWebVitals from "./reportWebVitals";
 import MyFavouritePage from "./pages/MyFavouritePage";
 import UserManagementAddPage from "./pages/admin/UserManagement/UserManagementAddPage";
@@ -27,6 +30,7 @@ import { persistor, store } from "./store";
 import { PersistGate } from "redux-persist/integration/react";
 import { StyledEngineProvider } from "@mui/material/styles";
 import BookingHistoryPage from "./pages/BookingHistoryPage";
+import UserAvailabilityPage from "./pages/UserAvailabilityPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -39,8 +43,14 @@ const router = createBrowserRouter(
       <Route path="" element={<PrivateRoute />}>
         <Route path="/bookingHistory" element={<BookingHistoryPage />} />
         <Route path="/booking" element={<BookingPage />} />
-        <Route path="/myFavourite" element={<MyFavouritePage />} />
+        <Route path="/userAvailability" element={<UserAvailabilityPage />} />
+        <Route path="/bookingReview" element={<BookingReviewPage />} />
+        <Route path="/bookingComplete" element={<BookingCompletePage />} />
+      </Route>
 
+      {/* Admin routes */}
+      <Route path="" element={<AdminRoute />}>
+        <Route path="/adminHomePage" element={<AdminHomePage />} />
         <Route path="/userManagementPage" element={<UserManagementPage />} />
         <Route
           path="/userManagementAddPage"
@@ -59,11 +69,7 @@ const router = createBrowserRouter(
           path="/roomManagementEditPage"
           element={<RoomManagementEditPage />}
         />
-
-        <Route path="/adminHomePage" element={<AdminHomePage />} />
       </Route>
-
-      {/* Admin routes */}
     </Route>,
   ),
 );
