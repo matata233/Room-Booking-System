@@ -4,6 +4,8 @@ import UserService from "../service/UserService";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 import UserDTO from "../model/dto/UserDTO";
+import CityDTO from "../model/dto/CityDTO";
+import BuildingDTO from "../model/dto/BuildingDTO";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
@@ -88,37 +90,25 @@ export default class UserController extends AbstractController {
             user.email = req.body.email;
             user.floor = req.body.floor;
             user.desk = req.body.desk;
-            user.building = req.body.building;
+            user.isActive = true;
+            user.role = "staff";
+            user.city = new CityDTO();
+            user.building = new BuildingDTO();
+            user.building.buildingId = req.body.buildingId;
+            user.city.cityId = user.building.city?.cityId;
+            const newUser = await this.userService.create(user);
+            return super.onResolve(res, newUser);
+        } catch (error: unknown) {
+            if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while creating a user."
+                );
+            }
         }
-        // try {
-        //     const {username, firstName, lastName, email, floor, desk, building} = req.body;
-        //     if (
-        //         typeof username !== "string" ||
-        //         typeof firstName !== "string" ||
-        //         typeof lastName !== "string" ||
-        //         typeof email !== "string" ||
-        //         typeof floor !== "number" ||
-        //         typeof desk !== "number"
-        //     ) {
-        //         return super.onReject(
-        //             res,
-        //             ResponseCodeMessage.BAD_REQUEST_ERROR_CODE,
-        //             "All fields are required and must be of the correct type."
-        //         );
-        //     }
-        //     const newUser = await this.userService.create(username, firstName, lastName, email, floor, desk, building);
-        //     return super.onResolve(res, newUser);
-        // } catch (error: unknown) {
-        //     if (error instanceof UnauthorizedError) {
-        //         return super.onReject(res, error.code, error.message);
-        //     } else {
-        //         return super.onReject(
-        //             res,
-        //             ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-        //             "An error occurred while creating a user."
-        //         );
-        //     }
-        // }
     };
 
     public update(req: Request, res: Response): Promise<Response> {

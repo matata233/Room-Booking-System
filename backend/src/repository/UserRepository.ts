@@ -153,38 +153,29 @@ export default class UserRepository extends AbstractRepository {
         return Promise.reject(new UnauthorizedError(`User ${user.email} is not an admin`));
     }
 
-    public async create(
-        username: string,
-        firstName: string,
-        lastName: string,
-        email: string,
-        floor: number,
-        desk: number,
-        building: number
-    ): Promise<UserDTO> {
+    public async create(user: UserDTO): Promise<UserDTO> {
         const newUser = await this.db.users.create({
             data: {
-                username: username,
-                first_name: firstName,
-                last_name: lastName,
-                email: email,
-                building_id: building,
-                floor: floor,
-                desk: desk,
-                role: "staff",
-                is_active: true,
+                username: user.username!,
+                first_name: user.firstName!,
+                last_name: user.lastName!,
+                email: user.email!,
+                building_id: user.building!.buildingId!,
+                floor: user.floor!,
+                desk: user.desk!,
+                role: user.role ?? "staff",
+                is_active: user.isActive ?? true,
                 bookings: {
-                    create: [] // New users have no bookings
+                    create: []
                 },
                 events: {
-                    create: [] // New users have no events
+                    create: []
                 }
             }
         });
-        // get the building and city details for the user using the building_id
         const getBuilding = await this.db.buildings.findUnique({
             where: {
-                building_id: building
+                building_id: user.building?.buildingId
             },
             include: {
                 cities: true

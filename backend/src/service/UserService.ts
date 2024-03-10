@@ -2,6 +2,7 @@ import AbstractService from "./AbstractService";
 import UserDTO from "../model/dto/UserDTO";
 import AbstractDTO from "../model/dto/AbstractDTO";
 import UserRepository from "../repository/UserRepository";
+import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class UserService extends AbstractService {
     private userRepo: UserRepository;
@@ -23,16 +24,26 @@ export default class UserService extends AbstractService {
         return this.userRepo.findByEmail(email);
     }
 
-    public async create(
-        username: string,
-        firstName: string,
-        lastName: string,
-        email: string,
-        floor: number,
-        desk: number,
-        building: number
-    ): Promise<UserDTO> {
-        return this.userRepo.create(username, firstName, lastName, email, floor, desk, building);
+    public async create(user: UserDTO): Promise<UserDTO> {
+        if (!user.username && typeof user.username !== "string") {
+            throw new BadRequestError("Invalid username");
+        }
+        if (!user.firstName && typeof user.firstName !== "string") {
+            throw new BadRequestError("Invalid first name");
+        }
+        if (!user.lastName && typeof user.lastName !== "string") {
+            throw new BadRequestError("Invalid last name");
+        }
+        if (!user.email && typeof user.email !== "string") {
+            throw new BadRequestError("Invalid email");
+        }
+        if (!user.floor && typeof user.floor !== "number") {
+            throw new BadRequestError("Invalid floor");
+        }
+        if (!user.desk && typeof user.desk !== "number") {
+            throw new BadRequestError("Invalid desk");
+        }
+        return this.userRepo.create(user);
     }
 
     // Update user details

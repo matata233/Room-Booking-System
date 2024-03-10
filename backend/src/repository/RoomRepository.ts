@@ -119,6 +119,7 @@ export default class RoomRepository extends AbstractRepository {
 
         const roomDTO = new RoomDTO();
         roomDTO.roomId = newRoom.room_id;
+        console.log("Room created: ", roomDTO);
         return roomDTO;
     }
 }
