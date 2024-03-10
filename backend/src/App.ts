@@ -7,6 +7,9 @@ import UserController from "./controller/UserController";
 import UserService from "./service/UserService";
 import UserRepository from "./repository/UserRepository";
 import cors from "cors";
+import BookingController from "./controller/BookingController";
+import BookingService from "./service/BookingService";
+import BookingRepository from "./repository/BookingRepository";
 
 const app = express();
 // Registers middleware
@@ -15,6 +18,7 @@ app.use(cors());
 
 const database = new PrismaClient();
 
+const bookingController = new BookingController( new BookingService( new BookingRepository( database )));
 const roomController = new RoomController(new RoomService(new RoomRepository(database)));
 const userController = new UserController(new UserService(new UserRepository(database)));
 
@@ -39,5 +43,8 @@ app.get(`${endpoint}/users`, userController.getAll);
 app.get(`${endpoint}/users/:id`, userController.getById);
 app.put(`${endpoint}/users/email`, userController.getByEmail);//using put because get cannot handle req.body
 app.post(`${endpoint}/users/create`, userController.create);
+
+// Booking route
+app.get( `${endpoint}/booking/available-room`, bookingController.getAvailableRooms );
 
 export default app;

@@ -23,3 +23,11 @@ export class RequestConflictError extends Error {
         super(ResponseCodeMessage.REQUEST_CONFLICT_MSG + message);
     }
 }
+
+export class UnavailableAttendeesError extends Error {
+    public readonly code = ResponseCodeMessage.UNAVAILABLE_ATEENDEES;
+
+    constructor( message?: string ) {
+        super( ResponseCodeMessage.UNAVAILABLE_ATTENDEES_MSG + message );
+    }
+}
