@@ -3,6 +3,7 @@ import {Request, Response} from "express";
 import UserService from "../service/UserService";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
+import UserDTO from "../model/dto/UserDTO";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
@@ -80,34 +81,44 @@ export default class UserController extends AbstractController {
 
     public create = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const {username, firstName, lastName, email, floor, desk, building} = req.body;
-            if (
-                typeof username !== "string" ||
-                typeof firstName !== "string" ||
-                typeof lastName !== "string" ||
-                typeof email !== "string" ||
-                typeof floor !== "number" ||
-                typeof desk !== "number"
-            ) {
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.BAD_REQUEST_ERROR_CODE,
-                    "All fields are required and must be of the correct type."
-                );
-            }
-            const newUser = await this.userService.create(username, firstName, lastName, email, floor, desk, building);
-            return super.onResolve(res, newUser);
-        } catch (error: unknown) {
-            if (error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while creating a user."
-                );
-            }
+            const user = new UserDTO();
+            user.username = req.body.username;
+            user.firstName = req.body.firstName;
+            user.lastName = req.body.lastName;
+            user.email = req.body.email;
+            user.floor = req.body.floor;
+            user.desk = req.body.desk;
+            user.building = req.body.building;
         }
+        // try {
+        //     const {username, firstName, lastName, email, floor, desk, building} = req.body;
+        //     if (
+        //         typeof username !== "string" ||
+        //         typeof firstName !== "string" ||
+        //         typeof lastName !== "string" ||
+        //         typeof email !== "string" ||
+        //         typeof floor !== "number" ||
+        //         typeof desk !== "number"
+        //     ) {
+        //         return super.onReject(
+        //             res,
+        //             ResponseCodeMessage.BAD_REQUEST_ERROR_CODE,
+        //             "All fields are required and must be of the correct type."
+        //         );
+        //     }
+        //     const newUser = await this.userService.create(username, firstName, lastName, email, floor, desk, building);
+        //     return super.onResolve(res, newUser);
+        // } catch (error: unknown) {
+        //     if (error instanceof UnauthorizedError) {
+        //         return super.onReject(res, error.code, error.message);
+        //     } else {
+        //         return super.onReject(
+        //             res,
+        //             ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+        //             "An error occurred while creating a user."
+        //         );
+        //     }
+        // }
     };
 
     public update(req: Request, res: Response): Promise<Response> {
