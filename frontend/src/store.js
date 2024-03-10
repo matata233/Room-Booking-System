@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { apiSlice } from "./slices/apiSlice";
 import authReducer from "./slices/authSlice";
+import userAvailabilityReducer from "./slices/userAvailabilitySlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { combineReducers } from "redux";
@@ -9,12 +10,13 @@ import { thunk } from "redux-thunk";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"], // put the reducers that needs to be persisted in the localStorage
+  whitelist: ["auth", "userAvailability"], // put the reducers that needs to be persisted in the localStorage
 };
 
 const reducers = combineReducers({
   api: apiSlice.reducer,
   auth: authReducer,
+  userAvailability: userAvailabilityReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, reducers);
