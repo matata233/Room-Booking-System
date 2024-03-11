@@ -48,8 +48,8 @@ app.post(`${endpoint}/users/login`, userController.login);
 
 // User routes
 app.get(`${endpoint}/users`, userController.getAll);
+app.get(`${endpoint}/users/email`, userController.getByEmail); // register order matter in express
 app.get(`${endpoint}/users/:id`, userController.getById);
-app.put(`${endpoint}/users/email`, userController.getByEmail); //using put because get cannot handle req.body
 app.post(`${endpoint}/users/create`, userController.create);
 
 // Booking route
