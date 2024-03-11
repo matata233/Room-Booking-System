@@ -10,6 +10,9 @@ import BuildingController from "./controller/BuildingController";
 import BuildingService from "./service/BuildingService";
 import BuildingRepository from "./repository/BuildingRepository";
 import cors from "cors";
+import BookingController from "./controller/BookingController";
+import BookingService from "./service/BookingService";
+import BookingRepository from "./repository/BookingRepository";
 
 const app = express();
 // Registers middleware
@@ -18,10 +21,9 @@ app.use(cors()); // Enable CORS for all routes, COURS is a security feature to p
 
 const database = new PrismaClient();
 
-// Create instances of the controllers and services
-const roomController = new RoomController(
-    new RoomService(new RoomRepository(database), new BuildingRepository(database))
-);
+const bookingController = new BookingController( new BookingService( new BookingRepository( database )));
+const roomController = new RoomController(new RoomService(new RoomRepository(database), new BuildingRepository(database)));
+
 const userController = new UserController(new UserService(new UserRepository(database)));
 const buildingController = new BuildingController(new BuildingService(new BuildingRepository(database)));
 const endpoint: string = "/aws-room-booking/api/v1";
@@ -47,6 +49,19 @@ app.get(`${endpoint}/users`, userController.getAll);
 app.get(`${endpoint}/users/:id`, userController.getById);
 app.put(`${endpoint}/users/email`, userController.getByEmail); //using put because get cannot handle req.body
 app.post(`${endpoint}/users/create`, userController.create);
+
+// Booking route
+/*
+    Currently taking the following input as parameter:
+    {
+        startTime: 'YYYY-MM-DDTHH-MM-SSSZ',
+        endTime: 'YYYY-MM-DDTHH-MM-SSSZ',
+        attendees: 'id1,id2,id3,...',
+        equipments: 'eq1,eq2,eq3,...',
+        priority: 'prio1,prio2,prio3,...'
+    }
+*/
+app.get( `${endpoint}/booking/available-room`, bookingController.getAvailableRooms );
 
 // Building routes
 app.get(`${endpoint}/buildings`, buildingController.getAll);
