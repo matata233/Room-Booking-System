@@ -3,7 +3,7 @@ import RoomDTO from "../model/dto/RoomDTO";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
 import { PrismaClient, rooms, users } from "@prisma/client";
-import { NotFoundError, UnavailableAttendeesError } from "../util/exception/AWSRoomBookingSystemError";
+import { NotFoundError, RequestConflictError, UnavailableAttendeesError } from "../util/exception/AWSRoomBookingSystemError";
 
 export default class BookingRepository extends AbstractRepository {
 
@@ -17,6 +17,64 @@ export default class BookingRepository extends AbstractRepository {
 
     public findById(id: number): Promise<BookingDTO | null> {
         return Promise.reject( "Not Implemented" ); 
+    }
+
+
+    public create( created_by: string,
+                   created_at: string,
+                   start_time: string, 
+                   end_time: string, 
+                   rooms: string[],
+                   attendees: string[] ): Promise<BookingDTO> {
+        return this.db.bookings.findFirst({
+            where: {
+                AND: [
+                    { start_time: { lt: end_time } },
+                    { end_time: { gt: start_time } }
+                ]
+            }
+        })
+        .then( ( res ) => {
+            if( res !== null ) 
+                // TODO: can add to error message to indicate which rooms are unavailable
+                throw new RequestConflictError( "Time Slot Unavailable" );
+            return this.db.users.findUnique({
+                where: { username: created_by }
+            });
+        })
+        .then( ( created_by_id ) => {
+            if( !created_by_id )
+                throw new NotFoundError( "User Creating Booking Not Found");
+            return this.db.bookings.create({
+                data: {
+                    created_by: created_by_id.user_id,
+                    created_at: created_at,
+                    start_time: start_time,
+                    end_time: end_time,
+                    status: 'good',
+                    users_bookings: {
+                        create: attendees.map( username => ({
+                            users: {
+                                connect: { username }
+                            }
+                        }))
+                    },
+                    bookings_rooms: {
+                        create: rooms.map( room_id => parseInt( room_id ) )
+                        .map( room_id  => ({
+                            rooms: {
+                                connect: { room_id }
+                            }
+                        }))
+                    }
+                },
+                include: {
+                    users_bookings: true,
+                    bookings_rooms: true
+                }
+            })
+                     
+        });
     }
 
     public getAvailableRooms( start_time: string, 

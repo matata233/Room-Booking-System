@@ -1,7 +1,9 @@
+import BookingDTO from "../model/dto/BookingDTO";
 import RoomDTO from "../model/dto/RoomDTO";
+import UserDTO from "../model/dto/UserDTO";
 import BookingService from "../service/BookingService";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
-import { NotFoundError, UnavailableAttendeesError } from "../util/exception/AWSRoomBookingSystemError";
+import { NotFoundError, RequestConflictError, UnavailableAttendeesError } from "../util/exception/AWSRoomBookingSystemError";
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 
@@ -19,9 +21,37 @@ export default class BookingController extends AbstractController {
     public getById(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     }
-    public create(req: Request, res: Response): Promise<Response> {
-        return Promise.reject("Not implemented");
+    
+    public create = async (req: Request, res: Response): Promise<Response> => {
+        let dto = new BookingDTO();
+        dto.createdByUsername = req.body.createdByUsername!;
+        dto.createdAt = new Date( req.body.createdAt! );
+        dto.startTime = new Date( req.body.startTime! );
+        dto.endTime = new Date( req.body.endTime! );
+        dto.roomDTO = []
+        for( let entry of req.body.rooms ) {
+            let roomdto = new RoomDTO();
+            roomdto.roomId = entry;
+            dto.roomDTO.push( roomdto );
+        }
+        dto.userDTOs = []
+        for ( let entry of req.body.users ) {
+            let userdto = new UserDTO();
+            userdto.username = entry;
+            dto.userDTOs.push( userdto );
+        }
+        return this.bookingService.create( dto )
+        .then( ( booking ) => {
+            return super.onResolve( res, booking );
+        })
+        .catch( ( err: RequestConflictError ) => {
+            return super.onReject( res, ResponseCodeMessage.REQUEST_CONFLICT_CODE, err.message );
+        })
+        .catch( ( err: NotFoundError ) => {
+            return super.onReject( res, ResponseCodeMessage.NOT_FOUND_CODE, err.message );
+        });
     }
+
     public update(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     } 
