@@ -4,6 +4,7 @@
   padding: 10px;
   font-size: 16px;
   font-weight: 300;
+  border: 0;
 }
 
 .rbc-event {
@@ -38,6 +39,10 @@
 .rbc-event-content {
   font-size: 16px !important;
   font-weight: 300;
+}
+
+.rbc-calendar {
+  width: 100%;
 }
 
 .rbc-agenda-time-cell {
@@ -80,4 +85,18 @@
 .rbc-day-bg:hover {
   background-color: #f3a5452b;
   cursor: pointer;
+}
+
+.rbc-time-header {
+  border: 0 !important;
+  height: 44px;
+  /* border-bottom: 1px solid #ddd; */
+}
+.rbc-time-content {
+  /* border: 0; */
+  border-top: 1px solid #ddd !important;
+}
+
+.rbc-month-view {
+  border: 0;
 }

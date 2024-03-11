@@ -53,25 +53,26 @@ const EventCalendar = () => {
 
   return (
     <div className="flex w-screen justify-center gap-10">
-      <div className="h-[70vh] basis-2/3">
-        <div className="mb-10 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Calendar</h1>
+      <div className="flex w-screen flex-col lg:w-2/3 2xl:w-[1000px]">
+        <div className="mb-2 flex items-center justify-between px-5 lg:mb-10">
+          <h1 className="text-2xl font-semibold">Add Your Schedule</h1>
           <button
-            className="rounded bg-theme-orange px-6 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+            className="text-md rounded bg-theme-orange px-3 py-1 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange  hover:text-white md:px-5 md:py-1 xl:px-6"
             onClick={handleAddEventClick}
           >
             Add Event
           </button>
         </div>
-
-        <Calendar
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          selectable={true}
-          onSelectSlot={(slotInfo) => handleDateClick(slotInfo.start)}
-        />
+        <div className="h-[550px] px-5 md:h-[800px]">
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            selectable={true}
+            onSelectSlot={(slotInfo) => handleDateClick(slotInfo.start)}
+          />
+        </div>
 
         {isModalOpen && (
           <Modal
