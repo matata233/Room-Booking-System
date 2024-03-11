@@ -21,8 +21,10 @@ app.use(cors()); // Enable CORS for all routes, COURS is a security feature to p
 
 const database = new PrismaClient();
 
-const bookingController = new BookingController( new BookingService( new BookingRepository( database )));
-const roomController = new RoomController(new RoomService(new RoomRepository(database), new BuildingRepository(database)));
+const bookingController = new BookingController(new BookingService(new BookingRepository(database)));
+const roomController = new RoomController(
+    new RoomService(new RoomRepository(database), new BuildingRepository(database))
+);
 
 const userController = new UserController(new UserService(new UserRepository(database)));
 const buildingController = new BuildingController(new BuildingService(new BuildingRepository(database)));
@@ -61,8 +63,8 @@ app.post(`${endpoint}/users/create`, userController.create);
         priority: 'prio1,prio2,prio3,...'
     }
 */
-app.get( `${endpoint}/booking/available-room`, bookingController.getAvailableRooms );
-app.post( `${endpoint}/booking/create`, bookingController.create )
+app.get(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
+app.post(`${endpoint}/booking/create`, bookingController.create);
 
 // Building routes
 app.get(`${endpoint}/buildings`, buildingController.getAll);
