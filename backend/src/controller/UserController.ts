@@ -3,9 +3,12 @@ import {Request, Response} from "express";
 import UserService from "../service/UserService";
 import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
+import UserDTO from "../model/dto/UserDTO";
+import CityDTO from "../model/dto/CityDTO";
+import BuildingDTO from "../model/dto/BuildingDTO";
 
 export default class UserController extends AbstractController {
-    private userService: UserService; // The service for the User model
+    private userService: UserService;
 
     // Constructs a new instance of the UserController class.
     constructor(userService: UserService) {
@@ -15,7 +18,7 @@ export default class UserController extends AbstractController {
 
     public getAll = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const users = await this.userService.getAll(); // Get all users. Data type: UserDTO[]
+            const users = await this.userService.getAll();
             return super.onResolve(res, users);
         } catch (error: unknown) {
             if (error instanceof UnauthorizedError) {
@@ -56,7 +59,7 @@ export default class UserController extends AbstractController {
 
     public getByEmail = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const {email} = req.body;
+            const {email} = req.body; // Extract the email from the request body, equivalent to const email = req.body.email;
             if (!email) {
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Email is required.");
             }
@@ -78,14 +81,39 @@ export default class UserController extends AbstractController {
         }
     };
 
-    public create(req: Request, res: Response): Promise<Response> {
-        return Promise.reject("Not implemented");
-    }
+    public create = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const user = new UserDTO();
+            user.username = req.body.username;
+            user.firstName = req.body.firstName;
+            user.lastName = req.body.lastName;
+            user.email = req.body.email;
+            user.floor = req.body.floor;
+            user.desk = req.body.desk;
+            user.isActive = true;
+            user.role = "staff";
+            user.city = new CityDTO();
+            user.building = new BuildingDTO();
+            user.building.buildingId = req.body.buildingId;
+            user.city.cityId = user.building.city?.cityId;
+            const newUser = await this.userService.create(user);
+            return super.onResolve(res, newUser);
+        } catch (error: unknown) {
+            if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while creating a user."
+                );
+            }
+        }
+    };
 
     public update(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     }
-
 
     public login = async (req: Request, res: Response): Promise<Response> => {
         try {
@@ -105,9 +133,9 @@ export default class UserController extends AbstractController {
             // Handle errors
             if (error instanceof UnauthorizedError) {
                 return super.onReject(res, error.code, error.message);
-            }else if (error instanceof NotFoundError) {
+            } else if (error instanceof NotFoundError) {
                 return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
-            }else {
+            } else {
                 return super.onReject(
                     res,
                     ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
