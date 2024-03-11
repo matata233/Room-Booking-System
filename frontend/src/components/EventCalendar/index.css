@@ -1,0 +1,83 @@
+.rbc-header {
+  background: #dd7832 !important;
+  color: white;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.rbc-event {
+  border: 0 !important;
+  border-left: 4px solid #dd7832 !important;
+
+  outline: none !important;
+  border-radius: 0;
+  background-color: #f3a545d6 !important;
+  color: black;
+  font-weight: 300;
+  width: inherit !important;
+  z-index: 50;
+}
+
+.rbc-background-event {
+  padding: 0px !important;
+  border-radius: 0px !important;
+  border: none !important;
+  background-color: #f19e38 !important;
+}
+
+.rbc-events-container {
+  margin: 0 !important;
+  width: 100%;
+}
+
+.rbc-event-label {
+  font-size: 11px !important;
+  font-weight: 500;
+}
+.rbc-event-content {
+  font-size: 16px !important;
+  font-weight: 300;
+}
+
+.rbc-agenda-time-cell {
+  border-left: 1px solid #ddd !important;
+}
+
+.rbc-row-segment {
+  padding: 0px !important;
+}
+
+.rbc-allday-cell {
+  height: 0 !important;
+}
+
+.rbc-day-slot .rbc-event-label {
+  padding: 0px !important;
+}
+
+.rbc-today {
+  background-color: #f19e3826;
+}
+
+.rbc-off-range-bg {
+  background-color: #836f5818 !important;
+}
+
+.rbc-current-time-indicator {
+  background-color: red;
+}
+
+.rbc-show-more {
+  color: #dd7832;
+}
+
+.rbc-day-bg {
+  position: relative;
+  z-index: 5;
+  transition: background-color 0.2s ease;
+}
+.rbc-day-bg:hover {
+  background-color: #f3a5452b;
+  cursor: pointer;
+}
