@@ -59,8 +59,8 @@ export default class UserController extends AbstractController {
 
     public getByEmail = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const {email} = req.body; // Extract the email from the request body, equivalent to const email = req.body.email;
-            if (!email) {
+            const email = req.query?.email; // Extract the email from the request body, equivalent to const email = req.body.email;
+            if (!email || typeof email !== "string") {
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Email is required.");
             }
             const user = await this.userService.getByEmail(email);

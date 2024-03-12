@@ -27,8 +27,8 @@ export class RequestConflictError extends Error {
 export class UnavailableAttendeesError extends Error {
     public readonly code = ResponseCodeMessage.UNAVAILABLE_ATEENDEES;
 
-    constructor( message?: string ) {
-        super( ResponseCodeMessage.UNAVAILABLE_ATTENDEES_MSG + message );
+    constructor(message?: string) {
+        super(ResponseCodeMessage.UNAVAILABLE_ATTENDEES_MSG + message);
     }
 }
 

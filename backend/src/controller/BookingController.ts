@@ -10,7 +10,7 @@ import {Request, Response} from "express";
 export default class BookingController extends AbstractController {
     private bookingService: BookingService;
 
-    constructor( bookingService: BookingService ) {
+    constructor(bookingService: BookingService) {
         super();
         this.bookingService = bookingService;
     }
@@ -21,9 +21,9 @@ export default class BookingController extends AbstractController {
     public getById(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     }
-    
+
     public create = async (req: Request, res: Response): Promise<Response> => {
-        let dto = new BookingDTO();
+        const dto = new BookingDTO();
         dto.createdByUsername = req.body.createdByUsername!;
         dto.createdAt = new Date();
         dto.startTime = new  Date( req.body.startTime! );
@@ -32,25 +32,26 @@ export default class BookingController extends AbstractController {
         for( let entry of req.body.rooms ) {
             let roomdto = new RoomDTO();
             roomdto.roomId = entry;
-            dto.roomDTO.push( roomdto );
+            dto.roomDTO.push(roomdto);
         }
-        dto.userDTOs = []
-        for ( let entry of req.body.users ) {
-            let userdto = new UserDTO();
+        dto.userDTOs = [];
+        for (const entry of req.body.users) {
+            const userdto = new UserDTO();
             userdto.username = entry;
-            dto.userDTOs.push( userdto );
+            dto.userDTOs.push(userdto);
         }
-        return this.bookingService.create( dto )
-        .then( ( booking ) => {
-            return super.onResolve( res, booking );
-        })
-        .catch( ( err: RequestConflictError ) => {
-            return super.onReject( res, ResponseCodeMessage.REQUEST_CONFLICT_CODE, err.message );
-        })
-        .catch( ( err: NotFoundError ) => {
-            return super.onReject( res, ResponseCodeMessage.NOT_FOUND_CODE, err.message );
-        });
-    }
+        return this.bookingService
+            .create(dto)
+            .then((booking) => {
+                return super.onResolve(res, booking);
+            })
+            .catch((err: RequestConflictError) => {
+                return super.onReject(res, ResponseCodeMessage.REQUEST_CONFLICT_CODE, err.message);
+            })
+            .catch((err: NotFoundError) => {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, err.message);
+            });
+    };
 
     public update(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
@@ -90,5 +91,3 @@ export default class BookingController extends AbstractController {
         .catch( ( err: UnavailableAttendeesError ) => {
             return super.onReject( res, ResponseCodeMessage.UNAVAILABLE_ATEENDEES, err.message );
         });
-    }
-}

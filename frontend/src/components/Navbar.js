@@ -8,7 +8,7 @@ const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
   const isUserManagementPage = location.pathname === "/userManagementPage";
   const isBookingPage = location.pathname === "/booking";
   const isBookingHistoryPage = location.pathname === "/bookingHistory";
-  const isUserAvailability = location.pathname === "/userAvailability";
+  const isUserSchedulePage = location.pathname === "/userSchedule";
 
   return (
     <>
@@ -31,12 +31,12 @@ const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
           Booking History
         </Link>
         <Link
-          to={"/userAvailability"}
-          className={`block  px-4 py-2 text-sm   ${isUserAvailability ? "cursor-not-allowed text-gray-500 md:text-gray-300" : "text-white hover:text-theme-orange  md:text-gray-500"}`}
+          to={"/userSchedule"}
+          className={`block  px-4 py-2 text-sm   ${isUserSchedulePage ? "cursor-not-allowed text-gray-500 md:text-gray-300" : "text-white hover:text-theme-orange  md:text-gray-500"}`}
           id="user-availability"
           onClick={handleNavbarClick}
         >
-          User Availability
+          User Schedule
         </Link>
       </div>
       <div className={`py-1 ${isAdmin ? "" : "hidden"}`}>
