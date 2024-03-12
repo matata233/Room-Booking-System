@@ -351,7 +351,8 @@ export default class BookingRepository extends AbstractRepository {
 
         if( equipments.length > 0 ) {
             query = query + `
-            WHERE re.has_${equipments[0]}`;
+            WHERE re.has_${equipments[0]}
+                  AND r.seats >= ${attendees.length}`;
 
             for( let i=0; i < equipments.length; i++ )
                 query = query + ` AND re.has_${equipments[i]}`;
