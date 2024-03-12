@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
-import Modal from "../Modal";
+import AddEventModal from "../AddEventModal";
+import EventDetailsModal from "../EventDetailsModal";
 import moment from "moment";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -10,8 +11,12 @@ const localizer = momentLocalizer(moment);
 
 const EventCalendar = () => {
   const [events, setEvents] = useState([]);
-  const [isModalOpen, setModalOpen] = useState(false);
+
+  const [isAddEventModalOpen, setAddEventModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+
+  const [isEventDetailsModalOpen, setEventDetailsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const handleSubmit = ({ title, startDate, startTime, endTime }) => {
     if (selectedDate) {
@@ -30,7 +35,7 @@ const EventCalendar = () => {
         };
 
         setEvents([...events, newEvent]);
-        setModalOpen(false);
+        setAddEventModalOpen(false);
       } else {
         alert("End time should be later than start time.");
       }
@@ -42,14 +47,26 @@ const EventCalendar = () => {
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
-    setModalOpen(true);
-    console.log();
+    setAddEventModalOpen(true);
   };
 
   const handleAddEventClick = () => {
     setSelectedDate(new Date());
-    setModalOpen(true);
+    setAddEventModalOpen(true);
   };
+
+  const handleEventSelect = (event) => {
+    setSelectedEvent(event);
+    setEventDetailsModalOpen(true);
+  };
+
+  const handleDeleteEvent = (eventId) => {
+    // const updatedEvents = events.filter((event) => event.id !== eventId);
+    // setEvents(updatedEvents);
+    // setEventDetailsModalOpen(false);
+  };
+
+  const handleEditEvent = (eventId) => {};
 
   return (
     <div className="flex w-screen justify-center gap-10">
@@ -70,15 +87,23 @@ const EventCalendar = () => {
             startAccessor="start"
             endAccessor="end"
             selectable={true}
+            onSelectEvent={handleEventSelect}
             onSelectSlot={(slotInfo) => handleDateClick(slotInfo.start)}
           />
         </div>
-
-        {isModalOpen && (
-          <Modal
-            closeModal={() => setModalOpen(false)}
+        {isAddEventModalOpen && (
+          <AddEventModal
+            closeModal={() => setAddEventModalOpen(false)}
             onSubmit={handleSubmit}
             selectedDate={selectedDate}
+          />
+        )}
+        {isEventDetailsModalOpen && (
+          <EventDetailsModal
+            closeModal={() => setEventDetailsModalOpen(false)}
+            selectedEvent={selectedEvent}
+            onDelete={(eventId) => handleDeleteEvent(eventId)}
+            onEdit={(eventId) => handleEditEvent(eventId)}
           />
         )}
       </div>

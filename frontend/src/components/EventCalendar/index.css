@@ -79,7 +79,7 @@
 
 .rbc-day-bg {
   position: relative;
-  z-index: 5;
+  /* z-index: 5; */
   transition: background-color 0.2s ease;
 }
 .rbc-day-bg:hover {
