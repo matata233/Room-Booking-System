@@ -10,25 +10,26 @@ import {NotFoundError} from "../src/util/exception/AWSRoomBookingSystemError";
 
 use(chaiAsPromised);
 
-describe("Building tests", function() {
+describe("Building tests", function () {
     const db = new PrismaClient();
     let initQueries: string[];
     const buildingService = new BuildingService(new BuildingRepository(db));
 
-    before(function() {
+    before(function () {
         initQueries = fs.readFileSync("./init.sql").toString().split(";");
     });
 
-    beforeEach(async function() {
+    beforeEach(async function () {
         for (const query of initQueries) {
+            // eslint-disable-next-line no-await-in-loop
             await db.$queryRawUnsafe(query);
         }
     });
 
-    describe("Get buildings", function() {
+    describe("Get buildings", function () {
         let building3: BuildingDTO;
 
-        before(function() {
+        before(function () {
             building3 = new BuildingDTO();
             building3.code = 74;
             building3.lat = 49.286433;
@@ -38,20 +39,20 @@ describe("Building tests", function() {
             building3.city.cityId = "YVR";
         });
 
-        it("should get all buildings", async function() {
+        it("should get all buildings", async function () {
             const result = await buildingService.getAll();
 
             expect(result[2].city!.cityId).to.equal(building3.city?.cityId);
             expect(result).to.have.lengthOf(7);
         });
 
-        it("should get building by id", async function() {
+        it("should get building by id", async function () {
             const result = await buildingService.getById(3);
 
             expect(result.city!.cityId).to.equal(building3.city!.cityId);
         });
 
-        it("should reject if building does not exist", function() {
+        it("should reject if building does not exist", function () {
             const result = buildingService.getById(0);
 
             return expect(result).to.eventually.be.rejectedWith(NotFoundError);

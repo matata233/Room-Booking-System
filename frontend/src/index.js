@@ -30,7 +30,7 @@ import { persistor, store } from "./store";
 import { PersistGate } from "redux-persist/integration/react";
 import { StyledEngineProvider } from "@mui/material/styles";
 import BookingHistoryPage from "./pages/BookingHistoryPage";
-import UserAvailabilityPage from "./pages/UserAvailabilityPage";
+import UserSchedulePage from "./pages/UserSchedulePage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -43,7 +43,7 @@ const router = createBrowserRouter(
       <Route path="" element={<PrivateRoute />}>
         <Route path="/bookingHistory" element={<BookingHistoryPage />} />
         <Route path="/booking" element={<BookingPage />} />
-        <Route path="/userAvailability" element={<UserAvailabilityPage />} />
+        <Route path="/userSchedule" element={<UserSchedulePage />} />
         <Route path="/bookingReview" element={<BookingReviewPage />} />
         <Route path="/bookingComplete" element={<BookingCompletePage />} />
       </Route>

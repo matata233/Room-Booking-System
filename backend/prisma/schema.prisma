@@ -107,6 +107,14 @@ model users_bookings {
   @@id([user_id, booking_id])
 }
 
+model distances {
+  building_id_from  Int
+  building_id_to    Int
+  distance          Int
+
+  @@id([building_id_from, building_id_to])
+}
+
 model events {
   event_id   Int      @id @default(autoincrement())
   created_by Int
