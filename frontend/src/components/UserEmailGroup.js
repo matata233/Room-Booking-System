@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MdDelete } from "react-icons/md";
 import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
-import AccordionItem from "./AccordionItem";
+import Accordion from "./Accordion";
 
 const UserEmailGroup = () => {
   const bookingData = {
@@ -124,7 +124,7 @@ const UserEmailGroup = () => {
     <div className="flex w-80 flex-col space-y-4 rounded-lg bg-gray-200 p-4">
       {bookingData.groups.map((data, index) => (
         <div key={index} className="flex flex-col">
-          <AccordionItem
+          <Accordion
             key={index}
             open={index === open}
             toggle={() => toggle(index)}
