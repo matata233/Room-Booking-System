@@ -13,25 +13,26 @@ import chaiAsPromised from "chai-as-promised";
 
 use(chaiAsPromised);
 
-describe("Room tests", function() {
+describe("Room tests", function () {
     const db = new PrismaClient();
     let initQueries: string[];
     const roomService = new RoomService(new RoomRepository(db), new BuildingRepository(db));
 
-    before(function() {
+    before(function () {
         initQueries = fs.readFileSync("./init.sql").toString().split(";");
     });
 
-    beforeEach(async function() {
+    beforeEach(async function () {
         for (const query of initQueries) {
+            // eslint-disable-next-line no-await-in-loop
             await db.$queryRawUnsafe(query);
         }
     });
 
-    describe("Get rooms", function() {
+    describe("Get rooms", function () {
         let room17: RoomDTO;
 
-        before(function() {
+        before(function () {
             room17 = new RoomDTO();
             room17.roomId = 17;
             room17.floorNumber = 3;
@@ -64,30 +65,30 @@ describe("Room tests", function() {
             room17.equipmentList.push(equipment2);
         });
 
-        it("should get all rooms", async function() {
+        it("should get all rooms", async function () {
             const result = await roomService.getAll();
 
             expect(result).to.have.lengthOf(348);
             expect(result[16]).to.deep.equals(room17);
         });
 
-        it("should get room by id", function() {
+        it("should get room by id", function () {
             const result = roomService.getById(17);
 
             return expect(result).to.eventually.deep.equals(room17);
         });
 
-        it("should reject if room does not exist", function() {
+        it("should reject if room does not exist", function () {
             const result = roomService.getById(0);
 
             return expect(result).to.eventually.be.rejectedWith(NotFoundError);
         });
     });
 
-    describe("Create rooms", function() {
+    describe("Create rooms", function () {
         let sampleRoom: RoomDTO;
 
-        beforeEach(async function() {
+        beforeEach(async function () {
             sampleRoom = new RoomDTO();
             sampleRoom.building = new BuildingDTO();
             sampleRoom.building.buildingId = 1;
@@ -102,7 +103,7 @@ describe("Room tests", function() {
             sampleRoom.isActive = true;
         });
 
-        it("should create valid room", function() {
+        it("should create valid room", function () {
             const expected = new RoomDTO();
             expected.roomId = 349;
 
@@ -111,7 +112,7 @@ describe("Room tests", function() {
             return expect(result).to.eventually.deep.equals(expected);
         });
 
-        it("should not create duplicate room", function() {
+        it("should not create duplicate room", function () {
             sampleRoom.roomCode = "101";
 
             const result = roomService.create(sampleRoom);
@@ -119,7 +120,7 @@ describe("Room tests", function() {
             return expect(result).to.eventually.be.rejectedWith(BadRequestError);
         });
 
-        it("should not create room when building does not exist", function() {
+        it("should not create room when building does not exist", function () {
             sampleRoom.building!.buildingId = 0;
 
             const result = roomService.create(sampleRoom);
@@ -127,7 +128,7 @@ describe("Room tests", function() {
             return expect(result).to.eventually.be.rejectedWith(BadRequestError);
         });
 
-        it("should not create room with invalid equipments", function() {
+        it("should not create room with invalid equipments", function () {
             const DNE = new EquipmentDTO();
             DNE.equipmentId = "DNE";
             sampleRoom.equipmentList?.push(DNE);
@@ -137,7 +138,7 @@ describe("Room tests", function() {
             return expect(result).to.eventually.be.rejectedWith(BadRequestError);
         });
 
-        it("should not create room when floor number is not a number", function() {
+        it("should not create room when floor number is not a number", function () {
             sampleRoom.floorNumber = [] as unknown as number;
 
             const result = roomService.create(sampleRoom);
