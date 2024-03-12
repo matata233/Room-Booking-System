@@ -52,10 +52,34 @@ app.post(`${endpoint}/users/create`, userController.create);
 
 // Booking route
 /*
+    input:
+    {
+        "start_time": "YYYY-MM-DDTHH:MM:SS.MMMZ",
+        "end_time": "YYYY-MM-DDTHH:MM:SS.MMMZ",
+        "duration": "TT UNIT", //e.g. 2 hours
+        "attendees": [ "email1", "email2", ... ],
+        "equipments": [ "eq1", "eq2", ... ],
+        "step_size": "TT UNIT" //optional, e.g. 15 minutes
+    }
+
+    returns: 
+    {
+    "result": [
+        {
+            "start_time": "2024-03-26T00:00:00.000Z",
+            "end_time": "2024-03-26T01:30:00.000Z"
+        },
+        {
+            "start_time": "2024-03-26T02:00:00.000Z",
+            "end_time": "2024-03-26T03:30:00.000Z"
+        },...
+*/
+app.get( `${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTimes );
+/*
     Currently taking the following input as parameter:
     {
-        startTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
-        endTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
+        startTime: 'YYYY-MM-DDTHH:MM:SS.MMMZ',
+        endTime: 'YYYY-MM-DDTHH:MM:SS.MMMZ',
         attendees: ['email1,email2,email3,...'],
         equipments: ['eq1,eq2,eq3,...'],
         priority: ['prio1,prio2,prio3,...']
