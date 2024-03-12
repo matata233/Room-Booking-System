@@ -3,14 +3,18 @@ import RoomDTO from "../model/dto/RoomDTO";
 import UserDTO from "../model/dto/UserDTO";
 import BookingService from "../service/BookingService";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
-import { NotFoundError, RequestConflictError, UnavailableAttendeesError } from "../util/exception/AWSRoomBookingSystemError";
+import {
+    NotFoundError,
+    RequestConflictError,
+    UnavailableAttendeesError
+} from "../util/exception/AWSRoomBookingSystemError";
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 
 export default class BookingController extends AbstractController {
     private bookingService: BookingService;
 
-    constructor( bookingService: BookingService ) {
+    constructor(bookingService: BookingService) {
         super();
         this.bookingService = bookingService;
     }
@@ -21,36 +25,37 @@ export default class BookingController extends AbstractController {
     public getById(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     }
-    
+
     public create = async (req: Request, res: Response): Promise<Response> => {
-        let dto = new BookingDTO();
+        const dto = new BookingDTO();
         dto.createdByUsername = req.body.createdByUsername!;
-        dto.createdAt = new Date( req.body.createdAt! );
-        dto.startTime = new Date( req.body.startTime! );
-        dto.endTime = new Date( req.body.endTime! );
-        dto.roomDTO = []
-        for( let entry of req.body.rooms ) {
-            let roomdto = new RoomDTO();
+        dto.createdAt = new Date(req.body.createdAt!);
+        dto.startTime = new Date(req.body.startTime!);
+        dto.endTime = new Date(req.body.endTime!);
+        dto.roomDTO = [];
+        for (const entry of req.body.rooms) {
+            const roomdto = new RoomDTO();
             roomdto.roomId = entry;
-            dto.roomDTO.push( roomdto );
+            dto.roomDTO.push(roomdto);
         }
-        dto.userDTOs = []
-        for ( let entry of req.body.users ) {
-            let userdto = new UserDTO();
+        dto.userDTOs = [];
+        for (const entry of req.body.users) {
+            const userdto = new UserDTO();
             userdto.username = entry;
-            dto.userDTOs.push( userdto );
+            dto.userDTOs.push(userdto);
         }
-        return this.bookingService.create( dto )
-        .then( ( booking ) => {
-            return super.onResolve( res, booking );
-        })
-        .catch( ( err: RequestConflictError ) => {
-            return super.onReject( res, ResponseCodeMessage.REQUEST_CONFLICT_CODE, err.message );
-        })
-        .catch( ( err: NotFoundError ) => {
-            return super.onReject( res, ResponseCodeMessage.NOT_FOUND_CODE, err.message );
-        });
-    }
+        return this.bookingService
+            .create(dto)
+            .then((booking) => {
+                return super.onResolve(res, booking);
+            })
+            .catch((err: RequestConflictError) => {
+                return super.onReject(res, ResponseCodeMessage.REQUEST_CONFLICT_CODE, err.message);
+            })
+            .catch((err: NotFoundError) => {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, err.message);
+            });
+    };
 
     public update(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
@@ -72,5 +77,3 @@ export default class BookingController extends AbstractController {
         .catch( ( err: UnavailableAttendeesError ) => {
             return super.onReject( res, ResponseCodeMessage.UNAVAILABLE_ATEENDEES, err.message );
         });
-    }
-}
