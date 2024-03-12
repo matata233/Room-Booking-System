@@ -56,12 +56,49 @@ app.post(`${endpoint}/users/create`, userController.create);
     {
         startTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
         endTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
-        attendees: 'id1,id2,id3,...',
-        equipments: 'eq1,eq2,eq3,...',
-        priority: 'prio1,prio2,prio3,...'
+        attendees: ['email1,email2,email3,...'],
+        equipments: ['eq1,eq2,eq3,...'],
+        priority: ['prio1,prio2,prio3,...']
     }
+
+    out:
+    {
+    "groups":[
+        {
+            "attendees":[
+                {
+                "id":1,
+                "email":"attendee1@example.com"
+                },
+                {
+                "id":2,
+                "email":"attendee2@example.com"
+                },
+                {
+                "id":3,
+                "email":"attendee3@example.com"
+                }
+            ],
+            "rooms":[
+                {
+                "roomId":1,
+                "cityId":"YVR",
+                "buildingCode":32,
+                "floorNumber":1,
+                "roomCode":"101",
+                "roomName":"A",
+                "numberOfSeats":4,
+                "has_av": true,
+                },
 */
 app.get( `${endpoint}/booking/available-room`, bookingController.getAvailableRooms );
+
+/*
+    new Date().now()
+    changes:
+        - backend is responsible for timeCreateAt
+
+*/
 app.post( `${endpoint}/booking/create`, bookingController.create )
 
 // Building routes

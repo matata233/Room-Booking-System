@@ -81,7 +81,7 @@ export default class BookingRepository extends AbstractRepository {
                                end_time: string,
                                attendees: string[],
                                equipments: string[],
-                               priority: string[] ): Promise<RoomDTO[]> {
+                               priority: string[] ): Promise<Object> {
         let city_code: string;
         return this.getUnavailableAttendees( attendees, start_time, end_time )
         .then( ( res ) => {
@@ -100,21 +100,23 @@ export default class BookingRepository extends AbstractRepository {
             let floor = buildingFloorList[ 0 ].floor as number;
             let query = this.buildQuery( start_time, end_time, attendees, equipments, priority, closest_building_id, city_code, floor);
             return this.db.$queryRawUnsafe( query );
-        });
+        })
+        .then( ( res ) => {
+            return {
+                'groups': [
+                    {
+                        'attendees': attendees,
+                        'rooms': res
+                    }
+                ]
+            };
+        })
     }
 
-    public getAttendeesAvailability( attendees: string[],
-                                     start_date: Date,
-                                     end_date: Date,
-                                     duration: string ): Promise<Date[]> {
-        return Promise.reject( "Not Implemneted" );
-    }
-
-    private getUnavailableAttendees( _attendees: string[], start_time: string, end_time: string ): Promise<users[]> {
-        let attendees: number[] = _attendees.map( ( id ) => parseInt( id ) );
+    private getUnavailableAttendees( attendees: string[], start_time: string, end_time: string ): Promise<users[]> {
         return this.db.users.findMany({ 
             where: {
-                user_id: {
+                email: {
                     in: attendees
                 },
                 bookings: {
@@ -129,10 +131,10 @@ export default class BookingRepository extends AbstractRepository {
         });
     }
 
-    public getCityId( user_id: string ): Promise<string> {
+    public getCityId( email: string ): Promise<string> {
         return this.db.users.findUnique({
             where: {
-                user_id: parseInt(user_id)
+                email: email
             },
             include: {
                 buildings: {
@@ -144,7 +146,7 @@ export default class BookingRepository extends AbstractRepository {
         })
         .then( ( res ) => {
             if( res == null ) 
-                return Promise.reject( new NotFoundError( `User ${user_id} not found` ) );
+                return Promise.reject( new NotFoundError( `User ${email} not found` ) );
             return res.buildings.city_id 
         })
     }
@@ -153,7 +155,7 @@ export default class BookingRepository extends AbstractRepository {
     public getBuildingFloor( attendees: string[] ): Promise<AggregateAttendeeDTO[]> {
         let userList = `(`;
         for( let i=0; i < attendees.length; i++ ) {
-            userList = userList + `${attendees[ i ]}`;
+            userList = userList + `\'${attendees[ i ]}\'`;
             if( i != attendees.length-1 )
             userList = userList + ',';
         }
@@ -163,7 +165,7 @@ export default class BookingRepository extends AbstractRepository {
         WITH user_counts AS (
             SELECT building_id, COUNT(*) AS num_users
             FROM users
-            WHERE user_id IN ${userList}
+            WHERE email IN ${userList}
             GROUP BY building_id
         ),
         max_floor_per_building AS (
@@ -172,7 +174,7 @@ export default class BookingRepository extends AbstractRepository {
               SELECT building_id, floor,
                      ROW_NUMBER() OVER(PARTITION BY building_id ORDER BY COUNT(*) DESC) AS rn
               FROM users
-              WHERE user_id IN ${userList}
+              WHERE email IN ${userList}
               GROUP BY building_id, floor
             ) t
             WHERE rn = 1
@@ -181,7 +183,7 @@ export default class BookingRepository extends AbstractRepository {
         FROM user_counts uc
         JOIN max_floor_per_building mfp ON uc.building_id = mfp.building_id
         ORDER BY num_users DESC`;
-
+        
         return this.db.$queryRawUnsafe( query )
         .then( ( ret ) => {
             let res: AggregateAttendeeDTO[] = [];

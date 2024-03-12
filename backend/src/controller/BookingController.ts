@@ -57,11 +57,11 @@ export default class BookingController extends AbstractController {
     } 
 
     public getAvailableRooms = async ( req: Request, res: Response ): Promise<Response> => {
-        let start_time = req.query.startTime as string;
-        let end_time = req.query.endTime as string;
-        let attendees = ( req.query.attendees as string ).split(',');
-        let equipments = ( req.query.equipments as string ).split(',');
-        let priority = ( req.query.priority as string ).split(',');
+        let start_time = req.body.startTime!;
+        let end_time = req.body.endTime!;
+        let attendees = req.body.attendees!;
+        let equipments = req.body.equipments!;
+        let priority = req.body.priority!;
         return this.bookingService.getAvailableRooms( start_time, end_time, attendees, equipments, priority )
         .then( ( rooms ) => {
             return super.onResolve( res, rooms );

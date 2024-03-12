@@ -40,7 +40,7 @@ export default class BookingService extends AbstractService {
         return this.bookingRepository.getBuildingFloor( attendees );
     }   
 
-    public getAvailableRooms( start_time: string, end_time: string, attendees: string[], equipments: string[], priority: string[]): Promise<RoomDTO[]> {
+    public getAvailableRooms( start_time: string, end_time: string, attendees: string[], equipments: string[], priority: string[]): Promise<Object> {
         return this.bookingRepository.getAvailableRooms( start_time, end_time,attendees,equipments,priority);
     }
 }
