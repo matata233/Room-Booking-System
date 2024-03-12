@@ -25,7 +25,7 @@ export default class BookingController extends AbstractController {
     public create = async (req: Request, res: Response): Promise<Response> => {
         let dto = new BookingDTO();
         dto.createdByUsername = req.body.createdByUsername!;
-        dto.createdAt = new Date( req.body.createdAt! );
+        dto.createdAt = new Date();
         dto.startTime = new Date( req.body.startTime! );
         dto.endTime = new Date( req.body.endTime! );
         dto.roomDTO = []
