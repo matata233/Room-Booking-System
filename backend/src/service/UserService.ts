@@ -26,6 +26,10 @@ export default class UserService extends AbstractService {
         return this.userRepo.findAll();
     }
 
+    public async getAllEmail(): Promise<UserDTO[]> {
+        return this.userRepo.findAllEmail();
+    }
+
     public async getById(id: number): Promise<UserDTO> {
         return this.userRepo.findById(id);
     }

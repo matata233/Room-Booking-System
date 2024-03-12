@@ -33,6 +33,23 @@ export default class UserController extends AbstractController {
         }
     };
 
+    public getAllEmail = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const users = await this.userService.getAllEmail();
+            return super.onResolve(res, users);
+        } catch (error: unknown) {
+            if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while fetching users."
+                );
+            }
+        }
+    };
+
     public getById = async (req: Request, res: Response): Promise<Response> => {
         try {
             const userId = parseInt(req.params.id);
