@@ -35,7 +35,7 @@ const EventDetailsModal = ({ closeModal, selectedEvent, onDelete, onEdit }) => {
               {new Date(selectedEvent.end).toLocaleString()}
             </p>
           </div>
-        )}{" "}
+        )}
         <div className="mb-10 flex justify-center ">
           <a
             href="#"
