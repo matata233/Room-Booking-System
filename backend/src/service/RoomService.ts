@@ -63,7 +63,34 @@ export default class RoomService extends AbstractService {
     }
 
     public update(id: number, dto: RoomDTO): Promise<RoomDTO> {
+        if (dto.floorNumber !== undefined && typeof dto.floorNumber !== "number") {
+            throw new BadRequestError("Invalid floor number");
+        }
+        if (dto.roomCode !== undefined && typeof dto.roomCode !== "string") {
+            throw new BadRequestError("Invalid room code");
+        }
+        if (dto.roomName !== undefined && typeof dto.roomName !== "string") {
+            throw new BadRequestError("Invalid room name");
+        }
+        if (dto.numberOfSeats !== undefined && typeof dto.numberOfSeats !== "number") {
+            throw new BadRequestError("Invalid number of seats");
+        }
+        if (dto.equipmentList !== undefined) {
+            if (!Array.isArray(dto.equipmentList)) {
+                throw new BadRequestError("Invalid equipment list");
+            }
+            for (const equipment of dto.equipmentList) {
+                if (typeof equipment.equipmentId !== "string") {
+                    throw new BadRequestError("Invalid equipment id");
+                }
+                if (!["AV", "VC"].includes(equipment.equipmentId)) {
+                    throw new BadRequestError("Invalid equipment id");
+                }
+            }
+        }
+        if (dto.isActive !== undefined && typeof dto.isActive !== "boolean") {
+            throw new BadRequestError("Invalid active status");
+        }
         return this.roomRepo.updateById(id, dto);
-        // return Promise.reject("Not implemented");
     }
 }

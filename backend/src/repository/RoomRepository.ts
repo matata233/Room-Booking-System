@@ -2,7 +2,7 @@ import AbstractRepository from "./AbstractRepository";
 import RoomDTO from "../model/dto/RoomDTO";
 import {toRoomDTO} from "../util/Mapper/RoomMapper";
 import {PrismaClient} from "@prisma/client";
-import {NotFoundError} from "../util/exception/AWSRoomBookingSystemError";
+import {BadRequestError, NotFoundError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class RoomRepository extends AbstractRepository {
     /**
@@ -160,6 +160,20 @@ export default class RoomRepository extends AbstractRepository {
                         equipment_id: equipment.equipmentId!,
                     })),
                 };
+            }
+            const conflictRoom = await tx.rooms.findFirst({
+                where: {
+                    building_id: dto.building?.buildingId,
+                    floor: dto.floorNumber,
+                    code: dto.roomCode,
+                    NOT: {
+                        room_id: id // not this room
+                    }
+                }
+            });
+
+            if (conflictRoom) {
+                return Promise.reject(new BadRequestError(`Another room already exists with building ID ${dto.building?.buildingId}, floor ${dto.floorNumber}, and code ${dto.roomCode}.`));
             }
 
             const updatedRoom = await tx.rooms.update({

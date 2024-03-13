@@ -114,11 +114,11 @@ export default class RoomController extends AbstractController {
                 updateRoom.roomName = req.body.roomName;
             }
 
-            if (req.body.equipmentIds !== undefined) {
-                updateRoom.equipmentList = req.body.equipmentIds.map((equipmentId: string | undefined) => {
-                    const equipment = new EquipmentDTO();
-                    equipment.equipmentId = equipmentId;
-                    return equipment;
+            if (req.body.equipmentList !== undefined) {
+                updateRoom.equipmentList = req.body.equipmentList.map((equipment: any) => {
+                    const equipmentDto = new EquipmentDTO();
+                    equipmentDto.equipmentId = equipment.equipmentId;
+                    return equipmentDto;
                 });
             }
 
