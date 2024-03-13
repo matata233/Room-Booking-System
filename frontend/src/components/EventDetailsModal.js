@@ -50,7 +50,7 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
           className="absolute right-2 top-2 cursor-pointer p-2"
           onClick={onClose}
         >
-          <img src={CloseIconSVG} alt="Close Icon" className="h-7 w-7" />
+          <img src={CloseIconSVG} alt="Close Icon" className="h-6 w-6" />
         </button>
       </div>
     </div>

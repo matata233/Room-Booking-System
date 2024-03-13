@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import AddEventModal from "../AddEventModal";
 import EditEventModal from "../EditEventModal";
 import EventDetailsModal from "../EventDetailsModal";
+import CancelConfirmationModal from "../CancelConfirmationModal";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -34,11 +35,16 @@ const exampleEvents = [
 
 const EventCalendar = () => {
   const [events, setEvents] = useState(exampleEvents);
+  const confirmDeleteMessage = "Are you sure you want to delete?";
+
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [eventToDelete, setEventToDelete] = useState(null);
+
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [isDetails, setIsDetails] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const handleSelectEvent = (event) => {
     setSelectedEvent(event);
@@ -56,8 +62,14 @@ const EventCalendar = () => {
   };
 
   const handleDeleteEvent = (eventId) => {
+    setEventToDelete(eventId);
+    setIsDetails(false);
+    setIsConfirmed(true);
+  };
+
+  const handleConfirmDelete = () => {
     setEvents((prevEvents) =>
-      prevEvents.filter((event) => event.id !== eventId),
+      prevEvents.filter((event) => event.id !== eventToDelete),
     );
     handleCloseModal();
   };
@@ -90,6 +102,7 @@ const EventCalendar = () => {
     setIsEditing(false);
     setIsAdding(false);
     setIsDetails(false);
+    setIsConfirmed(false);
   };
 
   // const handleTest = () => {
@@ -143,6 +156,15 @@ const EventCalendar = () => {
             event={selectedEvent}
             onUpdate={handleSaveEvent}
             onClose={handleCloseModal}
+          />
+        )}
+
+        {isConfirmed && (
+          <CancelConfirmationModal
+            onConfirm={handleConfirmDelete}
+            onClose={handleCloseModal}
+            onCancel={handleCloseModal}
+            message={confirmDeleteMessage}
           />
         )}
 

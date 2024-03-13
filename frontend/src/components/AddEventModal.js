@@ -7,11 +7,11 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
   const [startDate, setStartDate] = useState(
     dayjs(selectedDate).format("YYYY-MM-DD"),
   );
-  const [startTime, setStartTime] = useState("");
+  const [startTime, setStartTime] = useState("00:00");
   const [endDate, setEndDate] = useState(
     dayjs(selectedDate).format("YYYY-MM-DD"),
   );
-  const [endTime, setEndTime] = useState("");
+  const [endTime, setEndTime] = useState("00:00");
 
   const handleAddEvent = () => {
     const startDateTime = new Date(`${startDate}T${startTime}`);
