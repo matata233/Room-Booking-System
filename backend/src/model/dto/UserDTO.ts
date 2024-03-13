@@ -6,7 +6,7 @@ import {role} from "@prisma/client";
 export default class UserDTO extends AbstractDTO {
     public userId?: number;
     public username?: string;
-    public firstName!: string;
+    public firstName?: string;
     public lastName?: string;
     public email?: string;
     public floor?: number;

@@ -119,6 +119,7 @@ export default class UserController extends AbstractController {
             if (error instanceof UnauthorizedError) {
                 return super.onReject(res, error.code, error.message);
             } else {
+                console.error(error);
                 return super.onReject(
                     res,
                     ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
