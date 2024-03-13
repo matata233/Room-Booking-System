@@ -22,8 +22,13 @@ const LoginPage = () => {
       const response = await login({ token: res.credential }).unwrap();
       const decodedUserInfo = jwtDecode(response.token);
       const avatarLink = jwtDecode(res.credential).picture; // get the user's avatar link from the token
-      dispatch(setCredentials({ ...decodedUserInfo, avatar: avatarLink }));
-      console.log({ ...decodedUserInfo, avatar: avatarLink });
+      dispatch(
+        setCredentials({
+          ...decodedUserInfo,
+          avatar: avatarLink,
+          token: response.token,
+        }),
+      );
       navigate(redirect);
     } catch (err) {
       toast.error(err?.data?.error || "Login failed");

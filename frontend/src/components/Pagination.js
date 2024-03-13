@@ -29,7 +29,6 @@ const Pagination = ({
   };
 
   const totalPages = Math.ceil(count / rowsPerPage);
-  console.log(totalPages);
   const from = (currentPage - 1) * rowsPerPage + 1;
   const to = Math.min(currentPage * rowsPerPage, count);
 
