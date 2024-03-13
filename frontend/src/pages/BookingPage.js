@@ -12,6 +12,7 @@ import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link } from "react-router-dom";
 import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
+import UserEmailGroup from "../components/UserEmailGroup";
 
 const BookingPage = () => {
   const data = useMemo(
@@ -58,7 +59,7 @@ const BookingPage = () => {
 
       <div className="flex w-full flex-col items-center gap-10 md:flex-row md:items-start md:justify-between">
         {/* Input Part */}
-        <div className="basis-1/3">
+        <form className="basis-1/3" onSubmit={handleSubmit}>
           <h1 className="mb-4 text-xl font-semibold">Book a Room</h1>
           <div className="flex flex-col gap-3">
             <h2>Select Time</h2>
@@ -88,20 +89,22 @@ const BookingPage = () => {
               roomCount={roomCount}
               setRoomCount={setRoomCount}
             />
-            <h2>Enter all user email</h2>
-            <form onSubmit={handleSubmit}>
-              <UserEmailInput roomCount={roomCount} />
-              <div className="my-4 flex w-80 justify-center">
-                <button
-                  type="submit"
-                  className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
+            <h2>Enter all user emails</h2>
+            <UserEmailInput count={roomCount} />
+
+            <h2>Enter user emails by group</h2>
+            <UserEmailGroup />
+
+            <div className="my-4 flex w-80 justify-center">
+              <button
+                type="submit"
+                className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+              >
+                Submit
+              </button>
+            </div>
           </div>
-        </div>
+        </form>
         <div className="flex basis-2/3 flex-col">
           <div className="flex items-center justify-between">
             <div className="mb-4 text-xl font-semibold">Available Rooms</div>
@@ -119,13 +122,13 @@ const BookingPage = () => {
           ) : paginatedData.length > 0 ? (
             <div className="flex flex-col gap-4">
               <div className="mb-4 flex items-center justify-center xl:justify-end">
-              <Link
-                to="/bookingReview"
-                className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
-              >
-                Submit
-              </Link>
-            </div>
+                <Link
+                  to="/bookingReview"
+                  className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                >
+                  Submit
+                </Link>
+              </div>
               {paginatedData.map((room) => (
                 <div
                   key={room.roomId}
