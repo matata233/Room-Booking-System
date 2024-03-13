@@ -61,8 +61,26 @@ export default class UserService extends AbstractService {
     }
 
     // Update user details
-    update(id: number, dto: AbstractDTO): Promise<AbstractDTO> {
-        return Promise.reject("Not implemented");
+    public async update(userID: number, user: UserDTO): Promise<UserDTO> {
+        if (!user.username && typeof user.username !== "string") {
+            throw new BadRequestError("Invalid username");
+        }
+        if (!user.firstName && typeof user.firstName !== "string") {
+            throw new BadRequestError("Invalid first name");
+        }
+        if (!user.lastName && typeof user.lastName !== "string") {
+            throw new BadRequestError("Invalid last name");
+        }
+        if (!user.email && typeof user.email !== "string") {
+            throw new BadRequestError("Invalid email");
+        }
+        if (!user.floor && typeof user.floor !== "number") {
+            throw new BadRequestError("Invalid floor");
+        }
+        if (!user.desk && typeof user.desk !== "number") {
+            throw new BadRequestError("Invalid desk");
+        }
+        return this.userRepo.update(userID, user);
     }
 
     public login = async (googleToken: string): Promise<string> => {

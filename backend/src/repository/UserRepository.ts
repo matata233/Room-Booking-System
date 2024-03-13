@@ -133,4 +133,34 @@ export default class UserRepository extends AbstractRepository {
         const newUserDTO = getBuilding ? toUserDTO(newUser, getBuilding.cities, getBuilding) : ({} as UserDTO);
         return newUserDTO;
     }
+
+    public async update(userID: number, user: UserDTO): Promise<UserDTO> {
+        const updatedUser = await this.db.users.update({
+            where: {
+                user_id: userID
+            },
+            data: {
+                username: user.username!,
+                first_name: user.firstName!,
+                last_name: user.lastName!,
+                email: user.email!,
+                building_id: user.building!.buildingId!,
+                floor: user.floor!,
+                desk: user.desk!,
+                role: user.role ?? "staff",
+                is_active: user.isActive ?? true
+            }
+        });
+
+        const getBuilding = await this.db.buildings.findUnique({
+            where: {
+                building_id: user.building?.buildingId
+            },
+            include: {
+                cities: true
+            }
+        });
+        const updatedUserDTO = getBuilding ? toUserDTO(updatedUser, getBuilding.cities, getBuilding) : ({} as UserDTO);
+        return updatedUserDTO;
+    }
 }
