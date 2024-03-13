@@ -90,6 +90,62 @@ export default class RoomController extends AbstractController {
     };
 
     public update = async (req: Request, res: Response): Promise<Response> => {
-        return Promise.reject("Not implemented");
+        try {
+            const roomId = parseInt(req.params.id);
+            if (isNaN(roomId)) {
+                throw new BadRequestError("Invalid room ID");
+            }
+            const updateRoom: Partial<RoomDTO> = {};
+
+            if (req.body.buildingId !== undefined) {
+                updateRoom.building = new BuildingDTO();
+                updateRoom.building.buildingId = req.body.buildingId;
+            }
+
+            if (req.body.floorNumber !== undefined) {
+                updateRoom.floorNumber = req.body.floorNumber;
+            }
+
+            if (req.body.roomCode !== undefined) {
+                updateRoom.roomCode = req.body.roomCode;
+            }
+
+            if (req.body.roomName !== undefined) {
+                updateRoom.roomName = req.body.roomName;
+            }
+
+            if (req.body.equipmentList !== undefined) {
+                updateRoom.equipmentList = req.body.equipmentList.map((equipment: any) => {
+                    const equipmentDto = new EquipmentDTO();
+                    equipmentDto.equipmentId = equipment.equipmentId;
+                    return equipmentDto;
+                });
+            }
+
+            if (req.body.numberOfSeats !== undefined) {
+                updateRoom.numberOfSeats = req.body.numberOfSeats;
+            }
+
+            if (req.body.isActive !== undefined) {
+                updateRoom.isActive = req.body.isActive;
+            }
+
+            const newRoom = await this.roomService.update(roomId, updateRoom);
+            return super.onResolve(res, newRoom);
+        } catch (error: unknown) {
+            console.log(error);
+            if (error instanceof NotFoundError) {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
+            } else if (error instanceof BadRequestError || error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                // Generic error handling
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while updating the room."
+                );
+            }
+        }
     };
 }

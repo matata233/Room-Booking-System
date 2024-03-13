@@ -42,6 +42,7 @@ app.get(`${endpoint}/api/data`, (req, res) => {
 app.get(`${endpoint}/rooms`, roomController.getAll);
 app.get(`${endpoint}/rooms/:id`, roomController.getById);
 app.post(`${endpoint}/rooms/create`, roomController.create);
+app.put(`${endpoint}/rooms/:id`, roomController.update);
 
 //login route
 app.post(`${endpoint}/users/login`, userController.login);
