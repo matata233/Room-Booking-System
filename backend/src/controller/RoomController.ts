@@ -93,7 +93,7 @@ export default class RoomController extends AbstractController {
         try {
             const roomId = parseInt(req.params.id);
             if (isNaN(roomId)) {
-                throw new BadRequestError('Invalid room ID');
+                throw new BadRequestError("Invalid room ID");
             }
             const updateRoom: Partial<RoomDTO> = {};
 
@@ -132,12 +132,11 @@ export default class RoomController extends AbstractController {
 
             const newRoom = await this.roomService.update(roomId, updateRoom);
             return super.onResolve(res, newRoom);
-
         } catch (error: unknown) {
             console.log(error);
             if (error instanceof NotFoundError) {
                 return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
-            }else if (error instanceof BadRequestError || error instanceof UnauthorizedError) {
+            } else if (error instanceof BadRequestError || error instanceof UnauthorizedError) {
                 return super.onReject(res, error.code, error.message);
             } else {
                 // Generic error handling

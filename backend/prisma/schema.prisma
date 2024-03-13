@@ -118,9 +118,9 @@ model distances {
 model events {
   event_id   Int      @id @default(autoincrement())
   created_by Int
+  title      String
   start_time DateTime @db.Timestamp(6)
   end_time   DateTime @db.Timestamp(6)
-  is_active  Boolean
   users      users    @relation(fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 

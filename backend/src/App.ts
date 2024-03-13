@@ -13,6 +13,10 @@ import cors from "cors";
 import BookingController from "./controller/BookingController";
 import BookingService from "./service/BookingService";
 import BookingRepository from "./repository/BookingRepository";
+import Authenticator from "./util/Authenticator";
+import EventController from "./controller/EventController";
+import EventService from "./service/EventService";
+import EventRepository from "./repository/EventRepository";
 
 const app = express();
 // Registers middleware
@@ -21,6 +25,8 @@ app.use(cors()); // Enable CORS for all routes, COURS is a security feature to p
 
 const database = new PrismaClient();
 
+export const authenticator = Authenticator.getInstance(new UserRepository(database));
+
 const bookingController = new BookingController(new BookingService(new BookingRepository(database)));
 const roomController = new RoomController(
     new RoomService(new RoomRepository(database), new BuildingRepository(database))
@@ -28,6 +34,7 @@ const roomController = new RoomController(
 
 const userController = new UserController(new UserService(new UserRepository(database)));
 const buildingController = new BuildingController(new BuildingService(new BuildingRepository(database)));
+const eventController = new EventController(new EventService(new EventRepository(database)));
 const endpoint: string = "/aws-room-booking/api/v1";
 
 // Sample route
@@ -133,4 +140,10 @@ app.post(`${endpoint}/booking/create`, bookingController.create);
 app.get(`${endpoint}/buildings`, buildingController.getAll);
 app.get(`${endpoint}/buildings/:id`, buildingController.getById);
 
+// Event routes
+app.get(`${endpoint}/events`, eventController.getAllByCurrentUser);
+app.get(`${endpoint}/events/:id`, eventController.getById);
+app.post(`${endpoint}/events/create`, eventController.create);
+app.put(`${endpoint}/events/:id`, eventController.update);
+app.delete(`${endpoint}/events/:id`, eventController.delete);
 export default app;

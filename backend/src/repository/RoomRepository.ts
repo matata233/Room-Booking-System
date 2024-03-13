@@ -126,7 +126,7 @@ export default class RoomRepository extends AbstractRepository {
     public async updateById(id: number, dto: RoomDTO): Promise<RoomDTO> {
         return await this.db.$transaction(async (tx) => {
             const existingRoom = await tx.rooms.findUnique({
-                where: { room_id: id },
+                where: {room_id: id}
             });
 
             if (!existingRoom) {
@@ -156,9 +156,9 @@ export default class RoomRepository extends AbstractRepository {
             if (dto.equipmentList) {
                 updateData.rooms_equipments = {
                     deleteMany: {},
-                    create: dto.equipmentList.map(equipment => ({
-                        equipment_id: equipment.equipmentId!,
-                    })),
+                    create: dto.equipmentList.map((equipment) => ({
+                        equipment_id: equipment.equipmentId!
+                    }))
                 };
             }
             const conflictRoom = await tx.rooms.findFirst({
@@ -173,11 +173,15 @@ export default class RoomRepository extends AbstractRepository {
             });
 
             if (conflictRoom) {
-                return Promise.reject(new BadRequestError(`Another room already exists with building ID ${dto.building?.buildingId}, floor ${dto.floorNumber}, and code ${dto.roomCode}.`));
+                return Promise.reject(
+                    new BadRequestError(
+                        `Another room already exists with building ID ${dto.building?.buildingId}, floor ${dto.floorNumber}, and code ${dto.roomCode}.`
+                    )
+                );
             }
 
             const updatedRoom = await tx.rooms.update({
-                where: { room_id: id },
+                where: {room_id: id},
                 data: updateData,
                 include: {
                     buildings: {
@@ -197,7 +201,12 @@ export default class RoomRepository extends AbstractRepository {
                     }
                 }
             });
-            return toRoomDTO(updatedRoom, updatedRoom.buildings.cities, updatedRoom.buildings, updatedRoom.rooms_equipments);
+            return toRoomDTO(
+                updatedRoom,
+                updatedRoom.buildings.cities,
+                updatedRoom.buildings,
+                updatedRoom.rooms_equipments
+            );
         });
     }
 }
