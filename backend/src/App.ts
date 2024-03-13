@@ -13,10 +13,10 @@ import cors from "cors";
 import BookingController from "./controller/BookingController";
 import BookingService from "./service/BookingService";
 import BookingRepository from "./repository/BookingRepository";
+import Authenticator from "./util/Authenticator";
 import EventController from "./controller/EventController";
 import EventService from "./service/EventService";
 import EventRepository from "./repository/EventRepository";
-import Authenticator from "./util/Authenticator";
 
 const app = express();
 // Registers middleware

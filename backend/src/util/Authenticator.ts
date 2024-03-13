@@ -1,5 +1,5 @@
 import UserDTO from "../model/dto/UserDTO";
-import {jwtDecode, JwtPayload} from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import jwt from "jsonwebtoken";
 import {NotFoundError, UnauthorizedError} from "./exception/AWSRoomBookingSystemError";
 import UserRepository from "../repository/UserRepository";

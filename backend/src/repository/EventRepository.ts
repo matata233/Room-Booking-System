@@ -1,5 +1,5 @@
 import AbstractRepository from "./AbstractRepository";
-import {events, PrismaClient} from "@prisma/client";
+import {PrismaClient} from "@prisma/client";
 import EventDTO from "../model/dto/EventDTO";
 import {BadRequestError, NotFoundError} from "../util/exception/AWSRoomBookingSystemError";
 import {toEventDTO} from "../util/Mapper/EventMapper";
