@@ -23,8 +23,8 @@ export default class BookingController extends AbstractController {
 
     public getAll = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const rooms = await this.bookingService.getAll();
-            return super.onResolve(res, rooms);
+            const bookings = await this.bookingService.getAll();
+            return super.onResolve(res, bookings);
         } catch (error: unknown) {
             if (error instanceof UnauthorizedError) {
                 return super.onReject(res, error.code, error.message);
@@ -44,8 +44,8 @@ export default class BookingController extends AbstractController {
             if (isNaN(bookingId)) {
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Invalid booking ID.");
             }
-            const room = await this.bookingService.getById(bookingId);
-            return super.onResolve(res, room);
+            const booking = await this.bookingService.getById(bookingId);
+            return super.onResolve(res, booking);
         } catch (error: unknown) {
             if (error instanceof NotFoundError) {
                 return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
