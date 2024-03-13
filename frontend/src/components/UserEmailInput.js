@@ -2,26 +2,24 @@ import React, { useState, useEffect } from "react";
 import PlusButtonSVG from "../assets/plus-button.svg";
 import { MdDelete } from "react-icons/md";
 
-const UserEmailInput = ({ roomCount }) => {
-  const [emails, setEmails] = useState(
-    Array.from({ length: roomCount }, () => ""),
-  );
+const UserEmailInput = ({ count = 1 }) => {
+  const [emails, setEmails] = useState(Array.from({ length: count }, () => ""));
 
   useEffect(() => {
-    // adjust the number of email fields based on roomCount
+    // adjust the number of email fields based on count
     setEmails((currentEmails) => {
-      if (roomCount > currentEmails.length) {
-        // If roomCount increases, add more empty email fields
+      if (count > currentEmails.length) {
+        // If count increases, add more empty email fields
         return [
           ...currentEmails,
-          ...Array.from({ length: roomCount - currentEmails.length }, () => ""),
+          ...Array.from({ length: count - currentEmails.length }, () => ""),
         ];
       } else {
-        // If roomCount decreases, keep the first `roomCount` emails
-        return currentEmails.slice(0, roomCount);
+        // If count decreases, keep the first `count` emails
+        return currentEmails.slice(0, count);
       }
     });
-  }, [roomCount]);
+  }, [count]);
 
   const handleEmailChange = (index, event) => {
     const newEmails = [...emails];
@@ -34,8 +32,8 @@ const UserEmailInput = ({ roomCount }) => {
   };
 
   const deleteEmailField = (index) => {
-    // Allow deletion if the field is not one of the default fields based on roomCount
-    if (index >= roomCount) {
+    // Allow deletion if the field is not one of the default fields based on count
+    if (index >= count) {
       const newEmails = [...emails];
       newEmails.splice(index, 1);
       setEmails(newEmails);
@@ -55,7 +53,7 @@ const UserEmailInput = ({ roomCount }) => {
             className="flex-grow rounded-md px-2 py-2 focus:outline-none focus:ring"
             required
           />
-          {userID >= roomCount && (
+          {userID >= count && (
             <button
               type="button"
               onClick={() => deleteEmailField(userID)}
