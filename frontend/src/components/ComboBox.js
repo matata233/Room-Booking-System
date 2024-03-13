@@ -6,11 +6,10 @@ import { LuChevronsUpDown } from "react-icons/lu";
 const ComboBox = ({
   options,
   defaultSelect = {},
-  userEmailFields,
-  setUserEmailFields,
+  handleEmailSelected,
   comboBoxId,
 }) => {
-  const [selected, setSelected] = useState(defaultSelect);
+  const [selected, setSelected] = useState(null);
   const [query, setQuery] = useState("");
   const filteredUsers =
     query === ""
@@ -24,11 +23,11 @@ const ComboBox = ({
 
   const handleEmailChange = (user) => {
     setSelected(user);
-    const newUserEmails = [...userEmailFields];
-    newUserEmails[comboBoxId] = user;
-    setUserEmailFields(newUserEmails);
-    console.log(comboBoxId, user);
-    console.log(userEmailFields);
+    const [groupId, attendeeIndex] = comboBoxId
+      .split("_")
+      .map((value, index) => (index === 0 ? value : parseInt(value, 10)));
+
+    handleEmailSelected(groupId, attendeeIndex, user);
   };
 
   return (
@@ -37,7 +36,7 @@ const ComboBox = ({
         <div className="relative w-full rounded-lg ">
           <Combobox.Input
             className="w-full border-none py-2 pl-3 pr-10 text-sm  text-theme-dark-blue focus:outline-none"
-            displayValue={(user) => user.label}
+            displayValue={(user) => user?.label || "Enter email"}
             onChange={(event) => setQuery(event.target.value)}
             required
           />

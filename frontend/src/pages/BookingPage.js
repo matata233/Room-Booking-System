@@ -13,12 +13,15 @@ import { Link } from "react-router-dom";
 import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
+import { useDispatch } from "react-redux";
+import { resetBooking } from "../slices/bookingSlice";
 
 const BookingPage = () => {
   const data = useMemo(
     () => dummyRoomBooking.filter((room) => room.is_active),
     [],
   );
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false); // Temporary
   const [showInitialImage, setShowInitialImage] = useState(true); // Temporary
 
@@ -51,7 +54,9 @@ const BookingPage = () => {
     }, 1000);
   };
 
-  const [roomCount, setRoomCount] = useState(1);
+  const handleReset = () => {
+    dispatch(resetBooking());
+  };
 
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
@@ -59,12 +64,14 @@ const BookingPage = () => {
 
       <div className="flex w-full flex-col items-center gap-10 md:flex-row md:items-start md:justify-between">
         {/* Input Part */}
-        <form className="basis-1/3" onSubmit={handleSubmit}>
-          <h1 className="mb-4 text-xl font-semibold">Book a Room</h1>
-          <div className="flex flex-col gap-3">
-            <h2>Select Time</h2>
-            <TimeDropdowns />
-            {/* <h2>Meeting Type</h2>
+        <div className="flex basis-1/3 flex-col items-center justify-center">
+          {" "}
+          <form onSubmit={handleSubmit}>
+            <h1 className="mb-4 text-xl font-semibold">Book a Room</h1>
+            <div className="flex flex-col gap-3">
+              <h2>Select Time</h2>
+              <TimeDropdowns />
+              {/* <h2>Meeting Type</h2>
             <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
               <div className="relative">
                 <select className="block w-full appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none">
@@ -80,31 +87,35 @@ const BookingPage = () => {
                 </div>
               </div>
             </div> */}
-            <h2>Equipments</h2>
-            <UserEquipInput />
-            <h2>Priority</h2>
-            <DragAndDrop />
-            <h2>Number of Rooms </h2>
-            <UserRoomCountInput
-              roomCount={roomCount}
-              setRoomCount={setRoomCount}
-            />
-            <h2>Enter all user emails</h2>
-            <UserEmailInput count={roomCount} />
+              <h2>Equipments</h2>
+              <UserEquipInput />
+              <h2>Priority</h2>
+              <DragAndDrop />
+              <h2>Number of Rooms </h2>
+              <UserRoomCountInput />
+              <h2>Enter all user emails</h2>
+              <UserEmailInput />
 
-            <h2>Enter user emails by group</h2>
-            <UserEmailGroup />
+              <h2>Enter user emails by group</h2>
+              <UserEmailGroup />
 
-            <div className="my-4 flex w-80 justify-center">
-              <button
-                type="submit"
-                className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
-              >
-                Submit
-              </button>
+              <div className="my-4 flex w-80 justify-center">
+                <button
+                  type="submit"
+                  className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                >
+                  Submit
+                </button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+          <button
+            onClick={handleReset}
+            className="rounded bg-theme-dark-blue px-[54px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
+          >
+            Reset
+          </button>
+        </div>
         <div className="flex basis-2/3 flex-col">
           <div className="flex items-center justify-between">
             <div className="mb-4 text-xl font-semibold">Available Rooms</div>

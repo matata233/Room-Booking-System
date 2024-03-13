@@ -1,19 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setRoomCount } from "../slices/bookingSlice";
 
-const UserRoomCountInput = ({ roomCount, setRoomCount }) => {
+const UserRoomCountInput = () => {
+  const dispatch = useDispatch();
+  const roomCount = useSelector((state) => state.booking.roomCount);
+  const [roomCountLocal, setRoomCountLocal] = useState(roomCount);
+
   const handleChange = (e) => {
     const inputValue = e.target.value;
 
     // only allow positive integers
     if (/^([1-9]\d*)?$/.test(inputValue)) {
-      setRoomCount(inputValue);
+      setRoomCountLocal(inputValue);
     }
   };
 
+  useEffect(() => {
+    setRoomCountLocal(roomCount);
+  }, [roomCount]);
+
   const handleBlur = () => {
-    if (roomCount === "") {
-      setRoomCount(1);
-    }
+    const finalCount = roomCountLocal === "" ? 1 : parseInt(roomCountLocal, 10);
+    setRoomCountLocal(finalCount);
+    dispatch(setRoomCount(finalCount));
   };
 
   return (
@@ -21,7 +31,7 @@ const UserRoomCountInput = ({ roomCount, setRoomCount }) => {
       <div className="relative">
         <input
           type="number"
-          value={roomCount}
+          value={roomCountLocal}
           onChange={handleChange}
           onBlur={handleBlur}
           className="block w-full appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"

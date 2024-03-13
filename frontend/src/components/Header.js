@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { HiOutlineBars3, HiXMark } from "react-icons/hi2";
 import { logout } from "../slices/authSlice";
+import { resetBooking } from "../slices/bookingSlice";
 import logo from "../assets/logo.png";
 import Navbar from "./Navbar";
 import { IoMdArrowDropdown } from "react-icons/io";
@@ -46,6 +47,7 @@ const Header = () => {
   const handleLogout = () => {
     try {
       dispatch(logout());
+      dispatch(resetBooking());
       navigate("/");
     } catch (error) {
       console.error("Logout failed", error);

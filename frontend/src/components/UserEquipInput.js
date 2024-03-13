@@ -1,11 +1,21 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addEquipment, removeEquipment } from "../slices/bookingSlice";
 
 const UserEquipInput = () => {
+  const dispatch = useDispatch();
+  const selectedEquipments = useSelector((state) => state.booking.equipments);
   const equipments = [
     { id: "AV", description: "Audio/Visual Equipment" },
     { id: "VC", description: "Video Conference Equipment" },
   ];
-
+  const handleEquipmentChange = (e, item) => {
+    if (e.target.checked) {
+      dispatch(addEquipment(item));
+    } else {
+      dispatch(removeEquipment(item));
+    }
+  };
   return (
     <div className="flex w-80 flex-col  gap-2 rounded-lg bg-gray-200 p-4 ">
       {equipments.map((item) => (
@@ -21,6 +31,8 @@ const UserEquipInput = () => {
               type="checkbox"
               className="peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-700 transition-all  checked:border-theme-orange checked:bg-theme-orange "
               id={item.id}
+              checked={selectedEquipments.some((equip) => equip.id === item.id)}
+              onChange={(e) => handleEquipmentChange(e, item)}
             />
             <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-theme-dark-blue opacity-0 transition-opacity peer-checked:opacity-100">
               <svg

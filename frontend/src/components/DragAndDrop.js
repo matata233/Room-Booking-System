@@ -16,8 +16,13 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { MdDragIndicator } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import { setPriority } from "../slices/bookingSlice";
 
 const DrapAndDrop = () => {
+  const dispatch = useDispatch();
+  const priority = useSelector((state) => state.booking.priority);
+
   // SortableItem component
   const SortableItem = ({ id, item }) => {
     const { attributes, listeners, setNodeRef, transform, transition } =
@@ -42,36 +47,17 @@ const DrapAndDrop = () => {
     );
   };
 
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      item: "Proximity",
-    },
-    {
-      id: 2,
-      item: "Seats",
-    },
-    {
-      id: 3,
-      item: "Equipment",
-    },
-  ]);
-
   const handleDragEnd = (event) => {
-    const { active, over } = event; // active: dragged item, over: item being dragged over
-    const getItemPosition = (id) => items.findIndex((item) => item.id === id);
+    const { active, over } = event;
+    const getItemPosition = (id) =>
+      priority.findIndex((item) => item.id === id);
     if (active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = getItemPosition(active.id);
-        const newIndex = getItemPosition(over.id);
-        const newItemsArray = arrayMove(items, oldIndex, newIndex);
-        //  send newItemsArray to the server
-
-        return newItemsArray;
-      });
+      const oldIndex = getItemPosition(active.id);
+      const newIndex = getItemPosition(over.id);
+      const newPriorityArray = arrayMove(priority, oldIndex, newIndex);
+      dispatch(setPriority(newPriorityArray));
     }
   };
-
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -86,8 +72,11 @@ const DrapAndDrop = () => {
       collisionDetection={closestCorners}
     >
       <div className="flex w-80 flex-col gap-2 rounded-lg bg-gray-200 p-4">
-        <SortableContext items={items} strategy={verticalListSortingStrategy}>
-          {items.map((item) => (
+        <SortableContext
+          items={priority}
+          strategy={verticalListSortingStrategy}
+        >
+          {priority.map((item) => (
             <SortableItem key={item.id} id={item.id} item={item.item} />
           ))}
         </SortableContext>
