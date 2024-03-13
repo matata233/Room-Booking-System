@@ -22,18 +22,12 @@ const initialState = {
     },
   ],
   roomCount: 1,
-  attendeesBeforeSearch: [
-    {
-      id: null,
-      email: "",
-    },
-  ],
   groups: [
     {
       groupId: uuidv4(),
       attendees: [
         {
-          id: null,
+          id: uuidv4(),
           email: "",
         },
       ],

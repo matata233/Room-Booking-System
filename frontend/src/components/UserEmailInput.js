@@ -112,7 +112,19 @@ const UserEmailInput = () => {
                           id: user.userId,
                         }))
               }
-              handleEmailSelected={handleEmailSelected}
+              selectedUser={attendee} // Pass the attendee as the selected user
+              handleEmailSelected={(selectedUser) =>
+                dispatch(
+                  updateAttendee({
+                    groupId: groups[0].groupId,
+                    attendeeIndex: index,
+                    attendeeDetails: {
+                      id: selectedUser.id,
+                      email: selectedUser.label,
+                    },
+                  }),
+                )
+              }
               comboBoxId={`${groups[0].groupId}_${index + 1}`}
             />
             {/* Delete button for additional attendees */}
