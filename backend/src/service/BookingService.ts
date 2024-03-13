@@ -1,8 +1,6 @@
 import AbstractService from "./AbstractService";
 import BookingDTO from "../model/dto/BookingDTO";
 import BookingRepository from "../repository/BookingRepository";
-import RoomDTO from "../model/dto/RoomDTO";
-import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
 
 export default class BookingService extends AbstractService {
     public bookingRepository: BookingRepository;
@@ -27,7 +25,7 @@ export default class BookingService extends AbstractService {
             dto.startTime!.toISOString(),
             dto.endTime!.toISOString(),
             dto.roomDTO!.map((entry) => String(entry.roomId))!,
-            dto.userDTOs!.map((entry) => entry.username!)!
+            dto.userDTOs!.map((group) => group.map((entry) => entry.username!)!)
         );
     }
 

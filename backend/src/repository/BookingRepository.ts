@@ -1,8 +1,7 @@
 import AbstractRepository from "./AbstractRepository";
-import RoomDTO from "../model/dto/RoomDTO";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import {PrismaClient, equipments, rooms, users} from "@prisma/client";
+import {PrismaClient, users} from "@prisma/client";
 import {
     BadRequestError,
     NotFoundError,
@@ -29,7 +28,7 @@ export default class BookingRepository extends AbstractRepository {
         start_time: string,
         end_time: string,
         rooms: string[],
-        attendees: string[]
+        attendees: string[][]
     ): Promise<BookingDTO> {
         return this.db.bookings
             .findFirst({
@@ -58,7 +57,7 @@ export default class BookingRepository extends AbstractRepository {
                         end_time: end_time,
                         status: "good",
                         users_bookings: {
-                            create: attendees.map((username) => ({
+                            create: attendees[0].map((username) => ({
                                 users: {
                                     connect: {username}
                                 }

@@ -41,10 +41,14 @@ export default class BookingController extends AbstractController {
             dto.roomDTO.push(roomdto);
         }
         dto.userDTOs = [];
-        for (const entry of req.body.users) {
-            const userdto = new UserDTO();
-            userdto.username = entry;
-            dto.userDTOs.push(userdto);
+        for (const group of req.body.users) {
+            const groupDTO = [];
+            for (const entry of group) {
+                const userdto = new UserDTO();
+                userdto.username = entry;
+                groupDTO.push(userdto);
+            }
+            dto.userDTOs.push(groupDTO);
         }
         return this.bookingService
             .create(dto)
