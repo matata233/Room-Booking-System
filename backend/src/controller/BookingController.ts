@@ -59,24 +59,21 @@ export default class BookingController extends AbstractController {
 
     public update(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
-    }
+    } 
 
-    public getAvailableRooms = async (req: Request, res: Response): Promise<Response> => {
-        const start_time = req.query.startTime as string;
-        const end_time = req.query.endTime as string;
-        const attendees = (req.query.attendees as string).split(",");
-        const equipments = (req.query.equipments as string).split(",");
-        const priority = (req.query.priority as string).split(",");
-        return this.bookingService
-            .getAvailableRooms(start_time, end_time, attendees, equipments, priority)
-            .then((rooms) => {
-                return super.onResolve(res, rooms);
-            })
-            .catch((err: NotFoundError) => {
-                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, err.message);
-            })
-            .catch((err: UnavailableAttendeesError) => {
-                return super.onReject(res, ResponseCodeMessage.UNAVAILABLE_ATEENDEES, err.message);
-            });
-    };
-}
+    public getAvailableRooms = async ( req: Request, res: Response ): Promise<Response> => {
+        let start_time = req.body.startTime!;
+        let end_time = req.body.endTime!;
+        let attendees = req.body.attendees!;
+        let equipments = req.body.equipments!;
+        let priority = req.body.priority!;
+        return this.bookingService.getAvailableRooms( start_time, end_time, attendees, equipments, priority )
+        .then( ( rooms ) => {
+            return super.onResolve( res, rooms );
+        })
+        .catch( ( err: NotFoundError ) => {
+            return super.onReject( res, ResponseCodeMessage.NOT_FOUND_CODE, err.message );
+        })
+        .catch( ( err: UnavailableAttendeesError ) => {
+            return super.onReject( res, ResponseCodeMessage.UNAVAILABLE_ATEENDEES, err.message );
+        });
