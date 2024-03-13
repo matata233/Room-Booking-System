@@ -22,7 +22,7 @@ const UserEmailGroup = () => {
             email: "attendee3@example.com",
           },
         ],
-        recommendedRooms: [
+        rooms: [
           {
             roomId: 1,
             cityId: "YVR",
@@ -31,16 +31,9 @@ const UserEmailGroup = () => {
             roomCode: "101",
             roomName: "A",
             numberOfSeats: 4,
-            equipments: [
-              {
-                equipmentId: "AV",
-                description: "Audio visual equipment in room",
-              },
-              {
-                equipmentId: "VC",
-                description: "Video Conference equipment in room",
-              },
-            ],
+            has_av: true,
+            has_vc: true,
+            recommended: true,
           },
           {
             roomId: 2,
@@ -50,16 +43,9 @@ const UserEmailGroup = () => {
             roomCode: "201",
             roomName: "B",
             numberOfSeats: 4,
-            equipments: [
-              {
-                equipmentId: "AV",
-                description: "Audio visual equipment in room",
-              },
-              {
-                equipmentId: "VC",
-                description: "Video Conference equipment in room",
-              },
-            ],
+            has_av: true,
+            has_vc: true,
+            recommended: true,
           },
         ],
       },
@@ -75,7 +61,7 @@ const UserEmailGroup = () => {
             email: "attendee5@example.com",
           },
         ],
-        recommendedRooms: [
+        rooms: [
           {
             roomId: 3,
             cityId: "YVR",
@@ -84,12 +70,9 @@ const UserEmailGroup = () => {
             roomCode: "102",
             roomName: "C",
             numberOfSeats: 4,
-            equipments: [
-              {
-                equipmentId: "AV",
-                description: "Audio visual equipment in room",
-              },
-            ],
+            has_av: true,
+            has_vc: true,
+            recommended: true,
           },
           {
             roomId: 4,
@@ -99,12 +82,9 @@ const UserEmailGroup = () => {
             roomCode: "202",
             roomName: "D",
             numberOfSeats: 4,
-            equipments: [
-              {
-                equipmentId: "AV",
-                description: "Audio visual equipment in room",
-              },
-            ],
+            has_av: true,
+            has_vc: true,
+            recommended: false,
           },
         ],
       },
