@@ -7,39 +7,43 @@ import dayjs from "dayjs";
 const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="relative rounded bg-white shadow-md">
-        <div className="my-6 flex flex-col items-center">
-          <h1 className="font-natural text-2xl text-theme-dark-orange ">
+      <div className="group relative pl-3">
+        <div className="absolute inset-0 transform rounded-3xl bg-gradient-to-br from-orange-300 to-theme-orange shadow-lg duration-300 group-hover:-rotate-3"></div>
+        <div className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg lg:w-96">
+          <h1 className="font-natural mb-5 mt-1 text-3xl text-theme-dark-orange  lg:mt-2 ">
             {event.title}
           </h1>
-          <div className="mx-8 my-6 flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-            <p className="pb-2 text-lg  text-gray-800">Start Time:</p>
-            <div className="mb-4 block w-full appearance-none rounded-md bg-white px-4 py-2  leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none">
-              <p className="">
-                {dayjs(new Date(event.start)).format("YYYY-MM-DD hh:mm A")}
-              </p>
-            </div>
 
-            <p className="pb-2 text-lg  text-gray-800">End Time:</p>
-            <div className="mb-4 block w-full appearance-none rounded-md bg-white px-4 py-2  leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none">
-              <p>{dayjs(new Date(event.end)).format("YYYY-MM-DD hh:mm A")}</p>
-            </div>
-            <div className="flex justify-end gap-2">
-              <a
-                href="#"
-                className=" text-indigo-600 hover:text-indigo-900"
-                onClick={() => onEdit(event.id)}
-              >
-                <FaEdit className="h-[27px] w-[25px]" />
-              </a>
-              <a
-                href="#"
-                className="text-red-600 hover:text-red-900"
-                onClick={() => onDelete(event.id)}
-              >
-                <MdDelete className="h-7 w-7" />
-              </a>
-            </div>
+          <p className="pb-2 text-lg  text-gray-800">Start Time:</p>
+          <div className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4">
+            <p className="">
+              {dayjs(new Date(event.start)).format(
+                "YYYY-MM-DD \b \b \b hh:mm A",
+              )}
+            </p>
+          </div>
+
+          <p className="pb-2 text-lg  text-gray-800">End Time:</p>
+          <div className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4">
+            <p>
+              {dayjs(new Date(event.end)).format("YYYY-MM-DD \b \b \b hh:mm A")}
+            </p>
+          </div>
+          <div className="mb-3 flex justify-end gap-2">
+            <a
+              href="#"
+              className=" text-indigo-600 hover:text-indigo-900"
+              onClick={() => onEdit(event.id)}
+            >
+              <FaEdit className="h-[27px] w-[25px]" />
+            </a>
+            <a
+              href="#"
+              className="text-red-600 hover:text-red-900"
+              onClick={() => onDelete(event.id)}
+            >
+              <MdDelete className="h-7 w-7" />
+            </a>
           </div>
         </div>
         <button

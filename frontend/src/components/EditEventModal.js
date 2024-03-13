@@ -38,64 +38,64 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
         <div className="absolute inset-0 transform rounded-3xl bg-gradient-to-br from-orange-300 to-theme-orange shadow-lg duration-300 group-hover:-rotate-3"></div>
         <form
           onSubmit={handleUpdate}
-          className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg"
+          className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg lg:w-96"
         >
-          <h1 className="font-natural my-6 text-2xl md:font-semibold">
+          <h1 className="font-natural mb-5 mt-1 text-2xl lg:mt-2 ">
             Edit Event
           </h1>
-          <label className="mb-2 block">
+          <label className="mb-1 block">
             Title <span className="text-red-600">*</span>
           </label>
           <input
             type="text"
             value={updatedTitle}
             onChange={(e) => setUpdatedTitle(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
 
-          <label className="mb-2 block">
+          <label className="mb-1 block lg:mb-2">
             Start Date <span className="text-red-600">*</span>
           </label>
           <input
             type="date"
             value={updatedStartDate}
             onChange={(e) => setUpdatedStartDate(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
 
-          <label className="mb-2 block">
+          <label className="mb-1 block lg:mb-2">
             Start Time <span className="text-red-600">*</span>
           </label>
           <input
             type="time"
             value={updatedStartTime}
             onChange={(e) => setUpdatedStartTime(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
 
-          <label className="mb-2 block">
+          <label className="mb-1 block lg:mb-2">
             End Date <span className="text-red-600">*</span>
           </label>
           <input
             type="date"
             value={updatedEndDate}
             onChange={(e) => setUpdatedEndDate(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
 
-          <label className="mb-2 block">
+          <label className="mb-1 block lg:mb-2">
             End Time <span className="text-red-600">*</span>
           </label>
           <input
             type="time"
             value={updatedEndTime}
             onChange={(e) => setUpdatedEndTime(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
           <div className="flex justify-center">
             <button
               type="submit"
-              className="my-4 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+              className="mb-3 mt-5 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white lg:mb-4"
             >
               Edit
             </button>
