@@ -72,7 +72,7 @@ export default class BookingRepository extends AbstractRepository {
         });
 
         if (!booking) {
-            throw new NotFoundError(`Booking not found with id: ${id}`);
+            return Promise.reject(new NotFoundError(`Booking not found with id: ${id}`));
         }
         const bookingDTO = toBookingDTO(booking);
 
