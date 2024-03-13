@@ -77,7 +77,7 @@ app.post(`${endpoint}/users/create`, userController.create);
             "end_time": "2024-03-26T03:30:00.000Z"
         },...
 */
-app.get( `${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTimes );
+app.get(`${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTimes);
 /*
     Currently taking the following input as parameter:
     {
@@ -118,7 +118,7 @@ app.get( `${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTi
                 "has_av": true,
                 },
 */
-app.get( `${endpoint}/booking/available-room`, bookingController.getAvailableRooms );
+app.get(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
 
 /*
     new Date().now()
@@ -126,7 +126,7 @@ app.get( `${endpoint}/booking/available-room`, bookingController.getAvailableRoo
         - backend is responsible for timeCreateAt
 
 */
-app.post( `${endpoint}/booking/create`, bookingController.create )
+app.post(`${endpoint}/booking/create`, bookingController.create);
 
 // Building routes
 app.get(`${endpoint}/buildings`, buildingController.getAll);
