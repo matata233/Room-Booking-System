@@ -29,12 +29,12 @@ export default class BookingController extends AbstractController {
     public create = async (req: Request, res: Response): Promise<Response> => {
         const dto = new BookingDTO();
         dto.createdByUsername = req.body.createdByUsername!;
-        dto.createdAt = new Date(req.body.createdAt!);
-        dto.startTime = new Date(req.body.startTime!);
-        dto.endTime = new Date(req.body.endTime!);
-        dto.roomDTO = [];
-        for (const entry of req.body.rooms) {
-            const roomdto = new RoomDTO();
+        dto.createdAt = new Date();
+        dto.startTime = new Date( req.body.startTime! );
+        dto.endTime = new Date( req.body.endTime! );
+        dto.roomDTO = []
+        for( let entry of req.body.rooms ) {
+            let roomdto = new RoomDTO();
             roomdto.roomId = entry;
             dto.roomDTO.push(roomdto);
         }

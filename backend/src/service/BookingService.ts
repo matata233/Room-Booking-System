@@ -44,3 +44,4 @@ export default class BookingService extends AbstractService {
         return this.bookingRepository.getAvailableRooms( start_time, end_time,attendees,equipments,priority);
     }
 }
+
