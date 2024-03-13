@@ -1,8 +1,8 @@
 import React from "react";
-import AddEvent from "./AddEvent";
+import EditEvent from "./EditEvent";
 import CloseIconSVG from "../assets/close-icon.svg";
 
-const AddEventModal = ({ closeModal, selectedDate, onSubmit }) => {
+const EditEventModal = ({ closeModal, selectedEvent, onSubmit }) => {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
@@ -18,9 +18,9 @@ const AddEventModal = ({ closeModal, selectedDate, onSubmit }) => {
         >
           <img src={CloseIconSVG} alt="Close Icon" className="h-7 w-7" />
         </button>
-        <AddEvent onSubmit={onSubmit} selectedDate={selectedDate} />
+        <EditEvent onSubmit={onSubmit} selectedEvent={selectedEvent} />
       </div>
     </div>
   );
 };
-export default AddEventModal;
+export default EditEventModal;

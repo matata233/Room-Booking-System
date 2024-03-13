@@ -55,16 +55,77 @@ app.post(`${endpoint}/users/create`, userController.create);
 
 // Booking route
 /*
+    input:
+    {
+        "start_time": "YYYY-MM-DDTHH:MM:SS.MMMZ",
+        "end_time": "YYYY-MM-DDTHH:MM:SS.MMMZ",
+        "duration": "TT UNIT", //e.g. 2 hours
+        "attendees": [ "email1", "email2", ... ],
+        "equipments": [ "eq1", "eq2", ... ],
+        "step_size": "TT UNIT" //optional, e.g. 15 minutes
+    }
+
+    returns: 
+    {
+    "result": [
+        {
+            "start_time": "2024-03-26T00:00:00.000Z",
+            "end_time": "2024-03-26T01:30:00.000Z"
+        },
+        {
+            "start_time": "2024-03-26T02:00:00.000Z",
+            "end_time": "2024-03-26T03:30:00.000Z"
+        },...
+*/
+app.get(`${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTimes);
+/*
     Currently taking the following input as parameter:
     {
-        startTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
-        endTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
-        attendees: 'id1,id2,id3,...',
-        equipments: 'eq1,eq2,eq3,...',
-        priority: 'prio1,prio2,prio3,...'
+        startTime: 'YYYY-MM-DDTHH:MM:SS.MMMZ',
+        endTime: 'YYYY-MM-DDTHH:MM:SS.MMMZ',
+        attendees: ['email1,email2,email3,...'],
+        equipments: ['eq1,eq2,eq3,...'],
+        priority: ['prio1,prio2,prio3,...']
     }
+
+    out:
+    {
+    "groups":[
+        {
+            "attendees":[
+                {
+                "id":1,
+                "email":"attendee1@example.com"
+                },
+                {
+                "id":2,
+                "email":"attendee2@example.com"
+                },
+                {
+                "id":3,
+                "email":"attendee3@example.com"
+                }
+            ],
+            "rooms":[
+                {
+                "roomId":1,
+                "cityId":"YVR",
+                "buildingCode":32,
+                "floorNumber":1,
+                "roomCode":"101",
+                "roomName":"A",
+                "numberOfSeats":4,
+                "has_av": true,
+                },
 */
 app.get(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
+
+/*
+    new Date().now()
+    changes:
+        - backend is responsible for timeCreateAt
+
+*/
 app.post(`${endpoint}/booking/create`, bookingController.create);
 
 // Building routes
