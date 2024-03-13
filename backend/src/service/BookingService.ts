@@ -36,12 +36,16 @@ export default class BookingService extends AbstractService {
         return Promise.reject( "Not Implemented" );
     }
 
-    public getBuildingFloor( attendees: string[] ): Promise<AggregateAttendeeDTO[]> {
-        return this.bookingRepository.getBuildingFloor( attendees );
-    }   
+    public getSuggestedTimes( start_time: string,
+                              end_time: string,
+                              duration: string,
+                              attendees: string[],
+                              equipments: string[],
+                              step_size: string ): Promise<Object> {
+        return this.bookingRepository.getSuggestedTimes( start_time, end_time, duration, attendees, equipments, step_size );
+    }
 
     public getAvailableRooms( start_time: string, end_time: string, attendees: string[], equipments: string[], priority: string[]): Promise<Object> {
         return this.bookingRepository.getAvailableRooms( start_time, end_time,attendees,equipments,priority);
     }
 }
-

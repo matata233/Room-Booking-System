@@ -2,8 +2,8 @@ import AbstractRepository from "./AbstractRepository";
 import RoomDTO from "../model/dto/RoomDTO";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import { PrismaClient, rooms, users } from "@prisma/client";
-import { NotFoundError, RequestConflictError, UnavailableAttendeesError } from "../util/exception/AWSRoomBookingSystemError";
+import { PrismaClient, equipments, rooms, users } from "@prisma/client";
+import { BadRequestError, NotFoundError, RequestConflictError, UnavailableAttendeesError } from "../util/exception/AWSRoomBookingSystemError";
 
 export default class BookingRepository extends AbstractRepository {
 
@@ -77,11 +77,27 @@ export default class BookingRepository extends AbstractRepository {
         });
     }
 
+    public getSuggestedTimes( start_time: string,
+                              end_time: string,
+                              duration: string,
+                              attendees: string[],
+                              equipments: string[],
+                              step_size: string = '15 minutes' ): Promise<Object[]> {
+        if( attendees.length <= 0 ) {
+            return Promise.reject( new BadRequestError( "No attendees inputted" ) );
+        }
+        return this.getCityId( attendees[ 0 ] )
+        .then( ( city_code ) => {
+            let query = this.buildTimeSuggestionQuery( start_time, end_time, duration, attendees, equipments, step_size, city_code );
+            return this.db.$queryRawUnsafe( query );
+        })
+    }
+
     public getAvailableRooms( start_time: string, 
-                               end_time: string,
-                               attendees: string[],
-                               equipments: string[],
-                               priority: string[] ): Promise<Object> {
+                              end_time: string,
+                              attendees: string[],
+                              equipments: string[],
+                              priority: string[] ): Promise<Object> {
         let city_code: string;
         return this.getUnavailableAttendees( attendees, start_time, end_time )
         .then( ( res ) => {
@@ -131,7 +147,7 @@ export default class BookingRepository extends AbstractRepository {
         });
     }
 
-    public getCityId( email: string ): Promise<string> {
+    private getCityId( email: string ): Promise<string> {
         return this.db.users.findUnique({
             where: {
                 email: email
@@ -152,7 +168,7 @@ export default class BookingRepository extends AbstractRepository {
     }
 
     // TODO: currently taking user_ids not email nor username
-    public getBuildingFloor( attendees: string[] ): Promise<AggregateAttendeeDTO[]> {
+    private getBuildingFloor( attendees: string[] ): Promise<AggregateAttendeeDTO[]> {
         let userList = `(`;
         for( let i=0; i < attendees.length; i++ ) {
             userList = userList + `\'${attendees[ i ]}\'`;
@@ -233,7 +249,7 @@ export default class BookingRepository extends AbstractRepository {
             WHERE d.building_id_from=${closest_building_id} AND r.seats >= ${attendees.length}
         ),
         available_rooms AS (
-            SELECT room_distance_info.*
+            SELECT room_distance_info.* 
             FROM room_distance_info
             LEFT JOIN buildings b ON b.building_id = room_distance_info.building_id
             WHERE b.city_id = '${city_code}'
@@ -268,5 +284,96 @@ export default class BookingRepository extends AbstractRepository {
     
         return query;
     }
-}
 
+    private buildTimeSuggestionQuery( start_time: string,
+                                      end_time: string,
+                                      duration: string,
+                                      attendees: string[],
+                                      equipments: string[],
+                                      step_size: string,
+                                      city_code: string ): string {
+        let userList = `(`;
+        for( let i=0; i < attendees.length; i++ ) {
+            userList = userList + `\'${attendees[ i ]}\'`;
+            if( i != attendees.length-1 )
+            userList = userList + ',';
+        }
+        userList = userList + `)`;                                
+        let query = `
+        WITH RECURSIVE dates AS (
+            SELECT TIMESTAMP '${start_time}' AS dt
+            UNION ALL
+            SELECT dt + INTERVAL '${step_size}' FROM dates WHERE dt + INTERVAL '${step_size}' < TIMESTAMP '${end_time}'
+        ),
+        room_availability AS (
+            SELECT DISTINCT r.room_id, b2.start_time, b2.end_time
+            FROM rooms r
+            LEFT JOIN buildings b ON r.building_id = b.building_id
+            LEFT JOIN bookings_rooms br ON r.room_id = br.room_id
+            LEFT JOIN bookings b2 ON br.booking_id = b2.booking_id
+            WHERE b.city_id = '${city_code}' AND (b2.start_time < '${end_time}' OR b2.end_time > '${start_time}' )
+        ),
+        user_ids AS (
+            SELECT u.user_id
+            FROM users u
+            WHERE u.email IN ${userList}
+        ),
+        user_bookings_overlap AS (
+            SELECT ub.user_id, b.start_time, b.end_time
+            FROM users_bookings ub
+            JOIN bookings b ON ub.booking_id = b.booking_id
+            WHERE b.start_time < '${end_time}' AND b.end_time > '${start_time}' AND ub.user_id IN ( SELECT user_id from user_ids )
+        ),
+        room_equipment_info AS (
+            SELECT room_id`;
+    
+        equipments.forEach( ( eq ) => {
+            let toAdd = `,\n            bool_or(equipment_id='${eq}') AS has_${eq}`
+            query = query + toAdd
+        });
+    
+        query = query + `
+            FROM rooms_equipments
+            GROUP by room_id
+        ),
+        room_equip AS (
+            SELECT r.room_id`
+        
+        if( equipments.length > 0 ) {
+            for( let eq of equipments )
+            query = query + `,
+            COALESCE( re.has_${eq}, FALSE ) as has_${eq}`;
+        }
+            
+        query = query + `
+            FROM rooms r
+            LEFT JOIN room_equipment_info re ON r.room_id = re.room_id`;
+
+        if( equipments.length > 0 ) {
+            query = query + `
+            WHERE re.has_${equipments[0]}
+                  AND r.seats >= ${attendees.length}`;
+
+            for( let i=0; i < equipments.length; i++ )
+                query = query + ` AND re.has_${equipments[i]}`;
+        }
+            
+        query = query + `
+        )
+        SELECT d.dt AS start_time, d.dt + INTERVAL '${duration}' AS end_time
+        FROM dates d
+        WHERE EXISTS(
+            SELECT 1 FROM room_equip r WHERE r.room_id NOT IN (
+                SELECT ra.room_id FROM room_availability ra WHERE
+                (d.dt, d.dt + INTERVAL '${duration}') OVERLAPS (ra.start_time, ra.end_time)
+            )  
+            LIMIT 1
+        ) 
+        AND NOT EXISTS (
+            SELECT 1 FROM user_bookings_overlap AS ub 
+            WHERE ( d.dt, d.dt + INTERVAL '${duration}' ) OVERLAPS (ub.start_time, ub.end_time) 
+            LIMIT 1
+        )`;
+        return query;
+    }
+}
