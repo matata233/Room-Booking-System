@@ -60,6 +60,7 @@ app.get(`${endpoint}/users/all-email`, userController.getAllEmail);
 app.get(`${endpoint}/users/email`, userController.getByEmail); // register order matter in express
 app.get(`${endpoint}/users/:id`, userController.getById);
 app.post(`${endpoint}/users/create`, userController.create);
+app.put(`${endpoint}/users/update/:id`, userController.update);
 
 // Booking route
 /*
