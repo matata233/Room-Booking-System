@@ -9,19 +9,76 @@ import {
     RequestConflictError,
     UnavailableAttendeesError
 } from "../util/exception/AWSRoomBookingSystemError";
+import { toBookingDTO } from "../util/Mapper/BookingMapper";
 
 export default class BookingRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
         super(database);
     }
 
-    public findAll(): Promise<BookingDTO[]> {
-        return Promise.reject("Not Implemented");
+    public async findAll(): Promise<BookingDTO[]> {
+        const bookings = await this.db.bookings.findMany({
+            include: {
+                users: true,
+                bookings_rooms: {
+                    include: {
+                        rooms: {
+                            include: {
+                                buildings: true,
+                                rooms_equipments: {
+                                    include: {
+                                        equipments: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                users_bookings: true
+            }
+        });
+
+        const bookingDTOs: BookingDTO[] = bookings.map(booking => {
+            return toBookingDTO(booking);
+        });
+
+        return bookingDTOs;
     }
 
-    public findById(id: number): Promise<BookingDTO | null> {
-        return Promise.reject("Not Implemented");
+
+    public async findById(id: number): Promise<BookingDTO> {
+        const booking = await this.db.bookings.findUnique({
+            where: {
+                booking_id: id
+            },
+            include: {
+                users: true,
+                bookings_rooms: {
+                    include: {
+                        rooms: {
+                            include: {
+                                buildings: true,
+                                rooms_equipments: {
+                                    include: {
+                                        equipments: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                users_bookings: true
+            }
+        });
+
+        if (!booking) {
+            throw new NotFoundError(`Booking not found with id: ${id}`);
+        }
+        const bookingDTO = toBookingDTO(booking);
+
+        return bookingDTO;
     }
+
 
     public create(
         created_by: string,
