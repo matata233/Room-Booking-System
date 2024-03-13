@@ -61,7 +61,7 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed z-20 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md md:drop-shadow-none" : ""}`}
+      className={`fixed z-30 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md md:drop-shadow-none" : ""}`}
     >
       {/* Laptop */}
       <div className="flex h-full w-full items-center justify-between px-6">

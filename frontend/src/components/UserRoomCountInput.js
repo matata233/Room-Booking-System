@@ -20,7 +20,7 @@ const UserRoomCountInput = ({ roomCount, setRoomCount }) => {
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
       <div className="relative">
         <input
-          type="text"
+          type="number"
           value={roomCount}
           onChange={handleChange}
           onBlur={handleBlur}

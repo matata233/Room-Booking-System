@@ -9,7 +9,10 @@ const UserEquipInput = () => {
   return (
     <div className="flex w-80 flex-col  gap-2 rounded-lg bg-gray-200 p-4 ">
       {equipments.map((item) => (
-        <div className="flex gap-x-4 rounded-md bg-white  px-4 py-2 pr-8 leading-tight text-gray-700">
+        <div
+          key={item.id}
+          className="flex gap-x-4 rounded-md bg-white  px-4 py-2 pr-8 leading-tight text-gray-700"
+        >
           <label
             className="relative flex cursor-pointer items-center rounded-full"
             htmlFor={item.id}
