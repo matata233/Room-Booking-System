@@ -10,4 +10,6 @@ export default abstract class AbstractRepository {
 
     public abstract findAll(): Promise<AbstractDTO[]>;
     public abstract findById(id: number): Promise<AbstractDTO | null>;
+    // public abstract findByEmail(email: string): Promise<AbstractDTO | null>;
+    // public abstract create(dto: AbstractDTO): Promise<AbstractDTO>;
 }

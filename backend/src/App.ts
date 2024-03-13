@@ -10,15 +10,22 @@ import BuildingController from "./controller/BuildingController";
 import BuildingService from "./service/BuildingService";
 import BuildingRepository from "./repository/BuildingRepository";
 import cors from "cors";
+import BookingController from "./controller/BookingController";
+import BookingService from "./service/BookingService";
+import BookingRepository from "./repository/BookingRepository";
 
 const app = express();
 // Registers middleware
-app.use(express.json());
-app.use(cors());
+app.use(express.json()); // Enable JSON body parsing for all routes
+app.use(cors()); // Enable CORS for all routes, COURS is a security feature to prevent unauthorized access to the server
 
 const database = new PrismaClient();
 
-const roomController = new RoomController(new RoomService(new RoomRepository(database), new BuildingRepository(database)));
+const bookingController = new BookingController(new BookingService(new BookingRepository(database)));
+const roomController = new RoomController(
+    new RoomService(new RoomRepository(database), new BuildingRepository(database))
+);
+
 const userController = new UserController(new UserService(new UserRepository(database)));
 const buildingController = new BuildingController(new BuildingService(new BuildingRepository(database)));
 const endpoint: string = "/aws-room-booking/api/v1";
@@ -41,9 +48,24 @@ app.post(`${endpoint}/users/login`, userController.login);
 
 // User routes
 app.get(`${endpoint}/users`, userController.getAll);
+app.get(`${endpoint}/users/all-email`, userController.getAllEmail);
+app.get(`${endpoint}/users/email`, userController.getByEmail); // register order matter in express
 app.get(`${endpoint}/users/:id`, userController.getById);
-app.put(`${endpoint}/users/email`, userController.getByEmail); //using put because get cannot handle req.body
 app.post(`${endpoint}/users/create`, userController.create);
+
+// Booking route
+/*
+    Currently taking the following input as parameter:
+    {
+        startTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
+        endTime: 'YYYY-MM-DDTHH-MM-SS.MMMZ',
+        attendees: 'id1,id2,id3,...',
+        equipments: 'eq1,eq2,eq3,...',
+        priority: 'prio1,prio2,prio3,...'
+    }
+*/
+app.get(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
+app.post(`${endpoint}/booking/create`, bookingController.create);
 
 // Building routes
 app.get(`${endpoint}/buildings`, buildingController.getAll);

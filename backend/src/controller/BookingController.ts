@@ -1,8 +1,23 @@
+import BookingDTO from "../model/dto/BookingDTO";
+import RoomDTO from "../model/dto/RoomDTO";
+import UserDTO from "../model/dto/UserDTO";
+import BookingService from "../service/BookingService";
+import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
+import {
+    NotFoundError,
+    RequestConflictError,
+    UnavailableAttendeesError
+} from "../util/exception/AWSRoomBookingSystemError";
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 
 export default class BookingController extends AbstractController {
-    //TODO
+    private bookingService: BookingService;
+
+    constructor(bookingService: BookingService) {
+        super();
+        this.bookingService = bookingService;
+    }
 
     public getAll(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
@@ -10,10 +25,58 @@ export default class BookingController extends AbstractController {
     public getById(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     }
-    public create(req: Request, res: Response): Promise<Response> {
-        return Promise.reject("Not implemented");
-    }
+
+    public create = async (req: Request, res: Response): Promise<Response> => {
+        const dto = new BookingDTO();
+        dto.createdByUsername = req.body.createdByUsername!;
+        dto.createdAt = new Date(req.body.createdAt!);
+        dto.startTime = new Date(req.body.startTime!);
+        dto.endTime = new Date(req.body.endTime!);
+        dto.roomDTO = [];
+        for (const entry of req.body.rooms) {
+            const roomdto = new RoomDTO();
+            roomdto.roomId = entry;
+            dto.roomDTO.push(roomdto);
+        }
+        dto.userDTOs = [];
+        for (const entry of req.body.users) {
+            const userdto = new UserDTO();
+            userdto.username = entry;
+            dto.userDTOs.push(userdto);
+        }
+        return this.bookingService
+            .create(dto)
+            .then((booking) => {
+                return super.onResolve(res, booking);
+            })
+            .catch((err: RequestConflictError) => {
+                return super.onReject(res, ResponseCodeMessage.REQUEST_CONFLICT_CODE, err.message);
+            })
+            .catch((err: NotFoundError) => {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, err.message);
+            });
+    };
+
     public update(req: Request, res: Response): Promise<Response> {
         return Promise.reject("Not implemented");
     }
+
+    public getAvailableRooms = async (req: Request, res: Response): Promise<Response> => {
+        const start_time = req.query.startTime as string;
+        const end_time = req.query.endTime as string;
+        const attendees = (req.query.attendees as string).split(",");
+        const equipments = (req.query.equipments as string).split(",");
+        const priority = (req.query.priority as string).split(",");
+        return this.bookingService
+            .getAvailableRooms(start_time, end_time, attendees, equipments, priority)
+            .then((rooms) => {
+                return super.onResolve(res, rooms);
+            })
+            .catch((err: NotFoundError) => {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, err.message);
+            })
+            .catch((err: UnavailableAttendeesError) => {
+                return super.onReject(res, ResponseCodeMessage.UNAVAILABLE_ATEENDEES, err.message);
+            });
+    };
 }

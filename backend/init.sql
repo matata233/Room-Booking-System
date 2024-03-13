@@ -105,6 +105,14 @@ CREATE TABLE bookings_rooms
     FOREIGN KEY (room_id) REFERENCES rooms (room_id)
 );
 
+CREATE TABLE distances
+(
+    building_id_from INT,
+    building_id_to   INT,
+    distance        INT,
+    PRIMARY KEY ( building_id_from, building_id_to )
+);
+
 INSERT INTO cities (city_id, name, province_state)
 VALUES ('YVR', 'Vancouver', 'BC'),
        ('YYZ', 'Toronto', 'ON'),
@@ -1108,3 +1116,11 @@ VALUES (1, 'bbrown5888', 'Bob', 'Brown', 'bbrown5888@example.com', 2, 1, 105, 's
        (12, 'team7awsomeuser01', 'AWSomeUser', 'Team7', 'team7awsomeuser01@gmail.com', 1, 1, 1, 'staff', TRUE);
 
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
+
+INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status )
+VALUES (1,1,'2024-03-23T12:00:00.000Z','2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z','good');
+
+INSERT INTO distances (building_id_from, building_id_to, distance)
+VALUES (1,1,0), (1,2,4), (1,3,2),
+       (2,1,4), (2,2,0), (2,3,1),
+       (3,1,2), (3,2,1), (3,3,0);

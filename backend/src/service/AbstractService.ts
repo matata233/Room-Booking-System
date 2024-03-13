@@ -8,6 +8,5 @@ export default abstract class AbstractService {
     public abstract getById(id: number): Promise<AbstractDTO>;
 
     public abstract create(dto: AbstractDTO): Promise<AbstractDTO>;
-
     public abstract update(id: number, dto: AbstractDTO): Promise<AbstractDTO>;
 }

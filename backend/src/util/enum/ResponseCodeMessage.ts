@@ -11,4 +11,7 @@ export default class ResponseCodeMessage {
 
     public static REQUEST_CONFLICT_CODE = 409;
     public static REQUEST_CONFLICT_MSG = "Database Operation Failed:";
+
+    public static UNAVAILABLE_ATEENDEES = 410;
+    public static UNAVAILABLE_ATTENDEES_MSG = "Attendee(s) Unavaiable:";
 }
