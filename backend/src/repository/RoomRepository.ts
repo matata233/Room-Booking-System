@@ -133,14 +133,25 @@ export default class RoomRepository extends AbstractRepository {
                 return Promise.reject(new NotFoundError(`Room not found with id: ${id}`));
             }
 
-            const updateData: any = {
-                building_id: dto.building!.buildingId!,
-                floor: dto.floorNumber!,
-                code: dto.roomCode!,
-                name: dto.roomName,
-                seats: dto.numberOfSeats!,
-                is_active: dto.isActive!,
-            };
+            const updateData: any = {};
+            if (dto.building?.buildingId !== undefined) {
+                updateData.building_id = dto.building.buildingId;
+            }
+            if (dto.floorNumber !== undefined) {
+                updateData.floor = dto.floorNumber;
+            }
+            if (dto.roomCode !== undefined) {
+                updateData.code = dto.roomCode;
+            }
+            if (dto.roomName !== undefined) {
+                updateData.name = dto.roomName;
+            }
+            if (dto.numberOfSeats !== undefined) {
+                updateData.seats = dto.numberOfSeats;
+            }
+            if (dto.isActive !== undefined) {
+                updateData.is_active = dto.isActive;
+            }
 
             if (dto.equipmentList) {
                 updateData.rooms_equipments = {
