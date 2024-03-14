@@ -387,7 +387,7 @@ export default class BookingRepository extends AbstractRepository {
     ): string {
         let userList = `(`;
         for (let i = 0; i < attendees.length; i++) {
-            userList = userList + `${attendees[i]}`;
+            userList = userList + `\'${attendees[i]}\'`;
             if (i !== attendees.length - 1) {
                 userList = userList + ",";
             }

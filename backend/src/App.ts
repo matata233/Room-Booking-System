@@ -64,7 +64,6 @@ app.put(`${endpoint}/users/update/:id`, userController.update);
 
 // Booking route
 app.get(`${endpoint}/booking`, bookingController.getAll);
-app.get(`${endpoint}/booking/:id`, bookingController.getById);
 /*
     input:
     {
@@ -130,7 +129,7 @@ app.get(`${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTim
                 },
 */
 app.get(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
-
+app.get(`${endpoint}/booking/:id`, bookingController.getById);
 /*
     new Date().now()
     changes:
