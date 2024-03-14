@@ -6,6 +6,8 @@ import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 import UserDTO from "../model/dto/UserDTO";
 import CityDTO from "../model/dto/CityDTO";
 import BuildingDTO from "../model/dto/BuildingDTO";
+import {role} from "@prisma/client";
+import BuildingService from "../service/BuildingService";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
@@ -119,6 +121,7 @@ export default class UserController extends AbstractController {
             if (error instanceof UnauthorizedError) {
                 return super.onReject(res, error.code, error.message);
             } else {
+                console.error(error);
                 return super.onReject(
                     res,
                     ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
@@ -128,9 +131,41 @@ export default class UserController extends AbstractController {
         }
     };
 
-    public update(req: Request, res: Response): Promise<Response> {
-        return Promise.reject("Not implemented");
-    }
+    public update = async (req: Request, res: Response): Promise<Response> => {
+        const userID: number = parseInt(req.params.id);
+        try {
+            const currentUser = await this.userService.getById(userID);
+            if (!currentUser) {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, "User not found");
+            }
+            // new user with filled from request body
+            const userToUpdateDTO = new UserDTO();
+            userToUpdateDTO.userId = userID;
+            userToUpdateDTO.username = req.body.username;
+            userToUpdateDTO.firstName = req.body.firstName;
+            userToUpdateDTO.lastName = req.body.lastName;
+            userToUpdateDTO.email = req.body.email;
+            userToUpdateDTO.floor = parseInt(req.body.floor);
+            userToUpdateDTO.desk = parseInt(req.body.desk);
+            userToUpdateDTO.isActive = req.body.isActive === "true";
+            userToUpdateDTO.role = req.body.role as role;
+            userToUpdateDTO.building = new BuildingDTO();
+            userToUpdateDTO.building.buildingId = parseInt(req.body.buildingID);
+
+            const userUpdated = await this.userService.update(userID, userToUpdateDTO);
+            return super.onResolve(res, userUpdated);
+        } catch (error: unknown) {
+            if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while updating a user."
+                );
+            }
+        }
+    };
 
     public login = async (req: Request, res: Response): Promise<Response> => {
         try {

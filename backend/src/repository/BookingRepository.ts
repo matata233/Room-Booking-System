@@ -1,26 +1,80 @@
 import AbstractRepository from "./AbstractRepository";
-import RoomDTO from "../model/dto/RoomDTO";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import {PrismaClient, equipments, rooms, users} from "@prisma/client";
+import {PrismaClient, users} from "@prisma/client";
 import {
     BadRequestError,
     NotFoundError,
     RequestConflictError,
     UnavailableAttendeesError
 } from "../util/exception/AWSRoomBookingSystemError";
+import {toBookingDTO} from "../util/Mapper/BookingMapper";
 
 export default class BookingRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
         super(database);
     }
 
-    public findAll(): Promise<BookingDTO[]> {
-        return Promise.reject("Not Implemented");
+    public async findAll(): Promise<BookingDTO[]> {
+        const bookings = await this.db.bookings.findMany({
+            include: {
+                users: true,
+                bookings_rooms: {
+                    include: {
+                        rooms: {
+                            include: {
+                                buildings: true,
+                                rooms_equipments: {
+                                    include: {
+                                        equipments: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                users_bookings: true
+            }
+        });
+
+        const bookingDTOs: BookingDTO[] = bookings.map((booking) => {
+            return toBookingDTO(booking);
+        });
+
+        return bookingDTOs;
     }
 
-    public findById(id: number): Promise<BookingDTO | null> {
-        return Promise.reject("Not Implemented");
+    public async findById(id: number): Promise<BookingDTO> {
+        const booking = await this.db.bookings.findUnique({
+            where: {
+                booking_id: id
+            },
+            include: {
+                users: true,
+                bookings_rooms: {
+                    include: {
+                        rooms: {
+                            include: {
+                                buildings: true,
+                                rooms_equipments: {
+                                    include: {
+                                        equipments: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                users_bookings: true
+            }
+        });
+
+        if (!booking) {
+            return Promise.reject(new NotFoundError(`Booking not found with id: ${id}`));
+        }
+        const bookingDTO = toBookingDTO(booking);
+
+        return bookingDTO;
     }
 
     public create(
@@ -29,7 +83,7 @@ export default class BookingRepository extends AbstractRepository {
         start_time: string,
         end_time: string,
         rooms: string[],
-        attendees: string[]
+        attendees: string[][]
     ): Promise<BookingDTO> {
         return this.db.bookings
             .findFirst({
@@ -58,10 +112,11 @@ export default class BookingRepository extends AbstractRepository {
                         end_time: end_time,
                         status: "good",
                         users_bookings: {
-                            create: attendees.map((username) => ({
+                            create: attendees[0].map((_username) => ({
                                 users: {
-                                    connect: {username}
-                                }
+                                    connect: {username:_username}
+                                },
+                                room_id: parseInt(rooms[ 0 ])
                             }))
                         },
                         bookings_rooms: {
@@ -195,7 +250,7 @@ export default class BookingRepository extends AbstractRepository {
     private getBuildingFloor(attendees: string[]): Promise<AggregateAttendeeDTO[]> {
         let userList = `(`;
         for (let i = 0; i < attendees.length; i++) {
-            userList = userList + `${attendees[i]}`;
+            userList = userList + `\'${attendees[i]}\'`;
             if (i !== attendees.length - 1) {
                 userList = userList + ",";
             }
@@ -333,7 +388,7 @@ export default class BookingRepository extends AbstractRepository {
     ): string {
         let userList = `(`;
         for (let i = 0; i < attendees.length; i++) {
-            userList = userList + `${attendees[i]}`;
+            userList = userList + `\'${attendees[i]}\'`;
             if (i !== attendees.length - 1) {
                 userList = userList + ",";
             }

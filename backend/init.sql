@@ -91,6 +91,7 @@ CREATE TABLE users_bookings
 (
     user_id    INT,
     booking_id INT,
+    room_id    INT,
     PRIMARY KEY (user_id, booking_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id),
     FOREIGN KEY (booking_id) REFERENCES bookings (booking_id)
@@ -109,8 +110,8 @@ CREATE TABLE distances
 (
     building_id_from INT,
     building_id_to   INT,
-    distance        INT,
-    PRIMARY KEY ( building_id_from, building_id_to )
+    distance         INT,
+    PRIMARY KEY (building_id_from, building_id_to)
 );
 
 INSERT INTO cities (city_id, name, province_state)
@@ -1117,10 +1118,18 @@ VALUES (1, 'bbrown5888', 'Bob', 'Brown', 'bbrown5888@example.com', 2, 1, 105, 's
 
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
 
-INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status )
-VALUES (1,1,'2024-03-23T12:00:00.000Z','2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z','good');
+INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status)
+VALUES (1, 1, '2024-03-23T12:00:00.000Z', '2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z', 'good');
+
+SELECT setval('bookings_booking_id_seq', (SELECT MAX(booking_id) FROM bookings));
 
 INSERT INTO distances (building_id_from, building_id_to, distance)
-VALUES (1,1,0), (1,2,4), (1,3,2),
-       (2,1,4), (2,2,0), (2,3,1),
-       (3,1,2), (3,2,1), (3,3,0);
+VALUES (1, 1, 0),
+       (1, 2, 4),
+       (1, 3, 2),
+       (2, 1, 4),
+       (2, 2, 0),
+       (2, 3, 1),
+       (3, 1, 2),
+       (3, 2, 1),
+       (3, 3, 0);
