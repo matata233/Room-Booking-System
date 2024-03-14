@@ -36,7 +36,7 @@ export default class BookingController extends AbstractController {
                 );
             }
         }
-    }
+    };
 
     public getById = async (req: Request, res: Response): Promise<Response> => {
         try {
@@ -60,7 +60,7 @@ export default class BookingController extends AbstractController {
                 );
             }
         }
-    }
+    };
 
     public create = async (req: Request, res: Response): Promise<Response> => {
         const dto = new BookingDTO();
