@@ -8,7 +8,7 @@ import {
     RequestConflictError,
     UnavailableAttendeesError
 } from "../util/exception/AWSRoomBookingSystemError";
-import { toBookingDTO } from "../util/Mapper/BookingMapper";
+import {toBookingDTO} from "../util/Mapper/BookingMapper";
 
 export default class BookingRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
@@ -37,13 +37,12 @@ export default class BookingRepository extends AbstractRepository {
             }
         });
 
-        const bookingDTOs: BookingDTO[] = bookings.map(booking => {
+        const bookingDTOs: BookingDTO[] = bookings.map((booking) => {
             return toBookingDTO(booking);
         });
 
         return bookingDTOs;
     }
-
 
     public async findById(id: number): Promise<BookingDTO> {
         const booking = await this.db.bookings.findUnique({
@@ -77,7 +76,6 @@ export default class BookingRepository extends AbstractRepository {
 
         return bookingDTO;
     }
-
 
     public create(
         created_by: string,

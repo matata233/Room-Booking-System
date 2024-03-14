@@ -33,7 +33,7 @@ export default class Authenticator {
     };
 
     public isStaff = (userDTO: UserDTO) => {
-        return userDTO.role === role.staff;
+        return userDTO.role === role.staff || userDTO.role === role.admin;
     };
 
     public getCurrentUser = async (header: string | undefined): Promise<UserDTO> => {
