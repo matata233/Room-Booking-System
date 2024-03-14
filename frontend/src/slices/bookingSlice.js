@@ -22,6 +22,7 @@ const initialState = {
     },
   ],
   roomCount: 1,
+
   groups: [
     {
       groupId: uuidv4(),
@@ -112,6 +113,7 @@ export const bookingSlice = createSlice({
         group.attendees[attendeeIndex] = { ...attendeeDetails };
       }
     },
+
     removeAttendee: (state, action) => {
       const { groupId, attendeeId } = action.payload;
       const groupIndex = state.groups.findIndex(

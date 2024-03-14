@@ -19,13 +19,15 @@ const TimeDropdowns = () => {
   };
 
   const handleStartDateChange = (e) => {
-    const inputValue = e.target.value;
+    const date = e.target.value;
+    dispatch(setStartDate(e.target.value));
+    // const inputValue = e.target.value;
 
-    const selectedDate = dayjs(inputValue || undefined)
-      .startOf("day")
-      .toDate(); // Get 12AM of time
+    // const selectedDate = dayjs(inputValue || undefined)
+    //   .startOf("day")
+    //   .toDate(); // Get 12AM of time
 
-    dispatch(setStartDate(selectedDate));
+    // dispatch(setStartDate(selectedDate));
   };
 
   return (

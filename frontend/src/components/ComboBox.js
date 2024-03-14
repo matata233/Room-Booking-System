@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { FaCheck } from "react-icons/fa6";
 import { LuChevronsUpDown } from "react-icons/lu";
@@ -7,9 +7,10 @@ const ComboBox = ({
   options,
   defaultSelect = {},
   handleEmailSelected,
+  selectedUser,
   comboBoxId,
 }) => {
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(selectedUser);
   const [query, setQuery] = useState("");
   const filteredUsers =
     query === ""
@@ -29,6 +30,10 @@ const ComboBox = ({
 
     handleEmailSelected(groupId, attendeeIndex, user);
   };
+  useEffect(() => {
+    console.log("selectedUser:", selectedUser);
+    setSelected(selectedUser);
+  }, [selectedUser]);
 
   return (
     <Combobox value={selected} onChange={handleEmailChange}>
@@ -36,7 +41,7 @@ const ComboBox = ({
         <div className="relative w-full rounded-lg ">
           <Combobox.Input
             className="w-full border-none py-2 pl-3 pr-10 text-sm  text-theme-dark-blue focus:outline-none"
-            displayValue={(user) => user?.label || "Enter email"}
+            displayValue={(user) => user.label}
             onChange={(event) => setQuery(event.target.value)}
             required
           />
@@ -47,6 +52,7 @@ const ComboBox = ({
             />
           </Combobox.Button>
         </div>
+
         <Transition
           as={Fragment}
           leave="transition ease-in duration-100"

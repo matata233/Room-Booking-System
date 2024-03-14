@@ -49,7 +49,7 @@ const UserEmailInput = () => {
       updateAttendee({
         groupId,
         attendeeIndex,
-        attendeeDetails: { id: selectedUser.id, email: selectedUser.label }, // Adjust according to your data structure
+        attendeeDetails: { id: selectedUser.id, email: selectedUser.label },
       }),
     );
   };
@@ -58,7 +58,7 @@ const UserEmailInput = () => {
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
       {/* Render non-deletable ComboBox for the first attendee of each group */}
       {groups.map((group, groupIndex) => (
-        <div key={group.groupId} className="flex">
+        <div key={`${group.groupId}_0`} className="flex">
           <ComboBox
             options={
               isLoading
@@ -81,6 +81,7 @@ const UserEmailInput = () => {
                       }))
             }
             handleEmailSelected={handleEmailSelected}
+            key={`${group.groupId}_0`}
             comboBoxId={`${group.groupId}_0`}
           />
           {/* No delete button for the first attendee */}
@@ -90,7 +91,7 @@ const UserEmailInput = () => {
       {/* If there are additional attendees in the first group, render them below */}
       {groups.length > 0 &&
         groups[0].attendees.slice(1).map((attendee, index) => (
-          <div key={attendee.id || index} className="flex">
+          <div key={`${groups[0].groupId}_${index + 1}`} className="flex">
             <ComboBox
               options={
                 isLoading
@@ -112,19 +113,9 @@ const UserEmailInput = () => {
                           id: user.userId,
                         }))
               }
-              selectedUser={attendee} // Pass the attendee as the selected user
-              handleEmailSelected={(selectedUser) =>
-                dispatch(
-                  updateAttendee({
-                    groupId: groups[0].groupId,
-                    attendeeIndex: index,
-                    attendeeDetails: {
-                      id: selectedUser.id,
-                      email: selectedUser.label,
-                    },
-                  }),
-                )
-              }
+              key={`${groups[0].groupId}_${index + 1}`}
+              selectedUser={attendee}
+              handleEmailSelected={handleEmailSelected}
               comboBoxId={`${groups[0].groupId}_${index + 1}`}
             />
             {/* Delete button for additional attendees */}
