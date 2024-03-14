@@ -250,7 +250,7 @@ export default class BookingRepository extends AbstractRepository {
     private getBuildingFloor(attendees: string[]): Promise<AggregateAttendeeDTO[]> {
         let userList = `(`;
         for (let i = 0; i < attendees.length; i++) {
-            userList = userList + `${attendees[i]}`;
+            userList = userList + `\'${attendees[i]}\'`;
             if (i !== attendees.length - 1) {
                 userList = userList + ",";
             }
