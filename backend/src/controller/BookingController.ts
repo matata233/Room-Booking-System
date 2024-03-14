@@ -7,6 +7,7 @@ import {
     BadRequestError,
     NotFoundError,
     RequestConflictError,
+    UnauthorizedError,
     UnavailableAttendeesError
 } from "../util/exception/AWSRoomBookingSystemError";
 import AbstractController from "./AbstractController";
@@ -20,12 +21,45 @@ export default class BookingController extends AbstractController {
         this.bookingService = bookingService;
     }
 
-    public getAll(req: Request, res: Response): Promise<Response> {
-        return Promise.reject("Not implemented");
+    public getAll = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const bookings = await this.bookingService.getAll();
+            return super.onResolve(res, bookings);
+        } catch (error: unknown) {
+            if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while fetching bookings."
+                );
+            }
+        }
     }
 
-    public getById(req: Request, res: Response): Promise<Response> {
-        return Promise.reject("Not implemented");
+    public getById = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const bookingId = parseInt(req.params.id);
+            if (isNaN(bookingId)) {
+                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Invalid booking ID.");
+            }
+            const booking = await this.bookingService.getById(bookingId);
+            return super.onResolve(res, booking);
+        } catch (error: unknown) {
+            if (error instanceof NotFoundError) {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
+            } else if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                // Generic error handling
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while fetching booking details."
+                );
+            }
+        }
     }
 
     public create = async (req: Request, res: Response): Promise<Response> => {

@@ -63,6 +63,8 @@ app.post(`${endpoint}/users/create`, userController.create);
 app.put(`${endpoint}/users/update/:id`, userController.update);
 
 // Booking route
+app.get(`${endpoint}/booking`, bookingController.getAll);
+app.get(`${endpoint}/booking/:id`, bookingController.getById);
 /*
     input:
     {

@@ -11,11 +11,11 @@ export default class BookingService extends AbstractService {
     }
 
     public getAll(): Promise<BookingDTO[]> {
-        return Promise.reject("Not Implemented");
+        return this.bookingRepository.findAll();
     }
 
     public getById(id: number): Promise<BookingDTO> {
-        return Promise.reject("Not Implemented");
+        return this.bookingRepository.findById(id);
     }
 
     public create(dto: BookingDTO): Promise<BookingDTO> {
