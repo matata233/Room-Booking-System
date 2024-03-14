@@ -112,10 +112,11 @@ export default class BookingRepository extends AbstractRepository {
                         end_time: end_time,
                         status: "good",
                         users_bookings: {
-                            create: attendees[0].map((username) => ({
+                            create: attendees[0].map((_username) => ({
                                 users: {
-                                    connect: {username}
-                                }
+                                    connect: {username:_username}
+                                },
+                                room_id: parseInt(rooms[ 0 ])
                             }))
                         },
                         bookings_rooms: {
