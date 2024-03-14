@@ -1,29 +1,14 @@
 import React, { useState } from "react";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { Collapse } from "react-collapse";
+import Select from "react-select";
+import animatedComponents from "react-select";
+import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
+import Loader from "./Loader";
+import Message from "./Message";
 
-import PlusButtonSVG from "../assets/plus-button.svg";
-import AccordionItem from "./AccordionItem";
-
-const Accordion = ({ open, toggle, title, content }) => {
-  const [users, setUsers] = useState(content);
+const Accordion = ({ groupId, open, toggle, handleChange, options }) => {
   const [selectedRoom, setSelectedRoom] = useState(null);
-
-  const handleEmailChange = (index, event) => {
-    const newUsers = [...users];
-    newUsers[index].email = event.target.value;
-    setUsers(newUsers);
-  };
-
-  const addEmailField = () => {
-    setUsers([...users, { id: `new-${users.length}`, email: "" }]);
-  };
-
-  const deleteEmailField = (index) => {
-    const newUsers = [...users];
-    newUsers.splice(index, 1);
-    setUsers(newUsers);
-  };
 
   return (
     <>
@@ -32,7 +17,7 @@ const Accordion = ({ open, toggle, title, content }) => {
         onClick={toggle}
       >
         <div>
-          <p className="font-semibold text-theme-orange">{title}</p>
+          <p className="font-semibold text-theme-orange">{groupId}</p>
           <p className="mt-2 text-sm text-theme-blue">
             Room: {selectedRoom ? `${selectedRoom.cityId}` : "Unselected"}
           </p>
@@ -43,27 +28,37 @@ const Accordion = ({ open, toggle, title, content }) => {
         </div>
       </div>
       <Collapse isOpened={open}>
-        <div className="flex flex-col  items-center justify-between gap-y-3 bg-white py-2">
-          {users.map((index, user) => (
-            <AccordionItem
-              index={index}
-              user={user}
-              handleEmailChange={handleEmailChange}
-              deleteEmailField={deleteEmailField}
-            />
-          ))}
+        <div className="bg-white p-4">
+          <Select
+            closeMenuOnSelect={false}
+            components={animatedComponents}
+            isMulti
+            options={options}
+            placeholder="Select Emails..."
+            onChange={(selected) => handleChange(selected, groupId)}
+            styles={{
+              control: (provided) => ({
+                ...provided,
+                backgroundColor: "white",
+                border: "none",
 
-          <button
-            type="button"
-            onClick={addEmailField}
-            className="flex justify-center rounded-md px-4 py-2"
-          >
-            <img
-              src={PlusButtonSVG}
-              alt="Add Email Icon"
-              className="h-8 w-10"
-            />
-          </button>
+                "&:hover": {
+                  boxShadow: "0 2px 4px 0 rgba(0,0,0,.2)",
+                },
+              }),
+              option: (provided, state) => ({
+                ...provided,
+                "&:hover": {
+                  backgroundColor: "#f19e38",
+                  color: "white",
+                },
+              }),
+              multiValue: (provided) => ({
+                ...provided,
+                backgroundColor: "#f2f2f2",
+              }),
+            }}
+          />
         </div>
       </Collapse>
     </>

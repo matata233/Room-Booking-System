@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import PlusButtonSVG from "../assets/plus-button.svg";
-import { MdDelete } from "react-icons/md";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
-import ComboBox from "./ComboBox";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addAttendeePlaceholder,
-  updateAttendee,
-  removeAttendee,
-} from "../slices/bookingSlice";
-
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
+import Loader from "./Loader";
+import Message from "./Message";
+import { setUngroupedAttendees } from "../slices/bookingSlice";
 const UserEmailInput = () => {
+  const animatedComponents = makeAnimated();
   const {
     data: userEmails,
     error,
@@ -18,8 +15,6 @@ const UserEmailInput = () => {
     refetch,
   } = useGetAllEmailsQuery();
   const dispatch = useDispatch();
-  const groups = useSelector((state) => state.booking.groups);
-  const roomCount = useSelector((state) => state.booking.roomCount);
   /**
    * 
    * {
@@ -30,116 +25,59 @@ const UserEmailInput = () => {
       }
    */
 
-  const addEmailField = () => {
-    dispatch(addAttendeePlaceholder({ groupId: groups[0].groupId }));
-  };
-  const deleteEmailField = (index) => {
-    if (index < groups[0].attendees.length) {
-      dispatch(
-        removeAttendee({
-          groupId: groups[0].groupId,
-          attendeeId: groups[0].attendees[index].id,
-        }),
-      );
-    }
+  const selectedAttendees = useSelector(
+    (state) => state.booking.ungroupedAttendees,
+  );
+
+  const handleChange = (selected) => {
+    dispatch(setUngroupedAttendees(selected));
   };
 
-  const handleEmailSelected = (groupId, attendeeIndex, selectedUser) => {
-    dispatch(
-      updateAttendee({
-        groupId,
-        attendeeIndex,
-        attendeeDetails: { id: selectedUser.id, email: selectedUser.label },
-      }),
-    );
-  };
+  return isLoading ? (
+    <Loader />
+  ) : error ? (
+    <Message variant="error">{error.message}</Message>
+  ) : (
+    <>
+      <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
+        <div className="relative">
+          <Select
+            defaultValue={selectedAttendees}
+            closeMenuOnSelect={false}
+            components={animatedComponents}
+            isMulti
+            options={userEmails.result.map((user) => ({
+              value: user.userId,
+              label: user.email,
+            }))}
+            onChange={handleChange}
+            placeholder="Select Emails..."
+            styles={{
+              control: (provided) => ({
+                ...provided,
+                backgroundColor: "white",
+                border: "none",
 
-  return (
-    <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-      {/* Render non-deletable ComboBox for the first attendee of each group */}
-      {groups.map((group, groupIndex) => (
-        <div key={`${group.groupId}_0`} className="flex">
-          <ComboBox
-            options={
-              isLoading
-                ? [{ label: "Loading...", id: null }]
-                : error
-                  ? [{ label: "Error fetching emails", id: null }]
-                  : userEmails.result
-                      .filter(
-                        (user) =>
-                          // Ensure the user is not already selected in any group's attendees
-                          !groups.some((group) =>
-                            group.attendees.some(
-                              (attendee) => attendee.id === user.userId,
-                            ),
-                          ),
-                      )
-                      .map((user) => ({
-                        label: user.email,
-                        id: user.userId,
-                      }))
-            }
-            handleEmailSelected={handleEmailSelected}
-            key={`${group.groupId}_0`}
-            comboBoxId={`${group.groupId}_0`}
+                "&:hover": {
+                  boxShadow: "0 2px 4px 0 rgba(0,0,0,.2)",
+                },
+              }),
+              option: (provided, state) => ({
+                ...provided,
+                "&:hover": {
+                  backgroundColor: "#f19e38",
+                  color: "white",
+                },
+              }),
+              multiValue: (provided) => ({
+                ...provided,
+                backgroundColor: "#f2f2f2",
+              }),
+            }}
           />
-          {/* No delete button for the first attendee */}
         </div>
-      ))}
-
-      {/* If there are additional attendees in the first group, render them below */}
-      {groups.length > 0 &&
-        groups[0].attendees.slice(1).map((attendee, index) => (
-          <div key={`${groups[0].groupId}_${index + 1}`} className="flex">
-            <ComboBox
-              options={
-                isLoading
-                  ? [{ label: "Loading...", id: null }]
-                  : error
-                    ? [{ label: "Error fetching emails", id: null }]
-                    : userEmails.result
-                        .filter(
-                          (user) =>
-                            // Ensure the user is not already selected in any group's attendees
-                            !groups.some((group) =>
-                              group.attendees.some(
-                                (attendee) => attendee.id === user.userId,
-                              ),
-                            ),
-                        )
-                        .map((user) => ({
-                          label: user.email,
-                          id: user.userId,
-                        }))
-              }
-              key={`${groups[0].groupId}_${index + 1}`}
-              selectedUser={attendee}
-              handleEmailSelected={handleEmailSelected}
-              comboBoxId={`${groups[0].groupId}_${index + 1}`}
-            />
-            {/* Delete button for additional attendees */}
-            <button
-              type="button"
-              onClick={() => deleteEmailField(index + 1)}
-              className="ml-2 px-2 py-1 text-red-500"
-            >
-              <MdDelete />
-            </button>
-          </div>
-        ))}
-
-      {/* Button to add more attendees to the first group */}
-      {groups.length > 0 && (
-        <button
-          type="button"
-          onClick={addEmailField}
-          className="flex justify-center rounded-md px-4 py-2"
-        >
-          <img src={PlusButtonSVG} alt="Add Email Icon" className="h-8 w-10" />
-        </button>
-      )}
-    </div>
+      </div>
+    </>
   );
 };
 
