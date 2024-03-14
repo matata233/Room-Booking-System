@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
+import { useDispatch, useSelector } from "react-redux";
+import { setStartDate, setStartTime, setEndTime } from "../slices/bookingSlice";
 import dayjs from "dayjs";
 
 const TimeDropdowns = () => {
-  const [startDate, setStartDate] = useState(
-    dayjs(new Date()).format("YYYY-MM-DD"),
+  const dispatch = useDispatch();
+  const { startDate, startTime, endTime } = useSelector(
+    (state) => state.booking,
   );
-  const [startTime, setStartTime] = useState("00:00");
-  const [endTime, setEndTime] = useState("23:45");
+
+  const handleDateChange = (e) => {
+    dispatch(setStartDate(e.target.value));
+  };
 
   const handleStartTimeChange = (e) => {
-    setStartTime(e.target.value);
+    dispatch(setStartTime(e.target.value));
   };
 
   const handleEndTimeChange = (e) => {
-    setEndTime(e.target.value);
+    dispatch(setEndTime(e.target.value));
   };
 
   const generateTimeOptions = () => {
@@ -48,7 +54,7 @@ const TimeDropdowns = () => {
 
   useEffect(() => {
     validateEndTime();
-  }, [startTime, endTime]);
+  }, [startTime, endTime, startDate]);
 
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
@@ -57,7 +63,7 @@ const TimeDropdowns = () => {
         type="date"
         value={startDate}
         min={getCurrentDate()}
-        onChange={(e) => setStartDate(e.target.value)}
+        onChange={handleDateChange}
         className="mb-4 block w-full cursor-pointer appearance-none rounded-md bg-white px-4 py-2 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
         required
       />
