@@ -64,22 +64,6 @@ const BookingPage = () => {
           <div className="flex flex-col gap-3">
             <h2>Select Time</h2>
             <TimeDropdowns />
-            {/* <h2>Meeting Type</h2>
-            <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-              <div className="relative">
-                <select className="block w-full appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none">
-                  <option value="local">Local</option>
-                  <option value="hybrid">Hybrid</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <img
-                    src={DropdownArrowSVG}
-                    alt="Dropdown Arrow"
-                    className="h-5 w-5"
-                  />
-                </div>
-              </div>
-            </div> */}
             <h2>Equipments</h2>
             <UserEquipInput />
             <h2>Priority</h2>
@@ -91,7 +75,6 @@ const BookingPage = () => {
             />
             <h2>Enter all user emails</h2>
             <UserEmailInput count={roomCount} />
-
             <h2>Enter user emails by group</h2>
             <UserEmailGroup />
 

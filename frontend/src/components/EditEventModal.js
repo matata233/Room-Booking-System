@@ -50,7 +50,7 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
             type="text"
             value={updatedTitle}
             onChange={(e) => setUpdatedTitle(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
 
           <label className="mb-1 block lg:mb-2">
@@ -60,7 +60,7 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
             type="date"
             value={updatedStartDate}
             onChange={(e) => setUpdatedStartDate(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
 
           <label className="mb-1 block lg:mb-2">
@@ -70,7 +70,7 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
             type="time"
             value={updatedStartTime}
             onChange={(e) => setUpdatedStartTime(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
 
           <label className="mb-1 block lg:mb-2">
@@ -80,7 +80,7 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
             type="date"
             value={updatedEndDate}
             onChange={(e) => setUpdatedEndDate(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
 
           <label className="mb-1 block lg:mb-2">
@@ -90,7 +90,7 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
             type="time"
             value={updatedEndTime}
             onChange={(e) => setUpdatedEndTime(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
           />
           <div className="flex justify-center">
             <button
