@@ -7,11 +7,11 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
   const [startDate, setStartDate] = useState(
     dayjs(selectedDate).format("YYYY-MM-DD"),
   );
-  const [startTime, setStartTime] = useState("");
+  const [startTime, setStartTime] = useState("00:00");
   const [endDate, setEndDate] = useState(
     dayjs(selectedDate).format("YYYY-MM-DD"),
   );
-  const [endTime, setEndTime] = useState("");
+  const [endTime, setEndTime] = useState("00:00");
 
   const handleAddEvent = () => {
     const startDateTime = new Date(`${startDate}T${startTime}`);
@@ -41,70 +41,70 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
         <div className="absolute inset-0 transform rounded-3xl bg-gradient-to-br from-orange-300 to-theme-orange shadow-lg duration-300 group-hover:-rotate-3"></div>
         <form
           onSubmit={handleAddEvent}
-          className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg"
+          className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg lg:w-96"
         >
-          <h1 className="font-natural my-6 text-2xl md:font-semibold">
+          <h1 className="font-natural mb-5 mt-1 text-2xl lg:mt-2 ">
             Add New Event
           </h1>
-          <label className="mb-2 block">
+          <label className="mb-1 block">
             Title <span className="text-red-600">*</span>
           </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
             aria-label="Title"
             required
           />
-          <label className="mb-2 block">
+          <label className="mb-1 block lg:mb-2">
             Start Date <span className="text-red-600">*</span>
           </label>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
             aria-label="Date"
             required
           />
-          <label className="mb-2 block">
+          <label className="mb-1 block lg:mb-2">
             Start Time <span className="text-red-600">*</span>
           </label>
           <input
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
             aria-label="Start Time"
             required
           />
-          <label className="mb-2 block">
+          <label className="mb-1 block lg:mb-2">
             End Date <span className="text-red-600">*</span>
           </label>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
             aria-label="Date"
             required
           />
-          <label className="mb-2 block">
+          <label className="mb-1 block lg:mb-2">
             End Time <span className="text-red-600">*</span>
           </label>
           <input
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            className="mb-4 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
             aria-label="End Time"
             required
           />
           <div className="flex justify-center">
             <button
               type="submit"
-              className="my-4 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+              className="mb-3 mt-5 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white lg:mb-4"
             >
               Add
             </button>
