@@ -28,6 +28,9 @@ const initialState = {
   roomCount: 1,
   groupedAttendees: [],
   ungroupedAttendees: [],
+  loggedInUser: {
+    group: null,
+  },
   searchOnce: false,
 };
 
@@ -91,6 +94,9 @@ export const bookingSlice = createSlice({
     setSearchOnce: (state, action) => {
       state.searchOnce = action.payload;
     },
+    setLoggedInUserGroup: (state, action) => {
+      state.loggedInUser.group = action.payload;
+    },
     resetBooking: (state) => (state = initialState),
   },
 });
@@ -107,6 +113,7 @@ export const {
   setUngroupedAttendees,
   initializeGroupedAttendees,
   setSearchOnce,
+  setLoggedInUserGroup,
   resetBooking,
 } = bookingSlice.actions;
 

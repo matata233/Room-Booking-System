@@ -13,11 +13,13 @@ import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
+import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import {
   resetBooking,
   setUngroupedAttendees,
   setSearchOnce,
   initializeGroupedAttendees,
+  setLoggedInUserGroup,
 } from "../slices/bookingSlice";
 import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
@@ -27,8 +29,15 @@ const BookingPage = () => {
     () => dummyRoomBooking.filter((room) => room.is_active),
     [],
   );
-  const dispatch = useDispatch();
 
+  const {
+    data: userEmails,
+    error: userEmailsError,
+    isLoading: userEmailsLoading,
+    refetch,
+  } = useGetAllEmailsQuery();
+
+  const dispatch = useDispatch();
   const {
     startTime,
     endTime,
@@ -102,15 +111,47 @@ const BookingPage = () => {
     dispatch(resetBooking());
   };
 
+  // Get the user id from the email (will be removed if the backend returns both user id and email)
+  const getEmailUserIdMapping = () => {
+    const mapping = {};
+    userEmails.result.forEach((user) => {
+      mapping[user.email] = user.userId;
+    });
+    return mapping;
+  };
+
   const reorganizeAvailableRooms = (availableRooms) => {
+    const emailUserIdMapping = getEmailUserIdMapping();
+    let loggedInUserGroup = null;
     const transformedResponse = availableRooms.result.groups.map(
-      (group, index) => ({
-        groupId: `group${index + 1}`,
-        attendees: group.attendees,
-        rooms: group.rooms,
-        selected_room: null,
-      }),
+      (group, index) => {
+        const filteredAttendees = group.attendees
+          .filter((email) => email !== userInfo.email) // Exclude logged-in user
+          .map((email) => ({
+            userId: emailUserIdMapping[email], // Look up userId by email
+            email,
+          }));
+
+        if (
+          group.attendees.length !== filteredAttendees.length &&
+          !loggedInUserGroup
+        ) {
+          loggedInUserGroup = `group${index + 1}`;
+        }
+
+        return {
+          groupId: `group${index + 1}`,
+          attendees: filteredAttendees,
+          rooms: group.rooms,
+          selectedRoom: null,
+        };
+      },
     );
+
+    if (loggedInUserGroup) {
+      dispatch(setLoggedInUserGroup(loggedInUserGroup));
+    }
+
     return transformedResponse;
   };
 

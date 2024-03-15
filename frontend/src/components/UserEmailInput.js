@@ -28,7 +28,7 @@ const UserEmailInput = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const filteredEmails = userEmails?.result.filter(
     (user) => user.email !== userInfo.email,
-  );
+  ); // Filter out the current user's email
 
   const selectedAttendees = useSelector(
     (state) => state.booking.ungroupedAttendees,
