@@ -8,7 +8,8 @@ import {
     RequestConflictError,
     UnavailableAttendeesError
 } from "../util/exception/AWSRoomBookingSystemError";
-import {toBookingDTO} from "../util/Mapper/BookingMapper";
+import {toAvailableRoomDTO, toBookingDTO} from "../util/Mapper/BookingMapper";
+import {toRoomDTO} from "../util/Mapper/RoomMapper";
 
 export default class BookingRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
@@ -193,7 +194,7 @@ export default class BookingRepository extends AbstractRepository {
         });
     }
 
-    public getAvailableRooms(
+    public async getAvailableRooms(
         start_time: string,
         end_time: string,
         attendees: string[],
@@ -201,6 +202,19 @@ export default class BookingRepository extends AbstractRepository {
         priority: string[]
     ): Promise<object> {
         let city_code: string;
+        // temp solution: query all attendees' id and email for frontend
+        // a better way: frontend send these info from request
+        const userList = await this.db.users.findMany({
+            where: {
+                email: {
+                    in: attendees
+                }
+            },
+            select: {
+                user_id: true,
+                email: true
+            }
+        });
         return this.getUnavailableAttendees(attendees, start_time, end_time)
             .then((res) => {
                 if (res.length > 0) {
@@ -229,11 +243,13 @@ export default class BookingRepository extends AbstractRepository {
                 return this.db.$queryRawUnsafe(query);
             })
             .then((res) => {
+                console.log(res);
+                const roomList = toAvailableRoomDTO(res as any[], equipments);
                 return {
                     groups: [
                         {
-                            attendees: attendees,
-                            rooms: res
+                            attendees: userList,
+                            rooms: roomList
                         }
                     ]
                 };

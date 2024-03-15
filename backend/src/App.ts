@@ -128,7 +128,7 @@ app.get(`${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTim
                 "has_av": true,
                 },
 */
-app.get(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
+app.post(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
 app.get(`${endpoint}/booking/:id`, bookingController.getById);
 /*
     new Date().now()
