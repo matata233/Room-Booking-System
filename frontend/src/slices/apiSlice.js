@@ -17,6 +17,6 @@ const baseQuery = fetchBaseQuery({
 });
 export const apiSlice = createApi({
   baseQuery: baseQuery,
-  tagTypes: ["Room", "User"],
+  tagTypes: ["Room", "User", "Event"],
   endpoints: (builder) => ({}),
 });

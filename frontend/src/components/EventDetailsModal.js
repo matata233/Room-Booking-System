@@ -17,7 +17,7 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
           <p className="pb-2 text-lg  text-gray-800">Start Time:</p>
           <div className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4">
             <p className="">
-              {dayjs(new Date(event.start)).format(
+              {dayjs(new Date(event.startTime)).format(
                 "YYYY-MM-DD \b \b \b hh:mm A",
               )}
             </p>
@@ -26,24 +26,24 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
           <p className="pb-2 text-lg  text-gray-800">End Time:</p>
           <div className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4">
             <p>
-              {dayjs(new Date(event.end)).format("YYYY-MM-DD \b \b \b hh:mm A")}
+              {dayjs(new Date(event.endTime)).format(
+                "YYYY-MM-DD \b \b \b hh:mm A",
+              )}
             </p>
           </div>
           <div className="mb-3 flex justify-end gap-2">
-            <a
-              href="#"
-              className=" text-indigo-600 hover:text-indigo-900"
-              onClick={() => onEdit(event.id)}
+            <button
+              className="text-indigo-600 hover:text-indigo-900"
+              onClick={() => onEdit(event.eventId)}
             >
               <FaEdit className="h-[27px] w-[25px]" />
-            </a>
-            <a
-              href="#"
+            </button>
+            <button
               className="text-red-600 hover:text-red-900"
-              onClick={() => onDelete(event.id)}
+              onClick={() => onDelete(event.eventId)}
             >
               <MdDelete className="h-7 w-7" />
-            </a>
+            </button>
           </div>
         </div>
         <button

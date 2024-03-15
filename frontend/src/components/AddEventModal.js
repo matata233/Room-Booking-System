@@ -21,11 +21,10 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
     // console.log(startDateTime);
     const newEvent = {
       title,
-      start: dayjs(startDateTime).format("YYYY-MM-DD HH:mm:ss"),
-      end: dayjs(endDateTime).format("YYYY-MM-DD HH:mm:ss"),
+      startTime: dayjs(startDateTime).format("YYYY-MM-DD HH:mm:ss"),
+      endTime: dayjs(endDateTime).format("YYYY-MM-DD HH:mm:ss"),
     };
     onAdd(newEvent);
-    onClose();
   };
 
   // const handleTest = () => {
