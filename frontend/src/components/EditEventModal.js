@@ -5,17 +5,17 @@ import dayjs from "dayjs";
 const EditEventModal = ({ event, onClose, onUpdate }) => {
   const [updatedTitle, setUpdatedTitle] = useState(event.title);
   const [updatedStartDate, setUpdatedStartDate] = useState(
-    dayjs(event.start).format("YYYY-MM-DD"),
+    dayjs(event.startTime).format("YYYY-MM-DD"),
   );
   const [updatedEndDate, setUpdatedEndDate] = useState(
-    dayjs(event.end).format("YYYY-MM-DD"),
+    dayjs(event.endTime).format("YYYY-MM-DD"),
   );
   const [updatedStartTime, setUpdatedStartTime] = useState(
-    dayjs(event.start).format("HH:mm:ss"),
+    dayjs(event.startTime).format("HH:mm:ss"),
   );
 
   const [updatedEndTime, setUpdatedEndTime] = useState(
-    dayjs(event.end).format("HH:mm:ss"),
+    dayjs(event.endTime).format("HH:mm:ss"),
   );
 
   const handleUpdate = () => {
@@ -23,12 +23,11 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
     const endDateTime = new Date(`${updatedEndDate}T${updatedEndTime}`);
 
     const updatedEvent = {
-      ...event,
+      eventId: event.eventId,
       title: updatedTitle,
-      start: dayjs(startDateTime).format("YYYY-MM-DD HH:mm:ss"),
-      end: dayjs(endDateTime).format("YYYY-MM-DD HH:mm:ss"),
+      startTime: startDateTime,
+      endTime: endDateTime,
     };
-
     onUpdate(updatedEvent);
   };
 
