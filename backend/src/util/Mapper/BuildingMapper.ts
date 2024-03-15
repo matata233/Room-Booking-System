@@ -3,6 +3,8 @@ import BuildingDTO from "../../model/dto/BuildingDTO";
 import CityDTO from "../../model/dto/CityDTO";
 import UserDTO from "../../model/dto/UserDTO";
 import RoomDTO from "../../model/dto/RoomDTO";
+import {toUserDTO} from "./UserMapper";
+import {toRoomDTO} from "./RoomMapper";
 
 export const toBuildingDTO = (building: buildings, city: cities, users: users[], rooms: rooms[]): BuildingDTO => {
     const buildingDTO = new BuildingDTO();
@@ -20,37 +22,13 @@ export const toBuildingDTO = (building: buildings, city: cities, users: users[],
 
     buildingDTO.users = [];
     for (const user of users) {
-        buildingDTO.users.push(mapUserToDTO(user));
+        buildingDTO.users.push(toUserDTO(user));
     }
 
     buildingDTO.rooms = [];
     for (const room of rooms) {
-        buildingDTO.rooms.push(mapRoomToDTO(room));
+        buildingDTO.rooms.push(toRoomDTO(room));
     }
 
     return buildingDTO;
-};
-
-const mapUserToDTO = (user: users): UserDTO => {
-    const userDTO = new UserDTO();
-    userDTO.userId = user.user_id;
-    userDTO.username = user.username;
-    userDTO.firstName = user.first_name;
-    userDTO.lastName = user.last_name;
-    userDTO.email = user.email;
-    userDTO.floor = user.floor;
-    userDTO.desk = user.desk;
-    userDTO.isActive = user.is_active;
-    userDTO.role = user.role;
-    return userDTO;
-};
-
-const mapRoomToDTO = (room: rooms): RoomDTO => {
-    const roomDTO = new RoomDTO();
-    roomDTO.floorNumber = room.floor;
-    roomDTO.roomCode = room.code;
-    roomDTO.roomName = room.name;
-    roomDTO.numberOfSeats = room.seats;
-    roomDTO.isActive = room.is_active;
-    return roomDTO;
 };

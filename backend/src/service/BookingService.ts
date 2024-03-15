@@ -40,15 +40,15 @@ export default class BookingService extends AbstractService {
                 }
             }
         }
-        if (!dto.roomDTO || dto.roomDTO.length === 0) {
+        if (!dto.roomDTOs || dto.roomDTOs.length === 0) {
             throw new BadRequestError("Invalid rooms");
         }
-        for (const room of dto.roomDTO) {
+        for (const room of dto.roomDTOs) {
             if (!room || typeof room.roomId !== "number") {
                 throw new BadRequestError("Invalid rooms");
             }
         }
-        if (dto.roomDTO.length !== dto.userDTOs.length) {
+        if (dto.roomDTOs.length !== dto.userDTOs.length) {
             throw new BadRequestError("Number of rooms must be equal to number of participant groups");
         }
         if (!dto.createdBy) {
@@ -59,7 +59,7 @@ export default class BookingService extends AbstractService {
             dto.createdAt!.toISOString(),
             dto.startTime.toISOString(),
             dto.endTime.toISOString(),
-            dto.roomDTO.map((entry) => String(entry.roomId))!,
+            dto.roomDTOs.map((entry) => String(entry.roomId))!,
             dto.userDTOs.map((group) => group.map((entry) => entry.userId!)!)
         );
     }

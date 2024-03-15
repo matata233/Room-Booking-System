@@ -18,27 +18,26 @@ export default class BookingRepository extends AbstractRepository {
     public async findAll(): Promise<BookingDTO[]> {
         const bookings = await this.db.bookings.findMany({
             include: {
-                users: true,
-                bookings_rooms: {
+                users: {
                     include: {
-                        rooms: {
+                        buildings: {
                             include: {
-                                buildings: true,
-                                rooms_equipments: {
-                                    include: {
-                                        equipments: true
-                                    }
-                                }
+                                cities: true
                             }
                         }
                     }
                 },
-                users_bookings: true
+                users_bookings: {
+                    include: {
+                        users: true,
+                        rooms: true
+                    }
+                }
             }
         });
 
         const bookingDTOs: BookingDTO[] = bookings.map((booking) => {
-            return toBookingDTO(booking);
+            return toBookingDTO(booking, booking.users, booking.users_bookings);
         });
 
         return bookingDTOs;
@@ -50,29 +49,31 @@ export default class BookingRepository extends AbstractRepository {
                 booking_id: id
             },
             include: {
-                users: true,
-                bookings_rooms: {
+                users: {
                     include: {
-                        rooms: {
+                        buildings: {
                             include: {
-                                buildings: true,
-                                rooms_equipments: {
-                                    include: {
-                                        equipments: true
-                                    }
-                                }
+                                cities: true
                             }
                         }
                     }
                 },
-                users_bookings: true
+                users_bookings: {
+                    include: {
+                        users: true,
+                        rooms: true
+                    }
+                }
             }
         });
 
         if (!booking) {
             return Promise.reject(new NotFoundError(`Booking not found with id: ${id}`));
         }
-        const bookingDTO = toBookingDTO(booking);
+
+        console.log(booking);
+
+        const bookingDTO = toBookingDTO(booking, booking.users, booking.users_bookings);
 
         return bookingDTO;
     }
@@ -419,29 +420,40 @@ export default class BookingRepository extends AbstractRepository {
         }
         userList = userList + `)`;
         let query = `
-            WITH RECURSIVE
-                dates AS (SELECT TIMESTAMP '${start_time}' AS dt
-                          UNION ALL
-                          SELECT dt + INTERVAL '${step_size}'
-                          FROM dates
-                          WHERE dt + INTERVAL '${step_size}' < TIMESTAMP '${end_time}'),
-                room_availability AS (SELECT DISTINCT r.room_id, b2.start_time, b2.end_time
-                                      FROM rooms r
-                                               LEFT JOIN buildings b ON r.building_id = b.building_id
-                                               LEFT JOIN bookings_rooms br ON r.room_id = br.room_id
-                                               LEFT JOIN bookings b2 ON br.booking_id = b2.booking_id
-                                      WHERE b.city_id = '${city_code}'
-                                        AND (b2.start_time < '${end_time}' OR b2.end_time > '${start_time}')),
-                user_ids AS (SELECT u.user_id
-                             FROM users u
-                             WHERE u.email IN ${userList}),
-                user_bookings_overlap AS (SELECT ub.user_id, b.start_time, b.end_time
-                                          FROM users_bookings ub
-                                                   JOIN bookings b ON ub.booking_id = b.booking_id
-                                          WHERE b.start_time < '${end_time}'
-                                            AND b.end_time > '${start_time}'
-                                            AND ub.user_id IN (SELECT user_id from user_ids)),
-                room_equipment_info AS (SELECT room_id`;
+            WITH RECURSIVE dates AS (SELECT TIMESTAMP '${start_time}' AS dt
+                                     UNION ALL
+                                     SELECT dt + INTERVAL '${step_size}'
+            FROM dates
+            WHERE dt + INTERVAL '${step_size}'
+                < TIMESTAMP '${end_time}')
+                , room_availability AS (
+            SELECT DISTINCT r.room_id, b2.start_time, b2.end_time
+            FROM rooms r
+                LEFT JOIN buildings b
+            ON r.building_id = b.building_id
+                LEFT JOIN bookings_rooms br ON r.room_id = br.room_id
+                LEFT JOIN bookings b2 ON br.booking_id = b2.booking_id
+            WHERE b.city_id = '${city_code}'
+              AND (b2.start_time
+                < '${end_time}'
+               OR b2.end_time
+                > '${start_time}'))
+                , user_ids AS (
+            SELECT u.user_id
+            FROM users u
+            WHERE u.email IN ${userList})
+                , user_bookings_overlap AS (
+            SELECT ub.user_id, b.start_time, b.end_time
+            FROM users_bookings ub
+                JOIN bookings b
+            ON ub.booking_id = b.booking_id
+            WHERE b.start_time
+                < '${end_time}'
+              AND b.end_time
+                > '${start_time}'
+              AND ub.user_id IN (SELECT user_id from user_ids))
+                , room_equipment_info AS (
+            SELECT room_id`;
 
         equipments.forEach((eq) => {
             const toAdd = `,\n            bool_or(equipment_id='${eq}') AS has_${eq}`;
