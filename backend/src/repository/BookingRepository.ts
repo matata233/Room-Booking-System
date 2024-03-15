@@ -1,7 +1,7 @@
 import AbstractRepository from "./AbstractRepository";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import {PrismaClient, users} from "@prisma/client";
+import {bookings, PrismaClient, users} from "@prisma/client";
 import {
     BadRequestError,
     NotFoundError,
@@ -77,64 +77,94 @@ export default class BookingRepository extends AbstractRepository {
         return bookingDTO;
     }
 
-    public create(
-        created_by: string,
+    public async create(
+        created_by: number,
         created_at: string,
         start_time: string,
         end_time: string,
         rooms: string[],
-        attendees: string[][]
-    ): Promise<BookingDTO> {
-        return this.db.bookings
-            .findFirst({
+        attendees: number[][]
+    ): Promise<bookings> {
+        const newBooking = await this.db.$transaction(async (tx) => {
+            // TODO: cannot identify which room is not available, start from rooms_bookings table
+            const conflictBooking = await tx.bookings.findFirst({
                 where: {
-                    AND: [{start_time: {lt: end_time}}, {end_time: {gt: start_time}}]
-                }
-            })
-            .then((res) => {
-                if (res !== null) {
-                    // TODO: can add to error message to indicate which rooms are unavailable
-                    throw new RequestConflictError("Time Slot Unavailable");
-                }
-                return this.db.users.findUnique({
-                    where: {username: created_by}
-                });
-            })
-            .then((created_by_id) => {
-                if (!created_by_id) {
-                    throw new NotFoundError("User Creating Booking Not Found");
-                }
-                return this.db.bookings.create({
-                    data: {
-                        created_by: created_by_id.user_id,
-                        created_at: created_at,
-                        start_time: start_time,
-                        end_time: end_time,
-                        status: "good",
-                        users_bookings: {
-                            create: attendees[0].map((_username) => ({
-                                users: {
-                                    connect: {username:_username}
-                                },
-                                room_id: parseInt(rooms[ 0 ])
-                            }))
-                        },
-                        bookings_rooms: {
-                            create: rooms
-                                .map((room_id) => parseInt(room_id))
-                                .map((room_id) => ({
-                                    rooms: {
-                                        connect: {room_id}
+                    AND: [
+                        {start_time: {lt: end_time}},
+                        {end_time: {gt: start_time}},
+                        {
+                            bookings_rooms: {
+                                some: {
+                                    room_id: {
+                                        in: rooms.map((room) => parseInt(room))
                                     }
-                                }))
+                                }
+                            }
+                        }
+                    ]
+                }
+            });
+
+            if (conflictBooking !== null) {
+                // TODO: can add to error message to indicate which rooms are unavailable
+                throw new RequestConflictError("Room is unavailable in this timeslot");
+            }
+
+            const booking = await tx.bookings.create({
+                data: {
+                    created_by: created_by,
+                    created_at: created_at,
+                    start_time: start_time,
+                    end_time: end_time,
+                    status: "confirmed",
+                    bookings_rooms: {
+                        create: rooms.map((room_id) => ({
+                            room_id: parseInt(room_id)
+                        }))
+                    }
+                }
+            });
+
+            for (let i = 0; i < attendees.length; i++) {
+                const group = attendees[i];
+                const roomId = parseInt(rooms[i]);
+
+                // eslint-disable-next-line no-await-in-loop
+                await Promise.all(
+                    group.map((userId) => {
+                        return tx.users_bookings.create({
+                            data: {
+                                booking_id: booking.booking_id,
+                                user_id: userId,
+                                room_id: roomId
+                            }
+                        });
+                    })
+                );
+            }
+
+            return tx.bookings.findUnique({
+                where: {booking_id: booking.booking_id},
+                include: {
+                    users: true,
+                    bookings_rooms: {
+                        include: {
+                            rooms: true
                         }
                     },
-                    include: {
-                        users_bookings: true,
-                        bookings_rooms: true
+                    users_bookings: {
+                        include: {
+                            users: true
+                        }
                     }
-                });
+                }
             });
+        });
+
+        if (newBooking === null) {
+            throw new Error();
+        }
+        return newBooking;
     }
 
     public getSuggestedTimes(
@@ -250,7 +280,7 @@ export default class BookingRepository extends AbstractRepository {
     private getBuildingFloor(attendees: string[]): Promise<AggregateAttendeeDTO[]> {
         let userList = `(`;
         for (let i = 0; i < attendees.length; i++) {
-            userList = userList + `\'${attendees[i]}\'`;
+            userList = userList + `'${attendees[i]}'`;
             if (i !== attendees.length - 1) {
                 userList = userList + ",";
             }
@@ -258,27 +288,22 @@ export default class BookingRepository extends AbstractRepository {
         userList = userList + `)`;
 
         const query = `
-        WITH user_counts AS (
-            SELECT building_id, COUNT(*) AS num_users
-            FROM users
-            WHERE email IN ${userList}
-            GROUP BY building_id
-        ),
-        max_floor_per_building AS (
-            SELECT building_id, floor
-            FROM (
-              SELECT building_id, floor,
-                     ROW_NUMBER() OVER(PARTITION BY building_id ORDER BY COUNT(*) DESC) AS rn
-              FROM users
-              WHERE email IN ${userList}
-              GROUP BY building_id, floor
-            ) t
-            WHERE rn = 1
-        )
-        SELECT uc.building_id, uc.num_users, mfp.floor
-        FROM user_counts uc
-        JOIN max_floor_per_building mfp ON uc.building_id = mfp.building_id
-        ORDER BY num_users DESC`;
+            WITH user_counts AS (SELECT building_id, COUNT(*) AS num_users
+                                 FROM users
+                                 WHERE email IN ${userList}
+                                 GROUP BY building_id),
+                 max_floor_per_building AS (SELECT building_id, floor
+                                            FROM (SELECT building_id,
+                                                         floor,
+                                                         ROW_NUMBER() OVER (PARTITION BY building_id ORDER BY COUNT(*) DESC) AS rn
+                                                  FROM users
+                                                  WHERE email IN ${userList}
+                                                  GROUP BY building_id, floor) t
+                                            WHERE rn = 1)
+            SELECT uc.building_id, uc.num_users, mfp.floor
+            FROM user_counts uc
+                     JOIN max_floor_per_building mfp ON uc.building_id = mfp.building_id
+            ORDER BY num_users DESC`;
 
         return this.db.$queryRawUnsafe(query).then((ret) => {
             const res: AggregateAttendeeDTO[] = [];
@@ -304,8 +329,7 @@ export default class BookingRepository extends AbstractRepository {
         floor_from: number
     ): string {
         let query = `
-        WITH room_equipment_info AS (
-            SELECT room_id`;
+            WITH room_equipment_info AS (SELECT room_id`;
 
         equipments.forEach((eq) => {
             const toAdd = `,\n            bool_or(equipment_id='${eq}') AS has_${eq}`;
@@ -388,39 +412,36 @@ export default class BookingRepository extends AbstractRepository {
     ): string {
         let userList = `(`;
         for (let i = 0; i < attendees.length; i++) {
-            userList = userList + `\'${attendees[i]}\'`;
+            userList = userList + `'${attendees[i]}'`;
             if (i !== attendees.length - 1) {
                 userList = userList + ",";
             }
         }
         userList = userList + `)`;
         let query = `
-        WITH RECURSIVE dates AS (
-            SELECT TIMESTAMP '${start_time}' AS dt
-            UNION ALL
-            SELECT dt + INTERVAL '${step_size}' FROM dates WHERE dt + INTERVAL '${step_size}' < TIMESTAMP '${end_time}'
-        ),
-        room_availability AS (
-            SELECT DISTINCT r.room_id, b2.start_time, b2.end_time
-            FROM rooms r
-            LEFT JOIN buildings b ON r.building_id = b.building_id
-            LEFT JOIN bookings_rooms br ON r.room_id = br.room_id
-            LEFT JOIN bookings b2 ON br.booking_id = b2.booking_id
-            WHERE b.city_id = '${city_code}' AND (b2.start_time < '${end_time}' OR b2.end_time > '${start_time}' )
-        ),
-        user_ids AS (
-            SELECT u.user_id
-            FROM users u
-            WHERE u.email IN ${userList}
-        ),
-        user_bookings_overlap AS (
-            SELECT ub.user_id, b.start_time, b.end_time
-            FROM users_bookings ub
-            JOIN bookings b ON ub.booking_id = b.booking_id
-            WHERE b.start_time < '${end_time}' AND b.end_time > '${start_time}' AND ub.user_id IN ( SELECT user_id from user_ids )
-        ),
-        room_equipment_info AS (
-            SELECT room_id`;
+            WITH RECURSIVE
+                dates AS (SELECT TIMESTAMP '${start_time}' AS dt
+                          UNION ALL
+                          SELECT dt + INTERVAL '${step_size}'
+                          FROM dates
+                          WHERE dt + INTERVAL '${step_size}' < TIMESTAMP '${end_time}'),
+                room_availability AS (SELECT DISTINCT r.room_id, b2.start_time, b2.end_time
+                                      FROM rooms r
+                                               LEFT JOIN buildings b ON r.building_id = b.building_id
+                                               LEFT JOIN bookings_rooms br ON r.room_id = br.room_id
+                                               LEFT JOIN bookings b2 ON br.booking_id = b2.booking_id
+                                      WHERE b.city_id = '${city_code}'
+                                        AND (b2.start_time < '${end_time}' OR b2.end_time > '${start_time}')),
+                user_ids AS (SELECT u.user_id
+                             FROM users u
+                             WHERE u.email IN ${userList}),
+                user_bookings_overlap AS (SELECT ub.user_id, b.start_time, b.end_time
+                                          FROM users_bookings ub
+                                                   JOIN bookings b ON ub.booking_id = b.booking_id
+                                          WHERE b.start_time < '${end_time}'
+                                            AND b.end_time > '${start_time}'
+                                            AND ub.user_id IN (SELECT user_id from user_ids)),
+                room_equipment_info AS (SELECT room_id`;
 
         equipments.forEach((eq) => {
             const toAdd = `,\n            bool_or(equipment_id='${eq}') AS has_${eq}`;

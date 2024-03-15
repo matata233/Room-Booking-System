@@ -66,6 +66,8 @@ CREATE TABLE users
     FOREIGN KEY (building_id) REFERENCES buildings (building_id)
 );
 
+CREATE TYPE status AS ENUM ('confirmed', 'canceled');
+
 CREATE TABLE bookings
 (
     booking_id SERIAL PRIMARY KEY,
@@ -73,17 +75,17 @@ CREATE TABLE bookings
     created_at TIMESTAMP NOT NULL,
     start_time TIMESTAMP NOT NULL,
     end_time   TIMESTAMP NOT NULL,
-    status     TEXT      NOT NULL,
+    status     status    NOT NULL,
     FOREIGN KEY (created_by) REFERENCES users (user_id)
 );
 
 CREATE TABLE events
 (
     event_id   SERIAL PRIMARY KEY,
+    title      TEXT      NOT NULL,
     created_by INT       NOT NULL,
     start_time TIMESTAMP NOT NULL,
     end_time   TIMESTAMP NOT NULL,
-    is_active  BOOLEAN   NOT NULL,
     FOREIGN KEY (created_by) REFERENCES users (user_id)
 );
 
@@ -91,10 +93,11 @@ CREATE TABLE users_bookings
 (
     user_id    INT,
     booking_id INT,
-    room_id    INT,
+    room_id    INT NOT NULL,
     PRIMARY KEY (user_id, booking_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id),
-    FOREIGN KEY (booking_id) REFERENCES bookings (booking_id)
+    FOREIGN KEY (booking_id) REFERENCES bookings (booking_id),
+    FOREIGN KEY (room_id) REFERENCES rooms (room_id)
 );
 
 CREATE TABLE bookings_rooms
@@ -110,7 +113,7 @@ CREATE TABLE distances
 (
     building_id_from INT,
     building_id_to   INT,
-    distance         INT,
+    distance         INT NOT NULL,
     PRIMARY KEY (building_id_from, building_id_to)
 );
 
@@ -1119,7 +1122,7 @@ VALUES (1, 'bbrown5888', 'Bob', 'Brown', 'bbrown5888@example.com', 2, 1, 105, 's
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
 
 INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status)
-VALUES (1, 1, '2024-03-23T12:00:00.000Z', '2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z', 'good');
+VALUES (1, 1, '2024-03-23T12:00:00.000Z', '2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z', 'confirmed');
 
 SELECT setval('bookings_booking_id_seq', (SELECT MAX(booking_id) FROM bookings));
 

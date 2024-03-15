@@ -63,38 +63,52 @@ export default class BookingController extends AbstractController {
     };
 
     public create = async (req: Request, res: Response): Promise<Response> => {
-        const dto = new BookingDTO();
-        dto.createdByUsername = req.body.createdByUsername!;
-        dto.createdAt = new Date();
-        dto.startTime = new Date(req.body.startTime!);
-        dto.endTime = new Date(req.body.endTime!);
-        dto.roomDTO = [];
-        for (const entry of req.body.rooms) {
-            const roomdto = new RoomDTO();
-            roomdto.roomId = entry;
-            dto.roomDTO.push(roomdto);
-        }
-        dto.userDTOs = [];
-        for (const group of req.body.users) {
-            const groupDTO = [];
-            for (const entry of group) {
-                const userdto = new UserDTO();
-                userdto.username = entry;
-                groupDTO.push(userdto);
+        try {
+            const dto = new BookingDTO();
+
+            dto.startTime = new Date(req.body.startTime!);
+            dto.endTime = new Date(req.body.endTime!);
+
+            dto.userDTOs = [];
+            for (const participantGroup of req.body.users) {
+                const participantGroupDTO = [];
+                for (const participantID of participantGroup) {
+                    const participant = new UserDTO();
+                    participant.userId = participantID;
+                    participantGroupDTO.push(participant);
+                }
+                dto.userDTOs.push(participantGroupDTO);
             }
-            dto.userDTOs.push(groupDTO);
+
+            dto.roomDTO = [];
+            for (const roomID of req.body.rooms) {
+                const room = new RoomDTO();
+                room.roomId = roomID;
+                dto.roomDTO.push(room);
+            }
+
+            dto.createdBy = req.body.createdBy;
+            dto.createdAt = new Date();
+
+            const newBooking = await this.bookingService.create(dto);
+            return super.onResolve(res, newBooking);
+        } catch (error: unknown) {
+            console.log(error);
+            if (
+                error instanceof BadRequestError ||
+                error instanceof RequestConflictError ||
+                error instanceof UnauthorizedError
+            ) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                // Generic error handling
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while creating the room."
+                );
+            }
         }
-        return this.bookingService
-            .create(dto)
-            .then((booking) => {
-                return super.onResolve(res, booking);
-            })
-            .catch((err: RequestConflictError) => {
-                return super.onReject(res, ResponseCodeMessage.REQUEST_CONFLICT_CODE, err.message);
-            })
-            .catch((err: NotFoundError) => {
-                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, err.message);
-            });
     };
 
     public update(req: Request, res: Response): Promise<Response> {

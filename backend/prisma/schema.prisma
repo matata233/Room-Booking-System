@@ -14,7 +14,7 @@ model bookings {
   created_at     DateTime         @db.Timestamp(6)
   start_time     DateTime         @db.Timestamp(6)
   end_time       DateTime         @db.Timestamp(6)
-  status         String
+  status         status
   users          users            @relation(fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   bookings_rooms bookings_rooms[]
   users_bookings users_bookings[]
@@ -68,6 +68,7 @@ model rooms {
   bookings_rooms   bookings_rooms[]
   buildings        buildings          @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
   rooms_equipments rooms_equipments[]
+  users_bookings   users_bookings[]
 
   @@unique([building_id, floor, code])
 }
@@ -101,25 +102,26 @@ model users {
 model users_bookings {
   user_id    Int
   booking_id Int
-  room_id Int
+  room_id    Int
   bookings   bookings @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
+  rooms      rooms    @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
   users      users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, booking_id])
 }
 
 model distances {
-  building_id_from  Int
-  building_id_to    Int
-  distance          Int
+  building_id_from Int
+  building_id_to   Int
+  distance         Int
 
   @@id([building_id_from, building_id_to])
 }
 
 model events {
   event_id   Int      @id @default(autoincrement())
-  created_by Int
   title      String
+  created_by Int
   start_time DateTime @db.Timestamp(6)
   end_time   DateTime @db.Timestamp(6)
   users      users    @relation(fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
@@ -128,4 +130,9 @@ model events {
 enum role {
   admin
   staff
+}
+
+enum status {
+  confirmed
+  canceled
 }

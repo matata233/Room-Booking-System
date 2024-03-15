@@ -1,7 +1,6 @@
 import {PrismaClient} from "@prisma/client";
 import RoomRepository from "../src/repository/RoomRepository";
 import RoomService from "../src/service/RoomService";
-import * as fs from "fs";
 import BuildingRepository from "../src/repository/BuildingRepository";
 import RoomDTO from "../src/model/dto/RoomDTO";
 import {expect, use} from "chai";
@@ -10,6 +9,7 @@ import EquipmentDTO from "../src/model/dto/EquipmentDTO";
 import {BadRequestError, NotFoundError} from "../src/util/exception/AWSRoomBookingSystemError";
 import CityDTO from "../src/model/dto/CityDTO";
 import chaiAsPromised from "chai-as-promised";
+import {getInitQueries, initDatabase} from "./Util";
 
 use(chaiAsPromised);
 
@@ -19,14 +19,11 @@ describe("Room tests", function () {
     const roomService = new RoomService(new RoomRepository(db), new BuildingRepository(db));
 
     before(function () {
-        initQueries = fs.readFileSync("./init.sql").toString().split(";");
+        initQueries = getInitQueries();
     });
 
     beforeEach(async function () {
-        for (const query of initQueries) {
-            // eslint-disable-next-line no-await-in-loop
-            await db.$queryRawUnsafe(query);
-        }
+        await initDatabase(initQueries, db);
     });
 
     describe("Get rooms", function () {
