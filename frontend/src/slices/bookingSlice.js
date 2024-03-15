@@ -86,7 +86,7 @@ const initialState = {
     },
   ],
   ungroupedAttendees: [],
-  searchOnce: true,
+  searchOnce: false,
 };
 
 export const bookingSlice = createSlice({

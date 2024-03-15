@@ -14,6 +14,7 @@ import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { resetBooking } from "../slices/bookingSlice";
+import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 
 const BookingPage = () => {
   const data = useMemo(
@@ -22,7 +23,20 @@ const BookingPage = () => {
   );
   const dispatch = useDispatch();
 
-  const searchOnce = useSelector((state) => state.booking.searchOnce);
+  const {
+    startTime,
+    endTime,
+    startDate,
+    equipments,
+    priority,
+    roomCount,
+    groupedAttendees,
+    ungroupedAttendees,
+    searchOnce,
+  } = useSelector((state) => state.booking);
+
+  const [getAvailableRooms, { isLoading }] = useGetAvailableRoomsMutation();
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -42,8 +56,23 @@ const BookingPage = () => {
   const endIndex = startIndex + rowsPerPage;
   const paginatedData = data.slice(startIndex, endIndex);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const startDateTime = new Date(
+      `${startDate}T${startTime}:00.000Z`,
+    ).toISOString();
+    const endDateTime = new Date(
+      `${startDate}T${endTime}:00.000Z`,
+    ).toISOString();
+    const reqBody = {
+      startTime: startDateTime,
+      endTime: endDateTime,
+      attendees: ungroupedAttendees, // Assuming attendees array contains objects with an email property
+      equipments, // Assuming this is already in the desired format
+      priority: priority.map((item) => item.item), // Assuming you want to send the item names
+    };
+    const availableRooms = await getAvailableRooms(reqBody).unwrap();
+    console.log(availableRooms);
   };
 
   const handleReset = () => {

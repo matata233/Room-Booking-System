@@ -15,7 +15,7 @@ const LoginPage = () => {
   const { search } = useLocation(); // 'useLocation' hook returns the location object from the current URL
   // 'search' returns a string containing all the query parameters.
   const searchParams = new URLSearchParams(search); // extract the query parameter and its value
-  const redirect = searchParams.get("redirect") || "/";
+  const redirect = searchParams.get("redirect");
 
   const handleLogin = async (res) => {
     try {
@@ -29,7 +29,12 @@ const LoginPage = () => {
           token: response.token,
         }),
       );
-      navigate(redirect);
+      // If the user's role is "admin", navigate to the redirect page if it exists, otherwise navigate to the admin home page.
+      if (decodedUserInfo.role === "admin") {
+        navigate(redirect || "/adminHomePage");
+      } else {
+        navigate(redirect || "/");
+      }
     } catch (err) {
       toast.error(err?.data?.error || "Login failed");
     }
