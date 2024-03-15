@@ -30,6 +30,32 @@ export default class UserRepository extends AbstractRepository {
         return userDTOs;
     }
 
+    public async findAllEmail(): Promise<UserDTO[]> {
+        const userList = await this.db.users.findMany({
+            where: {
+                is_active: true
+            },
+            select: {
+                user_id: true,
+                username: true,
+                first_name: true,
+                email: true
+            }
+        });
+        const userDTOs: UserDTO[] = [];
+        for (const user of userList) {
+            // until I can find a better way to re-construct the mapper
+            // typescript prevents a partial mapping due to the fields of model is not optional
+            const userDTO = new UserDTO();
+            userDTO.userId = user.user_id;
+            userDTO.username = user.username;
+            userDTO.firstName = user.first_name;
+            userDTO.email = user.email;
+            userDTOs.push(userDTO);
+        }
+        return userDTOs;
+    }
+
     public async findById(id: number): Promise<UserDTO> {
         // find the user by id and include the building and city
         const user = await this.db.users.findUnique({
@@ -106,5 +132,35 @@ export default class UserRepository extends AbstractRepository {
         });
         const newUserDTO = getBuilding ? toUserDTO(newUser, getBuilding.cities, getBuilding) : ({} as UserDTO);
         return newUserDTO;
+    }
+
+    public async update(userID: number, user: UserDTO): Promise<UserDTO> {
+        const updatedUser = await this.db.users.update({
+            where: {
+                user_id: userID
+            },
+            data: {
+                username: user.username!,
+                first_name: user.firstName!,
+                last_name: user.lastName!,
+                email: user.email!,
+                building_id: user.building!.buildingId!,
+                floor: user.floor!,
+                desk: user.desk!,
+                role: user.role ?? "staff",
+                is_active: user.isActive ?? true
+            }
+        });
+
+        const getBuilding = await this.db.buildings.findUnique({
+            where: {
+                building_id: user.building?.buildingId
+            },
+            include: {
+                cities: true
+            }
+        });
+        const updatedUserDTO = getBuilding ? toUserDTO(updatedUser, getBuilding.cities, getBuilding) : ({} as UserDTO);
+        return updatedUserDTO;
     }
 }

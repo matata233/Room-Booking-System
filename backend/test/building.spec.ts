@@ -1,5 +1,4 @@
 import {PrismaClient} from "@prisma/client";
-import * as fs from "fs";
 import BuildingRepository from "../src/repository/BuildingRepository";
 import {expect, use} from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -7,6 +6,7 @@ import BuildingService from "../src/service/BuildingService";
 import BuildingDTO from "../src/model/dto/BuildingDTO";
 import CityDTO from "../src/model/dto/CityDTO";
 import {NotFoundError} from "../src/util/exception/AWSRoomBookingSystemError";
+import {getInitQueries, initDatabase} from "./Util";
 
 use(chaiAsPromised);
 
@@ -16,14 +16,11 @@ describe("Building tests", function () {
     const buildingService = new BuildingService(new BuildingRepository(db));
 
     before(function () {
-        initQueries = fs.readFileSync("./init.sql").toString().split(";");
+        initQueries = getInitQueries();
     });
 
     beforeEach(async function () {
-        for (const query of initQueries) {
-            // eslint-disable-next-line no-await-in-loop
-            await db.$queryRawUnsafe(query);
-        }
+        await initDatabase(initQueries, db);
     });
 
     describe("Get buildings", function () {

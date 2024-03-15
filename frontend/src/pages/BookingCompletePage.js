@@ -7,7 +7,7 @@ const BookingCompletePage = () => {
   return (
     <div>
       <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
-        <BookingStepper />
+        <BookingStepper currentStage={3}/>
         <div className="flex justify-center items-center">
         <div className="h-100 w-1/2 mx-10 md:w-1/2 lg:w-1/2">
           <h1 className="mb-4 text-xl font-semibold">

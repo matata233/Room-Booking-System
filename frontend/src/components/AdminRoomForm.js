@@ -21,7 +21,7 @@ const AdminRoomForm = ({
 
   // const [extBuilding, setExtBuilding] = useState(true);
   const [building, setBuilding] = useState(null);
-  const [buildingId, setBuildingId] = useState(0);
+  const [buildingId, setBuildingId] = useState(null);
   const [floorNumber, setFloorNumber] = useState(null);
   const [roomCode, setRoomCode] = useState(null);
   const [equipmentIds, setEquipmentIds] = useState([]);

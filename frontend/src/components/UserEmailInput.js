@@ -1,80 +1,83 @@
 import React, { useState, useEffect } from "react";
-import PlusButtonSVG from "../assets/plus-button.svg";
-import { MdDelete } from "react-icons/md";
+import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
+import Loader from "./Loader";
+import Message from "./Message";
+import { setUngroupedAttendees } from "../slices/bookingSlice";
+const UserEmailInput = () => {
+  const animatedComponents = makeAnimated();
+  const {
+    data: userEmails,
+    error,
+    isLoading,
+    refetch,
+  } = useGetAllEmailsQuery();
+  const dispatch = useDispatch();
+  /**
+   * 
+   * {
+       "userId": 1,
+       "username": "bbrown5888",
+       firstName": "Bob",
+       "email": "bbrown5888@example.com"
+      }
+   */
 
-const UserEmailInput = ({ roomCount }) => {
-  const [emails, setEmails] = useState(
-    Array.from({ length: roomCount }, () => ""),
+  const selectedAttendees = useSelector(
+    (state) => state.booking.ungroupedAttendees,
   );
 
-  useEffect(() => {
-    // adjust the number of email fields based on roomCount
-    setEmails((currentEmails) => {
-      if (roomCount > currentEmails.length) {
-        // If roomCount increases, add more empty email fields
-        return [
-          ...currentEmails,
-          ...Array.from({ length: roomCount - currentEmails.length }, () => ""),
-        ];
-      } else {
-        // If roomCount decreases, keep the first `roomCount` emails
-        return currentEmails.slice(0, roomCount);
-      }
-    });
-  }, [roomCount]);
-
-  const handleEmailChange = (index, event) => {
-    const newEmails = [...emails];
-    newEmails[index] = event.target.value;
-    setEmails(newEmails);
+  const handleChange = (selected) => {
+    dispatch(setUngroupedAttendees(selected));
   };
 
-  const addEmailField = () => {
-    setEmails([...emails, ""]);
-  };
+  return isLoading ? (
+    <Loader />
+  ) : error ? (
+    <Message variant="error">{error.message}</Message>
+  ) : (
+    <>
+      <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
+        <div className="relative">
+          <Select
+            defaultValue={selectedAttendees}
+            closeMenuOnSelect={false}
+            components={animatedComponents}
+            isMulti
+            options={userEmails.result.map((user) => ({
+              value: user.userId,
+              label: user.email,
+            }))}
+            onChange={handleChange}
+            placeholder="Select Emails..."
+            styles={{
+              control: (provided) => ({
+                ...provided,
+                backgroundColor: "white",
+                border: "none",
 
-  const deleteEmailField = (index) => {
-    // Allow deletion if the field is not one of the default fields based on roomCount
-    if (index >= roomCount) {
-      const newEmails = [...emails];
-      newEmails.splice(index, 1);
-      setEmails(newEmails);
-    }
-  };
-
-  return (
-    <div className="flex w-80 flex-col space-y-4 rounded-lg bg-gray-200 p-4">
-      {emails.map((email, userID) => (
-        <div key={userID} className="flex">
-          <input
-            type="email"
-            id={`emailInput-${userID}`}
-            value={email}
-            onChange={(event) => handleEmailChange(userID, event)}
-            placeholder="Enter email"
-            className="flex-grow rounded-md px-2 py-2 focus:outline-none focus:ring"
-            required
+                "&:hover": {
+                  boxShadow: "0 2px 4px 0 rgba(0,0,0,.2)",
+                },
+              }),
+              option: (provided, state) => ({
+                ...provided,
+                "&:hover": {
+                  backgroundColor: "#f19e38",
+                  color: "white",
+                },
+              }),
+              multiValue: (provided) => ({
+                ...provided,
+                backgroundColor: "#f2f2f2",
+              }),
+            }}
           />
-          {userID >= roomCount && (
-            <button
-              type="button"
-              onClick={() => deleteEmailField(userID)}
-              className="ml-2 px-2 py-1 text-red-500"
-            >
-              <MdDelete />
-            </button>
-          )}
         </div>
-      ))}
-
-      <button
-        type="button"
-        onClick={addEmailField}
-        className="flex justify-center rounded-md px-4 py-2"
-      >
-        <img src={PlusButtonSVG} alt="Add Email Icon" className="h-8 w-10" />
-      </button>
-    </div>
+      </div>
+    </>
   );
 };
 
