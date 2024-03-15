@@ -112,10 +112,11 @@ export default class BookingRepository extends AbstractRepository {
                         end_time: end_time,
                         status: "good",
                         users_bookings: {
-                            create: attendees[0].map((username) => ({
+                            create: attendees[0].map((_username) => ({
                                 users: {
-                                    connect: {username}
-                                }
+                                    connect: {username:_username}
+                                },
+                                room_id: parseInt(rooms[ 0 ])
                             }))
                         },
                         bookings_rooms: {
@@ -249,7 +250,7 @@ export default class BookingRepository extends AbstractRepository {
     private getBuildingFloor(attendees: string[]): Promise<AggregateAttendeeDTO[]> {
         let userList = `(`;
         for (let i = 0; i < attendees.length; i++) {
-            userList = userList + `${attendees[i]}`;
+            userList = userList + `\'${attendees[i]}\'`;
             if (i !== attendees.length - 1) {
                 userList = userList + ",";
             }
@@ -387,7 +388,7 @@ export default class BookingRepository extends AbstractRepository {
     ): string {
         let userList = `(`;
         for (let i = 0; i < attendees.length; i++) {
-            userList = userList + `${attendees[i]}`;
+            userList = userList + `\'${attendees[i]}\'`;
             if (i !== attendees.length - 1) {
                 userList = userList + ",";
             }

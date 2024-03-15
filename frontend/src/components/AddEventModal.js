@@ -53,7 +53,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none"
             aria-label="Title"
             required
           />
@@ -64,7 +64,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
             aria-label="Date"
             required
           />
@@ -75,7 +75,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
             aria-label="Start Time"
             required
           />
@@ -86,7 +86,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
             aria-label="Date"
             required
           />
@@ -97,7 +97,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
+            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
             aria-label="End Time"
             required
           />

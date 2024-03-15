@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { HiOutlineBars3, HiXMark } from "react-icons/hi2";
 import { logout } from "../slices/authSlice";
+import { resetBooking } from "../slices/bookingSlice";
 import logo from "../assets/logo.png";
 import Navbar from "./Navbar";
 import { IoMdArrowDropdown } from "react-icons/io";
@@ -46,6 +47,7 @@ const Header = () => {
   const handleLogout = () => {
     try {
       dispatch(logout());
+      dispatch(resetBooking());
       navigate("/");
     } catch (error) {
       console.error("Logout failed", error);
@@ -61,7 +63,7 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed z-20 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md md:drop-shadow-none" : ""}`}
+      className={`fixed z-30 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md md:drop-shadow-none" : ""}`}
     >
       {/* Laptop */}
       <div className="flex h-full w-full items-center justify-between px-6">

@@ -101,6 +101,7 @@ model users {
 model users_bookings {
   user_id    Int
   booking_id Int
+  room_id Int
   bookings   bookings @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
   users      users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
