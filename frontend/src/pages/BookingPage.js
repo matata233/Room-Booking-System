@@ -54,7 +54,7 @@ const BookingPage = () => {
 
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
-      <BookingStepper />
+      <BookingStepper currentStage={1}/>
 
       <div className="flex w-full flex-col items-center gap-10 md:flex-row md:items-start md:justify-between">
         {/* Input Part */}
