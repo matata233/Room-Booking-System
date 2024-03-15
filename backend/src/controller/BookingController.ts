@@ -80,11 +80,11 @@ export default class BookingController extends AbstractController {
                 dto.userDTOs.push(participantGroupDTO);
             }
 
-            dto.roomDTO = [];
+            dto.roomDTOs = [];
             for (const roomID of req.body.rooms) {
                 const room = new RoomDTO();
                 room.roomId = roomID;
-                dto.roomDTO.push(room);
+                dto.roomDTOs.push(room);
             }
 
             dto.createdBy = req.body.createdBy;

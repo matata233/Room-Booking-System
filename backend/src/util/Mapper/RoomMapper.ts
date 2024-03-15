@@ -4,25 +4,7 @@ import BuildingDTO from "../../model/dto/BuildingDTO";
 import CityDTO from "../../model/dto/CityDTO";
 import EquipmentDTO from "../../model/dto/EquipmentDTO";
 
-/*
- * The RoomMapper class is responsible for converting Room entities to RoomDTOs and vice versa.
-
-For reference, rooms is a Prisma model that looks like this:
-model rooms {
-    room_id          Int                @id @default(autoincrement())
-    building_id      Int
-    floor            Int
-    code             String
-    name             String?
-    seats            Int
-    is_active        Boolean
-    bookings_rooms   bookings_rooms[]
-    buildings        buildings          @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
-    rooms_equipments rooms_equipments[]
-    @@unique([building_id, floor, code])
- */
-
-export const toRoomDTO = (room: rooms, city: cities, building: buildings, equipmentList: any): RoomDTO => {
+export const toRoomDTO = (room: rooms, city?: cities, building?: buildings, equipmentList?: any): RoomDTO => {
     const roomDTO = new RoomDTO();
     roomDTO.roomId = room.room_id;
     roomDTO.floorNumber = room.floor;
@@ -32,33 +14,23 @@ export const toRoomDTO = (room: rooms, city: cities, building: buildings, equipm
     roomDTO.isActive = room.is_active;
 
     roomDTO.building = new BuildingDTO();
-    roomDTO.building.buildingId = building.building_id;
-    roomDTO.building.code = building.code;
-    roomDTO.building.address = building.address;
-    roomDTO.building.isActive = building.is_active;
+    roomDTO.building.buildingId = building?.building_id;
+    roomDTO.building.code = building?.code;
+    roomDTO.building.address = building?.address;
+    roomDTO.building.isActive = building?.is_active;
 
     roomDTO.city = new CityDTO();
-    roomDTO.city.cityId = city.city_id;
-    roomDTO.city.name = city.name;
-    roomDTO.city.province_state = city.province_state;
+    roomDTO.city.cityId = city?.city_id;
+    roomDTO.city.name = city?.name;
+    roomDTO.city.province_state = city?.province_state;
 
     roomDTO.equipmentList = [];
-    for (const equipment of equipmentList) {
-        roomDTO.equipmentList.push(mapEquipmentToDTO(equipment));
+    if (equipmentList !== undefined) {
+        for (const equipment of equipmentList) {
+            roomDTO.equipmentList.push(mapEquipmentToDTO(equipment));
+        }
     }
     return roomDTO;
-};
-
-export const toRoomEntity = (roomDTO: RoomDTO) => {
-    return {
-        room_id: roomDTO.roomId,
-        building_id: roomDTO.building?.buildingId,
-        floor: roomDTO.floorNumber,
-        code: roomDTO.roomCode,
-        name: roomDTO.roomName,
-        seats: roomDTO.numberOfSeats,
-        is_active: roomDTO.isActive
-    };
 };
 
 const mapEquipmentToDTO = (equipment: any) => {

@@ -1,7 +1,6 @@
 import AbstractDTO from "./AbstractDTO";
 import UserDTO from "./UserDTO";
 import RoomDTO from "./RoomDTO";
-//TODO: Until frontend team decide what data they want, there will be changed here
 export default class BookingDTO extends AbstractDTO {
     public bookingId?: number;
     public createdBy?: number;
@@ -11,7 +10,11 @@ export default class BookingDTO extends AbstractDTO {
     public status?: string;
 
     public userDTOs?: UserDTO[][];
-    public roomDTO?: RoomDTO[];
+    public roomDTOs?: RoomDTO[];
+
+    // the following field are added based on request from frontend
+    public users?: UserDTO; // creator
+    public groups?: (RoomDTO | UserDTO[])[][]; // participants in each room
 
     constructor() {
         super();

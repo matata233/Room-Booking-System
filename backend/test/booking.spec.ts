@@ -30,7 +30,7 @@ describe("Booking tests", () => {
         basicBooking.userDTOs = [[user]];
         const room = new RoomDTO();
         room.roomId = 1;
-        basicBooking.roomDTO = [room];
+        basicBooking.roomDTOs = [room];
     });
 
     describe("Fetching bookings", () => {
@@ -56,7 +56,7 @@ describe("Booking tests", () => {
 
         it("should create bookings with same timeslot but different rooms", async () => {
             await bookingService.create(basicBooking);
-            basicBooking.roomDTO![0].roomId = 2;
+            basicBooking.roomDTOs![0].roomId = 2;
             const result = bookingService.create(basicBooking);
             return expect(result).to.eventually.equal({});
         });
