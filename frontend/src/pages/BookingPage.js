@@ -14,6 +14,8 @@ import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { resetBooking } from "../slices/bookingSlice";
+import { FormControlLabel, Switch } from "@mui/material";
+
 
 const BookingPage = () => {
   const data = useMemo(
@@ -96,6 +98,18 @@ const BookingPage = () => {
                   <UserEmailInput />
                 </>
               )}
+               <div className="mt-2">
+                <FormControlLabel
+                  control={<Switch color="warning" />}
+                  label="Show All Available Rooms"
+                  sx={{
+                    "& .MuiFormControlLabel-label": {
+                      fontSize: "0.5 rem",
+                      fontFamily: "AmazonEmber",
+                    },
+                  }}
+                />
+              </div>
 
               <div className="my-4 flex w-80 justify-center">
                 <button
