@@ -19,6 +19,51 @@ export const toBookingDTO = (booking: bookings, creator?: users, groups?: any): 
     return bookingDTO;
 };
 
+interface AvailableRoomDTO {
+    roomId: number;
+    buildingId: number;
+    floor: number;
+    code: string;
+    name: string;
+    seats: number;
+    isActive: boolean;
+    hasAV: boolean;
+    hasVC: boolean;
+    distance: number;
+    recommended: boolean;
+}
+
+export const toAvailableRoomDTO = (resFromRawQuery: any[], equipmentNeeded: string[]): any => {
+    const availableRooms: AvailableRoomDTO[] = [];
+    for (const res of resFromRawQuery) {
+        let isRecommended = false;
+        if (equipmentNeeded.length === 0) {
+            isRecommended = true;
+        }
+        if (equipmentNeeded.includes("AV") && res.has_av) {
+            isRecommended = true;
+        }
+        if (equipmentNeeded.includes("VC") && res.has_vc) {
+            isRecommended = true;
+        }
+        const availableRoom = {
+            roomId: res.room_id,
+            buildingId: res.building_id,
+            floor: res.floor,
+            code: res.code,
+            name: res.name,
+            seats: res.seats,
+            isActive: res.is_active,
+            hasAV: res.has_av,
+            hasVC: res.has_vc,
+            distance: res.distance,
+            recommended: isRecommended
+        };
+        availableRooms.push(availableRoom);
+    }
+    return availableRooms;
+};
+
 const mapAttendeesToDTO = (groups: any) => {
     const result: Group[] = [];
     const usersByRoom: {[key: number]: UserDTO[]} = {};
