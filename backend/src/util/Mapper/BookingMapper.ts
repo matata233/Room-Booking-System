@@ -1,7 +1,6 @@
-import {bookings, users, users_bookings} from "@prisma/client";
-import BookingDTO from "../../model/dto/BookingDTO";
+import {bookings, users} from "@prisma/client";
+import BookingDTO, {Group} from "../../model/dto/BookingDTO";
 import UserDTO from "../../model/dto/UserDTO";
-import RoomDTO from "../../model/dto/RoomDTO";
 import {toUserDTO} from "./UserMapper";
 import {toRoomDTO} from "./RoomMapper";
 
@@ -15,13 +14,13 @@ export const toBookingDTO = (booking: bookings, creator?: users, groups?: any): 
     bookingDTO.status = booking.status;
 
     bookingDTO.users = creator ? toUserDTO(creator) : undefined;
-    bookingDTO.groups = groups ? mapAttendeesToDTO(groups) : undefined;
+    bookingDTO.groups = groups ? mapAttendeesToDTO(groups) : undefined; // group attendees with their rooms
 
     return bookingDTO;
 };
 
 const mapAttendeesToDTO = (groups: any) => {
-    const result: [RoomDTO, UserDTO[]][] = [];
+    const result: Group[] = [];
     const usersByRoom: {[key: number]: UserDTO[]} = {};
     for (const userBooking of groups) {
         const roomDTO = toRoomDTO(userBooking.rooms);
@@ -40,7 +39,8 @@ const mapAttendeesToDTO = (groups: any) => {
                 ? toRoomDTO(groups.find((group: any) => group.room_id === parseInt(room_id))!.rooms)
                 : null;
         if (roomDTO) {
-            result.push([roomDTO, roomUsers]);
+            const group: Group = {room: roomDTO, users: roomUsers};
+            result.push(group);
         }
     }
     return result;
