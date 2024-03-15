@@ -1,6 +1,6 @@
 import UserDTO from "../model/dto/UserDTO";
 import {jwtDecode} from "jwt-decode";
-import jwt from "jsonwebtoken";
+import jwt, {JsonWebTokenError, TokenExpiredError} from "jsonwebtoken";
 import {NotFoundError, UnauthorizedError} from "./exception/AWSRoomBookingSystemError";
 import UserRepository from "../repository/UserRepository";
 import {role} from "@prisma/client";
@@ -41,11 +41,19 @@ export default class Authenticator {
             return Promise.reject(new UnauthorizedError("No token provided or token does not have Bearer prefix"));
         }
         const token = header.substring(7);
-        const payload = jwt.verify(token, "my_secret_key");
-        if (typeof payload === "object" && payload !== null && "email" in payload) {
-            return await this.fetchUserByEmail(payload.email);
-        } else {
-            throw new UnauthorizedError("Token payload does not include email");
+        try {
+            const payload = jwt.verify(token, "my_secret_key");
+            if (typeof payload === "object" && payload !== null && "email" in payload) {
+                return await this.fetchUserByEmail(payload.email);
+            } else {
+                throw new UnauthorizedError("Token payload does not include email");
+            }
+        } catch (error) {
+            if (error instanceof JsonWebTokenError) {
+                throw new UnauthorizedError(error.message);
+            } else {
+                throw error;
+            }
         }
     };
 
