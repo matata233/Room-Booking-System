@@ -3,6 +3,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 
+const persistedUserInfo = localStorage.getItem("userInfo");
+const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;
+
 const initialState = {
   startDate: dayjs(new Date()).format("YYYY-MM-DD"),
   startTime: "00:00",
@@ -23,68 +26,7 @@ const initialState = {
     },
   ],
   roomCount: 1,
-  groupedAttendees: [
-    {
-      groupId: "group1",
-      attendees: [],
-      rooms: [
-        {
-          roomId: 1,
-          cityId: "YVR",
-          buildingCode: 32,
-          floorNumber: 1,
-          roomCode: "101",
-          roomName: "A",
-          numberOfSeats: 4,
-          has_vc: true,
-          has_av: true,
-          recomended: true,
-        },
-        {
-          roomId: 2,
-          cityId: "YVR",
-          buildingCode: 32,
-          floorNumber: 2,
-          roomCode: "201",
-          roomName: "B",
-          numberOfSeats: 4,
-          has_vc: true,
-          has_av: true,
-          recomended: false,
-        },
-      ],
-    },
-    {
-      groupId: "group2",
-      attendees: [],
-      rooms: [
-        {
-          roomId: 3,
-          cityId: "YVR",
-          buildingCode: 32,
-          floorNumber: 1,
-          roomCode: "102",
-          roomName: "C",
-          numberOfSeats: 4,
-          has_vc: true,
-          has_av: true,
-          recomended: true,
-        },
-        {
-          roomId: 4,
-          cityId: "YVR",
-          buildingCode: 32,
-          floorNumber: 2,
-          roomCode: "202",
-          roomName: "D",
-          numberOfSeats: 4,
-          has_vc: true,
-          has_av: true,
-          recomended: false,
-        },
-      ],
-    },
-  ],
+  groupedAttendees: [],
   ungroupedAttendees: [],
   searchOnce: false,
 };
@@ -138,6 +80,9 @@ export const bookingSlice = createSlice({
         });
       }
     },
+    initializeGroupedAttendees: (state, action) => {
+      state.groupedAttendees = action.payload;
+    },
 
     setUngroupedAttendees: (state, action) => {
       state.ungroupedAttendees = action.payload;
@@ -160,6 +105,7 @@ export const {
   setRoomCount,
   setGroupedAttendees,
   setUngroupedAttendees,
+  initializeGroupedAttendees,
   setSearchOnce,
   resetBooking,
 } = bookingSlice.actions;

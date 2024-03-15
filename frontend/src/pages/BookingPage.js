@@ -13,8 +13,14 @@ import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
-import { resetBooking } from "../slices/bookingSlice";
+import {
+  resetBooking,
+  setUngroupedAttendees,
+  setSearchOnce,
+  initializeGroupedAttendees,
+} from "../slices/bookingSlice";
 import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
+import { toast } from "react-toastify";
 
 const BookingPage = () => {
   const data = useMemo(
@@ -34,8 +40,10 @@ const BookingPage = () => {
     ungroupedAttendees,
     searchOnce,
   } = useSelector((state) => state.booking);
+  const { userInfo } = useSelector((state) => state.auth);
 
-  const [getAvailableRooms, { isLoading }] = useGetAvailableRoomsMutation();
+  const [getAvailableRooms, { isLoading, error }] =
+    useGetAvailableRoomsMutation();
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,26 +65,53 @@ const BookingPage = () => {
   const paginatedData = data.slice(startIndex, endIndex);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const startDateTime = new Date(
-      `${startDate}T${startTime}:00.000Z`,
-    ).toISOString();
-    const endDateTime = new Date(
-      `${startDate}T${endTime}:00.000Z`,
-    ).toISOString();
-    const reqBody = {
-      startTime: startDateTime,
-      endTime: endDateTime,
-      attendees: ungroupedAttendees, // Assuming attendees array contains objects with an email property
-      equipments, // Assuming this is already in the desired format
-      priority: priority.map((item) => item.item), // Assuming you want to send the item names
-    };
-    const availableRooms = await getAvailableRooms(reqBody).unwrap();
-    console.log(availableRooms);
+    try {
+      e.preventDefault();
+      const startDateTime = new Date(
+        `${startDate}T${startTime}:00.000Z`,
+      ).toISOString();
+      const endDateTime = new Date(
+        `${startDate}T${endTime}:00.000Z`,
+      ).toISOString();
+      const attendeeEmails = ungroupedAttendees.map(
+        (attendee) => attendee.email,
+      );
+      const allAttendees = [...attendeeEmails, userInfo.email];
+      const reqBody = {
+        startTime: startDateTime,
+        endTime: endDateTime,
+        attendees: allAttendees,
+        equipments,
+        priority: [], // TODO: Update Priority
+      };
+      const availableRooms = await getAvailableRooms(reqBody).unwrap();
+
+      dispatch(setUngroupedAttendees([]));
+      dispatch(setSearchOnce(true));
+      dispatch(
+        initializeGroupedAttendees(
+          reorganizeAvailableRooms(availableRooms) || [],
+        ),
+      );
+    } catch (error) {
+      toast.error("Failed to get available rooms");
+    }
   };
 
   const handleReset = () => {
     dispatch(resetBooking());
+  };
+
+  const reorganizeAvailableRooms = (availableRooms) => {
+    const transformedResponse = availableRooms.result.groups.map(
+      (group, index) => ({
+        groupId: `group${index + 1}`,
+        attendees: group.attendees,
+        rooms: group.rooms,
+        selected_room: null,
+      }),
+    );
+    return transformedResponse;
   };
 
   return (

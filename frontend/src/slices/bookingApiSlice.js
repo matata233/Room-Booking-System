@@ -5,7 +5,7 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAvailableRooms: builder.mutation({
       query: (bookingData) => ({
-        url: `${BOOKING_URL}/available-rooms`,
+        url: `${BOOKING_URL}/available-room`,
         method: "POST",
         body: bookingData,
       }),

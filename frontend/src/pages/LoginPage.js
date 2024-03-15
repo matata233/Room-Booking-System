@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCredentials, logout } from "../slices/authSlice";
 import { useLoginMutation } from "../slices/usersApiSlice";
+import { setUngroupedAttendees } from "../slices/bookingSlice";
 import { toast } from "react-toastify";
 
 const LoginPage = () => {
@@ -29,6 +30,7 @@ const LoginPage = () => {
           token: response.token,
         }),
       );
+
       // If the user's role is "admin", navigate to the redirect page if it exists, otherwise navigate to the admin home page.
       if (decodedUserInfo.role === "admin") {
         navigate(redirect || "/adminHomePage");
@@ -49,6 +51,7 @@ const LoginPage = () => {
       console.error("Logout failed", error);
     }
   };
+
   return (
     <div className="flex  items-center justify-center font-amazon-ember">
       <div className="group relative  shadow-xl ">

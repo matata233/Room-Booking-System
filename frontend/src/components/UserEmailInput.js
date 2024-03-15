@@ -25,12 +25,22 @@ const UserEmailInput = () => {
       }
    */
 
+  const { userInfo } = useSelector((state) => state.auth);
+  const filteredEmails = userEmails?.result.filter(
+    (user) => user.email !== userInfo.email,
+  );
+
   const selectedAttendees = useSelector(
     (state) => state.booking.ungroupedAttendees,
   );
 
   const handleChange = (selected) => {
-    dispatch(setUngroupedAttendees(selected));
+    const selectedAttendees = selected.map((option) => ({
+      userId: option.value,
+      email: option.label,
+    }));
+
+    dispatch(setUngroupedAttendees(selectedAttendees));
   };
 
   return isLoading ? (
@@ -42,11 +52,14 @@ const UserEmailInput = () => {
       <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
         <div className="relative">
           <Select
-            defaultValue={selectedAttendees}
+            value={selectedAttendees.map((attendee) => ({
+              value: attendee.userId,
+              label: attendee.email,
+            }))}
             closeMenuOnSelect={false}
             components={animatedComponents}
             isMulti
-            options={userEmails.result.map((user) => ({
+            options={filteredEmails.map((user) => ({
               value: user.userId,
               label: user.email,
             }))}
