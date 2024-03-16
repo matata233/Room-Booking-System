@@ -12,6 +12,7 @@ import {
 } from "../util/exception/AWSRoomBookingSystemError";
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
+import {authenticator} from "../App";
 
 export default class BookingController extends AbstractController {
     private bookingService: BookingService;
@@ -47,6 +48,28 @@ export default class BookingController extends AbstractController {
             const booking = await this.bookingService.getById(bookingId);
             return super.onResolve(res, booking);
         } catch (error: unknown) {
+            if (error instanceof NotFoundError) {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
+            } else if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                // Generic error handling
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while fetching booking details."
+                );
+            }
+        }
+    };
+
+    public getByCurrentUserId = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const currentUser = await authenticator.getCurrentUser(req.headers.authorization);
+            const bookings = await this.bookingService.getByUserId(currentUser.userId!);
+            return super.onResolve(res, bookings);
+        } catch (error: unknown) {
+            console.log(error);
             if (error instanceof NotFoundError) {
                 return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
             } else if (error instanceof UnauthorizedError) {

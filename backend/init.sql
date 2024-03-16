@@ -1122,9 +1122,23 @@ VALUES (1, 'bbrown5888', 'Bob', 'Brown', 'bbrown5888@example.com', 2, 1, 105, 's
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
 
 INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status)
-VALUES (1, 1, '2024-03-23T12:00:00.000Z', '2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z', 'confirmed');
+VALUES (1, 11, '2024-03-23T12:00:00.000Z', '2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z', 'confirmed'),
+       (2, 11, '2024-03-23T12:00:00.000Z', '2025-03-26T19:00:00.000Z', '2025-03-26T20:00:00.000Z', 'canceled');
 
 SELECT setval('bookings_booking_id_seq', (SELECT MAX(booking_id) FROM bookings));
+
+INSERT INTO bookings_rooms (booking_id, room_id)
+VALUES (1, 1),
+       (2, 2),
+       (2, 3),
+       (2, 4);
+
+INSERT INTO users_bookings(user_id, booking_id, room_id)
+VALUES (11, 1, 1),
+       (11, 2, 2),
+       (2, 2, 3),
+       (3, 2, 4),
+       (4, 2, 4);
 
 INSERT INTO distances (building_id_from, building_id_to, distance)
 VALUES (1, 1, 0),

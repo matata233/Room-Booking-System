@@ -20,6 +20,10 @@ export default class BookingService extends AbstractService {
         return this.bookingRepository.findById(id);
     }
 
+    public getByUserId(id: number): Promise<BookingDTO[]> {
+        return this.bookingRepository.findByUserId(id);
+    }
+
     public async create(dto: BookingDTO): Promise<bookings> {
         if (!dto.startTime || dto.startTime.toString() === "Invalid Date" || dto.startTime <= new Date()) {
             throw new BadRequestError("Invalid start time");
