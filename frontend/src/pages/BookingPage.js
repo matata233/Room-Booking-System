@@ -23,13 +23,9 @@ import {
 } from "../slices/bookingSlice";
 import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
+import Message from "../components/Message";
 
 const BookingPage = () => {
-  const data = useMemo(
-    () => dummyRoomBooking.filter((room) => room.is_active),
-    [],
-  );
-
   const {
     data: userEmails,
     error: userEmailsError,
@@ -68,10 +64,15 @@ const BookingPage = () => {
     setCurrentPage(1); // Reset to first page when changing rows per page
   };
 
+  const availableRoomsData = useMemo(
+    () => groupedAttendees.flatMap((group) => group.rooms),
+    [groupedAttendees],
+  );
+
   // Calculate paginated data
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const paginatedData = data.slice(startIndex, endIndex);
+  const paginatedData = availableRoomsData.slice(startIndex, endIndex);
 
   const handleSubmit = async (e) => {
     try {
@@ -86,11 +87,12 @@ const BookingPage = () => {
         (attendee) => attendee.email,
       );
       const allAttendees = [...attendeeEmails, userInfo.email];
+      const equipmentCodes = equipments.map((equip) => equip.id);
       const reqBody = {
         startTime: startDateTime,
         endTime: endDateTime,
         attendees: allAttendees,
-        equipments,
+        equipments: equipmentCodes,
         priority: [], // TODO: Update Priority
       };
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
@@ -102,8 +104,9 @@ const BookingPage = () => {
           reorganizeAvailableRooms(availableRooms) || [],
         ),
       );
-    } catch (error) {
-      toast.error("Failed to get available rooms");
+    } catch (err) {
+      toast.error(err?.data?.error || "Failed to get available rooms");
+      console.log(err?.data?.error);
     }
   };
 
@@ -190,7 +193,7 @@ const BookingPage = () => {
               <DragAndDrop />
               <h2>Number of Rooms </h2>
               <UserRoomCountInput />
-              {searchOnce ? (
+              {/* {searchOnce ? (
                 <>
                   <h2>Enter user emails by group</h2>
                   <UserEmailGroup />
@@ -200,8 +203,8 @@ const BookingPage = () => {
                   <h2>Enter all user emails</h2>
                   <UserEmailInput />
                 </>
-              )}
-
+              )} */}
+              <UserEmailInput />
               <div className="my-4 flex w-80 justify-center">
                 <button
                   type="submit"
@@ -223,12 +226,74 @@ const BookingPage = () => {
           <div className="flex items-center justify-between">
             <div className="mb-4 text-xl font-semibold">Available Rooms</div>
           </div>
-          <div className="flex items-center justify-center">
-            <img
-              src={StartSearchGIF}
-              alt="Start Search SVG"
-              className="w-full lg:w-1/2"
-            />
+          <div className="flex flex-col items-center justify-center">
+            {groupedAttendees.length > 0 ? (
+              isLoading ? (
+                <Loader />
+              ) : error ? (
+                <Message variant="error">{error.message}</Message>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-4">
+                    {paginatedData.map((room) => (
+                      <div
+                        key={room.room_id}
+                        className="flex flex-col justify-between bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl xl:flex-row"
+                      >
+                        <div className="flex flex-col items-center xl:flex-row">
+                          <div className="">
+                            <img
+                              src={MeetingRoomImg}
+                              alt="meeting room"
+                              className="h-[25vh] object-cover"
+                            />
+                          </div>
+                          <div className="mt-6 flex flex-col xl:ml-6 xl:mt-0">
+                            <div className="mt-2 text-lg text-theme-orange">
+                              {room.name} {room.code}
+                            </div>
+
+                            <div className="mt-2">
+                              <span className="font-semibold">
+                                Number of Seats:
+                              </span>{" "}
+                              {room.seats}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="m-5 flex justify-center xl:items-end">
+                          <Link
+                            to="#"
+                            className="rounded bg-theme-orange px-8 py-0.5 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                          >
+                            Book
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <Pagination
+                    count={availableRoomsData.length}
+                    rowsPerPage={rowsPerPage}
+                    currentPage={currentPage}
+                    handleChangePage={handleChangePage}
+                    handleChangeRowsPerPage={handleChangeRowsPerPage}
+                  />
+                </>
+              )
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <img
+                  src={StartSearchGIF}
+                  alt="Start Search"
+                  className="h-96 w-96"
+                />
+                <h1 className="text-2xl font-semibold">
+                  Start searching for available rooms
+                </h1>
+              </div>
+            )}
           </div>
         </div>
       </div>
