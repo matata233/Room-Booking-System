@@ -2,6 +2,7 @@ import AbstractRepository from "./AbstractRepository";
 import BuildingDTO from "../model/dto/BuildingDTO";
 import {toBuildingDTO} from "../util/Mapper/BuildingMapper";
 import {PrismaClient} from "@prisma/client";
+import {NotFoundError} from "../util/exception/AWSRoomBookingSystemError";
 
 /*
 For reference from Prisma schema:
@@ -56,7 +57,7 @@ export default class BuildingRepository extends AbstractRepository {
         });
         if (!building) {
             // building not found
-            return Promise.reject(new Error("Building not found"));
+            throw new NotFoundError("Building not found");
         }
 
         const buildingDTO = toBuildingDTO(building, building.cities, building.users, building.rooms);

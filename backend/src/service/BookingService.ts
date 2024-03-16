@@ -25,14 +25,23 @@ export default class BookingService extends AbstractService {
     }
 
     public async create(dto: BookingDTO): Promise<bookings> {
-        if (!dto.startTime || dto.startTime.toString() === "Invalid Date" || dto.startTime <= new Date()) {
+        if (!dto.startTime || dto.startTime.toString() === "Invalid Date") {
             throw new BadRequestError("Invalid start time");
+        }
+        if (dto.startTime <= new Date()) {
+            throw new BadRequestError("Start time has already passed");
         }
         if (!dto.endTime || dto.endTime.toString() === "Invalid Date" || dto.endTime <= dto.startTime) {
             throw new BadRequestError("Invalid end time");
         }
+        if (!dto.endTime || dto.endTime.toString() === "Invalid Date") {
+            throw new BadRequestError("Invalid end time");
+        }
+        if (dto.endTime <= dto.startTime) {
+            throw new BadRequestError("End time must be greater than start time");
+        }
         if (!dto.userDTOs || dto.userDTOs.length === 0) {
-            throw new BadRequestError("Invalid participant groups");
+            throw new BadRequestError("No participants");
         }
         for (const participantGroup of dto.userDTOs) {
             if (!participantGroup || participantGroup.length === 0) {
@@ -55,7 +64,7 @@ export default class BookingService extends AbstractService {
         if (dto.roomDTOs.length !== dto.userDTOs.length) {
             throw new BadRequestError("Number of rooms must be equal to number of participant groups");
         }
-        if (!dto.createdBy) {
+        if (dto.createdBy === undefined) {
             throw new BadRequestError("Invalid creator ID");
         }
         return this.bookingRepository.create(
