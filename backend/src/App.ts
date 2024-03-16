@@ -75,7 +75,7 @@ app.get(`${endpoint}/booking`, bookingController.getAll);
         "step_size": "TT UNIT" //optional, e.g. 15 minutes
     }
 
-    returns: 
+    returns:
     {
     "result": [
         {
@@ -129,6 +129,7 @@ app.get(`${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTim
                 },
 */
 app.post(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
+app.get(`${endpoint}/booking/currentUser`, bookingController.getByCurrentUserId);
 app.get(`${endpoint}/booking/:id`, bookingController.getById);
 /*
     new Date().now()

@@ -9,7 +9,6 @@ import {
     UnavailableAttendeesError
 } from "../util/exception/AWSRoomBookingSystemError";
 import {toAvailableRoomDTO, toBookingDTO} from "../util/Mapper/BookingMapper";
-import {toRoomDTO} from "../util/Mapper/RoomMapper";
 
 export default class BookingRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
@@ -77,6 +76,29 @@ export default class BookingRepository extends AbstractRepository {
         const bookingDTO = toBookingDTO(booking, booking.users, booking.users_bookings);
 
         return bookingDTO;
+    }
+
+    public async findByUserId(id: number): Promise<BookingDTO[]> {
+        const bookings = await this.db.bookings.findMany({
+            where: {
+                users_bookings: {
+                    some: {
+                        user_id: id
+                    }
+                }
+            },
+            include: {
+                users: true,
+                users_bookings: {
+                    include: {
+                        users: true,
+                        rooms: true
+                    }
+                }
+            }
+        });
+
+        return bookings.map((booking) => toBookingDTO(booking, booking.users, booking.users_bookings));
     }
 
     public async create(
@@ -379,7 +401,7 @@ export default class BookingRepository extends AbstractRepository {
             WHERE d.building_id_from=${closest_building_id} AND r.seats >= ${attendees.length}
         ),
         available_rooms AS (
-            SELECT room_distance_info.* 
+            SELECT room_distance_info.*
             FROM room_distance_info
             LEFT JOIN buildings b ON b.building_id = room_distance_info.building_id
             WHERE b.city_id = '${city_code}'
@@ -439,37 +461,33 @@ export default class BookingRepository extends AbstractRepository {
             WITH RECURSIVE dates AS (SELECT TIMESTAMP '${start_time}' AS dt
                                      UNION ALL
                                      SELECT dt + INTERVAL '${step_size}'
-            FROM dates
-            WHERE dt + INTERVAL '${step_size}'
-                < TIMESTAMP '${end_time}')
-                , room_availability AS (
-            SELECT DISTINCT r.room_id, b2.start_time, b2.end_time
-            FROM rooms r
-                LEFT JOIN buildings b
-            ON r.building_id = b.building_id
-                LEFT JOIN bookings_rooms br ON r.room_id = br.room_id
-                LEFT JOIN bookings b2 ON br.booking_id = b2.booking_id
-            WHERE b.city_id = '${city_code}'
-              AND (b2.start_time
-                < '${end_time}'
-               OR b2.end_time
-                > '${start_time}'))
-                , user_ids AS (
-            SELECT u.user_id
-            FROM users u
-            WHERE u.email IN ${userList})
-                , user_bookings_overlap AS (
-            SELECT ub.user_id, b.start_time, b.end_time
-            FROM users_bookings ub
-                JOIN bookings b
-            ON ub.booking_id = b.booking_id
-            WHERE b.start_time
-                < '${end_time}'
-              AND b.end_time
-                > '${start_time}'
-              AND ub.user_id IN (SELECT user_id from user_ids))
-                , room_equipment_info AS (
-            SELECT room_id`;
+                                     FROM dates
+                                     WHERE dt + INTERVAL '${step_size}'
+                                               < TIMESTAMP '${end_time}')
+               , room_availability AS (SELECT DISTINCT r.room_id, b2.start_time, b2.end_time
+                                       FROM rooms r
+                                                LEFT JOIN buildings b
+                                                          ON r.building_id = b.building_id
+                                                LEFT JOIN bookings_rooms br ON r.room_id = br.room_id
+                                                LEFT JOIN bookings b2 ON br.booking_id = b2.booking_id
+                                       WHERE b.city_id = '${city_code}'
+                                         AND (b2.start_time
+                                                  < '${end_time}'
+                                           OR b2.end_time
+                                                  > '${start_time}'))
+               , user_ids AS (SELECT u.user_id
+                              FROM users u
+                              WHERE u.email IN ${userList})
+               , user_bookings_overlap AS (SELECT ub.user_id, b.start_time, b.end_time
+                                           FROM users_bookings ub
+                                                    JOIN bookings b
+                                                         ON ub.booking_id = b.booking_id
+                                           WHERE b.start_time
+                                               < '${end_time}'
+                                             AND b.end_time
+                                               > '${start_time}'
+                                             AND ub.user_id IN (SELECT user_id from user_ids))
+               , room_equipment_info AS (SELECT room_id`;
 
         equipments.forEach((eq) => {
             const toAdd = `,\n            bool_or(equipment_id='${eq}') AS has_${eq}`;
@@ -522,12 +540,12 @@ export default class BookingRepository extends AbstractRepository {
             SELECT 1 FROM room_equip r WHERE r.room_id NOT IN (
                 SELECT ra.room_id FROM room_availability ra WHERE
                 (d.dt, d.dt + INTERVAL '${duration}') OVERLAPS (ra.start_time, ra.end_time)
-            )  
+            )
             LIMIT 1
-        ) 
+        )
         AND NOT EXISTS (
-            SELECT 1 FROM user_bookings_overlap AS ub 
-            WHERE ( d.dt, d.dt + INTERVAL '${duration}' ) OVERLAPS (ub.start_time, ub.end_time) 
+            SELECT 1 FROM user_bookings_overlap AS ub
+            WHERE ( d.dt, d.dt + INTERVAL '${duration}' ) OVERLAPS (ub.start_time, ub.end_time)
             LIMIT 1
         )`;
         return query;
