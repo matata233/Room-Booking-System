@@ -1,8 +1,21 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link } from "react-router-dom";
+import { useGetBookingCurrentUserQuery } from "../slices/bookingApiSlides";
 
 const BookingHistoryPage = () => {
+  const { data: booking, error, isLoading, refetch } = useGetBookingCurrentUserQuery();
+
+  const bookingData = useMemo(() => {
+    if (isLoading || !booking || !booking.result) {
+      return [];
+    }
+    console.log("Got booking data");
+    return booking.result;
+  }, [isLoading, booking]);
+
+  console.log("my",booking)
+
   return (
     <div>
       <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
