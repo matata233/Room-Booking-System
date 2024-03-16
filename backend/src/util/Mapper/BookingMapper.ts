@@ -29,6 +29,7 @@ interface AvailableRoomDTO {
     isActive: boolean;
     hasAV: boolean;
     hasVC: boolean;
+    isBigEnough: boolean;
     distance: number;
     recommended: boolean;
 }
@@ -37,15 +38,18 @@ export const toAvailableRoomDTO = (resFromRawQuery: any[], equipmentNeeded: stri
     const availableRooms: AvailableRoomDTO[] = [];
     for (const res of resFromRawQuery) {
         let isRecommended = false;
-        if (equipmentNeeded.length === 0) {
-            isRecommended = true;
+        if (res.is_big_enough) {
+            if (equipmentNeeded.length === 0) {
+                isRecommended = true;
+            } else if (equipmentNeeded.length === 2 && res.has_av && res.has_vc) {
+                isRecommended = true;
+            } else if (equipmentNeeded.includes("AV") && res.has_av) {
+                isRecommended = true;
+            } else if (equipmentNeeded.includes("VC") && res.has_vc) {
+                isRecommended = true;
+            }
         }
-        if (equipmentNeeded.includes("AV") && res.has_av) {
-            isRecommended = true;
-        }
-        if (equipmentNeeded.includes("VC") && res.has_vc) {
-            isRecommended = true;
-        }
+
         const availableRoom = {
             roomId: res.room_id,
             buildingId: res.building_id,
@@ -56,6 +60,7 @@ export const toAvailableRoomDTO = (resFromRawQuery: any[], equipmentNeeded: stri
             isActive: res.is_active,
             hasAV: res.has_av,
             hasVC: res.has_vc,
+            isBigEnough: res.is_big_enough,
             distance: res.distance,
             recommended: isRecommended
         };
