@@ -13,18 +13,44 @@ import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
-import { resetBooking } from "../slices/bookingSlice";
-import { FormControlLabel, Switch } from "@mui/material";
-
+import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
+import {
+  resetBooking,
+  setUngroupedAttendees,
+  setSearchOnce,
+  initializeGroupedAttendees,
+  setLoggedInUserGroup,
+  setSelectedRoom,
+} from "../slices/bookingSlice";
+import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
+import { toast } from "react-toastify";
+import Message from "../components/Message";
 
 const BookingPage = () => {
-  const data = useMemo(
-    () => dummyRoomBooking.filter((room) => room.is_active),
-    [],
-  );
-  const dispatch = useDispatch();
+  const {
+    data: userEmails,
+    error: userEmailsError,
+    isLoading: userEmailsLoading,
+    refetch,
+  } = useGetAllEmailsQuery();
 
-  const searchOnce = useSelector((state) => state.booking.searchOnce);
+  const dispatch = useDispatch();
+  const {
+    startTime,
+    endTime,
+    startDate,
+    equipments,
+    priority,
+    roomCount,
+    groupedAttendees,
+    ungroupedAttendees,
+    searchOnce,
+  } = useSelector((state) => state.booking);
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const [getAvailableRooms, { isLoading, error }] =
+    useGetAvailableRoomsMutation();
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -39,22 +65,94 @@ const BookingPage = () => {
     setCurrentPage(1); // Reset to first page when changing rows per page
   };
 
+  const availableRoomsData = useMemo(
+    () => groupedAttendees.flatMap((group) => group.rooms),
+    [groupedAttendees],
+  );
+
   // Calculate paginated data
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const paginatedData = data.slice(startIndex, endIndex);
+  const paginatedData = availableRoomsData.slice(startIndex, endIndex);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      const startDateTime = new Date(
+        `${startDate}T${startTime}:00.000Z`,
+      ).toISOString();
+      const endDateTime = new Date(
+        `${startDate}T${endTime}:00.000Z`,
+      ).toISOString();
+      const attendeeEmails = ungroupedAttendees.map(
+        (attendee) => attendee.email,
+      );
+      const allAttendees = [...attendeeEmails, userInfo.email];
+      const equipmentCodes = equipments.map((equip) => equip.id);
+      const reqBody = {
+        startTime: startDateTime,
+        endTime: endDateTime,
+        attendees: allAttendees,
+        equipments: equipmentCodes,
+        priority: [], // TODO: Update Priority
+      };
+      const availableRooms = await getAvailableRooms(reqBody).unwrap();
+
+      // dispatch(setUngroupedAttendees([]));
+      // dispatch(setSearchOnce(true));
+      dispatch(
+        initializeGroupedAttendees(
+          reorganizeAvailableRooms(availableRooms) || [],
+        ),
+      );
+    } catch (err) {
+      toast.error(err?.data?.error || "Failed to get available rooms");
+      console.log(err?.data?.error);
+    }
   };
 
   const handleReset = () => {
     dispatch(resetBooking());
   };
 
+  const reorganizeAvailableRooms = (availableRooms) => {
+    let loggedInUserGroup = null;
+    const transformedResponse = availableRooms.result.groups.map(
+      (group, index) => {
+        const filteredAttendees = group.attendees.filter(
+          (email) => email !== userInfo.email,
+        ); // Exclude logged-in user
+
+        if (
+          group.attendees.length !== filteredAttendees.length &&
+          !loggedInUserGroup
+        ) {
+          loggedInUserGroup = `group${index + 1}`;
+        }
+
+        return {
+          groupId: `group${index + 1}`,
+          attendees: filteredAttendees,
+          rooms: group.rooms,
+          selectedRoom: null,
+        };
+      },
+    );
+
+    if (loggedInUserGroup) {
+      dispatch(setLoggedInUserGroup(loggedInUserGroup));
+    }
+
+    return transformedResponse;
+  };
+
+  const handleOnClick = (room, event) => {
+    dispatch(setSelectedRoom(room));
+  };
+
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
-      <BookingStepper currentStage={1}/>
+      <BookingStepper />
 
       <div className="flex w-full flex-col items-center gap-10 md:flex-row md:items-start md:justify-between">
         {/* Input Part */}
@@ -85,9 +183,10 @@ const BookingPage = () => {
               <UserEquipInput />
               <h2>Priority</h2>
               <DragAndDrop />
-              <h2>Number of Rooms </h2>
-              <UserRoomCountInput />
-              {searchOnce ? (
+              {/*  will be uncommented for grouping */}
+              {/* <h2>Number of Rooms </h2>
+              <UserRoomCountInput /> */}
+              {/* {searchOnce ? (
                 <>
                   <h2>Enter user emails by group</h2>
                   <UserEmailGroup />
@@ -97,20 +196,8 @@ const BookingPage = () => {
                   <h2>Enter all user emails</h2>
                   <UserEmailInput />
                 </>
-              )}
-               <div className="mt-2">
-                <FormControlLabel
-                  control={<Switch color="warning" />}
-                  label="Show All Available Rooms"
-                  sx={{
-                    "& .MuiFormControlLabel-label": {
-                      fontSize: "0.5 rem",
-                      fontFamily: "AmazonEmber",
-                    },
-                  }}
-                />
-              </div>
-
+              )} */}
+              <UserEmailInput />
               <div className="my-4 flex w-80 justify-center">
                 <button
                   type="submit"
@@ -132,12 +219,79 @@ const BookingPage = () => {
           <div className="flex items-center justify-between">
             <div className="mb-4 text-xl font-semibold">Available Rooms</div>
           </div>
-          <div className="flex items-center justify-center">
-            <img
-              src={StartSearchGIF}
-              alt="Start Search SVG"
-              className="w-full lg:w-1/2"
-            />
+          <div className="flex flex-col items-center justify-center">
+            {groupedAttendees.length > 0 ? (
+              isLoading ? (
+                <Loader />
+              ) : error ? (
+                <Message variant="error">{error.message}</Message>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-4">
+                    {paginatedData.map((room) => (
+                      <div
+                        key={room.roomId}
+                        className="flex flex-col justify-between bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl xl:flex-row"
+                      >
+                        <div className="flex flex-col items-center xl:flex-row">
+                          <div className="">
+                            <img
+                              src={MeetingRoomImg}
+                              alt="meeting room"
+                              className="h-[25vh] object-cover"
+                            />
+                          </div>
+                          <div className="mt-6 flex flex-col xl:ml-6 xl:mt-0">
+                            <div className="mt-2 text-lg text-theme-orange">
+                              {room.name} {room.code}
+                            </div>
+                            <div className="mt-2">
+                              <span className="font-semibold">Equipments:</span>{" "}
+                              {`${room.hasAV ? "AV" : ""} ${room.hasVC ? "VC" : ""}`}
+                            </div>
+
+                            <div className="mt-2">
+                              <span className="font-semibold">
+                                Number of Seats:
+                              </span>{" "}
+                              {room.seats}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="m-5 flex justify-center xl:items-end">
+                          <Link
+                            to={"/bookingReview"}
+                            onClick={(e) => handleOnClick(room, e)}
+                            className="rounded bg-theme-orange px-8 py-0.5 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                          >
+                            Book
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <Pagination
+                    count={availableRoomsData.length}
+                    rowsPerPage={rowsPerPage}
+                    currentPage={currentPage}
+                    handleChangePage={handleChangePage}
+                    handleChangeRowsPerPage={handleChangeRowsPerPage}
+                  />
+                </>
+              )
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <img
+                  src={StartSearchGIF}
+                  alt="Start Search"
+                  className="h-96 w-96"
+                />
+                <h1 className="text-2xl font-semibold">
+                  Start searching for available rooms
+                </h1>
+              </div>
+            )}
           </div>
         </div>
       </div>

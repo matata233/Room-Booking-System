@@ -7,7 +7,14 @@ import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import Loader from "./Loader";
 import Message from "./Message";
 
-const Accordion = ({ groupId, open, toggle, handleChange, options }) => {
+const Accordion = ({
+  groupId,
+  open,
+  toggle,
+  handleChange,
+  options,
+  initialValue,
+}) => {
   const [selectedRoom, setSelectedRoom] = useState(null);
 
   return (
@@ -30,6 +37,7 @@ const Accordion = ({ groupId, open, toggle, handleChange, options }) => {
       <Collapse isOpened={open}>
         <div className="bg-white p-4">
           <Select
+            value={initialValue}
             closeMenuOnSelect={false}
             components={animatedComponents}
             isMulti
