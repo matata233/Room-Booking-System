@@ -1117,7 +1117,8 @@ VALUES (1, 'bbrown5888', 'Bob', 'Brown', 'bbrown5888@example.com', 2, 1, 105, 's
        (9, 'dbrown5140', 'Diana', 'Brown', 'dbrown5140@example.com', 2, 3, 101, 'staff', TRUE),
        (10, 'dmiller5815', 'Diana', 'Miller', 'dmiller5815@example.com', 2, 1, 104, 'admin', TRUE),
        (11, 'team7awsome01', 'AWSome', 'Team7', 'team7awsome01@gmail.com', 1, 1, 1, 'admin', TRUE),
-       (12, 'team7awsomeuser01', 'AWSomeUser', 'Team7', 'team7awsomeuser01@gmail.com', 1, 1, 1, 'staff', TRUE);
+       (12, 'team7awsomeuser01', 'AWSomeUser', 'Team7', 'team7awsomeuser01@gmail.com', 1, 1, 1, 'staff', TRUE),
+       (13, 'michelle', 'Michelle', 'Chen', 'hsiangyi1025@gmail.com', 3, 15, 102, 'admin', TRUE);
 
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
 
