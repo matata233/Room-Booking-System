@@ -63,7 +63,7 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed z-30 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md md:drop-shadow-none" : ""}`}
+      className={`fixed z-30 h-20 w-full bg-white font-amazon-ember ${popHeader ? "drop-shadow-md" : showMenu ? "drop-shadow-md lg:drop-shadow-none" : ""}`}
     >
       {/* Laptop */}
       <div className="flex h-full w-full items-center justify-between px-6">
@@ -121,7 +121,7 @@ const Header = () => {
             className="relative hidden  items-center justify-end lg:flex "
           >
             <div
-              className="hidden cursor-pointer items-center justify-end  rounded p-2 text-center  text-theme-orange hover:border-2 hover:border-theme-blue md:flex"
+              className="hidden cursor-pointer items-center justify-end  rounded p-2 text-center  text-theme-orange hover:border-2 hover:border-theme-blue lg:flex"
               onClick={toggleDropdown}
             >
               <IoMdArrowDropdown className="size-4 lg:size-6" />
@@ -140,7 +140,7 @@ const Header = () => {
             >
               <div className="py-1">
                 <div
-                  className="cursor-pointer px-4 py-2 text-sm  text-white hover:text-red-500 md:text-gray-500"
+                  className="cursor-pointer px-4 py-2 text-sm  text-white hover:text-red-500 lg:text-gray-500"
                   id="logout"
                   onClick={handleLogout}
                 >
@@ -151,7 +151,7 @@ const Header = () => {
           </div>
         ) : (
           <div
-            className="mr-4 hidden cursor-pointer rounded-lg bg-theme-orange px-4 py-2 text-theme-dark-blue transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white md:flex"
+            className="mr-4 hidden cursor-pointer rounded-lg bg-theme-orange px-4 py-2 text-theme-dark-blue transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white lg:flex"
             onClick={() => {
               navigate("/login");
               setShowMenu(false);
