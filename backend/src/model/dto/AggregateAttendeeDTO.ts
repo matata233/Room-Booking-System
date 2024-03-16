@@ -1,5 +1,4 @@
 import AbstractDTO from "./AbstractDTO";
-import UserDTO from "./UserDTO";
 //TODO: Until frontend team decide what data they want, there will be changed here
 export default class AggregateAttendeeDTO extends AbstractDTO {
     public building_id: string;

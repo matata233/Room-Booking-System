@@ -111,6 +111,7 @@ export default class BookingRepository extends AbstractRepository {
     ): Promise<bookings> {
         const newBooking = await this.db.$transaction(async (tx) => {
             // TODO: cannot identify which room is not available, start from rooms_bookings table
+            // check if there is any conflict booking/any
             const conflictBooking = await tx.bookings.findFirst({
                 where: {
                     AND: [
@@ -133,7 +134,6 @@ export default class BookingRepository extends AbstractRepository {
                 // TODO: can add to error message to indicate which rooms are unavailable
                 throw new RequestConflictError("Room is unavailable in this timeslot");
             }
-
             const booking = await tx.bookings.create({
                 data: {
                     created_by: created_by,
@@ -149,6 +149,7 @@ export default class BookingRepository extends AbstractRepository {
                 }
             });
 
+            // for each group of attendees, create a user_booking entry
             for (let i = 0; i < attendees.length; i++) {
                 const group = attendees[i];
                 const roomId = parseInt(rooms[i]);

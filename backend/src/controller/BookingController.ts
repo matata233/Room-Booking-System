@@ -91,16 +91,17 @@ export default class BookingController extends AbstractController {
 
             dto.startTime = new Date(req.body.startTime!);
             dto.endTime = new Date(req.body.endTime!);
-
+            
             dto.userDTOs = [];
-            for (const participantGroup of req.body.users) {
-                const participantGroupDTO = [];
-                for (const participantID of participantGroup) {
+            // create an array of UserDTOs for each group of participants
+            for (const group of req.body.users) {
+                const groupDTO = [];
+                for (const participantID of group) {
                     const participant = new UserDTO();
                     participant.userId = participantID;
-                    participantGroupDTO.push(participant);
+                    groupDTO.push(participant);
                 }
-                dto.userDTOs.push(participantGroupDTO);
+                dto.userDTOs.push(groupDTO);
             }
 
             dto.roomDTOs = [];
@@ -135,7 +136,25 @@ export default class BookingController extends AbstractController {
     };
 
     public update(req: Request, res: Response): Promise<Response> {
-        return Promise.reject("Not implemented");
+        const bookingId: number = parseInt(req.params.id);
+        try {
+            const currentBooking = this.bookingService.getById(bookingId);
+            if (!currentBooking && typeof currentBooking !== "number") {
+                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, "Booking not found.");
+            }
+            const bookingToUpdateDTO = new BookingDTO();
+            // these fields are required for BookingDTO
+            bookingToUpdateDTO.bookingId = bookingId;
+            bookingToUpdateDTO.createdBy = req.body.createdBy;
+            bookingToUpdateDTO.startTime = new Date(req.body.startTime);
+            bookingToUpdateDTO.endTime = new Date(req.body.endTime);
+            bookingToUpdateDTO.status = req.body.status;
+            // these fields are added based on request from frontend
+            const userCreatedBooking = new UserDTO();
+            userCreatedBooking.userId = req.body.createdBy;
+            bookingToUpdateDTO.users = userCreatedBooking;
+            const groups: Group[] = [];
+        }
     }
 
     public getSuggestedTimes = async (req: Request, res: Response): Promise<Response> => {

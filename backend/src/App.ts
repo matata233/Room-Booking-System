@@ -138,6 +138,7 @@ app.get(`${endpoint}/booking/:id`, bookingController.getById);
 
 */
 app.post(`${endpoint}/booking/create`, bookingController.create);
+app.put(`${endpoint}/booking/:id`, bookingController.update);
 
 // Building routes
 app.get(`${endpoint}/buildings`, buildingController.getAll);
