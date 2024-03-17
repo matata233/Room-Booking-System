@@ -2,7 +2,6 @@ import AbstractService from "./AbstractService";
 import BookingDTO from "../model/dto/BookingDTO";
 import BookingRepository from "../repository/BookingRepository";
 import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
-import {bookings} from "@prisma/client";
 
 export default class BookingService extends AbstractService {
     public bookingRepository: BookingRepository;
@@ -24,7 +23,7 @@ export default class BookingService extends AbstractService {
         return this.bookingRepository.findByUserId(id);
     }
 
-    public async create(dto: BookingDTO): Promise<bookings> {
+    public async create(dto: BookingDTO): Promise<BookingDTO> {
         if (!dto.startTime || dto.startTime.toString() === "Invalid Date") {
             throw new BadRequestError("Invalid start time");
         }
