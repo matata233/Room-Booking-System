@@ -30,7 +30,15 @@ export default class BookingRepository extends AbstractRepository {
                 users_bookings: {
                     include: {
                         users: true,
-                        rooms: true
+                        rooms: {
+                            include: {
+                                buildings: {
+                                    include: {
+                                        cities: true
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -61,7 +69,15 @@ export default class BookingRepository extends AbstractRepository {
                 users_bookings: {
                     include: {
                         users: true,
-                        rooms: true
+                        rooms: {
+                            include: {
+                                buildings: {
+                                    include: {
+                                        cities: true
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -94,7 +110,11 @@ export default class BookingRepository extends AbstractRepository {
                         users: true,
                         rooms: {
                             include: {
-                                buildings: true
+                                buildings: {
+                                    include: {
+                                        cities: true
+                                    }
+                                }
                             }
                         }
                     }
@@ -176,7 +196,11 @@ export default class BookingRepository extends AbstractRepository {
                             users: true,
                             rooms: {
                                 include: {
-                                    buildings: true
+                                    buildings: {
+                                        include: {
+                                            cities: true
+                                        }
+                                    }
                                 }
                             }
                         }
