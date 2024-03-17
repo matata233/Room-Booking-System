@@ -73,7 +73,6 @@ const mapAttendeesToDTO = (groups: any) => {
     const result: Group[] = [];
     const usersByRoom: {[key: number]: UserDTO[]} = {};
     for (const userBooking of groups) {
-        const roomDTO = toRoomDTO(userBooking.rooms);
         const userDTO = toUserDTO(userBooking.users);
 
         if (!usersByRoom[userBooking.room_id]) {
@@ -84,13 +83,15 @@ const mapAttendeesToDTO = (groups: any) => {
     }
     for (const room_id of Object.keys(usersByRoom)) {
         const roomUsers = usersByRoom[parseInt(room_id)];
-        const roomDTO =
-            roomUsers.length > 0
-                ? toRoomDTO(groups.find((group: any) => group.room_id === parseInt(room_id))!.rooms)
-                : null;
-        if (roomDTO) {
-            const group: Group = {room: roomDTO, attendees: roomUsers};
-            result.push(group);
+        if (roomUsers.length > 0) {
+            const room = groups.find((group: any) => group.room_id === parseInt(room_id))!.rooms;
+            const building = room.buildings;
+            const city = room.buildings.cities;
+            const roomDTO = toRoomDTO(room, city, building);
+            if (roomDTO) {
+                const group: Group = {room: roomDTO, attendees: roomUsers};
+                result.push(group);
+            }
         }
     }
     return result;
