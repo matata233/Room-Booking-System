@@ -235,7 +235,9 @@ export default class BookingRepository extends AbstractRepository {
             },
             select: {
                 user_id: true,
-                email: true
+                email: true,
+                first_name: true,
+                last_name: true
             }
         });
         return this.getUnavailableAttendees(attendees, start_time, end_time)
@@ -376,65 +378,80 @@ export default class BookingRepository extends AbstractRepository {
         end_time: string,
         attendees: string[],
         equipments: string[],
-        priority: string[],
+        priorities: string[],
         closest_building_id: string,
-        city_code: string,
+        city_id: string,
         floor_from: number
     ): string {
-        let query = `WITH room_equipment_info AS (SELECT room_id`;
-
-        equipments.forEach((eq) => {
-            query += `, bool_or(equipment_id='${eq}') AS has_${eq}`;
+        priorities.forEach((val, i, arr) => {
+            if (val === "distance") {
+                arr[i] =
+                    `${val}, CASE WHEN available_rooms.building_id = ${closest_building_id} THEN ABS(floor - ${floor_from}) ELSE 10000 END`;
+            } else if (val === "equipments") {
+                if (equipments.length === 0) {
+                    arr[i] = "1";
+                    return;
+                }
+                arr[i] = "";
+                equipments.forEach((eq) => {
+                    arr[i] += `CASE WHEN has_${eq} THEN 0 ELSE 1 END,`;
+                });
+                arr[i] = arr[i].slice(0, -1);
+            }
         });
-
-        query += `
-            FROM rooms_equipments
-            GROUP BY room_id
-        ),
-        room_distance_info AS (
-            SELECT r.*, d.distance`;
-
-        equipments.forEach((eq) => {
-            query += `, COALESCE(re.has_${eq}, FALSE) AS has_${eq}`;
-        });
-
-        query += `
-            FROM rooms r
-            LEFT JOIN room_equipment_info re ON r.room_id = re.room_id
-            LEFT JOIN distances d ON r.building_id = d.building_id_to AND d.building_id_from = ${closest_building_id}
-            WHERE r.is_active = TRUE
-        ),
-        room_info AS (
-            SELECT room_id, bool_or(seats >= ${attendees.length}) AS is_big_enough
-            FROM rooms
-            GROUP BY room_id
-        ),
-        available_rooms AS (
-            SELECT room_distance_info.*, ri.is_big_enough
-            FROM room_distance_info
-            JOIN room_info ri ON room_distance_info.room_id = ri.room_id
-            LEFT JOIN buildings b ON b.building_id = room_distance_info.building_id
-            WHERE b.city_id = '${city_code}' AND b.is_active = TRUE
-            AND room_distance_info.room_id NOT IN (
-                SELECT br.room_id 
-                FROM bookings_rooms br
-                LEFT JOIN bookings b ON b.booking_id = br.booking_id
-                WHERE (b.start_time < '${end_time}' AND b.end_time > '${start_time}' OR b.booking_id IS NULL)
-                AND br.room_id IS NOT NULL
-                AND b.status != 'canceled'
-            )
-        )
-        SELECT *
-        FROM available_rooms
-        ORDER BY distance`;
-
-        priority.forEach((eq) => {
-            query += `, CASE WHEN has_${eq} THEN 0 ELSE 1 END,`;
-        });
-
-        query += `, CASE WHEN building_id = ${closest_building_id} THEN ABS(floor - ${floor_from}) ELSE 10000 END, seats`;
-
-        return query;
+        return `WITH room_equipment_info AS (SELECT room_id,
+                                                    bool_or(equipment_id = 'AV') AS has_av,
+                                                    bool_or(equipment_id = 'VC') AS has_vc
+                                             FROM rooms_equipments
+                                             GROUP BY room_id),
+                     room_info AS (SELECT r.room_id,
+                                          r.building_id,
+                                          r.floor,
+                                          r.code                                  as room_code,
+                                          r.name                                  as room_name,
+                                          r.seats,
+                                          COALESCE(rei.has_av, FALSE)             AS has_av,
+                                          COALESCE(rei.has_vc, FALSE)             AS has_vc,
+                                          bool_or(r.seats >= ${attendees.length}) AS is_big_enough,
+                                          CASE
+                                              WHEN r.building_id = ${closest_building_id} THEN 0
+                                              ELSE COALESCE(d.distance, 10000)
+                                              END                                 AS distance
+                                   FROM rooms r
+                                            LEFT JOIN room_equipment_info rei ON r.room_id = rei.room_id
+                                            LEFT JOIN distances d ON (r.building_id = d.building_id_to AND
+                                                                      d.building_id_from =
+                                                                      ${closest_building_id})
+                                       OR (r.building_id = d.building_id_from AND
+                                           d.building_id_to = ${closest_building_id})
+                                   WHERE r.is_active = TRUE
+                                   GROUP BY r.room_id, r.building_id, r.floor, r.code, r.name, r.seats,
+                                            rei.has_av, rei.has_vc, d.distance),
+                     available_rooms AS (SELECT ri.*
+                                         FROM room_info ri
+                                                  JOIN buildings b ON ri.building_id = b.building_id
+                                         WHERE b.city_id = '${city_id}'
+                                           AND b.is_active = TRUE
+                                           AND ri.room_id NOT IN (SELECT br.room_id
+                                                                  FROM bookings_rooms br
+                                                                           JOIN bookings b ON b.booking_id = br.booking_id
+                                                                  WHERE (b.start_time < '${end_time}' AND b.end_time > '${start_time}')
+                                                                    AND b.status != 'canceled'))
+                SELECT buildings.city_id,
+                       buildings.code            as building_code,
+                       available_rooms.floor,
+                       available_rooms.room_code as room_code,
+                       available_rooms.room_name as room_name,
+                       available_rooms.room_id,
+                       available_rooms.distance,
+                       available_rooms.seats,
+                       available_rooms.has_av,
+                       available_rooms.has_vc,
+                       available_rooms.is_big_enough
+                FROM available_rooms,
+                     buildings
+                WHERE available_rooms.building_id = buildings.building_id
+                ORDER BY ${priorities[0]}, ${priorities[1]}, ${priorities[2]}`;
     }
 
     private buildTimeSuggestionQuery(
