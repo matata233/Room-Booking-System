@@ -1,7 +1,7 @@
 import AbstractRepository from "./AbstractRepository";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import {bookings, PrismaClient, users} from "@prisma/client";
+import {PrismaClient, users} from "@prisma/client";
 import {
     BadRequestError,
     NotFoundError,
@@ -92,7 +92,11 @@ export default class BookingRepository extends AbstractRepository {
                 users_bookings: {
                     include: {
                         users: true,
-                        rooms: true
+                        rooms: {
+                            include: {
+                                buildings: true
+                            }
+                        }
                     }
                 }
             }
@@ -108,7 +112,7 @@ export default class BookingRepository extends AbstractRepository {
         end_time: string,
         rooms: string[],
         attendees: number[][]
-    ): Promise<bookings> {
+    ): Promise<BookingDTO> {
         const newBooking = await this.db.$transaction(async (tx) => {
             // TODO: cannot identify which room is not available, start from rooms_bookings table
             const conflictBooking = await tx.bookings.findFirst({
@@ -116,8 +120,9 @@ export default class BookingRepository extends AbstractRepository {
                     AND: [
                         {start_time: {lt: end_time}},
                         {end_time: {gt: start_time}},
+                        {status: {not: "canceled"}},
                         {
-                            bookings_rooms: {
+                            users_bookings: {
                                 some: {
                                     room_id: {
                                         in: rooms.map((room) => parseInt(room))
@@ -140,12 +145,7 @@ export default class BookingRepository extends AbstractRepository {
                     created_at: created_at,
                     start_time: start_time,
                     end_time: end_time,
-                    status: "confirmed",
-                    bookings_rooms: {
-                        create: rooms.map((room_id) => ({
-                            room_id: parseInt(room_id)
-                        }))
-                    }
+                    status: "confirmed"
                 }
             });
 
@@ -171,14 +171,14 @@ export default class BookingRepository extends AbstractRepository {
                 where: {booking_id: booking.booking_id},
                 include: {
                     users: true,
-                    bookings_rooms: {
-                        include: {
-                            rooms: true
-                        }
-                    },
                     users_bookings: {
                         include: {
-                            users: true
+                            users: true,
+                            rooms: {
+                                include: {
+                                    buildings: true
+                                }
+                            }
                         }
                     }
                 }
@@ -188,7 +188,8 @@ export default class BookingRepository extends AbstractRepository {
         if (newBooking === null) {
             throw new Error();
         }
-        return newBooking;
+
+        return toBookingDTO(newBooking, newBooking.users, newBooking.users_bookings);
     }
 
     public getSuggestedTimes(
@@ -234,13 +235,15 @@ export default class BookingRepository extends AbstractRepository {
             },
             select: {
                 user_id: true,
-                email: true
+                email: true,
+                first_name: true,
+                last_name: true
             }
         });
         return this.getUnavailableAttendees(attendees, start_time, end_time)
             .then((res) => {
                 if (res.length > 0) {
-                    return Promise.reject(new UnavailableAttendeesError(JSON.stringify(res)));
+                    throw new UnavailableAttendeesError(JSON.stringify(res));
                 }
                 return this.getCityId(attendees[0]);
             })
@@ -252,7 +255,7 @@ export default class BookingRepository extends AbstractRepository {
                 // TODO: implement automatic multi room allocation
                 const closest_building_id = buildingFloorList[0].building_id;
                 const floor = buildingFloorList[0].floor as number;
-                const query = this.buildQuery(
+                const query = this.buildRoomSearchQuery(
                     start_time,
                     end_time,
                     attendees,
@@ -265,8 +268,8 @@ export default class BookingRepository extends AbstractRepository {
                 return this.db.$queryRawUnsafe(query);
             })
             .then((res) => {
-                console.log(res);
                 const roomList = toAvailableRoomDTO(res as any[], equipments);
+                console.log(roomList);
                 return {
                     groups: [
                         {
@@ -284,11 +287,28 @@ export default class BookingRepository extends AbstractRepository {
                 email: {
                     in: attendees
                 },
-                bookings: {
-                    some: {
-                        AND: [{start_time: {lt: end_time}}, {end_time: {gt: start_time}}]
+                OR: [
+                    {
+                        users_bookings: {
+                            some: {
+                                bookings: {
+                                    AND: [
+                                        {start_time: {lt: end_time}},
+                                        {end_time: {gt: start_time}},
+                                        {status: {not: "canceled"}}
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        events: {
+                            some: {
+                                AND: [{start_time: {lt: end_time}}, {end_time: {gt: start_time}}]
+                            }
+                        }
                     }
-                }
+                ]
             }
         });
     }
@@ -315,28 +335,24 @@ export default class BookingRepository extends AbstractRepository {
             });
     }
 
-    // TODO: currently taking user_ids not email nor username
     private getBuildingFloor(attendees: string[]): Promise<AggregateAttendeeDTO[]> {
-        let userList = `(`;
+        let emails = "";
         for (let i = 0; i < attendees.length; i++) {
-            userList = userList + `'${attendees[i]}'`;
-            if (i !== attendees.length - 1) {
-                userList = userList + ",";
-            }
+            emails += `'${attendees[i]}',`;
         }
-        userList = userList + `)`;
+        emails = emails.slice(0, -1);
 
         const query = `
             WITH user_counts AS (SELECT building_id, COUNT(*) AS num_users
                                  FROM users
-                                 WHERE email IN ${userList}
+                                 WHERE email IN (${emails})
                                  GROUP BY building_id),
                  max_floor_per_building AS (SELECT building_id, floor
                                             FROM (SELECT building_id,
                                                          floor,
                                                          ROW_NUMBER() OVER (PARTITION BY building_id ORDER BY COUNT(*) DESC) AS rn
                                                   FROM users
-                                                  WHERE email IN ${userList}
+                                                  WHERE email IN (${emails})
                                                   GROUP BY building_id, floor) t
                                             WHERE rn = 1)
             SELECT uc.building_id, uc.num_users, mfp.floor
@@ -357,87 +373,85 @@ export default class BookingRepository extends AbstractRepository {
         });
     }
 
-    private buildQuery(
+    private buildRoomSearchQuery(
         start_time: string,
         end_time: string,
         attendees: string[],
         equipments: string[],
-        priority: string[],
+        priorities: string[],
         closest_building_id: string,
-        city_code: string,
+        city_id: string,
         floor_from: number
     ): string {
-        let query = `
-            WITH room_equipment_info AS (SELECT room_id`;
-
-        equipments.forEach((eq) => {
-            const toAdd = `,\n            bool_or(equipment_id='${eq}') AS has_${eq}`;
-            query = query + toAdd;
+        priorities.forEach((val, i, arr) => {
+            if (val === "distance") {
+                arr[i] =
+                    `${val}, CASE WHEN available_rooms.building_id = ${closest_building_id} THEN ABS(floor - ${floor_from}) ELSE 10000 END`;
+            } else if (val === "equipments") {
+                if (equipments.length === 0) {
+                    arr[i] = "1";
+                    return;
+                }
+                arr[i] = "";
+                equipments.forEach((eq) => {
+                    arr[i] += `CASE WHEN has_${eq} THEN 0 ELSE 1 END,`;
+                });
+                arr[i] = arr[i].slice(0, -1);
+            }
         });
-
-        query =
-            query +
-            `
-            FROM rooms_equipments
-            GROUP by room_id
-        ),
-        room_distance_info AS (
-            SELECT r.*,`;
-
-        equipments.forEach((eq) => {
-            query =
-                query +
-                `
-                COALESCE(re.has_${eq}, FALSE) as has_${eq},`;
-        });
-
-        query =
-            query +
-            `
-                d.distance
-            FROM rooms r
-            LEFT JOIN room_equipment_info as re ON r.room_id = re.room_id
-            LEFT JOIN distances d ON r.building_id = d.building_id_to
-            WHERE d.building_id_from=${closest_building_id} AND r.seats >= ${attendees.length}
-        ),
-        available_rooms AS (
-            SELECT room_distance_info.*
-            FROM room_distance_info
-            LEFT JOIN buildings b ON b.building_id = room_distance_info.building_id
-            WHERE b.city_id = '${city_code}'
-            AND room_distance_info.room_id NOT IN (
-                SELECT br.room_id FROM bookings_rooms as br
-                LEFT JOIN bookings as b ON b.booking_id = br.booking_id
-                WHERE
-                (( NOT (( b.start_time >= '${end_time}' OR b.end_time <= '${start_time}')
-                    AND ( b.booking_id IS NOT NULL))) AND br.room_id IS NOT NULL)
-            )
-        )
-        SELECT *
-        FROM available_rooms
-        ORDER BY
-            available_rooms.distance,`;
-
-        priority.forEach((eq) => {
-            query =
-                query +
-                `
-            CASE
-                WHEN has_${eq} THEN 0
-                ELSE 1
-            END,`;
-        });
-
-        query =
-            query +
-            `
-            CASE
-                WHEN available_rooms.building_id=${closest_building_id} THEN ABS(available_rooms.floor-${floor_from})
-                ELSE 10000
-            END,
-            available_rooms.seats`;
-
-        return query;
+        return `WITH room_equipment_info AS (SELECT room_id,
+                                                    bool_or(equipment_id = 'AV') AS has_av,
+                                                    bool_or(equipment_id = 'VC') AS has_vc
+                                             FROM rooms_equipments
+                                             GROUP BY room_id),
+                     room_info AS (SELECT r.room_id,
+                                          r.building_id,
+                                          r.floor,
+                                          r.code                                  as room_code,
+                                          r.name                                  as room_name,
+                                          r.seats,
+                                          COALESCE(rei.has_av, FALSE)             AS has_av,
+                                          COALESCE(rei.has_vc, FALSE)             AS has_vc,
+                                          bool_or(r.seats >= ${attendees.length}) AS is_big_enough,
+                                          CASE
+                                              WHEN r.building_id = ${closest_building_id} THEN 0
+                                              ELSE COALESCE(d.distance, 10000)
+                                              END                                 AS distance
+                                   FROM rooms r
+                                            LEFT JOIN room_equipment_info rei ON r.room_id = rei.room_id
+                                            LEFT JOIN distances d ON (r.building_id = d.building_id_to AND
+                                                                      d.building_id_from =
+                                                                      ${closest_building_id})
+                                       OR (r.building_id = d.building_id_from AND
+                                           d.building_id_to = ${closest_building_id})
+                                   WHERE r.is_active = TRUE
+                                   GROUP BY r.room_id, r.building_id, r.floor, r.code, r.name, r.seats,
+                                            rei.has_av, rei.has_vc, d.distance),
+                     available_rooms AS (SELECT ri.*
+                                         FROM room_info ri
+                                                  JOIN buildings b ON ri.building_id = b.building_id
+                                         WHERE b.city_id = '${city_id}'
+                                           AND b.is_active = TRUE
+                                           AND ri.room_id NOT IN (SELECT ub.room_id
+                                                                  FROM users_bookings ub
+                                                                           JOIN bookings b ON b.booking_id = ub.booking_id
+                                                                  WHERE (b.start_time < '${end_time}' AND b.end_time > '${start_time}')
+                                                                    AND b.status != 'canceled'))
+                SELECT buildings.city_id,
+                       buildings.code            as building_code,
+                       available_rooms.floor,
+                       available_rooms.room_code as room_code,
+                       available_rooms.room_name as room_name,
+                       available_rooms.room_id,
+                       available_rooms.distance,
+                       available_rooms.seats,
+                       available_rooms.has_av,
+                       available_rooms.has_vc,
+                       available_rooms.is_big_enough
+                FROM available_rooms,
+                     buildings
+                WHERE available_rooms.building_id = buildings.building_id
+                ORDER BY ${priorities[0]}, ${priorities[1]}, ${priorities[2]}`;
     }
 
     private buildTimeSuggestionQuery(

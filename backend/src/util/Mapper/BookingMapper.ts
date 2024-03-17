@@ -20,43 +20,48 @@ export const toBookingDTO = (booking: bookings, creator?: users, groups?: any): 
 };
 
 interface AvailableRoomDTO {
-    roomId: number;
-    buildingId: number;
+    cityId: string;
+    buildingCode: string;
     floor: number;
-    code: string;
-    name: string;
+    roomCode: string;
+    roomName: string;
+    distance: number;
     seats: number;
-    isActive: boolean;
     hasAV: boolean;
     hasVC: boolean;
-    distance: number;
+    isBigEnough: boolean;
     recommended: boolean;
+    roomId: number;
 }
 
 export const toAvailableRoomDTO = (resFromRawQuery: any[], equipmentNeeded: string[]): any => {
     const availableRooms: AvailableRoomDTO[] = [];
     for (const res of resFromRawQuery) {
         let isRecommended = false;
-        if (equipmentNeeded.length === 0) {
-            isRecommended = true;
+        if (res.is_big_enough) {
+            if (equipmentNeeded.length === 0) {
+                isRecommended = true;
+            } else if (equipmentNeeded.length === 2 && res.has_av && res.has_vc) {
+                isRecommended = true;
+            } else if (equipmentNeeded.includes("AV") && res.has_av) {
+                isRecommended = true;
+            } else if (equipmentNeeded.includes("VC") && res.has_vc) {
+                isRecommended = true;
+            }
         }
-        if (equipmentNeeded.includes("AV") && res.has_av) {
-            isRecommended = true;
-        }
-        if (equipmentNeeded.includes("VC") && res.has_vc) {
-            isRecommended = true;
-        }
+
         const availableRoom = {
             roomId: res.room_id,
-            buildingId: res.building_id,
+            cityId: res.city_id,
+            buildingCode: res.building_code,
             floor: res.floor,
-            code: res.code,
-            name: res.name,
+            roomCode: res.room_code,
+            roomName: res.room_name,
             seats: res.seats,
-            isActive: res.is_active,
+            distance: res.distance,
             hasAV: res.has_av,
             hasVC: res.has_vc,
-            distance: res.distance,
+            isBigEnough: res.is_big_enough,
             recommended: isRecommended
         };
         availableRooms.push(availableRoom);
@@ -84,7 +89,7 @@ const mapAttendeesToDTO = (groups: any) => {
                 ? toRoomDTO(groups.find((group: any) => group.room_id === parseInt(room_id))!.rooms)
                 : null;
         if (roomDTO) {
-            const group: Group = {room: roomDTO, users: roomUsers};
+            const group: Group = {room: roomDTO, attendees: roomUsers};
             result.push(group);
         }
     }
