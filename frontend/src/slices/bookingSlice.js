@@ -31,7 +31,6 @@ const initialState = {
   loggedInUser: {
     group: null,
   },
-  selectedRoom: null,
   searchOnce: false,
 };
 
@@ -77,6 +76,7 @@ export const bookingSlice = createSlice({
       if (groupIndex !== -1) {
         state.groupedAttendees[groupIndex].attendees = attendees;
       } else {
+        // maybe removed (depends on the design)
         state.groupedAttendees.push({
           groupId,
           attendees,
@@ -97,9 +97,6 @@ export const bookingSlice = createSlice({
     },
     setLoggedInUserGroup: (state, action) => {
       state.loggedInUser.group = action.payload;
-    },
-    setSelectedRoom: (state, action) => {
-      state.selectedRoom = action.payload;
     },
     resetBooking: (state) => (state = initialState),
   },

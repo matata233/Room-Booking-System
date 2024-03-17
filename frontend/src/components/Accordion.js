@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { Collapse } from "react-collapse";
 import Select from "react-select";
-import animatedComponents from "react-select";
+import makeAnimated from "react-select/animated";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import Loader from "./Loader";
 import Message from "./Message";
@@ -14,9 +14,9 @@ const Accordion = ({
   handleChange,
   options,
   initialValue,
+  selectedRoom,
 }) => {
-  const [selectedRoom, setSelectedRoom] = useState(null);
-
+  const animatedComponents = makeAnimated();
   return (
     <>
       <div
@@ -25,9 +25,22 @@ const Accordion = ({
       >
         <div>
           <p className="font-semibold text-theme-orange">{groupId}</p>
-          <p className="mt-2 text-sm text-theme-blue">
-            Room: {selectedRoom ? `${selectedRoom.cityId}` : "Unselected"}
-          </p>
+          {groupId !== "Ungrouped" ? (
+            <p className="mt-2 text-sm ">
+              {selectedRoom ? (
+                <span className="text-theme-blue">
+                  Room: {selectedRoom.name} {selectedRoom.code}
+                </span>
+              ) : (
+                <span className="text-theme-dark-blue">Room: Unselected</span>
+              )}
+            </p>
+          ) : (
+            <p className="mt-2 text-xs text-gray-400">
+              Not sure which room to put them in? Leave them here to trigger
+              reassignment!
+            </p>
+          )}
         </div>
 
         <div className="text-lg">
@@ -37,7 +50,7 @@ const Accordion = ({
       <Collapse isOpened={open}>
         <div className="bg-white p-4">
           <Select
-            value={initialValue}
+            defaultValue={initialValue}
             closeMenuOnSelect={false}
             components={animatedComponents}
             isMulti

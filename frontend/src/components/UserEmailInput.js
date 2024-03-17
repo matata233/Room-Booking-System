@@ -30,9 +30,7 @@ const UserEmailInput = () => {
     (user) => user.email !== userInfo.email,
   ); // Filter out the current user's email
 
-  const selectedAttendees = useSelector(
-    (state) => state.booking.ungroupedAttendees,
-  );
+  const { ungroupedAttendees } = useSelector((state) => state.booking);
 
   const handleChange = (selected) => {
     const selectedAttendees = selected.map((option) => ({
@@ -52,10 +50,6 @@ const UserEmailInput = () => {
       <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
         <div className="relative">
           <Select
-            value={selectedAttendees.map((attendee) => ({
-              value: attendee.userId,
-              label: attendee.email,
-            }))}
             closeMenuOnSelect={false}
             components={animatedComponents}
             isMulti

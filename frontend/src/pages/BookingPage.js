@@ -14,6 +14,7 @@ import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
+import LoggedInUserGroup from "../components/LoggedInUserGroup";
 import {
   resetBooking,
   setUngroupedAttendees,
@@ -78,37 +79,68 @@ const BookingPage = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      const startDateTime = new Date(
-        `${startDate}T${startTime}:00.000Z`,
-      ).toISOString();
-      const endDateTime = new Date(
-        `${startDate}T${endTime}:00.000Z`,
-      ).toISOString();
-      const attendeeEmails = ungroupedAttendees.map(
-        (attendee) => attendee.email,
-      );
-      const allAttendees = [...attendeeEmails, userInfo.email];
-      const equipmentCodes = equipments.map((equip) => equip.id);
-      const reqBody = {
-        startTime: startDateTime,
-        endTime: endDateTime,
-        attendees: allAttendees,
-        equipments: equipmentCodes,
-        priority: [], // TODO: Update Priority
-      };
-      const availableRooms = await getAvailableRooms(reqBody).unwrap();
 
-      // dispatch(setUngroupedAttendees([]));
-      // dispatch(setSearchOnce(true));
-      dispatch(
-        initializeGroupedAttendees(
-          reorganizeAvailableRooms(availableRooms) || [],
-        ),
-      );
+      // check if the user number <= room number
+      if (!searchOnce) {
+        if (ungroupedAttendees.length + 1 < roomCount) {
+          toast.error(
+            `${roomCount - ungroupedAttendees.length - 1} more attendees are required to book ${roomCount} rooms`,
+          );
+          return;
+        }
+      } else {
+        // calculate the total number of attendees
+        const totalAttendees =
+          groupedAttendees.reduce((acc, current) => {
+            if (Array.isArray(current.attendees)) {
+              return acc + current.attendees.length;
+            }
+            return acc;
+          }, 0) + 1;
+        if (totalAttendees < roomCount) {
+          toast.error(
+            `${roomCount - totalAttendees} more attendees are required to book ${roomCount} rooms`,
+          );
+          return;
+        }
+      }
+
+      if (searchOnce) {
+      } else {
+        handleFirstSearch();
+      }
     } catch (err) {
       toast.error(err?.data?.error || "Failed to get available rooms");
       console.log(err?.data?.error);
     }
+  };
+
+  const handleFirstSearch = async () => {
+    const startDateTime = new Date(
+      `${startDate}T${startTime}:00.000Z`,
+    ).toISOString();
+    const endDateTime = new Date(
+      `${startDate}T${endTime}:00.000Z`,
+    ).toISOString();
+    const attendeeEmails = ungroupedAttendees.map((attendee) => attendee.email);
+    const allAttendees = [...attendeeEmails, userInfo.email];
+    const equipmentCodes = equipments.map((equip) => equip.id);
+    const reqBody = {
+      startTime: startDateTime,
+      endTime: endDateTime,
+      attendees: allAttendees,
+      equipments: equipmentCodes,
+      priority: [], // TODO: Update Priority
+    };
+    const availableRooms = await getAvailableRooms(reqBody).unwrap();
+
+    dispatch(setUngroupedAttendees([]));
+    dispatch(setSearchOnce(true));
+    dispatch(
+      initializeGroupedAttendees(
+        reorganizeAvailableRooms(availableRooms) || [],
+      ),
+    );
   };
 
   const handleReset = () => {
@@ -120,18 +152,18 @@ const BookingPage = () => {
     const transformedResponse = availableRooms.result.groups.map(
       (group, index) => {
         const filteredAttendees = group.attendees.filter(
-          (email) => email !== userInfo.email,
-        ); // Exclude logged-in user
+          (attendee) => attendee.email !== userInfo.email,
+        ); // exclude logged-in user
 
         if (
           group.attendees.length !== filteredAttendees.length &&
           !loggedInUserGroup
         ) {
-          loggedInUserGroup = `group${index + 1}`;
+          loggedInUserGroup = `Group${index + 1}`;
         }
 
         return {
-          groupId: `group${index + 1}`,
+          groupId: `Group${index + 1}`,
           attendees: filteredAttendees,
           rooms: group.rooms,
           selectedRoom: null,
@@ -142,6 +174,14 @@ const BookingPage = () => {
     if (loggedInUserGroup) {
       dispatch(setLoggedInUserGroup(loggedInUserGroup));
     }
+    console.log(loggedInUserGroup);
+
+    transformedResponse.push({
+      groupId: "Ungrouped",
+      attendees: [],
+      rooms: null,
+      selectedRoom: null,
+    });
 
     return transformedResponse;
   };
@@ -183,11 +223,13 @@ const BookingPage = () => {
               <UserEquipInput />
               <h2>Priority</h2>
               <DragAndDrop />
-              {/*  will be uncommented for grouping */}
-              {/* <h2>Number of Rooms </h2>
-              <UserRoomCountInput /> */}
-              {/* {searchOnce ? (
+
+              <h2>Number of Rooms </h2>
+              <UserRoomCountInput />
+              {searchOnce ? (
                 <>
+                  <h2>Your assigned room: </h2>
+                  <LoggedInUserGroup />
                   <h2>Enter user emails by group</h2>
                   <UserEmailGroup />
                 </>
@@ -196,8 +238,7 @@ const BookingPage = () => {
                   <h2>Enter all user emails</h2>
                   <UserEmailInput />
                 </>
-              )} */}
-              <UserEmailInput />
+              )}
               <div className="my-4 flex w-80 justify-center">
                 <button
                   type="submit"

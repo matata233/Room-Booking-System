@@ -9,26 +9,35 @@ import Message from "./Message";
 const UserEmailGroup = () => {
   const dispatch = useDispatch();
   const { data: userEmails, error, isLoading } = useGetAllEmailsQuery();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(0);
+
   const groupedAttendees = useSelector(
     (state) => state.booking.groupedAttendees,
   );
+  const { userInfo } = useSelector((state) => state.auth);
 
   // Aggregate all selected emails across groups
   const allSelectedEmails = useMemo(
-    () => new Set(groupedAttendees.flatMap((group) => group.attendees)),
+    () =>
+      new Set(
+        groupedAttendees.flatMap((group) =>
+          group.attendees.map((attendee) => attendee.email),
+        ),
+      ),
     [groupedAttendees],
   );
 
   const toggle = (index) => {
     setOpen((prevOpen) => (prevOpen === index ? false : index));
   };
-
-  const handleChange = (selected, groupId) => {
-    const selectedAttendees = selected.map((option) => ({
+  const handleChange = (selectedOptions, groupId) => {
+    // selectedOptions is an array of { value, label } objects representing the currently selected items
+    const selectedAttendees = selectedOptions.map((option) => ({
       userId: option.value,
       email: option.label,
     }));
+
+    // Dispatch an action to update the Redux store
     dispatch(setGroupedAttendees({ groupId, attendees: selectedAttendees }));
   };
 
@@ -42,14 +51,17 @@ const UserEmailGroup = () => {
         ) : (
           groupedAttendees.map((group, index) => {
             const initialSelected = group.attendees.map((attendee) => ({
-              value: attendee.id,
+              value: attendee.user_id, // TODO: change after data is updated
               label: attendee.email,
             }));
-
+            // filter out already selected emails and the logged-in user's email
             const availableOptions = userEmails.result
-              .filter((user) => !allSelectedEmails.has(user.email))
+              .filter(
+                (user) =>
+                  !allSelectedEmails.has(user.email) &&
+                  user.email !== userInfo.email,
+              )
               .map((user) => ({ value: user.userId, label: user.email }));
-
             return (
               <div key={group.groupId} className="flex flex-col">
                 <Accordion
@@ -61,6 +73,7 @@ const UserEmailGroup = () => {
                   }
                   options={availableOptions}
                   initialValue={initialSelected}
+                  selectedRoom={group.selectedRoom}
                 />
               </div>
             );
