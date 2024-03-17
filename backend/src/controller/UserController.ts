@@ -7,7 +7,6 @@ import UserDTO from "../model/dto/UserDTO";
 import CityDTO from "../model/dto/CityDTO";
 import BuildingDTO from "../model/dto/BuildingDTO";
 import {role} from "@prisma/client";
-import BuildingService from "../service/BuildingService";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
@@ -135,7 +134,7 @@ export default class UserController extends AbstractController {
         const userID: number = parseInt(req.params.id);
         try {
             const currentUser = await this.userService.getById(userID);
-            if (!currentUser) {
+            if (!currentUser && typeof userID !== "number") {
                 return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, "User not found");
             }
             // new user with filled from request body
@@ -148,7 +147,7 @@ export default class UserController extends AbstractController {
             userToUpdateDTO.floor = parseInt(req.body.floor);
             userToUpdateDTO.desk = parseInt(req.body.desk);
             userToUpdateDTO.isActive = req.body.isActive === "true";
-            userToUpdateDTO.role = req.body.role as role;
+            // userToUpdateDTO.role = req.body.role as role;
             userToUpdateDTO.building = new BuildingDTO();
             userToUpdateDTO.building.buildingId = parseInt(req.body.buildingID);
 
