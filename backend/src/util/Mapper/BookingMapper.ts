@@ -89,7 +89,7 @@ const mapAttendeesToDTO = (groups: any) => {
                 ? toRoomDTO(groups.find((group: any) => group.room_id === parseInt(room_id))!.rooms)
                 : null;
         if (roomDTO) {
-            const group: Group = {room: roomDTO, users: roomUsers};
+            const group: Group = {room: roomDTO, attendees: roomUsers};
             result.push(group);
         }
     }

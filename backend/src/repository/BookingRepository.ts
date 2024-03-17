@@ -1,7 +1,7 @@
 import AbstractRepository from "./AbstractRepository";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import {bookings, PrismaClient, users} from "@prisma/client";
+import {PrismaClient, users} from "@prisma/client";
 import {
     BadRequestError,
     NotFoundError,
@@ -92,7 +92,11 @@ export default class BookingRepository extends AbstractRepository {
                 users_bookings: {
                     include: {
                         users: true,
-                        rooms: true
+                        rooms: {
+                            include: {
+                                buildings: true
+                            }
+                        }
                     }
                 }
             }
@@ -108,7 +112,7 @@ export default class BookingRepository extends AbstractRepository {
         end_time: string,
         rooms: string[],
         attendees: number[][]
-    ): Promise<bookings> {
+    ): Promise<BookingDTO> {
         const newBooking = await this.db.$transaction(async (tx) => {
             // TODO: cannot identify which room is not available, start from rooms_bookings table
             const conflictBooking = await tx.bookings.findFirst({
@@ -118,7 +122,7 @@ export default class BookingRepository extends AbstractRepository {
                         {end_time: {gt: start_time}},
                         {status: {not: "canceled"}},
                         {
-                            bookings_rooms: {
+                            users_bookings: {
                                 some: {
                                     room_id: {
                                         in: rooms.map((room) => parseInt(room))
@@ -141,12 +145,7 @@ export default class BookingRepository extends AbstractRepository {
                     created_at: created_at,
                     start_time: start_time,
                     end_time: end_time,
-                    status: "confirmed",
-                    bookings_rooms: {
-                        create: rooms.map((room_id) => ({
-                            room_id: parseInt(room_id)
-                        }))
-                    }
+                    status: "confirmed"
                 }
             });
 
@@ -172,14 +171,14 @@ export default class BookingRepository extends AbstractRepository {
                 where: {booking_id: booking.booking_id},
                 include: {
                     users: true,
-                    bookings_rooms: {
-                        include: {
-                            rooms: true
-                        }
-                    },
                     users_bookings: {
                         include: {
-                            users: true
+                            users: true,
+                            rooms: {
+                                include: {
+                                    buildings: true
+                                }
+                            }
                         }
                     }
                 }
@@ -189,7 +188,8 @@ export default class BookingRepository extends AbstractRepository {
         if (newBooking === null) {
             throw new Error();
         }
-        return newBooking;
+
+        return toBookingDTO(newBooking, newBooking.users, newBooking.users_bookings);
     }
 
     public getSuggestedTimes(
@@ -432,9 +432,9 @@ export default class BookingRepository extends AbstractRepository {
                                                   JOIN buildings b ON ri.building_id = b.building_id
                                          WHERE b.city_id = '${city_id}'
                                            AND b.is_active = TRUE
-                                           AND ri.room_id NOT IN (SELECT br.room_id
-                                                                  FROM bookings_rooms br
-                                                                           JOIN bookings b ON b.booking_id = br.booking_id
+                                           AND ri.room_id NOT IN (SELECT ub.room_id
+                                                                  FROM users_bookings ub
+                                                                           JOIN bookings b ON b.booking_id = ub.booking_id
                                                                   WHERE (b.start_time < '${end_time}' AND b.end_time > '${start_time}')
                                                                     AND b.status != 'canceled'))
                 SELECT buildings.city_id,
