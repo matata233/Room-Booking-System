@@ -135,7 +135,7 @@ export default class BookingController extends AbstractController {
         }
     };
 
-    public update(req: Request, res: Response): Promise<Response> {
+    public update = async (req: Request, res: Response): Promise<Response> => {
         const bookingId: number = parseInt(req.params.id);
         try {
             const currentBooking = this.bookingService.getById(bookingId);
@@ -149,13 +149,38 @@ export default class BookingController extends AbstractController {
             bookingToUpdateDTO.startTime = new Date(req.body.startTime);
             bookingToUpdateDTO.endTime = new Date(req.body.endTime);
             bookingToUpdateDTO.status = req.body.status;
-            // these fields are added based on request from frontend
-            const userCreatedBooking = new UserDTO();
-            userCreatedBooking.userId = req.body.createdBy;
-            bookingToUpdateDTO.users = userCreatedBooking;
-            const groups: Group[] = [];
+            // create an array of UserDTOs for each group of participants
+            bookingToUpdateDTO.userDTOs = []
+            for (const group of req.body.users) { // note: req.body.users is 2D array of user IDs
+                const groupUserDTO = [];
+                for (const participantID of group) {
+                    const participant = new UserDTO();
+                    participant.userId = participantID;
+                    groupUserDTO.push(participant);
+                }
+                bookingToUpdateDTO.userDTOs.push(groupUserDTO);
+            }
+            // create an array of RoomDTOs
+            bookingToUpdateDTO.roomDTOs = [];
+            for (const roomID of req.body.rooms) {
+                const room = new RoomDTO();
+                room.roomId = roomID;
+                bookingToUpdateDTO.roomDTOs.push(room);
+            }
+            const updatedBooking = await this.bookingService.update(bookingId, bookingToUpdateDTO);
+            return super.onResolve(res, updatedBooking);
+        } catch (error: unknown) {
+            if (error instanceof BadRequestError || error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while updating the booking."
+                );
+            }
         }
-    }
+    };
 
     public getSuggestedTimes = async (req: Request, res: Response): Promise<Response> => {
         const start_time = req.body.start_time;
