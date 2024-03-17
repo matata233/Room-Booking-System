@@ -48,15 +48,15 @@ describe("Booking tests", () => {
         status: "confirmed",
         users: {
             building_id: 1,
-            desk: 105,
-            email: "bbrown5888@example.com",
-            first_name: "Bob",
+            desk: 100,
+            email: "YVR32_01_1@aws.ca",
+            first_name: "YVR32_01_1",
             floor: 1,
             is_active: true,
-            last_name: "Brown",
+            last_name: "YVR32_01_1",
             role: "staff",
             user_id: 1,
-            username: "bbrown5888"
+            username: "YVR32_01_1"
         },
         users_bookings: [
             {
@@ -65,32 +65,32 @@ describe("Booking tests", () => {
                 user_id: 1,
                 users: {
                     building_id: 1,
-                    desk: 105,
-                    email: "bbrown5888@example.com",
-                    first_name: "Bob",
+                    desk: 100,
+                    email: "YVR32_01_1@aws.ca",
+                    first_name: "YVR32_01_1",
                     floor: 1,
                     is_active: true,
-                    last_name: "Brown",
+                    last_name: "YVR32_01_1",
                     role: "staff",
                     user_id: 1,
-                    username: "bbrown5888"
+                    username: "YVR32_01_1"
                 }
             },
             {
                 booking_id: 5,
                 room_id: 1,
-                user_id: 2,
+                user_id: 6,
                 users: {
                     building_id: 2,
-                    desk: 101,
-                    email: "cdavis1530@example.com",
-                    first_name: "Charlie",
+                    desk: 100,
+                    email: "YVR41_01_1@aws.ca",
+                    first_name: "YVR41_01_1",
                     floor: 1,
-                    is_active: false,
-                    last_name: "Davis",
-                    role: "admin",
-                    user_id: 2,
-                    username: "cdavis1530"
+                    is_active: true,
+                    last_name: "YVR41_01_1",
+                    role: "staff",
+                    user_id: 6,
+                    username: "YVR41_01_1"
                 }
             }
         ]
@@ -106,10 +106,10 @@ describe("Booking tests", () => {
         basicBooking.endTime = new Date("2025-01-01T15:00:00");
         const user1 = new UserDTO();
         user1.userId = basicBooking.createdBy;
-        user1.email = "bbrown5888@example.com";
+        user1.email = "YVR32_01_1@aws.ca";
         const user2 = new UserDTO();
-        user2.userId = 2;
-        user2.email = "cdavis1530@example.com";
+        user2.userId = 6;
+        user2.email = "YVR41_01_1@aws.ca";
         basicBooking.userDTOs = [[user1, user2]];
         const room = new RoomDTO();
         room.roomId = 1;
@@ -128,22 +128,21 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                ["team7awsome01@gmail.com", "team7awsomeuser01@gmail.com", "hsiangyi1025@gmail.com"],
-                ["AV", "VC"],
-                []
+                ["YVR32_01_1@aws.ca", "team7awsome01@gmail.com", "team7awsomeuser01@gmail.com", "hsiangyi1025@gmail.com"],
+                ["VC"],
+                ["seats", "equipments", "distance"]
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(283);
         });
 
-
         it("room count check YVR", async () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                ["bbrown5888@example.com"],
+                ["YVR32_01_1@aws.ca"],
                 ["AV", "VC"],
-                []
+                ["distance", "seats", "equipments"]
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(283);
@@ -154,9 +153,9 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 "2024-03-26T19:00:00.000Z",
                 "2024-03-26T20:00:00.000Z",
-                ["bbrown5888@example.com"],
+                ["YVR32_01_1@aws.ca"],
                 ["AV", "VC"],
-                []
+                ["distance", "seats", "equipments"]
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(281);
@@ -166,9 +165,9 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                ["hgarcia1209@example.com"],
+                ["YUL22_01_1@aws.ca"],
                 ["AV", "VC"],
-                []
+                ["distance", "seats", "equipments"]
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(10);
@@ -179,9 +178,9 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                ["djohnson5652@example.com"],
+                ["YVR74_01_1@aws.ca"],
                 ["AV", "VC"],
-                []
+                ["distance", "seats", "equipments"]
             );
             expect(result).to.exist;
         });
@@ -222,7 +221,7 @@ describe("Booking tests", () => {
                 basicBooking.endTime!.toISOString(),
                 [basicBooking.userDTOs![0][0].email!],
                 ["AV", "VC"],
-                []
+                ["distance", "seats", "equipments"]
             );
             expect(result).to.exist;
         });
