@@ -68,8 +68,48 @@ export default class BookingService extends AbstractService {
         );
     }
 
-    public update(id: number, dto: BookingDTO): Promise<BookingDTO> {
-        return Promise.reject("Not Implemented");
+    public async update(id: number, dto: BookingDTO): Promise<BookingDTO> {
+        if (!dto.createdBy || typeof dto.createdBy !== "number") {
+            throw new BadRequestError("Invalid creator ID");
+        }
+        if (!dto.startTime || dto.startTime.toString() === "Invalid Date") {
+            throw new BadRequestError("Invalid start time");
+        }
+        if (!dto.endTime || dto.endTime.toString() === "Invalid Date") {
+            throw new BadRequestError("Invalid end time");
+        }
+        if (dto.endTime <= dto.startTime) {
+            throw new BadRequestError("Invalid end time");
+        }
+        if (!dto.userDTOs || dto.userDTOs.length === 0) {
+            throw new BadRequestError("Invalid participant groups");
+        }
+        for (const participantGroup of dto.userDTOs) {
+            if (!participantGroup || participantGroup.length === 0) {
+                throw new BadRequestError("Invalid participant group");
+            }
+            for (const participantUsername of participantGroup) {
+                if (
+                    !participantUsername ||
+                    !participantUsername.userId ||
+                    typeof participantUsername.userId !== "number"
+                ) {
+                    throw new BadRequestError("Invalid participant");
+                }
+            }
+        }
+        if (!dto.roomDTOs || dto.roomDTOs.length === 0) {
+            throw new BadRequestError("Invalid rooms");
+        }
+        for (const room of dto.roomDTOs) {
+            if (!room || typeof room.roomId !== "number") {
+                throw new BadRequestError("Invalid rooms");
+            }
+        }
+        if (dto.roomDTOs.length !== dto.userDTOs.length) {
+            throw new BadRequestError("Number of rooms must be equal to number of participant groups");
+        }
+        return this.bookingRepository.update(id, dto);
     }
 
     public getSuggestedTimes(

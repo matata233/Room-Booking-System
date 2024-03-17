@@ -1,7 +1,7 @@
 import AbstractRepository from "./AbstractRepository";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import {bookings, PrismaClient, users} from "@prisma/client";
+import {bookings, PrismaClient, status, users} from "@prisma/client";
 import {
     BadRequestError,
     NotFoundError,
@@ -190,6 +190,56 @@ export default class BookingRepository extends AbstractRepository {
             throw new Error();
         }
         return newBooking;
+    }
+
+    public async update(id: number, dto: BookingDTO): Promise<BookingDTO> {
+        const newBooking = await this.db.$transaction(async (tx) => {
+            // check the new updated booking time has no room conflict
+            const conflictBooking = await tx.bookings.findFirst({
+                where: {
+                    AND: [
+                        {start_time: {lt: dto.endTime}},
+                        {end_time: {gt: dto.startTime}},
+                        {
+                            bookings_rooms: {
+                                some: {
+                                    room_id: {
+                                        in: dto.roomDTOs!.map((room) => room.roomId!)
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            });
+
+            if (conflictBooking !== null) {
+                throw new RequestConflictError("Room is unavailable in this timeslot");
+            }
+
+            const updatedBooking = await tx.bookings.update({
+                where: {
+                    booking_id: id
+                },
+                data: {
+                    created_by: dto.createdBy!,
+                    start_time: dto.startTime!.toISOString(),
+                    end_time: dto.endTime!.toISOString(),
+                    status: dto.status as status
+                }
+            });
+
+            const 
+            // update buildings_rooms
+            await tx.bookings_rooms.update({
+                where: {
+                    booking_id: id
+                },
+                data: {
+                    room_id: dto.roomDTOs!.map((room) => room.roomId!)
+                }
+            });
+        });
     }
 
     public getSuggestedTimes(

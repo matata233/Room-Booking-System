@@ -91,7 +91,6 @@ export default class BookingController extends AbstractController {
 
             dto.startTime = new Date(req.body.startTime!);
             dto.endTime = new Date(req.body.endTime!);
-            
             dto.userDTOs = [];
             // create an array of UserDTOs for each group of participants
             for (const group of req.body.users) {
@@ -135,6 +134,11 @@ export default class BookingController extends AbstractController {
         }
     };
 
+    /*
+    params from frontend for update:
+    - bookingId: number; createdBy: number; startTime: Date; endTime: Date; status: string;
+    - users: number[][]; rooms: number[];
+    */
     public update = async (req: Request, res: Response): Promise<Response> => {
         const bookingId: number = parseInt(req.params.id);
         try {
@@ -150,8 +154,9 @@ export default class BookingController extends AbstractController {
             bookingToUpdateDTO.endTime = new Date(req.body.endTime);
             bookingToUpdateDTO.status = req.body.status;
             // create an array of UserDTOs for each group of participants
-            bookingToUpdateDTO.userDTOs = []
-            for (const group of req.body.users) { // note: req.body.users is 2D array of user IDs
+            bookingToUpdateDTO.userDTOs = [];
+            for (const group of req.body.users) {
+                // note: req.body.users is 2D array of user IDs
                 const groupUserDTO = [];
                 for (const participantID of group) {
                     const participant = new UserDTO();
