@@ -60,6 +60,8 @@ app.get(`${endpoint}/users/all-email`, userController.getAllEmail);
 app.get(`${endpoint}/users/email`, userController.getByEmail); // register order matter in express
 app.get(`${endpoint}/users/:id`, userController.getById);
 app.post(`${endpoint}/users/create`, userController.create);
+app.post(`${endpoint}/users/csv/upload`, userController.upload);
+// app.post(`${endpoint}/users/csv-download`, userController.download);
 app.put(`${endpoint}/users/update/:id`, userController.update);
 
 // Booking route
@@ -149,4 +151,5 @@ app.get(`${endpoint}/events/:id`, eventController.getById);
 app.post(`${endpoint}/events/create`, eventController.create);
 app.put(`${endpoint}/events/:id`, eventController.update);
 app.delete(`${endpoint}/events/:id`, eventController.delete);
+
 export default app;

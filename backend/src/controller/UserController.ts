@@ -6,10 +6,32 @@ import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 import UserDTO from "../model/dto/UserDTO";
 import CityDTO from "../model/dto/CityDTO";
 import BuildingDTO from "../model/dto/BuildingDTO";
-import {role} from "@prisma/client";
+import multer from "multer";
+import csv from "fast-csv";
+import fs from "fs";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
+
+    // select destination for file upload
+    storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, "./backend");
+        },
+        filename: (req, file, cb) => {
+            cb(null, file.originalname);
+        }
+    });
+
+    csvFilter = (req: any, file: any, cb: any) => {
+        if (file.mimetype.includes("csv")) {
+            cb(null, true);
+        } else {
+            cb("Please upload only csv file.", false);
+        }
+    };
+
+    upload = multer({storage: this.storage}).single("file");
 
     // Constructs a new instance of the UserController class.
     constructor(userService: UserService) {
@@ -191,6 +213,56 @@ export default class UserController extends AbstractController {
                     res,
                     ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
                     "Unexpected error occurred while login."
+                );
+            }
+        }
+    };
+
+    // column names in the CSV file: username, first name, last name, email, building name, floor, desk
+    public upload = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            if (req.file === undefined) {
+                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
+            }
+
+            // import users from CSV file
+            const users: UserDTO[] = [];
+            const path = __dirname + "/../../" + req.file.path;
+            fs.createReadStream(path)
+                .pipe(csv.parse({headers: true}))
+                .on("error", (error) => {
+                    throw error.message;
+                })
+                .on("data", async (row) => {
+                    const username = row.username;
+                    const firstName = row.firstName;
+                    const lastName = row.lastName;
+                    const email = row.email;
+                    const floor = parseInt(row.floor);
+                    const desk = parseInt(row.desk);
+                    const isActive = row.isActive === "true";
+                    const building = row.buildingName;
+                    const uploadedUser = await this.userService.upload(
+                        username,
+                        firstName,
+                        lastName,
+                        email,
+                        floor,
+                        desk,
+                        isActive,
+                        building
+                    );
+                    users.push(uploadedUser);
+                    return super.onResolve(res, users);
+                });
+        } catch (error: unknown) {
+            if (error instanceof UnauthorizedError) {
+                return super.onReject(res, error.code, error.message);
+            } else {
+                return super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while uploading users."
                 );
             }
         }

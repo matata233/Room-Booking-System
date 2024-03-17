@@ -163,4 +163,62 @@ export default class UserRepository extends AbstractRepository {
         const updatedUserDTO = getBuilding ? toUserDTO(updatedUser, getBuilding.cities, getBuilding) : ({} as UserDTO);
         return updatedUserDTO;
     }
+
+    public async upload(
+        userName: string,
+        firstName: string,
+        lastName: string,
+        email: string,
+        floor: number,
+        desk: number,
+        isActive: boolean,
+        cityID: string,
+        buildingCode: number
+    ): Promise<UserDTO> {
+        const buildingID = await this.getBuildingId(cityID, buildingCode);
+
+        const user = await this.db.users.create({
+            data: {
+                username: userName,
+                first_name: firstName,
+                last_name: lastName,
+                email: email,
+                floor: floor,
+                desk: desk,
+                is_active: isActive,
+                role: "staff",
+                building_id: buildingID
+            }
+        });
+
+        const getBuilding = await this.db.buildings.findUnique({
+            where: {
+                building_id: buildingID
+            },
+            include: {
+                cities: true
+            }
+        });
+
+        return getBuilding ? toUserDTO(user, getBuilding.cities, getBuilding) : ({} as UserDTO);
+    }
+
+    private async getBuildingId(city_id: string, code: number): Promise<number> {
+        const building = await this.db.buildings.findUnique({
+            where: {
+                city_id_code: {
+                    city_id: city_id,
+                    code: code,
+                },
+            },
+            select: {
+                building_id: true
+            }
+        });
+
+        if (!building) {
+            return Promise.reject(new NotFoundError(`Building not found with`));
+        }
+        return building.building_id;
+    }
 }
