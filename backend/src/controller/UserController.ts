@@ -261,6 +261,7 @@ export default class UserController extends AbstractController {
 
     // column names in the CSV file: username, first name, last name, email, building name, floor, desk
     public upload = async (req: Request, res: Response): Promise<any> => {
+        console.log("upload accessing");
         if (!req.file?.path) {
             console.error("File path is undefined.");
             return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
