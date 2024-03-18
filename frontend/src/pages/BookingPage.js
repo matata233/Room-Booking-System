@@ -281,7 +281,7 @@ const BookingPage = () => {
           {isLoading ? (
             <Loader />
           ) : error ? (
-            <Message variant="error">{error.message}</Message>
+            <Message severity="error">{error.message}</Message>
           ) : (
             <BookingRoomsDisplay />
           )}
