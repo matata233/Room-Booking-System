@@ -79,15 +79,15 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <StyledEngineProvider injectFirst>
-        <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={null} persistor={persistor}>
+        <StyledEngineProvider injectFirst>
           <GoogleOAuthProvider
             clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
           >
             <RouterProvider router={router} />
           </GoogleOAuthProvider>
-        </PersistGate>
-      </StyledEngineProvider>
+        </StyledEngineProvider>
+      </PersistGate>
     </Provider>
   </React.StrictMode>,
 );

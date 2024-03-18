@@ -6,9 +6,8 @@ import { Link, useLocation } from "react-router-dom";
 const BookingCompletePage = () => {
   const location = useLocation();
   const bookingData = location.state;
-  const roomInfo = bookingData.result.bookings_rooms[0].rooms;
-  const startTime = new Date(bookingData.result.start_time);
-  const endTime = new Date(bookingData.result.end_time);
+  const startTime = new Date(bookingData.result.startTime);
+  const endTime = new Date(bookingData.result.endTime);
 
   const formattedDate = startTime.toISOString().split("T")[0];
   const formattedStartHour = startTime
@@ -24,11 +23,31 @@ const BookingCompletePage = () => {
           <div className="h-100 mx-10 w-1/2 md:w-1/2 lg:w-1/2">
             <h1 className="mb-4 text-xl font-semibold">Booking Confirmation</h1>
             <p className="mb-4">
-              You have successfully booked{" "}
-              <span className="font-bold text-theme-orange">{`Room ${roomInfo.name} ${roomInfo.code}`}</span>{" "}
-              at{" "}
-              <span className="font-bold text-theme-orange">Building 112</span>{" "}
-              !
+              You have successfully booked:{" "}
+              {bookingData.result.groups.map((group, index) => {
+                const { room } = group;
+                const cityId = room.city.cityId;
+                const buildingCode = room.building.code;
+                const roomName = room.roomName;
+                const roomCode = room.roomCode;
+                const floorNumber = room.floorNumber;
+
+                const roomInfo = `${roomName ? roomName : ""}${roomCode}, Floor ${floorNumber.toString().padStart(2, "0")}`;
+                const buildingInfo = `${cityId} ${buildingCode}`;
+
+                return (
+                  <p key={index} className="mb-4">
+                    <span className="font-bold text-theme-orange">
+                      {`Room ${roomInfo}`}
+                    </span>{" "}
+                    at{" "}
+                    <span className="font-bold text-theme-orange">
+                      {`Building ${buildingInfo}`}
+                    </span>
+                    !
+                  </p>
+                );
+              })}
             </p>
             <p className="mb-4">
               <span className="font-bold text-theme-orange">
