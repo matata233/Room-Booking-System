@@ -57,7 +57,7 @@ const router = createBrowserRouter(
           element={<UserManagementAddPage />}
         />
         <Route
-          path="/userManagementEditPage"
+          path="/userManagementEditPage/:id"
           element={<UserManagementEditPage />}
         />
         <Route path="/roomManagementPage" element={<RoomManagementPage />} />
@@ -66,7 +66,7 @@ const router = createBrowserRouter(
           element={<RoomManagementAddPage />}
         />
         <Route
-          path="/roomManagementEditPage"
+          path="/roomManagementEditPage/:id"
           element={<RoomManagementEditPage />}
         />
       </Route>

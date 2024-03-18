@@ -233,13 +233,13 @@ const UserManagementPage = () => {
                       </td>
                       <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
                         <div className="flex justify-start">
-                          <a
-                            href="#"
+                          <Link
+                            to={`/userManagementEditPage/${row.userId}`}
                             className="mr-6 text-indigo-600 hover:text-indigo-900"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <FaEdit className="size-6" />
-                          </a>
+                          </Link>
                           <a
                             href="#"
                             className="text-red-600 hover:text-red-900"
@@ -306,12 +306,13 @@ const UserManagementPage = () => {
                       )}
                     </div>
                     <div className="flex space-x-6">
-                      <button
+                      <Link
+                        to={`/userManagementEditPage/${row.userId}`}
                         className="text-indigo-600 hover:text-indigo-900 "
                         onClick={(e) => e.stopPropagation()}
                       >
                         <FaEdit className="size-5" />
-                      </button>
+                      </Link>
                       <button
                         className="text-red-600 hover:text-red-900"
                         onClick={(e) => e.stopPropagation()}
