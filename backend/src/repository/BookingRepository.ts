@@ -192,54 +192,49 @@ export default class BookingRepository extends AbstractRepository {
         return newBooking;
     }
 
-    public async update(id: number, dto: BookingDTO): Promise<BookingDTO> {
+    public async update(id: number, status: status, attendees: number[][], rooms: number[]): Promise<BookingDTO> {
         const newBooking = await this.db.$transaction(async (tx) => {
-            // check the new updated booking time has no room conflict
-            const conflictBooking = await tx.bookings.findFirst({
-                where: {
-                    AND: [
-                        {start_time: {lt: dto.endTime}},
-                        {end_time: {gt: dto.startTime}},
-                        {
-                            bookings_rooms: {
-                                some: {
-                                    room_id: {
-                                        in: dto.roomDTOs!.map((room) => room.roomId!)
-                                    }
-                                }
+            // for each group of attendees, create a user_booking entry
+            const usersBookings = [];
+            for (let i = 0; i < attendees.length; i++) {
+                const group = attendees[i];
+                const roomId = rooms[i];
+
+                // eslint-disable-next-line no-await-in-loop
+                const groupBookings = await Promise.all(
+                    group.map(async (userId) => {
+                        return await tx.users_bookings.create({
+                            data: {
+                                booking_id: id,
+                                user_id: userId,
+                                room_id: roomId
                             }
-                        }
-                    ]
-                }
-            });
-
-            if (conflictBooking !== null) {
-                throw new RequestConflictError("Room is unavailable in this timeslot");
+                        });
+                    })
+                );
+                usersBookings.push(groupBookings);
             }
-
             const updatedBooking = await tx.bookings.update({
                 where: {
                     booking_id: id
                 },
                 data: {
-                    created_by: dto.createdBy!,
-                    start_time: dto.startTime!.toISOString(),
-                    end_time: dto.endTime!.toISOString(),
-                    status: dto.status as status
-                }
-            });
-
-            const 
-            // update buildings_rooms
-            await tx.bookings_rooms.update({
-                where: {
-                    booking_id: id
-                },
-                data: {
-                    room_id: dto.roomDTOs!.map((room) => room.roomId!)
+                    status: status,
+                    bookings_rooms: {
+                        create: rooms.map((room_id) => ({
+                            room_id: room_id
+                        }))
+                    },
+                    users_bookings: {
+                        createMany: {
+                            data: usersBookings.flat()
+                        }
+                    }
                 }
             });
         });
+        
+        return updatedBooking;
     }
 
     public getSuggestedTimes(

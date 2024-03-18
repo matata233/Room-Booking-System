@@ -2,7 +2,7 @@ import AbstractService from "./AbstractService";
 import BookingDTO from "../model/dto/BookingDTO";
 import BookingRepository from "../repository/BookingRepository";
 import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
-import {bookings} from "@prisma/client";
+import {bookings, status} from "@prisma/client";
 
 export default class BookingService extends AbstractService {
     public bookingRepository: BookingRepository;
@@ -68,7 +68,7 @@ export default class BookingService extends AbstractService {
         );
     }
 
-    public async update(id: number, dto: BookingDTO): Promise<BookingDTO> {
+    public async update(dto: BookingDTO): Promise<BookingDTO> {
         // if (!dto.createdBy || typeof dto.createdBy !== "number") {
         //     throw new BadRequestError("Invalid creator ID");
         // }
@@ -81,6 +81,12 @@ export default class BookingService extends AbstractService {
         // if (dto.endTime <= dto.startTime) {
         //     throw new BadRequestError("Invalid end time");
         // }
+        if (!dto.bookingId || typeof dto.bookingId !== "number") {
+            throw new BadRequestError("Invalid booking ID");
+        }
+        if (!dto.status) {
+            throw new BadRequestError("Invalid status");
+        }
         if (!dto.userDTOs || dto.userDTOs.length === 0) {
             throw new BadRequestError("Invalid participant groups");
         }
@@ -98,18 +104,24 @@ export default class BookingService extends AbstractService {
                 }
             }
         }
-        // if (!dto.roomDTOs || dto.roomDTOs.length === 0) {
-        //     throw new BadRequestError("Invalid rooms");
-        // }
-        // for (const room of dto.roomDTOs) {
-        //     if (!room || typeof room.roomId !== "number") {
-        //         throw new BadRequestError("Invalid rooms");
-        //     }
-        // }
-        // if (dto.roomDTOs.length !== dto.userDTOs.length) {
-        //     throw new BadRequestError("Number of rooms must be equal to number of participant groups");
-        // }
-        return this.bookingRepository.update(id, dto);
+        if (!dto.roomDTOs || dto.roomDTOs.length === 0) {
+            throw new BadRequestError("Invalid rooms");
+        }
+        for (const room of dto.roomDTOs) {
+            if (!room || typeof room.roomId !== "number") {
+                throw new BadRequestError("Invalid rooms");
+            }
+        }
+        // compare the number of rooms and participant groups
+        if (dto.roomDTOs.length !== dto.userDTOs.length) {
+            throw new BadRequestError("Number of rooms must be equal to number of participant groups");
+        }
+        return this.bookingRepository.update(
+            dto.bookingId,
+            dto.status as status,
+            dto.userDTOs.map((group) => group.map((entry) => Number(entry.userId!))!),
+            dto.roomDTOs.map((entry) => Number(entry.roomId))!
+        );
     }
 
     public getSuggestedTimes(

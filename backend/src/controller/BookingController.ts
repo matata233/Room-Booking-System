@@ -13,6 +13,7 @@ import {
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 import {authenticator} from "../App";
+import { status } from "@prisma/client";
 
 export default class BookingController extends AbstractController {
     private bookingService: BookingService;
@@ -136,7 +137,7 @@ export default class BookingController extends AbstractController {
 
     /*
     params from frontend for update:
-    - bookingId: number; status: string; users: number[][];
+    - bookingId: number; status: string; users: number[][]; rooms: number[];
     */
     public update = async (req: Request, res: Response): Promise<Response> => {
         const bookingId: number = parseInt(req.params.id);
@@ -151,7 +152,7 @@ export default class BookingController extends AbstractController {
             // bookingToUpdateDTO.createdBy = req.body.createdBy;
             // bookingToUpdateDTO.startTime = new Date(req.body.startTime);
             // bookingToUpdateDTO.endTime = new Date(req.body.endTime);
-            bookingToUpdateDTO.status = req.body.status;
+            bookingToUpdateDTO.status = req.body.status as status;
             // create an array of UserDTOs for each group of participants
             bookingToUpdateDTO.userDTOs = [];
             for (const group of req.body.users) {
@@ -165,13 +166,13 @@ export default class BookingController extends AbstractController {
                 bookingToUpdateDTO.userDTOs.push(groupUserDTO);
             }
             // create an array of RoomDTOs
-            // bookingToUpdateDTO.roomDTOs = [];
-            // for (const roomID of req.body.rooms) {
-            //     const room = new RoomDTO();
-            //     room.roomId = roomID;
-            //     bookingToUpdateDTO.roomDTOs.push(room);
-            // }
-            const updatedBooking = await this.bookingService.update(bookingId, bookingToUpdateDTO);
+            bookingToUpdateDTO.roomDTOs = [];
+            for (const roomID of req.body.rooms) {
+                const room = new RoomDTO();
+                room.roomId = roomID;
+                bookingToUpdateDTO.roomDTOs.push(room);
+            }
+            const updatedBooking = await this.bookingService.update(bookingToUpdateDTO);
             return super.onResolve(res, updatedBooking);
         } catch (error: unknown) {
             if (error instanceof BadRequestError || error instanceof UnauthorizedError) {
