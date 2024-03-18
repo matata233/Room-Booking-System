@@ -33,6 +33,7 @@ const initialState = {
   },
   selectedRoom: null,
   searchOnce: false,
+  loading: false,
 };
 
 export const bookingSlice = createSlice({
@@ -64,15 +65,9 @@ export const bookingSlice = createSlice({
     },
     setGroupedAttendees: (state, action) => {
       const { groupId, attendees } = action.payload;
-      const updatedGroupedAttendees = state.groupedAttendees.map((group) => {
-        if (group.groupId === groupId) {
-          return {
-            ...group,
-            attendees: [...attendees],
-          };
-        }
-        return group;
-      });
+      const updatedGroupedAttendees = state.groupedAttendees.map((group) =>
+        group.groupId === groupId ? { ...group, attendees: attendees } : group,
+      );
       state.groupedAttendees = updatedGroupedAttendees;
     },
     initializeGroupedAttendees: (state, action) => {
@@ -93,6 +88,12 @@ export const bookingSlice = createSlice({
     setSelectedRoom: (state, action) => {
       state.selectedRoom = action.payload;
     },
+    startLoading: (state) => {
+      state.loading = true;
+    },
+    stopLoading: (state) => {
+      state.loading = false;
+    },
     resetBooking: (state) => (state = initialState),
   },
 });
@@ -112,6 +113,8 @@ export const {
   setLoggedInUserGroup,
   setSelectedRoom,
   resetBooking,
+  startLoading,
+  stopLoading,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

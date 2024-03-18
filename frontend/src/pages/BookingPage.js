@@ -21,6 +21,8 @@ import {
   initializeGroupedAttendees,
   setLoggedInUserGroup,
   setSelectedRoom,
+  startLoading,
+  stopLoading,
 } from "../slices/bookingSlice";
 import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
@@ -46,6 +48,7 @@ const BookingPage = () => {
     groupedAttendees,
     ungroupedAttendees,
     searchOnce,
+    loading,
   } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -79,7 +82,7 @@ const BookingPage = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-
+      dispatch(startLoading());
       // check if the user number <= room number
       if (!searchOnce) {
         if (ungroupedAttendees.length + 1 < roomCount) {
@@ -140,6 +143,8 @@ const BookingPage = () => {
     } catch (err) {
       toast.error(err?.data?.error || "Failed to get available rooms");
       console.log(err?.data?.error);
+    } finally {
+      dispatch(stopLoading());
     }
   };
 
@@ -240,12 +245,16 @@ const BookingPage = () => {
               <h2>Number of Rooms </h2>
               <UserRoomCountInput />
               {searchOnce ? (
-                <>
-                  <h2>Your assigned room: </h2>
-                  <LoggedInUserGroup />
-                  <h2>Enter user emails by group</h2>
-                  <UserEmailGroup />
-                </>
+                loading ? (
+                  <Loader />
+                ) : (
+                  <>
+                    <h2>Your assigned room: </h2>
+                    <LoggedInUserGroup />
+                    <h2>Enter user emails by group</h2>
+                    <UserEmailGroup />
+                  </>
+                )
               ) : (
                 <>
                   <h2>Enter all user emails</h2>

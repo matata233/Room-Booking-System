@@ -25,6 +25,8 @@ const UserEmailGroup = () => {
     [groupedAttendees],
   );
 
+  console.log(allSelectedEmails, groupedAttendees);
+
   const toggle = (index) => {
     setOpen((prevOpen) => (prevOpen === index ? false : index));
   };
