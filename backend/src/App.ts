@@ -65,7 +65,7 @@ app.post(`${endpoint}/users/create`, userController.create);
 app.put(`${endpoint}/users/update/:id`, userController.update);
 
 // file will be saved in backend/ folder
-const uploadDir = path.join(__dirname, "uploads");
+const uploadDir = path.join(__dirname, "uploadedCSV");
 const upload = multer({dest: uploadDir});
 app.post(`${endpoint}/users/upload`, upload.single(`file`), userController.upload);
 

@@ -197,71 +197,8 @@ export default class UserController extends AbstractController {
         }
     };
 
-    // // column names in the CSV file: username, first name, last name, email, building name, floor, desk
-    // public upload = async (req: Request, res: Response): Promise<Response> => {
-    //     // select destination for file upload
-    //     const storage = multer.diskStorage({
-    //         destination: (req, file, cb) => {
-    //             cb(null, "./backend");
-    //         },
-    //         filename: (req, file, cb) => {
-    //             cb(null, file.originalname);
-    //         }
-    //     });
-
-    //     const upload = multer({storage: storage}).single("file");
-
-    //     try {
-    //         if (req.file === undefined) {
-    //             return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
-    //         }
-
-    //         // import users from CSV file
-    //         const users: UserDTO[] = [];
-    //         const path = __dirname + "/../../" + upload;
-    //         fs.createReadStream(path)
-    //             .pipe(csv.parse({headers: true}))
-    //             .on("error", (error) => {
-    //                 throw error.message;
-    //             })
-    //             .on("data", async (row) => {
-    //                 const username = row.username;
-    //                 const firstName = row.firstName;
-    //                 const lastName = row.lastName;
-    //                 const email = row.email;
-    //                 const floor = parseInt(row.floor);
-    //                 const desk = parseInt(row.desk);
-    //                 const isActive = row.isActive === "true";
-    //                 const building = row.buildingName;
-    //                 const uploadedUser = await this.userService.upload(
-    //                     username,
-    //                     firstName,
-    //                     lastName,
-    //                     email,
-    //                     floor,
-    //                     desk,
-    //                     isActive,
-    //                     building
-    //                 );
-    //                 users.push(uploadedUser);
-    //                 return super.onResolve(res, users);
-    //             });
-    //     } catch (error: unknown) {
-    //         if (error instanceof UnauthorizedError) {
-    //             return super.onReject(res, error.code, error.message);
-    //         } else {
-    //             return super.onReject(
-    //                 res,
-    //                 ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-    //                 "An error occurred while uploading users."
-    //             );
-    //         }
-    //     }
-    // };
-
-    // column names in the CSV file: username, first name, last name, email, building name, floor, desk
+    //column names in the CSV file: username, first name, last name, email, building name, floor, desk
     public upload = async (req: Request, res: Response): Promise<any> => {
-        console.log("upload accessing");
         if (!req.file?.path) {
             console.error("File path is undefined.");
             return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
@@ -269,39 +206,43 @@ export default class UserController extends AbstractController {
 
         const filePath = req.file.path;
 
-        const record: any[] = [];
+        const processingPromises: Promise<UserDTO>[] = [];
+
         fs.createReadStream(filePath)
-            .pipe(csv())
-            .on("data", (data) => record.push(data))
+            .pipe(csv({headers: true}))
+            .on("data", (row) => {
+                const processingPromise = (async () => {
+                    const username = row._0;
+                    const firstName = row._1;
+                    const lastName = row._2;
+                    const email = row._3;
+                    const building = row._4;
+                    const floor = parseInt(row._5);
+                    const desk = parseInt(row._6);
+                    const isActive = row._7 === "TRUE";
+                    return await this.userService.upload(
+                        username,
+                        firstName,
+                        lastName,
+                        email,
+                        building,
+                        floor,
+                        desk,
+                        isActive
+                    );
+                })();
+                processingPromises.push(processingPromise);
+            })
             .on("end", async () => {
                 try {
-                    const uploadPromises = record.map((row) => {
-                        const username = row.username;
-                        const firstName = row.firstName;
-                        const lastName = row.lastName;
-                        const email = row.email;
-                        const floor = parseInt(row.floor);
-                        const desk = parseInt(row.desk);
-                        const isActive = row.isActive === "true";
-                        const building = row.buildingName;
-                        return this.userService.upload(
-                            username,
-                            firstName,
-                            lastName,
-                            email,
-                            floor,
-                            desk,
-                            isActive,
-                            building
-                        );
-                    });
-                    const recordedUsers = await Promise.all(uploadPromises);
-                    super.onResolve(res, recordedUsers);
-                } catch (error: unknown) {
+                    const users = await Promise.all(processingPromises);
+                    super.onResolve(res, users);
+                } catch (error) {
+                    console.error("An error occurred while uploading users:", error);
                     if (error instanceof UnauthorizedError) {
-                        return super.onReject(res, error.code, error.message);
+                        super.onReject(res, error.code, error.message);
                     } else {
-                        return super.onReject(
+                        super.onReject(
                             res,
                             ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
                             "An error occurred while uploading users."
@@ -311,7 +252,7 @@ export default class UserController extends AbstractController {
             })
             .on("error", (error) => {
                 console.error("Error reading the CSV file:", error);
-                return super.onReject(
+                super.onReject(
                     res,
                     ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
                     "An error occurred while reading the CSV file."

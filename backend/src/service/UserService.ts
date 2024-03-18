@@ -55,10 +55,10 @@ export default class UserService extends AbstractService {
         firstName: string,
         lastName: string,
         email: string,
+        building: string,
         floor: number,
         desk: number,
-        isActive: boolean,
-        building: string
+        isActive: boolean
     ): Promise<UserDTO> {
         if (!username && typeof username !== "string") {
             throw new BadRequestError("Invalid username");
@@ -78,7 +78,7 @@ export default class UserService extends AbstractService {
         if (!desk && typeof desk !== "number") {
             throw new BadRequestError("Invalid desk");
         }
-        if (!isActive && typeof isActive !== "string") {
+        if (!isActive && typeof isActive !== "boolean") {
             throw new BadRequestError("Invalid isActive");
         }
         if (!building && typeof building !== "string") {

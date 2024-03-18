@@ -183,11 +183,11 @@ export default class UserRepository extends AbstractRepository {
                 first_name: firstName,
                 last_name: lastName,
                 email: email,
+                building_id: buildingID,
                 floor: floor,
                 desk: desk,
-                is_active: isActive,
                 role: "staff",
-                building_id: buildingID
+                is_active: isActive
             }
         });
 
@@ -203,7 +203,6 @@ export default class UserRepository extends AbstractRepository {
         if (!getBuilding) {
             return Promise.reject(new NotFoundError(`Building not found`));
         }
-
         return toUserDTO(user, getBuilding.cities, getBuilding);
     }
 
