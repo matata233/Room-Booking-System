@@ -176,11 +176,11 @@ const BookingPage = () => {
   };
 
   const allGroupsHaveSelectedRoom =
-    groupedAttendees.every(
-      (group) => group.groupId === "Ungrouped" || group.selectedRoom != null,
+    groupedAttendees.every((group) =>
+      group.groupId !== "Ungrouped"
+        ? group.selectedRoom != null
+        : group.attendees.length === 0,
     ) && loggedInUser.selectedRoom != null;
-
-  console.log("allGroupsHaveSelectedRoom", allGroupsHaveSelectedRoom);
 
   const handleSubmit = () => {
     navigate("/bookingReview");

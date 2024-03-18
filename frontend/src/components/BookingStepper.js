@@ -22,27 +22,27 @@ const BookingStepper = ({ currentStage }) => {
   const steps = ["Login", "Booking", "Review", "Complete"];
   const [activeStep, setActiveStep] = React.useState(currentStage);
 
-  const handleStepClick = (step) => {
-    if (step <= activeStep) {
-      setActiveStep(step);
-      if (step === 0) {
-        navigate("/login");
-      } else if (step === 1) {
-        navigate("/booking");
-      } else if (step === 2) {
-        navigate("/bookingReview");
-      } else if (step === 3) {
-        navigate("/bookingComplete");
-      }
-    }
-  };
+  // const handleStepClick = (step) => {
+  //   if (step <= activeStep) {
+  //     setActiveStep(step);
+  //     if (step === 0) {
+  //       navigate("/login");
+  //     } else if (step === 1) {
+  //       navigate("/booking");
+  //     } else if (step === 2) {
+  //       navigate("/bookingReview");
+  //     } else if (step === 3) {
+  //       navigate("/bookingComplete");
+  //     }
+  //   }
+  // };
 
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ width: "100%" }}>
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label, index) => (
-            <Step key={label} onClick={() => handleStepClick(index)}>
+            <Step key={label}>
               <StepLabel
                 sx={{
                   "& .MuiStepLabel-label": {
@@ -62,13 +62,6 @@ const BookingStepper = ({ currentStage }) => {
                     position: "relative",
                     transition: "transform 0.5s",
                     zIndex: 1,
-                    "&:hover":
-                      index <= activeStep
-                        ? {
-                            transform: "scale(1.2)",
-                            cursor: "pointer",
-                          }
-                        : {},
                   },
                   "& .MuiStepIcon-root.Mui-active": {
                     marginTop: matches ? "-10px" : "-15px",
