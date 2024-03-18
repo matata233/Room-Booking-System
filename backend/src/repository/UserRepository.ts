@@ -200,7 +200,11 @@ export default class UserRepository extends AbstractRepository {
             }
         });
 
-        return getBuilding ? toUserDTO(user, getBuilding.cities, getBuilding) : ({} as UserDTO);
+        if (!getBuilding) {
+            return Promise.reject(new NotFoundError(`Building not found`));
+        }
+
+        return toUserDTO(user, getBuilding.cities, getBuilding);
     }
 
     private async getBuildingId(city_id: string, code: number): Promise<number> {
@@ -208,8 +212,8 @@ export default class UserRepository extends AbstractRepository {
             where: {
                 city_id_code: {
                     city_id: city_id,
-                    code: code,
-                },
+                    code: code
+                }
             },
             select: {
                 building_id: true

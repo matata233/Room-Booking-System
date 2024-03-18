@@ -6,32 +6,11 @@ import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 import UserDTO from "../model/dto/UserDTO";
 import CityDTO from "../model/dto/CityDTO";
 import BuildingDTO from "../model/dto/BuildingDTO";
-import multer from "multer";
-import csv from "fast-csv";
 import fs from "fs";
+import csv from "csv-parser";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
-
-    // select destination for file upload
-    storage = multer.diskStorage({
-        destination: (req, file, cb) => {
-            cb(null, "./backend");
-        },
-        filename: (req, file, cb) => {
-            cb(null, file.originalname);
-        }
-    });
-
-    csvFilter = (req: any, file: any, cb: any) => {
-        if (file.mimetype.includes("csv")) {
-            cb(null, true);
-        } else {
-            cb("Please upload only csv file.", false);
-        }
-    };
-
-    upload = multer({storage: this.storage}).single("file");
 
     // Constructs a new instance of the UserController class.
     constructor(userService: UserService) {
@@ -218,53 +197,124 @@ export default class UserController extends AbstractController {
         }
     };
 
-    // column names in the CSV file: username, first name, last name, email, building name, floor, desk
-    public upload = async (req: Request, res: Response): Promise<Response> => {
-        try {
-            if (req.file === undefined) {
-                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
-            }
+    // // column names in the CSV file: username, first name, last name, email, building name, floor, desk
+    // public upload = async (req: Request, res: Response): Promise<Response> => {
+    //     // select destination for file upload
+    //     const storage = multer.diskStorage({
+    //         destination: (req, file, cb) => {
+    //             cb(null, "./backend");
+    //         },
+    //         filename: (req, file, cb) => {
+    //             cb(null, file.originalname);
+    //         }
+    //     });
 
-            // import users from CSV file
-            const users: UserDTO[] = [];
-            const path = __dirname + "/../../" + req.file.path;
-            fs.createReadStream(path)
-                .pipe(csv.parse({headers: true}))
-                .on("error", (error) => {
-                    throw error.message;
-                })
-                .on("data", async (row) => {
-                    const username = row.username;
-                    const firstName = row.firstName;
-                    const lastName = row.lastName;
-                    const email = row.email;
-                    const floor = parseInt(row.floor);
-                    const desk = parseInt(row.desk);
-                    const isActive = row.isActive === "true";
-                    const building = row.buildingName;
-                    const uploadedUser = await this.userService.upload(
-                        username,
-                        firstName,
-                        lastName,
-                        email,
-                        floor,
-                        desk,
-                        isActive,
-                        building
-                    );
-                    users.push(uploadedUser);
-                    return super.onResolve(res, users);
-                });
-        } catch (error: unknown) {
-            if (error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
+    //     const upload = multer({storage: storage}).single("file");
+
+    //     try {
+    //         if (req.file === undefined) {
+    //             return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
+    //         }
+
+    //         // import users from CSV file
+    //         const users: UserDTO[] = [];
+    //         const path = __dirname + "/../../" + upload;
+    //         fs.createReadStream(path)
+    //             .pipe(csv.parse({headers: true}))
+    //             .on("error", (error) => {
+    //                 throw error.message;
+    //             })
+    //             .on("data", async (row) => {
+    //                 const username = row.username;
+    //                 const firstName = row.firstName;
+    //                 const lastName = row.lastName;
+    //                 const email = row.email;
+    //                 const floor = parseInt(row.floor);
+    //                 const desk = parseInt(row.desk);
+    //                 const isActive = row.isActive === "true";
+    //                 const building = row.buildingName;
+    //                 const uploadedUser = await this.userService.upload(
+    //                     username,
+    //                     firstName,
+    //                     lastName,
+    //                     email,
+    //                     floor,
+    //                     desk,
+    //                     isActive,
+    //                     building
+    //                 );
+    //                 users.push(uploadedUser);
+    //                 return super.onResolve(res, users);
+    //             });
+    //     } catch (error: unknown) {
+    //         if (error instanceof UnauthorizedError) {
+    //             return super.onReject(res, error.code, error.message);
+    //         } else {
+    //             return super.onReject(
+    //                 res,
+    //                 ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+    //                 "An error occurred while uploading users."
+    //             );
+    //         }
+    //     }
+    // };
+
+    // column names in the CSV file: username, first name, last name, email, building name, floor, desk
+    public upload = async (req: Request, res: Response): Promise<any> => {
+        if (!req.file?.path) {
+            console.error("File path is undefined.");
+            return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
+        }
+
+        const filePath = req.file.path;
+
+        const record: any[] = [];
+        fs.createReadStream(filePath)
+            .pipe(csv())
+            .on("data", (data) => record.push(data))
+            .on("end", async () => {
+                try {
+                    const uploadPromises = record.map((row) => {
+                        const username = row.username;
+                        const firstName = row.firstName;
+                        const lastName = row.lastName;
+                        const email = row.email;
+                        const floor = parseInt(row.floor);
+                        const desk = parseInt(row.desk);
+                        const isActive = row.isActive === "true";
+                        const building = row.buildingName;
+                        return this.userService.upload(
+                            username,
+                            firstName,
+                            lastName,
+                            email,
+                            floor,
+                            desk,
+                            isActive,
+                            building
+                        );
+                    });
+                    const recordedUsers = await Promise.all(uploadPromises);
+                    super.onResolve(res, recordedUsers);
+                } catch (error: unknown) {
+                    if (error instanceof UnauthorizedError) {
+                        return super.onReject(res, error.code, error.message);
+                    } else {
+                        return super.onReject(
+                            res,
+                            ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                            "An error occurred while uploading users."
+                        );
+                    }
+                }
+            })
+            .on("error", (error) => {
+                console.error("Error reading the CSV file:", error);
                 return super.onReject(
                     res,
                     ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while uploading users."
+                    "An error occurred while reading the CSV file."
                 );
-            }
-        }
+            });
     };
 }
