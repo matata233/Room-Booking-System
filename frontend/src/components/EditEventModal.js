@@ -5,7 +5,9 @@ import dayjs from "dayjs";
 const EditEventModal = ({ event, onClose, onUpdate }) => {
   const [updatedTitle, setUpdatedTitle] = useState(event.title);
   const [updatedStartDate, setUpdatedStartDate] = useState(
+    // dayjs(event.startTime).format("YYYY-MM-DD hh:mm A"),
     dayjs(event.startTime).format("YYYY-MM-DD"),
+    // dayjs(event.startTime).format("YYYY-MM-DD"),
   );
   const [updatedEndDate, setUpdatedEndDate] = useState(
     dayjs(event.endTime).format("YYYY-MM-DD"),
@@ -13,20 +15,29 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
   const [updatedStartTime, setUpdatedStartTime] = useState(
     dayjs(event.startTime).format("HH:mm:ss"),
   );
-
   const [updatedEndTime, setUpdatedEndTime] = useState(
     dayjs(event.endTime).format("HH:mm:ss"),
   );
 
-  const handleUpdate = () => {
+  const handleUpdate = (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
+
     const startDateTime = new Date(`${updatedStartDate}T${updatedStartTime}`);
     const endDateTime = new Date(`${updatedEndDate}T${updatedEndTime}`);
+
+    if (
+      dayjs(startDateTime).isAfter(dayjs(endDateTime)) ||
+      dayjs(startDateTime).isSame(dayjs(endDateTime))
+    ) {
+      alert("End time should be later than start time.");
+      return;
+    }
 
     const updatedEvent = {
       eventId: event.eventId,
       title: updatedTitle,
-      startTime: startDateTime,
-      endTime: endDateTime,
+      startTime: startDateTime.toISOString(),
+      endTime: endDateTime.toISOString(),
     };
     onUpdate(updatedEvent);
   };
@@ -107,6 +118,14 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
           <img src={CloseIconSVG} alt="Close Icon" className="h-6 w-6" />
         </button>
       </div>
+      {/* <div className="flex justify-center">
+        <button
+          onClick={handleTest}
+          className="my-4 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+        >
+          test
+        </button>
+      </div> */}
     </div>
   );
 };
