@@ -30,10 +30,11 @@ const initialState = {
   ungroupedAttendees: [],
   loggedInUser: {
     group: null,
+    selectedRoom: null,
   },
-  selectedRoom: null,
   searchOnce: false,
   loading: false,
+  groupToDisplay: "Group1",
 };
 
 export const bookingSlice = createSlice({
@@ -73,6 +74,19 @@ export const bookingSlice = createSlice({
     initializeGroupedAttendees: (state, action) => {
       state.groupedAttendees = action.payload;
     },
+    setSelectedRoomForGroup: (state, action) => {
+      const { groupId, room } = action.payload;
+      const group = state.groupedAttendees.find((g) => g.groupId === groupId);
+      if (group) {
+        group.selectedRoom = room;
+
+        // check if the group being updated is the same as the loggedInUser's group
+        if (state.loggedInUser.group === groupId) {
+          // update the loggedInUser's selectedRoom with the new room details
+          state.loggedInUser.selectedRoom = room;
+        }
+      }
+    },
     setUngroupedAttendees: (state, action) => {
       state.ungroupedAttendees = action.payload;
     },
@@ -80,13 +94,10 @@ export const bookingSlice = createSlice({
       state.searchOnce = action.payload;
     },
     setLoggedInUserGroup: (state, action) => {
-      state.loggedInUser = {
-        ...state.loggedInUser,
-        group: action.payload,
-      };
+      state.loggedInUser.group = action.payload;
     },
-    setSelectedRoom: (state, action) => {
-      state.selectedRoom = action.payload;
+    setGroupToDisplay: (state, action) => {
+      state.groupToDisplay = action.payload;
     },
     startLoading: (state) => {
       state.loading = true;
@@ -111,10 +122,11 @@ export const {
   initializeGroupedAttendees,
   setSearchOnce,
   setLoggedInUserGroup,
-  setSelectedRoom,
   resetBooking,
   startLoading,
   stopLoading,
+  setSelectedRoomForGroup,
+  setGroupToDisplay,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

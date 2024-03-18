@@ -6,6 +6,7 @@ import makeAnimated from "react-select/animated";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import Loader from "./Loader";
 import Message from "./Message";
+import { useSelector } from "react-redux";
 
 const Accordion = ({
   groupId,
@@ -14,9 +15,12 @@ const Accordion = ({
   handleChange,
   options,
   initialValue,
-  selectedRoom,
 }) => {
   const animatedComponents = makeAnimated();
+  const { groupedAttendees } = useSelector((state) => state.booking);
+  const selectedRoom =
+    groupedAttendees?.find((group) => group.groupId === groupId).selectedRoom ||
+    null;
   return (
     <>
       <div
@@ -29,7 +33,8 @@ const Accordion = ({
             <p className="mt-2 text-sm ">
               {selectedRoom ? (
                 <span className="text-theme-blue">
-                  Room: {selectedRoom.name} {selectedRoom.code}
+                  Room:{" "}
+                  {`${selectedRoom.cityId}${selectedRoom.buildingCode} ${selectedRoom.floor.toString().padStart(2, "0")}.${selectedRoom.roomCode} ${selectedRoom.roomName ? selectedRoom.roomName : ""} `}
                 </span>
               ) : (
                 <span className="text-theme-dark-blue">Room: Unselected</span>
