@@ -45,7 +45,6 @@ export const toAvailableRoomDTO = (resFromRawQuery: any[], equipmentNeeded: stri
                 if (res.has_av && res.has_vc) {
                     isRecommended = true;
                 }
-                isRecommended = true;
             } else if (equipmentNeeded.includes("AV")) {
                 if (res.has_av) {
                     isRecommended = true;
