@@ -136,28 +136,27 @@ export default class BookingController extends AbstractController {
 
     /*
     params from frontend for update:
-    - bookingId: number; createdBy: number; startTime: Date; endTime: Date; status: string;
-    - users: number[][]; rooms: number[];
+    - bookingId: number; status: string; users: number[][];
     */
     public update = async (req: Request, res: Response): Promise<Response> => {
         const bookingId: number = parseInt(req.params.id);
+        if (isNaN(bookingId)) {
+            return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Invalid booking ID.");
+        }
+
         try {
-            const currentBooking = this.bookingService.getById(bookingId);
-            if (!currentBooking && typeof currentBooking !== "number") {
-                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, "Booking not found.");
-            }
             const bookingToUpdateDTO = new BookingDTO();
             // these fields are required for BookingDTO
             bookingToUpdateDTO.bookingId = bookingId;
-            bookingToUpdateDTO.createdBy = req.body.createdBy;
-            bookingToUpdateDTO.startTime = new Date(req.body.startTime);
-            bookingToUpdateDTO.endTime = new Date(req.body.endTime);
+            // bookingToUpdateDTO.createdBy = req.body.createdBy;
+            // bookingToUpdateDTO.startTime = new Date(req.body.startTime);
+            // bookingToUpdateDTO.endTime = new Date(req.body.endTime);
             bookingToUpdateDTO.status = req.body.status;
             // create an array of UserDTOs for each group of participants
             bookingToUpdateDTO.userDTOs = [];
             for (const group of req.body.users) {
                 // note: req.body.users is 2D array of user IDs
-                const groupUserDTO = [];
+                const groupUserDTO: UserDTO[] = [];
                 for (const participantID of group) {
                     const participant = new UserDTO();
                     participant.userId = participantID;
@@ -166,12 +165,12 @@ export default class BookingController extends AbstractController {
                 bookingToUpdateDTO.userDTOs.push(groupUserDTO);
             }
             // create an array of RoomDTOs
-            bookingToUpdateDTO.roomDTOs = [];
-            for (const roomID of req.body.rooms) {
-                const room = new RoomDTO();
-                room.roomId = roomID;
-                bookingToUpdateDTO.roomDTOs.push(room);
-            }
+            // bookingToUpdateDTO.roomDTOs = [];
+            // for (const roomID of req.body.rooms) {
+            //     const room = new RoomDTO();
+            //     room.roomId = roomID;
+            //     bookingToUpdateDTO.roomDTOs.push(room);
+            // }
             const updatedBooking = await this.bookingService.update(bookingId, bookingToUpdateDTO);
             return super.onResolve(res, updatedBooking);
         } catch (error: unknown) {
