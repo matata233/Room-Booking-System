@@ -17,7 +17,7 @@ import {
 } from "../slices/bookingSlice";
 import Message from "../components/Message";
 
-const BookingRoomsDisplay = () => {
+const BookingRoomsDisplay = ({ showRecommended }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -42,9 +42,15 @@ const BookingRoomsDisplay = () => {
   const availableRoomsData = useMemo(() => {
     // find the group by groupToDisplay
     const group = groupedAttendees.find((g) => g.groupId === groupToDisplay);
-    // return the rooms for the found group or an empty array if the group isn't found
-    return group ? (group.rooms ? group.rooms : []) : [];
-  }, [groupedAttendees, groupToDisplay]);
+    let rooms = group ? (group.rooms ? group.rooms : []) : [];
+
+    // If showRecommended is true, filter the rooms to only include those marked as recommended
+    if (showRecommended) {
+      rooms = rooms.filter((room) => room.recommended === true);
+    }
+    console.log(rooms);
+    return rooms;
+  }, [groupedAttendees, groupToDisplay, showRecommended]);
 
   // Calculate paginated data
   const startIndex = (currentPage - 1) * rowsPerPage;

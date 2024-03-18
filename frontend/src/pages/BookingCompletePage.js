@@ -32,7 +32,7 @@ const BookingCompletePage = () => {
                 const roomCode = room.roomCode;
                 const floorNumber = room.floorNumber;
 
-                const roomInfo = `${roomName ? roomName : ""}${roomCode}, Floor ${floorNumber.toString().padStart(2, "0")}`;
+                const roomInfo = `${roomName ? roomName : ""} ${roomCode}, Floor ${floorNumber.toString().padStart(2, "0")}`;
                 const buildingInfo = `${cityId} ${buildingCode}`;
 
                 return (
