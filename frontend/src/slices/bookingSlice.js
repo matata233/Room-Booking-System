@@ -14,15 +14,15 @@ const initialState = {
   priority: [
     {
       id: 1,
-      item: "Proximity",
+      item: "distance",
     },
     {
       id: 2,
-      item: "Seats",
+      item: "seats",
     },
     {
       id: 3,
-      item: "Equipment",
+      item: "equipments",
     },
   ],
   roomCount: 1,
@@ -31,6 +31,7 @@ const initialState = {
   loggedInUser: {
     group: null,
   },
+  selectedRoom: null,
   searchOnce: false,
 };
 
@@ -48,13 +49,7 @@ export const bookingSlice = createSlice({
       state.endTime = action.payload;
     },
     addEquipment: (state, action) => {
-      const existingIndex = state.equipments.findIndex(
-        (equip) => equip.id === action.payload.id,
-      );
-      if (existingIndex === -1) {
-        // only add if it doesn't exist
-        state.equipments.push(action.payload);
-      }
+      state.equipments = [...state.equipments, action.payload];
     },
     removeEquipment: (state, action) => {
       state.equipments = state.equipments.filter(
@@ -69,34 +64,34 @@ export const bookingSlice = createSlice({
     },
     setGroupedAttendees: (state, action) => {
       const { groupId, attendees } = action.payload;
-      const groupIndex = state.groupedAttendees.findIndex(
-        (group) => group.groupId === groupId,
-      );
-
-      if (groupIndex !== -1) {
-        state.groupedAttendees[groupIndex].attendees = attendees;
-      } else {
-        // maybe removed (depends on the design)
-        state.groupedAttendees.push({
-          groupId,
-          attendees,
-          rooms: [],
-        });
-      }
+      const updatedGroupedAttendees = state.groupedAttendees.map((group) => {
+        if (group.groupId === groupId) {
+          return {
+            ...group,
+            attendees: [...attendees],
+          };
+        }
+        return group;
+      });
+      state.groupedAttendees = updatedGroupedAttendees;
     },
     initializeGroupedAttendees: (state, action) => {
       state.groupedAttendees = action.payload;
     },
-
     setUngroupedAttendees: (state, action) => {
       state.ungroupedAttendees = action.payload;
     },
-
     setSearchOnce: (state, action) => {
       state.searchOnce = action.payload;
     },
     setLoggedInUserGroup: (state, action) => {
-      state.loggedInUser.group = action.payload;
+      state.loggedInUser = {
+        ...state.loggedInUser,
+        group: action.payload,
+      };
+    },
+    setSelectedRoom: (state, action) => {
+      state.selectedRoom = action.payload;
     },
     resetBooking: (state) => (state = initialState),
   },

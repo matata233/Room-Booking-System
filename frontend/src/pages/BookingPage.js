@@ -6,9 +6,8 @@ import UserEmailInput from "../components/UserEmailInput";
 import TimeDropdowns from "../components/TimeDropdown";
 import StartSearchGIF from "../assets/start-search.gif";
 import Pagination from "../components/Pagination";
-import dummyRoomBooking from "../dummyData/dummyRoomBooking";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
@@ -36,6 +35,7 @@ const BookingPage = () => {
   } = useGetAllEmailsQuery();
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     startTime,
     endTime,
@@ -104,43 +104,43 @@ const BookingPage = () => {
           return;
         }
       }
+      const startDateTime = new Date(
+        `${startDate}T${startTime}:00.000Z`,
+      ).toISOString();
+      const endDateTime = new Date(
+        `${startDate}T${endTime}:00.000Z`,
+      ).toISOString();
 
+      const equipmentCodes = equipments.map((equip) => equip.id);
+      let attendeeEmails = [];
       if (searchOnce) {
+        attendeeEmails = groupedAttendees.reduce((acc, group) => {
+          const emails = group.attendees.map((attendee) => attendee.email);
+          return acc.concat(emails);
+        }, []);
       } else {
-        handleFirstSearch();
+        attendeeEmails = ungroupedAttendees.map((attendee) => attendee.email);
+      }
+      const allAttendees = [userInfo.email, ...attendeeEmails];
+      const reqBody = {
+        startTime: startDateTime,
+        endTime: endDateTime,
+        attendees: allAttendees,
+        equipments: equipmentCodes,
+        priority: priority.map((entry) => entry.item),
+      };
+      const availableRooms = await getAvailableRooms(reqBody).unwrap();
+      dispatch(
+        initializeGroupedAttendees(reorganizeAvailableRooms(availableRooms)),
+      );
+      if (!searchOnce) {
+        dispatch(setUngroupedAttendees([]));
+        dispatch(setSearchOnce(true));
       }
     } catch (err) {
       toast.error(err?.data?.error || "Failed to get available rooms");
       console.log(err?.data?.error);
     }
-  };
-
-  const handleFirstSearch = async () => {
-    const startDateTime = new Date(
-      `${startDate}T${startTime}:00.000Z`,
-    ).toISOString();
-    const endDateTime = new Date(
-      `${startDate}T${endTime}:00.000Z`,
-    ).toISOString();
-    const attendeeEmails = ungroupedAttendees.map((attendee) => attendee.email);
-    const allAttendees = [...attendeeEmails, userInfo.email];
-    const equipmentCodes = equipments.map((equip) => equip.id);
-    const reqBody = {
-      startTime: startDateTime,
-      endTime: endDateTime,
-      attendees: allAttendees,
-      equipments: equipmentCodes,
-      priority: [], // TODO: Update Priority
-    };
-    const availableRooms = await getAvailableRooms(reqBody).unwrap();
-
-    dispatch(setUngroupedAttendees([]));
-    dispatch(setSearchOnce(true));
-    dispatch(
-      initializeGroupedAttendees(
-        reorganizeAvailableRooms(availableRooms) || [],
-      ),
-    );
   };
 
   const handleReset = () => {
@@ -151,9 +151,19 @@ const BookingPage = () => {
     let loggedInUserGroup = null;
     const transformedResponse = availableRooms.result.groups.map(
       (group, index) => {
-        const filteredAttendees = group.attendees.filter(
+        // ,ap over each attendee to create a new object with userId instead of user_id
+        const updatedAttendees = group.attendees
+          .map((attendee) => ({
+            userId: attendee.user_id,
+            user_id: undefined,
+            ...attendee,
+          }))
+          .filter((attendee) => attendee.email !== userInfo.email) // exclude logged-in user
+          .map(({ user_id, first_name, last_name, ...rest }) => rest); // remove user_id field
+
+        const filteredAttendees = updatedAttendees.filter(
           (attendee) => attendee.email !== userInfo.email,
-        ); // exclude logged-in user
+        );
 
         if (
           group.attendees.length !== filteredAttendees.length &&
@@ -174,7 +184,6 @@ const BookingPage = () => {
     if (loggedInUserGroup) {
       dispatch(setLoggedInUserGroup(loggedInUserGroup));
     }
-    console.log(loggedInUserGroup);
 
     transformedResponse.push({
       groupId: "Ungrouped",
@@ -186,20 +195,24 @@ const BookingPage = () => {
     return transformedResponse;
   };
 
-  const handleOnClick = (room, event) => {
+  const handleOnClick = (e, room) => {
+    e.preventDefault();
+    navigate("/bookingReview");
     dispatch(setSelectedRoom(room));
   };
 
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
-      <BookingStepper currentStage={1}/>
+      <BookingStepper currentStage={1} />
 
       <div className="flex w-full flex-col items-center gap-10 md:flex-row md:items-start md:justify-between">
         {/* Input Part */}
         <div className="flex basis-1/3 flex-col items-center justify-center">
           {" "}
           <form onSubmit={handleSubmit}>
-            <h1 className="mb-4 text-xl font-semibold">Book a Room</h1>
+            <h1 className="mb-4 text-center text-xl font-semibold md:text-start">
+              Book a Room
+            </h1>
             <div className="flex flex-col gap-3">
               <h2>Select Time</h2>
               <TimeDropdowns />
@@ -256,10 +269,8 @@ const BookingPage = () => {
             Reset
           </button>
         </div>
-        <div className="flex basis-2/3 flex-col">
-          <div className="flex items-center justify-between">
-            <div className="mb-4 text-xl font-semibold">Available Rooms</div>
-          </div>
+        <div className="flex basis-2/3 flex-col text-center md:text-start">
+          <div className="mb-4 text-xl font-semibold">Available Rooms</div>
           <div className="flex flex-col items-center justify-center">
             {groupedAttendees.length > 0 ? (
               isLoading ? (
@@ -284,11 +295,17 @@ const BookingPage = () => {
                           </div>
                           <div className="mt-6 flex flex-col xl:ml-6 xl:mt-0">
                             <div className="mt-2 text-lg text-theme-orange">
-                              {room.name} {room.code}
+                              {`${room.cityId}${room.buildingCode} ${room.floor.toString().padStart(2, "0")}.${room.roomCode} ${room.roomName ? room.roomName : ""} `}
                             </div>
                             <div className="mt-2">
                               <span className="font-semibold">Equipments:</span>{" "}
-                              {`${room.hasAV ? "AV" : ""} ${room.hasVC ? "VC" : ""}`}
+                              {room.hasAV && room.hasVC
+                                ? "AV / VC"
+                                : room.hasAV
+                                  ? "AV"
+                                  : room.hasVC
+                                    ? "VC"
+                                    : "None"}
                             </div>
 
                             <div className="mt-2">
@@ -303,7 +320,7 @@ const BookingPage = () => {
                         <div className="m-5 flex justify-center xl:items-end">
                           <Link
                             to={"/bookingReview"}
-                            onClick={(e) => handleOnClick(room, e)}
+                            onClick={(e) => handleOnClick(e, room)}
                             className="rounded bg-theme-orange px-8 py-0.5 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
                           >
                             Book

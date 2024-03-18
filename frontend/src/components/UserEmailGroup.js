@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Accordion from "./Accordion";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,9 +11,7 @@ const UserEmailGroup = () => {
   const { data: userEmails, error, isLoading } = useGetAllEmailsQuery();
   const [open, setOpen] = useState(0);
 
-  const groupedAttendees = useSelector(
-    (state) => state.booking.groupedAttendees,
-  );
+  const { groupedAttendees } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
   // Aggregate all selected emails across groups
@@ -51,7 +49,7 @@ const UserEmailGroup = () => {
         ) : (
           groupedAttendees.map((group, index) => {
             const initialSelected = group.attendees.map((attendee) => ({
-              value: attendee.user_id, // TODO: change after data is updated
+              value: attendee.userId,
               label: attendee.email,
             }));
             // filter out already selected emails and the logged-in user's email

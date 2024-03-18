@@ -15,6 +15,7 @@ const UserEmailInput = () => {
     refetch,
   } = useGetAllEmailsQuery();
   const dispatch = useDispatch();
+
   /**
    * 
    * {
@@ -29,6 +30,7 @@ const UserEmailInput = () => {
   const filteredEmails = userEmails?.result.filter(
     (user) => user.email !== userInfo.email,
   ); // Filter out the current user's email
+  console.log(filteredEmails);
 
   const { ungroupedAttendees } = useSelector((state) => state.booking);
 

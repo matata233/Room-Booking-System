@@ -37,7 +37,7 @@ const Accordion = ({
             </p>
           ) : (
             <p className="mt-2 text-xs text-gray-400">
-              Not sure which room to put them in? Leave them here to trigger
+              Not sure which room to put people in? Leave them here to trigger
               reassignment!
             </p>
           )}
