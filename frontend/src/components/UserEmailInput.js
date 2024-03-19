@@ -52,6 +52,10 @@ const UserEmailInput = () => {
       <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
         <div className="relative">
           <Select
+            value={ungroupedAttendees.map((user) => ({
+              value: user.userId,
+              label: user.email,
+            }))}
             closeMenuOnSelect={false}
             components={animatedComponents}
             isMulti

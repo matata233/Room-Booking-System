@@ -11,6 +11,7 @@ import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import LoggedInUserGroup from "../components/LoggedInUserGroup";
+import ToogleRooms from "../components/ToggleRooms";
 import {
   resetBooking,
   setUngroupedAttendees,
@@ -37,6 +38,13 @@ const BookingPage = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [showRecommended, setShowRecommended] = useState(true);
+
+  const handleToggle = () => {
+    setShowRecommended(!showRecommended);
+  };
+
   const {
     startTime,
     endTime,
@@ -247,9 +255,13 @@ const BookingPage = () => {
               </div>
             </div>
           </form>
+          <ToogleRooms
+            showRecommended={showRecommended}
+            handleToggle={handleToggle}
+          />
           <button
             onClick={handleReset}
-            className="rounded bg-theme-dark-blue px-[54px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
+            className="my-4 rounded bg-theme-dark-blue px-[54px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
           >
             Reset
           </button>
@@ -279,7 +291,7 @@ const BookingPage = () => {
           ) : error ? (
             <Message severity="error">{error.message}</Message>
           ) : (
-            <BookingRoomsDisplay />
+            <BookingRoomsDisplay showRecommended={showRecommended} />
           )}
         </div>
       </div>
