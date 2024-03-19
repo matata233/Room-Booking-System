@@ -41,12 +41,18 @@ export const toAvailableRoomDTO = (resFromRawQuery: any[], equipmentNeeded: stri
         if (res.is_big_enough) {
             if (equipmentNeeded.length === 0) {
                 isRecommended = true;
-            } else if (equipmentNeeded.length === 2 && res.has_av && res.has_vc) {
-                isRecommended = true;
-            } else if (equipmentNeeded.includes("AV") && res.has_av) {
-                isRecommended = true;
-            } else if (equipmentNeeded.includes("VC") && res.has_vc) {
-                isRecommended = true;
+            } else if (equipmentNeeded.length === 2) {
+                if (res.has_av && res.has_vc) {
+                    isRecommended = true;
+                }
+            } else if (equipmentNeeded.includes("AV")) {
+                if (res.has_av) {
+                    isRecommended = true;
+                }
+            } else if (equipmentNeeded.includes("VC")) {
+                if (res.has_vc) {
+                    isRecommended = true;
+                }
             }
         }
 
@@ -71,7 +77,9 @@ export const toAvailableRoomDTO = (resFromRawQuery: any[], equipmentNeeded: stri
 
 const mapAttendeesToDTO = (groups: any) => {
     const result: Group[] = [];
-    const usersByRoom: {[key: number]: UserDTO[]} = {};
+    const usersByRoom: {
+        [key: number]: UserDTO[];
+    } = {};
     for (const userBooking of groups) {
         const userDTO = toUserDTO(userBooking.users);
 
