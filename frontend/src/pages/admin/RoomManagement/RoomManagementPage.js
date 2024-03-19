@@ -95,7 +95,7 @@ const RoomManagementPage = () => {
           >
             Add New Room
           </Link>
-          <a
+          {/* <a
             href="#"
             className={`flex h-8 w-8 items-center justify-center  rounded-lg border-2 border-theme-orange p-1.5 text-theme-orange transition-colors duration-300  ease-in-out  md:hidden ${
               searchedData.length > 0 &&
@@ -121,7 +121,7 @@ const RoomManagementPage = () => {
             }}
           >
             <MdDelete />
-          </a>
+          </a> */}
         </div>
       </div>
 
@@ -136,7 +136,7 @@ const RoomManagementPage = () => {
             <table className="min-w-full divide-y">
               <thead className="sticky top-0 z-10 border-b-2 border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="p-3 text-left font-amazon-ember font-medium uppercase tracking-wider text-gray-500">
+                  {/* <th className="p-3 text-left font-amazon-ember font-medium uppercase tracking-wider text-gray-500">
                     <input
                       type="checkbox"
                       onChange={(e) => {
@@ -154,7 +154,7 @@ const RoomManagementPage = () => {
                       }
                       className="accent-theme-orange"
                     />
-                  </th>
+                  </th> */}
                   {[
                     { key: "roomId", display: "Room Id" },
                     { key: "city.cityId", display: "City Code" },
@@ -205,15 +205,15 @@ const RoomManagementPage = () => {
                     <tr
                       key={row.roomId}
                       className={`font-amazon-ember hover:bg-theme-orange hover:bg-opacity-10 ${selectedRows.includes(row.roomId) ? "bg-theme-orange bg-opacity-10" : ""}`}
-                      onClick={() => toggleRowSelection(row.roomId)}
+                      // onClick={() => toggleRowSelection(row.roomId)}
                     >
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
+                      {/* <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                         <input
                           type="checkbox"
                           checked={selectedRows.includes(row.roomId)}
                           className="accent-theme-orange"
                         />
-                      </td>
+                      </td> */}
                       <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                         {row.roomId}
                       </td>
@@ -240,9 +240,7 @@ const RoomManagementPage = () => {
                         <ul>
                           {row.equipmentList.length > 0 ? (
                             row.equipmentList.map((equipment, index) => (
-                              <li
-                                key={index}
-                              >{`${equipment.equipmentId}: ${equipment.description}`}</li>
+                              <li key={index}>{`${equipment.equipmentId}`}</li>
                             ))
                           ) : (
                             <li>None</li>
@@ -294,8 +292,8 @@ const RoomManagementPage = () => {
               displayedData.map((row) => (
                 <div
                   key={row.roomId}
-                  className={`space-y-3 rounded-lg p-4 shadow   ${selectedRows.includes(row.roomId) ? "bg-theme-orange bg-opacity-10" : ""}`}
-                  onClick={() => toggleRowSelection(row.roomId)}
+                  className={`space-y-3 rounded-lg p-4 shadow-md`}
+                  // onClick={() => toggleRowSelection(row.roomId)}
                 >
                   <div className="font-amazon-ember text-base text-gray-900">
                     {`${row.city.cityId}${row.building.code} ${String(row.floorNumber).padStart(2, "0")}.${row.roomCode} ${row.roomName}`}
@@ -308,9 +306,7 @@ const RoomManagementPage = () => {
                     <ul>
                       {row.equipmentList.length > 0 ? (
                         row.equipmentList.map((equipment, index) => (
-                          <li
-                            key={index}
-                          >{`${equipment.equipmentId}: ${equipment.description}`}</li>
+                          <li key={index}>{`${equipment.equipmentId}`}</li>
                         ))
                       ) : (
                         <li>None</li>

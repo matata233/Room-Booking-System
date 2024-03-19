@@ -27,11 +27,13 @@ const UserManagementEditPage = () => {
 
   const handleUpdate = async (formData) => {
     try {
-      await updateUser({ id: userId, ...formData }).unwrap();
+      await updateUser({ id: userId, formData }).unwrap();
       toast.success("User updated");
+      refetch();
       navigate("/userManagementPage");
     } catch (err) {
       toast.error(err?.data?.error || "Failed to update user");
+      console.log(err);
     }
   };
   return (

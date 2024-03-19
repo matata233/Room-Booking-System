@@ -83,12 +83,8 @@ const BookingPage = () => {
           return;
         }
       }
-      const startDateTime = new Date(
-        `${startDate}T${startTime}:00.000Z`,
-      ).toISOString();
-      const endDateTime = new Date(
-        `${startDate}T${endTime}:00.000Z`,
-      ).toISOString();
+      const startDateTime = new Date(`${startDate}T${startTime}`).toISOString();
+      const endDateTime = new Date(`${startDate}T${endTime}`).toISOString();
 
       const equipmentCodes = equipments.map((equip) => equip.id);
       let attendeeEmails = [];

@@ -96,7 +96,7 @@ const UserManagementPage = () => {
           >
             Add New User
           </Link>
-          <a
+          {/* <a
             href="#"
             className={`flex h-8 w-8 items-center justify-center  rounded-lg border-2 border-theme-orange p-1.5 text-theme-orange transition-colors duration-300  ease-in-out md:hidden ${
               searchedData.length > 0 &&
@@ -122,7 +122,7 @@ const UserManagementPage = () => {
             }}
           >
             <MdDelete />
-          </a>
+          </a> */}
         </div>
       </div>
 
@@ -137,7 +137,7 @@ const UserManagementPage = () => {
             <table className="min-w-full divide-y">
               <thead className="sticky top-0 z-10 border-b-2 border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="p-3 text-left font-amazon-ember font-medium uppercase tracking-wider text-gray-500">
+                  {/* <th className="p-3 text-left font-amazon-ember font-medium uppercase tracking-wider text-gray-500">
                     <input
                       type="checkbox"
                       onChange={(e) => {
@@ -155,7 +155,7 @@ const UserManagementPage = () => {
                       }
                       className="accent-theme-orange"
                     />
-                  </th>
+                  </th> */}
                   {[
                     { key: "username", display: "Username" },
                     { key: "email", display: "Email" },
@@ -197,15 +197,15 @@ const UserManagementPage = () => {
                     <tr
                       key={row.userId}
                       className={`font-amazon-ember hover:bg-theme-orange hover:bg-opacity-10 ${selectedRows.includes(row.userId) ? "bg-theme-orange bg-opacity-10" : ""}`}
-                      onClick={() => toggleRowSelection(row.userId)}
+                      // onClick={() => toggleRowSelection(row.userId)}
                     >
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
+                      {/* <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                         <input
                           type="checkbox"
                           checked={selectedRows.includes(row.userId)}
                           className="accent-theme-orange"
                         />
-                      </td>
+                      </td> */}
                       <td className="whitespace-nowrap p-3">{row.username}</td>
                       <td className="ext-sm whitespace-nowrap p-3 text-gray-500">
                         {row.email}
@@ -269,7 +269,7 @@ const UserManagementPage = () => {
                 <div
                   key={row.userId}
                   className={`max-h-40 space-y-3 rounded-lg p-4 shadow  ${selectedRows.includes(row.userId) ? "bg-theme-orange bg-opacity-10" : ""}`}
-                  onClick={() => toggleRowSelection(row.userId)}
+                  // onClick={() => toggleRowSelection(row.userId)}
                 >
                   {/* avatar + name */}
                   <div className="flex items-center justify-between">
