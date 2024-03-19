@@ -3,6 +3,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 
+const persistedUserInfo = localStorage.getItem("userInfo");
+const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;
+
 const initialState = {
   startDate: dayjs(new Date()).format("YYYY-MM-DD"),
   startTime: "00:00",
@@ -11,82 +14,27 @@ const initialState = {
   priority: [
     {
       id: 1,
-      item: "Proximity",
+      item: "distance",
     },
     {
       id: 2,
-      item: "Seats",
+      item: "seats",
     },
     {
       id: 3,
-      item: "Equipment",
+      item: "equipments",
     },
   ],
   roomCount: 1,
-  groupedAttendees: [
-    {
-      groupId: "group1",
-      attendees: [],
-      rooms: [
-        {
-          roomId: 1,
-          cityId: "YVR",
-          buildingCode: 32,
-          floorNumber: 1,
-          roomCode: "101",
-          roomName: "A",
-          numberOfSeats: 4,
-          has_vc: true,
-          has_av: true,
-          recomended: true,
-        },
-        {
-          roomId: 2,
-          cityId: "YVR",
-          buildingCode: 32,
-          floorNumber: 2,
-          roomCode: "201",
-          roomName: "B",
-          numberOfSeats: 4,
-          has_vc: true,
-          has_av: true,
-          recomended: false,
-        },
-      ],
-    },
-    {
-      groupId: "group2",
-      attendees: [],
-      rooms: [
-        {
-          roomId: 3,
-          cityId: "YVR",
-          buildingCode: 32,
-          floorNumber: 1,
-          roomCode: "102",
-          roomName: "C",
-          numberOfSeats: 4,
-          has_vc: true,
-          has_av: true,
-          recomended: true,
-        },
-        {
-          roomId: 4,
-          cityId: "YVR",
-          buildingCode: 32,
-          floorNumber: 2,
-          roomCode: "202",
-          roomName: "D",
-          numberOfSeats: 4,
-          has_vc: true,
-          has_av: true,
-          recomended: false,
-        },
-      ],
-    },
-  ],
+  groupedAttendees: [],
   ungroupedAttendees: [],
-  searchOnce: true,
+  loggedInUser: {
+    group: null,
+    selectedRoom: null,
+  },
+  searchOnce: false,
+  loading: false,
+  groupToDisplay: "Group1",
 };
 
 export const bookingSlice = createSlice({
@@ -103,13 +51,7 @@ export const bookingSlice = createSlice({
       state.endTime = action.payload;
     },
     addEquipment: (state, action) => {
-      const existingIndex = state.equipments.findIndex(
-        (equip) => equip.id === action.payload.id,
-      );
-      if (existingIndex === -1) {
-        // only add if it doesn't exist
-        state.equipments.push(action.payload);
-      }
+      state.equipments = [...state.equipments, action.payload];
     },
     removeEquipment: (state, action) => {
       state.equipments = state.equipments.filter(
@@ -124,27 +66,44 @@ export const bookingSlice = createSlice({
     },
     setGroupedAttendees: (state, action) => {
       const { groupId, attendees } = action.payload;
-      const groupIndex = state.groupedAttendees.findIndex(
-        (group) => group.groupId === groupId,
+      const updatedGroupedAttendees = state.groupedAttendees.map((group) =>
+        group.groupId === groupId ? { ...group, attendees: attendees } : group,
       );
+      state.groupedAttendees = updatedGroupedAttendees;
+    },
+    initializeGroupedAttendees: (state, action) => {
+      state.groupedAttendees = action.payload;
+    },
+    setSelectedRoomForGroup: (state, action) => {
+      const { groupId, room } = action.payload;
+      const group = state.groupedAttendees.find((g) => g.groupId === groupId);
+      if (group) {
+        group.selectedRoom = room;
 
-      if (groupIndex !== -1) {
-        state.groupedAttendees[groupIndex].attendees = attendees;
-      } else {
-        state.groupedAttendees.push({
-          groupId,
-          attendees,
-          rooms: [],
-        });
+        // check if the group being updated is the same as the loggedInUser's group
+        if (state.loggedInUser.group === groupId) {
+          // update the loggedInUser's selectedRoom with the new room details
+          state.loggedInUser.selectedRoom = room;
+        }
       }
     },
-
     setUngroupedAttendees: (state, action) => {
       state.ungroupedAttendees = action.payload;
     },
-
     setSearchOnce: (state, action) => {
       state.searchOnce = action.payload;
+    },
+    setLoggedInUserGroup: (state, action) => {
+      state.loggedInUser.group = action.payload;
+    },
+    setGroupToDisplay: (state, action) => {
+      state.groupToDisplay = action.payload;
+    },
+    startLoading: (state) => {
+      state.loading = true;
+    },
+    stopLoading: (state) => {
+      state.loading = false;
     },
     resetBooking: (state) => (state = initialState),
   },
@@ -160,8 +119,14 @@ export const {
   setRoomCount,
   setGroupedAttendees,
   setUngroupedAttendees,
+  initializeGroupedAttendees,
   setSearchOnce,
+  setLoggedInUserGroup,
   resetBooking,
+  startLoading,
+  stopLoading,
+  setSelectedRoomForGroup,
+  setGroupToDisplay,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

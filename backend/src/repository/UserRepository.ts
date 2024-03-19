@@ -147,7 +147,7 @@ export default class UserRepository extends AbstractRepository {
                 building_id: user.building!.buildingId!,
                 floor: user.floor!,
                 desk: user.desk!,
-                role: user.role ?? "staff",
+                // role: user.role ?? "staff",
                 is_active: user.isActive ?? true
             }
         });

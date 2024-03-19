@@ -1106,24 +1106,27 @@ VALUES (339, 7, 1, '007.A', NULL, 10, TRUE),
 SELECT setval('rooms_room_id_seq', (SELECT MAX(room_id) FROM rooms));
 
 INSERT INTO users (user_id, username, first_name, last_name, email, building_id, floor, desk, role, is_active)
-VALUES (1, 'bbrown5888', 'Bob', 'Brown', 'bbrown5888@example.com', 2, 1, 105, 'staff', TRUE),
-       (2, 'cdavis1530', 'Charlie', 'Davis', 'cdavis1530@example.com', 2, 1, 101, 'admin', FALSE),
-       (3, 'djohnson5652', 'Diana', 'Johnson', 'djohnson5652@example.com', 1, 1, 100, 'admin', FALSE),
-       (4, 'gdavis3737', 'George', 'Davis', 'gdavis3737@example.com', 3, 2, 100, 'staff', TRUE),
-       (5, 'fdavis3529', 'Fiona', 'Davis', 'fdavis3529@example.com', 3, 2, 102, 'staff', TRUE),
-       (6, 'hmiller1868', 'Hannah', 'Miller', 'hmiller1868@example.com', 3, 3, 105, 'admin', TRUE),
-       (7, 'hgarcia1209', 'Hannah', 'Garcia', 'hgarcia1209@example.com', 1, 3, 105, 'admin', FALSE),
-       (8, 'cgarcia7408', 'Charlie', 'Garcia', 'cgarcia7408@example.com', 2, 2, 104, 'staff', TRUE),
-       (9, 'dbrown5140', 'Diana', 'Brown', 'dbrown5140@example.com', 2, 3, 101, 'staff', TRUE),
-       (10, 'dmiller5815', 'Diana', 'Miller', 'dmiller5815@example.com', 2, 1, 104, 'admin', TRUE),
-       (11, 'team7awsome01', 'AWSome', 'Team7', 'team7awsome01@gmail.com', 1, 1, 1, 'admin', TRUE),
-       (12, 'team7awsomeuser01', 'AWSomeUser', 'Team7', 'team7awsomeuser01@gmail.com', 1, 1, 1, 'staff', TRUE);
+VALUES (1, 'YVR32_01_1', 'YVR32_01_1', 'YVR32_01_1', 'YVR32_01_1@aws.ca', 1, 1, 100, 'staff', TRUE),
+       (2, 'YVR32_01_2', 'YVR32_01_2', 'YVR32_01_2', 'YVR32_01_2@aws.ca', 1, 1, 100, 'staff', TRUE),
+       (3, 'YVR32_01_off', 'YVR32_01_off', 'YVR32_01_off', 'YVR32_01_off@aws.ca', 1, 1, 100, 'staff', FALSE),
+       (4, 'YVR32_03_1', 'YVR32_03_1', 'YVR32_03_1', 'YVR32_03_1@aws.ca', 1, 3, 100, 'staff', TRUE),
+       (5, 'YVR32_05_1', 'YVR32_05_1', 'YVR32_05_1', 'YVR32_05_1@aws.ca', 1, 5, 100, 'staff', TRUE),
+       (6, 'YVR41_01_1', 'YVR41_01_1', 'YVR41_01_1', 'YVR41_01_1@aws.ca', 2, 1, 100, 'staff', TRUE),
+       (7, 'YVR74_01_1', 'YVR74_01_1', 'YVR74_01_1', 'YVR74_01_1@aws.ca', 3, 1, 100, 'staff', TRUE),
+       (8, 'YVR63_01_1', 'YVR63_01_1', 'YVR63_01_1', 'YVR63_01_1@aws.ca', 4, 1, 100, 'staff', TRUE),
+       (9, 'YVR73_01_1', 'YVR73_01_1', 'YVR73_01_1', 'YVR73_01_1@aws.ca', 5, 1, 100, 'staff', TRUE),
+       (10, 'YUL22_01_1', 'YUL22_01_1', 'YUL22_01_1', 'YUL22_01_1@aws.ca', 7, 1, 100, 'staff', TRUE),
+       (11, 'team7awsome01', 'Admin', 'Test', 'team7awsome01@gmail.com', 3, 4, 1, 'admin', TRUE),
+       (12, 'team7awsomeuser01', 'Staff', 'Test', 'team7awsomeuser01@gmail.com', 4, 4, 1, 'staff', TRUE),
+       (13, 'michelle', 'Michelle', 'Chen', 'hsiangyi1025@gmail.com', 5, 1, 102, 'admin', TRUE);
 
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
 
 INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status)
 VALUES (1, 11, '2024-03-23T12:00:00.000Z', '2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z', 'confirmed'),
-       (2, 11, '2024-03-23T12:00:00.000Z', '2025-03-26T19:00:00.000Z', '2025-03-26T20:00:00.000Z', 'canceled');
+       (2, 11, '2024-03-23T12:00:00.000Z', '2025-03-26T19:00:00.000Z', '2025-03-26T20:00:00.000Z', 'canceled'),
+       (3, 12, '2024-03-23T12:00:00.000Z', '2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z', 'canceled'),
+       (4, 9, '2024-03-23T12:00:00.000Z', '2024-03-26T19:00:00.000Z', '2024-03-26T20:00:00.000Z', 'confirmed');
 
 SELECT setval('bookings_booking_id_seq', (SELECT MAX(booking_id) FROM bookings));
 
@@ -1131,22 +1134,27 @@ INSERT INTO bookings_rooms (booking_id, room_id)
 VALUES (1, 1),
        (2, 2),
        (2, 3),
-       (2, 4);
+       (2, 4),
+       (3, 2),
+       (4, 2);
 
 INSERT INTO users_bookings(user_id, booking_id, room_id)
 VALUES (11, 1, 1),
        (11, 2, 2),
        (2, 2, 3),
        (3, 2, 4),
-       (4, 2, 4);
+       (4, 2, 4),
+       (12, 3, 2),
+       (9, 4, 2);
 
 INSERT INTO distances (building_id_from, building_id_to, distance)
-VALUES (1, 1, 0),
-       (1, 2, 4),
-       (1, 3, 2),
-       (2, 1, 4),
-       (2, 2, 0),
-       (2, 3, 1),
-       (3, 1, 2),
-       (3, 2, 1),
-       (3, 3, 0);
+VALUES (1, 2, 5),
+       (1, 3, 10),
+       (1, 4, 10),
+       (1, 5, 14),
+       (2, 3, 5),
+       (2, 4, 11),
+       (2, 5, 11),
+       (3, 4, 14),
+       (3, 5, 10),
+       (4, 5, 10);

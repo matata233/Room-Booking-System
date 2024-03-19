@@ -15,6 +15,7 @@ const UserEmailInput = () => {
     refetch,
   } = useGetAllEmailsQuery();
   const dispatch = useDispatch();
+
   /**
    * 
    * {
@@ -25,12 +26,21 @@ const UserEmailInput = () => {
       }
    */
 
-  const selectedAttendees = useSelector(
-    (state) => state.booking.ungroupedAttendees,
-  );
+  const { userInfo } = useSelector((state) => state.auth);
+  const filteredEmails = userEmails?.result.filter(
+    (user) => user.email !== userInfo.email,
+  ); // Filter out the current user's email
+  console.log(filteredEmails);
+
+  const { ungroupedAttendees } = useSelector((state) => state.booking);
 
   const handleChange = (selected) => {
-    dispatch(setUngroupedAttendees(selected));
+    const selectedAttendees = selected.map((option) => ({
+      userId: option.value,
+      email: option.label,
+    }));
+
+    dispatch(setUngroupedAttendees(selectedAttendees));
   };
 
   return isLoading ? (
@@ -42,11 +52,14 @@ const UserEmailInput = () => {
       <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
         <div className="relative">
           <Select
-            defaultValue={selectedAttendees}
+            value={ungroupedAttendees.map((user) => ({
+              value: user.userId,
+              label: user.email,
+            }))}
             closeMenuOnSelect={false}
             components={animatedComponents}
             isMulti
-            options={userEmails.result.map((user) => ({
+            options={filteredEmails.map((user) => ({
               value: user.userId,
               label: user.email,
             }))}

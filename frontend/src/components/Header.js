@@ -68,7 +68,9 @@ const Header = () => {
       {/* Laptop */}
       <div className="flex h-full w-full items-center justify-between px-6">
         <div className="flex items-center md:gap-10 lg:gap-20">
-          <Link to="/" className="cursor-pointer">
+          <Link
+            to={userInfo && userInfo.role === "admin" ? "/adminHomePage" : "/"}
+          >
             {" "}
             <img src={logo} alt="logo" className="w-10" />
           </Link>

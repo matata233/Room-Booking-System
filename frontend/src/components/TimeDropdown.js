@@ -48,6 +48,7 @@ const TimeDropdowns = () => {
     const startDateTime = dayjs(`${startDate} ${startTime}`);
     const endDateTime = dayjs(`${startDate} ${endTime}`);
     if (endDateTime.isBefore(startDateTime)) {
+      dispatch(setEndTime("23:45")); // Reset end time to 23:45
       alert("End time should be later than start time.");
     }
   };

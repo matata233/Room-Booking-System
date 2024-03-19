@@ -4,64 +4,208 @@ import DragAndDrop from "../components/DragAndDrop";
 import UserEquipInput from "../components/UserEquipInput";
 import UserEmailInput from "../components/UserEmailInput";
 import TimeDropdowns from "../components/TimeDropdown";
-import StartSearchGIF from "../assets/start-search.gif";
-import Pagination from "../components/Pagination";
-import dummyRoomBooking from "../dummyData/dummyRoomBooking";
-import MeetingRoomImg from "../assets/meeting-room.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
-import { resetBooking } from "../slices/bookingSlice";
-import { FormControlLabel, Switch } from "@mui/material";
-
+import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
+import LoggedInUserGroup from "../components/LoggedInUserGroup";
+import ToogleRooms from "../components/ToggleRooms";
+import {
+  resetBooking,
+  setUngroupedAttendees,
+  setSearchOnce,
+  initializeGroupedAttendees,
+  setLoggedInUserGroup,
+  setSelectedRoom,
+  startLoading,
+  stopLoading,
+  setGroupToDisplay,
+} from "../slices/bookingSlice";
+import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
+import { toast } from "react-toastify";
+import Message from "../components/Message";
+import BookingRoomsDisplay from "../components/BookingRoomsDisplay";
 
 const BookingPage = () => {
-  const data = useMemo(
-    () => dummyRoomBooking.filter((room) => room.is_active),
-    [],
-  );
+  const {
+    data: userEmails,
+    error: userEmailsError,
+    isLoading: userEmailsLoading,
+    refetch,
+  } = useGetAllEmailsQuery();
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const searchOnce = useSelector((state) => state.booking.searchOnce);
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [showRecommended, setShowRecommended] = useState(true);
 
-  // Pagination event handlers
-  const handleChangePage = (page) => {
-    setCurrentPage(page);
+  const handleToggle = () => {
+    setShowRecommended(!showRecommended);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setCurrentPage(1); // Reset to first page when changing rows per page
-  };
+  const {
+    startTime,
+    endTime,
+    startDate,
+    equipments,
+    priority,
+    roomCount,
+    groupedAttendees,
+    ungroupedAttendees,
+    searchOnce,
+    loading,
+    loggedInUser,
+  } = useSelector((state) => state.booking);
+  const { userInfo } = useSelector((state) => state.auth);
 
-  // Calculate paginated data
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
-  const paginatedData = data.slice(startIndex, endIndex);
+  const [getAvailableRooms, { isLoading, error }] =
+    useGetAvailableRoomsMutation();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSearch = async (e) => {
+    try {
+      e.preventDefault();
+      dispatch(startLoading());
+      // check if the user number <= room number
+      if (!searchOnce) {
+        if (ungroupedAttendees.length + 1 < roomCount) {
+          toast.error(
+            `${roomCount - ungroupedAttendees.length - 1} more attendees are required to book ${roomCount} rooms`,
+          );
+          return;
+        }
+      } else {
+        // calculate the total number of attendees
+        const totalAttendees =
+          groupedAttendees.reduce((acc, current) => {
+            if (Array.isArray(current.attendees)) {
+              return acc + current.attendees.length;
+            }
+            return acc;
+          }, 0) + 1;
+        if (totalAttendees < roomCount) {
+          toast.error(
+            `${roomCount - totalAttendees} more attendees are required to book ${roomCount} rooms`,
+          );
+          return;
+        }
+      }
+      const startDateTime = new Date(
+        `${startDate}T${startTime}:00.000Z`,
+      ).toISOString();
+      const endDateTime = new Date(
+        `${startDate}T${endTime}:00.000Z`,
+      ).toISOString();
+
+      const equipmentCodes = equipments.map((equip) => equip.id);
+      let attendeeEmails = [];
+      if (searchOnce) {
+        attendeeEmails = groupedAttendees.reduce((acc, group) => {
+          const emails = group.attendees.map((attendee) => attendee.email);
+          return acc.concat(emails);
+        }, []);
+      } else {
+        attendeeEmails = ungroupedAttendees.map((attendee) => attendee.email);
+      }
+      const allAttendees = [userInfo.email, ...attendeeEmails];
+      const reqBody = {
+        startTime: startDateTime,
+        endTime: endDateTime,
+        attendees: allAttendees,
+        equipments: equipmentCodes,
+        priority: priority.map((entry) => entry.item),
+      };
+      const availableRooms = await getAvailableRooms(reqBody).unwrap();
+      dispatch(
+        initializeGroupedAttendees(reorganizeAvailableRooms(availableRooms)),
+      );
+      dispatch(setGroupToDisplay("Group1"));
+      if (!searchOnce) {
+        dispatch(setUngroupedAttendees([]));
+        dispatch(setSearchOnce(true));
+      }
+    } catch (err) {
+      toast.error(err?.data?.error || "Failed to get available rooms");
+      console.log(err?.data?.error);
+    } finally {
+      dispatch(stopLoading());
+    }
   };
 
   const handleReset = () => {
     dispatch(resetBooking());
   };
 
+  const reorganizeAvailableRooms = (availableRooms) => {
+    let loggedInUserGroup = null;
+    const transformedResponse = availableRooms.result.groups.map(
+      (group, index) => {
+        // ,ap over each attendee to create a new object with userId instead of user_id
+        const updatedAttendees = group.attendees
+          .map((attendee) => ({
+            userId: attendee.user_id,
+            user_id: undefined,
+            ...attendee,
+          }))
+          .filter((attendee) => attendee.email !== userInfo.email) // exclude logged-in user
+          .map(({ user_id, first_name, last_name, ...rest }) => rest); // remove user_id field
+
+        const filteredAttendees = updatedAttendees.filter(
+          (attendee) => attendee.email !== userInfo.email,
+        );
+
+        if (
+          group.attendees.length !== filteredAttendees.length &&
+          !loggedInUserGroup
+        ) {
+          loggedInUserGroup = `Group${index + 1}`;
+        }
+
+        return {
+          groupId: `Group${index + 1}`,
+          attendees: filteredAttendees,
+          rooms: group.rooms,
+          selectedRoom: null,
+        };
+      },
+    );
+
+    if (loggedInUserGroup) {
+      dispatch(setLoggedInUserGroup(loggedInUserGroup));
+    }
+
+    transformedResponse.push({
+      groupId: "Ungrouped",
+      attendees: [],
+    });
+
+    return transformedResponse;
+  };
+
+  const allGroupsHaveSelectedRoom =
+    groupedAttendees.every((group) =>
+      group.groupId !== "Ungrouped"
+        ? group.selectedRoom != null
+        : group.attendees.length === 0,
+    ) && loggedInUser.selectedRoom != null;
+
+  const handleSubmit = () => {
+    navigate("/bookingReview");
+  };
+
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
-      <BookingStepper currentStage={1}/>
+      <BookingStepper currentStage={1} />
 
       <div className="flex w-full flex-col items-center gap-10 md:flex-row md:items-start md:justify-between">
         {/* Input Part */}
         <div className="flex basis-1/3 flex-col items-center justify-center">
           {" "}
-          <form onSubmit={handleSubmit}>
-            <h1 className="mb-4 text-xl font-semibold">Book a Room</h1>
+          <form onSubmit={handleSearch}>
+            <h1 className="mb-4 text-center text-xl font-semibold md:text-start">
+              Book a Room
+            </h1>
             <div className="flex flex-col gap-3">
               <h2>Select Time</h2>
               <TimeDropdowns />
@@ -85,60 +229,74 @@ const BookingPage = () => {
               <UserEquipInput />
               <h2>Priority</h2>
               <DragAndDrop />
+
               <h2>Number of Rooms </h2>
               <UserRoomCountInput />
               {searchOnce ? (
-                <>
-                  <h2>Enter user emails by group</h2>
-                  <UserEmailGroup />
-                </>
+                loading ? (
+                  <Loader />
+                ) : (
+                  <>
+                    <h2>Your assigned room: </h2>
+                    <LoggedInUserGroup />
+                    <h2>Enter user emails by group</h2>
+                    <UserEmailGroup />
+                  </>
+                )
               ) : (
                 <>
                   <h2>Enter all user emails</h2>
                   <UserEmailInput />
                 </>
               )}
-               <div className="mt-2">
-                <FormControlLabel
-                  control={<Switch color="warning" />}
-                  label="Show All Available Rooms"
-                  sx={{
-                    "& .MuiFormControlLabel-label": {
-                      fontSize: "0.5 rem",
-                      fontFamily: "AmazonEmber",
-                    },
-                  }}
-                />
-              </div>
-
               <div className="my-4 flex w-80 justify-center">
                 <button
                   type="submit"
                   className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
                 >
-                  Submit
+                  Search
                 </button>
               </div>
             </div>
           </form>
+          <ToogleRooms
+            showRecommended={showRecommended}
+            handleToggle={handleToggle}
+          />
           <button
             onClick={handleReset}
-            className="rounded bg-theme-dark-blue px-[54px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
+            className="my-4 rounded bg-theme-dark-blue px-[54px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
           >
             Reset
           </button>
         </div>
-        <div className="flex basis-2/3 flex-col">
-          <div className="flex items-center justify-between">
+        <div className="flex basis-2/3 flex-col text-center md:text-start">
+          <div className="flex flex-col items-center md:flex-row md:justify-between">
             <div className="mb-4 text-xl font-semibold">Available Rooms</div>
+            {searchOnce && allGroupsHaveSelectedRoom ? (
+              <button
+                class="rounded bg-theme-orange px-4 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                onClick={handleSubmit}
+              >
+                Submit
+              </button>
+            ) : (
+              <button
+                class="cursor-not-allowed rounded-md bg-gray-300 px-4 py-2 opacity-50"
+                disabled
+              >
+                Submit
+              </button>
+            )}
           </div>
-          <div className="flex items-center justify-center">
-            <img
-              src={StartSearchGIF}
-              alt="Start Search SVG"
-              className="w-full lg:w-1/2"
-            />
-          </div>
+
+          {isLoading ? (
+            <Loader />
+          ) : error ? (
+            <Message severity="error">{error.message}</Message>
+          ) : (
+            <BookingRoomsDisplay showRecommended={showRecommended} />
+          )}
         </div>
       </div>
     </div>
