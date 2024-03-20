@@ -374,7 +374,7 @@ export default class BookingRepository extends AbstractRepository {
         emails = emails.slice(0, -1);
 
         const query = `
-            WITH user_counts AS (SELECT building_id, COUNT(*) AS num_users
+            WITH user_counts AS (SELECT building_id, COUNT(*) AS num_users, ARRAY_AGG(email) AS users
                                  FROM users
                                  WHERE email IN (${emails})
                                  GROUP BY building_id),
@@ -385,13 +385,22 @@ export default class BookingRepository extends AbstractRepository {
                                                   FROM users
                                                   WHERE email IN (${emails})
                                                   GROUP BY building_id, floor) t
-                                            WHERE rn = 1)
-            SELECT uc.building_id, uc.num_users, mfp.floor
+                                            WHERE rn = 1),
+            agg_users AS (SELECT uc.building_id, uc.num_users, mfp.floor, uc.users
             FROM user_counts uc
                      JOIN max_floor_per_building mfp ON uc.building_id = mfp.building_id
-            ORDER BY num_users DESC`;
+            ORDER BY num_users DESC),
+            agg_users_dist AS (SELECT au.building_id, au.num_users, au.floor, au.users, d.building_id_to, d.distance
+            FROM agg_users AS au
+            JOIN distances d ON au.building_id = d.building_id_from)
+            SELECT agd.building_id, agd.num_users, agd.floor, agd.users, array_agg(agd.building_id_to ORDER BY agd.distance) AS closest_buildings
+            FROM agg_users_dist agd
+            WHERE agd.building_id_to IN (SELECT building_id FROM user_counts)
+            GROUP BY agd.building_id, agd.num_users, agd.floor, agd.users`;
+        console.log(query)
 
         return this.db.$queryRawUnsafe(query).then((ret) => {
+            console.log(ret)
             const res: AggregateAttendeeDTO[] = [];
             (ret as AggregateAttendeeDTO[]).forEach((entry) => {
                 res.push(entry);
