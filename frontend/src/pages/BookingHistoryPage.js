@@ -89,6 +89,7 @@ const BookingHistoryPage = () => {
                           (<div className="mb-2 mt-2 text-center text-lg font-semibold">
                             {book.status == "confirmed"? <div className="text-green-500"> Confirmed <CheckIcon/> </div> :  <div className="text-red-500"> Canceled <CancelIcon/> </div> }
                           </div>)}
+                                   
                           <img
                             src={MeetingRoomImg}
                             alt="meeting room"
