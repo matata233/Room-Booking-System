@@ -216,6 +216,41 @@ export default class BookingRepository extends AbstractRepository {
         return toBookingDTO(newBooking, newBooking.users, newBooking.users_bookings);
     }
 
+    public getGroupingSuggestion(
+        attendees: string[],
+        num_rooms: number
+    ): Promise<string[][]> {
+        if( num_rooms > attendees.length )
+            throw new BadRequestError("Number of rooms greater than users");
+        return this.getBuildingFloor(attendees)
+        .then( (ret) => {
+            if( num_rooms > ret.length )
+                throw new BadRequestError("Number of rooms greater than number of different buildigns in groups");
+            console.log(ret)
+            let remaining_buildings = ret.map( entry  => Number(entry.building_id) );
+            while( ret.length > num_rooms ) {
+                let to_remove = ret.pop();
+                remaining_buildings.splice( remaining_buildings.indexOf( Number(to_remove!.building_id) ), 1)
+                for( let building_id of to_remove!.closest_buildings! ) {
+                    if( !remaining_buildings.includes(building_id)) continue;
+                    let i = this.customIndexOf( ret, entry => Number(entry.building_id) == building_id )
+                    if( i == -1 ) continue;
+                    ret[i].users!.push(...to_remove?.users!);
+                    console.log(Number(ret[i].num_users))
+                    ret[i].num_users! += to_remove?.num_users!;
+                    ret.sort( (a,b) => Number(b.num_users!-a.num_users!) )
+                    break;
+                }   
+            }
+
+            let res = []
+            for( let entry of ret ) 
+                res.push( entry.users! )
+            return res;
+        })
+        return Promise.reject()
+    }
+
     public getSuggestedTimes(
         start_time: string,
         end_time: string,
@@ -374,7 +409,7 @@ export default class BookingRepository extends AbstractRepository {
         emails = emails.slice(0, -1);
 
         const query = `
-            WITH user_counts AS (SELECT building_id, COUNT(*) AS num_users
+            WITH user_counts AS (SELECT building_id, COUNT(*) AS num_users, ARRAY_AGG(email) AS users
                                  FROM users
                                  WHERE email IN (${emails})
                                  GROUP BY building_id),
@@ -385,11 +420,18 @@ export default class BookingRepository extends AbstractRepository {
                                                   FROM users
                                                   WHERE email IN (${emails})
                                                   GROUP BY building_id, floor) t
-                                            WHERE rn = 1)
-            SELECT uc.building_id, uc.num_users, mfp.floor
+                                            WHERE rn = 1),
+            agg_users AS (SELECT uc.building_id, uc.num_users, mfp.floor, uc.users
             FROM user_counts uc
                      JOIN max_floor_per_building mfp ON uc.building_id = mfp.building_id
-            ORDER BY num_users DESC`;
+            ORDER BY num_users DESC),
+            agg_users_dist AS (SELECT au.building_id, au.num_users, au.floor, au.users, d.building_id_to, d.distance
+            FROM agg_users AS au
+            JOIN distances d ON au.building_id = d.building_id_from)
+            SELECT agd.building_id, agd.num_users, agd.floor, agd.users, array_agg(agd.building_id_to ORDER BY agd.distance) AS closest_buildings
+            FROM agg_users_dist agd
+            WHERE agd.building_id_to IN (SELECT building_id FROM user_counts) AND agd.building_id_to != agd.building_id
+            GROUP BY agd.building_id, agd.num_users, agd.floor, agd.users`;
 
         return this.db.$queryRawUnsafe(query).then((ret) => {
             const res: AggregateAttendeeDTO[] = [];
@@ -594,5 +636,12 @@ export default class BookingRepository extends AbstractRepository {
             LIMIT 1
         )`;
         return query;
+    }
+
+    private customIndexOf<T>( arr: T[], testF: (t:T) => boolean ) {
+        for( let i=0; i<arr.length; i++ ) {
+            if( testF( arr[i] )) return i;
+        }
+        return -1;
     }
 }
