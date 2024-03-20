@@ -267,7 +267,14 @@ export default class BookingRepository extends AbstractRepository {
         return this.getUnavailableAttendees(attendees, start_time, end_time)
             .then((res) => {
                 if (res.length > 0) {
-                    throw new UnavailableAttendeesError(JSON.stringify(res));
+                    throw new UnavailableAttendeesError(
+                        res
+                            .map((user) => {
+                                return user.email + ",";
+                            })
+                            .toString()
+                            .slice(0, -1)
+                    );
                 }
                 return this.getCityId(attendees[0]);
             })

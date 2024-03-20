@@ -134,22 +134,22 @@ export default class RoomRepository extends AbstractRepository {
             }
 
             const updateData: any = {};
-            if (dto.building?.buildingId !== undefined) {
+            if (dto.building?.buildingId) {
                 updateData.building_id = dto.building.buildingId;
             }
-            if (dto.floorNumber !== undefined) {
+            if (dto.floorNumber) {
                 updateData.floor = dto.floorNumber;
             }
-            if (dto.roomCode !== undefined) {
+            if (dto.roomCode) {
                 updateData.code = dto.roomCode;
             }
-            if (dto.roomName !== undefined) {
+            if (dto.roomName) {
                 updateData.name = dto.roomName;
             }
-            if (dto.numberOfSeats !== undefined) {
+            if (dto.numberOfSeats) {
                 updateData.seats = dto.numberOfSeats;
             }
-            if (dto.isActive !== undefined) {
+            if (dto.isActive) {
                 updateData.is_active = dto.isActive;
             }
 
@@ -161,24 +161,29 @@ export default class RoomRepository extends AbstractRepository {
                     }))
                 };
             }
-            const conflictRoom = await tx.rooms.findFirst({
-                where: {
-                    building_id: dto.building?.buildingId,
-                    floor: dto.floorNumber,
-                    code: dto.roomCode,
-                    NOT: {
-                        room_id: id // not this room
-                    }
-                }
-            });
 
-            if (conflictRoom) {
-                return Promise.reject(
-                    new BadRequestError(
-                        `Another room already exists with building ID ${dto.building?.buildingId}, floor ${dto.floorNumber}, and code ${dto.roomCode}.`
-                    )
-                );
+            if (dto.building?.buildingId || dto.floorNumber || dto.roomCode){
+                const conflictWhereClause: any = {
+                    NOT: { room_id: id } // Exclude the current room
+                };
+
+                conflictWhereClause.building_id = dto.building?.buildingId ? dto.building.buildingId : existingRoom.building_id;
+                conflictWhereClause.floor = dto.floorNumber ? dto.floorNumber : existingRoom.floor;
+                conflictWhereClause.code = dto.roomCode ? dto.roomCode : existingRoom.code;
+
+                const conflictRoom = await tx.rooms.findFirst({
+                    where: conflictWhereClause
+                });
+
+                if (conflictRoom) {
+                    return Promise.reject(
+                        new BadRequestError(
+                            `Another room ${conflictRoom.room_id} already exists with building ID ${conflictRoom.building_id}, floor ${conflictRoom.floor}, and code ${conflictRoom.code}.`
+                        )
+                    );
+                }
             }
+
 
             const updatedRoom = await tx.rooms.update({
                 where: {room_id: id},
