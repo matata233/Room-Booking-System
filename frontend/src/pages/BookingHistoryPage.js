@@ -7,6 +7,7 @@ import { MdDelete } from "react-icons/md";
 import { useSelector } from "react-redux";
 import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Cancel';
+import Pagination from "../components/Pagination";
 
 const BookingHistoryPage = () => {
   const {
@@ -24,7 +25,19 @@ const BookingHistoryPage = () => {
     return booking.result;
   }, [isLoading, booking]);
 
-  console.log("my", bookingData);
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+  
+    // Pagination event handlers
+    const handleChangePage = (page) => {
+      setCurrentPage(page);
+    };
+  
+    const handleChangeRowsPerPage = (event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setCurrentPage(1); // Reset to first page when changing rows per page
+    };
 
   function formatDateTime(startTime, endTime) {
     const startDate = new Date(startTime);
@@ -72,9 +85,11 @@ const BookingHistoryPage = () => {
                         className="flex flex-col items-center justify-between lg:flex-row"
                       >
                         <div>
-                          <div className="mb-2 mt-2 text-center text-lg font-semibold">
+                        {index ==  0 &&
+                          (<div className="mb-2 mt-2 text-center text-lg font-semibold">
                             {book.status == "confirmed"? <div className="text-green-500"> Confirmed <CheckIcon/> </div> :  <div className="text-red-500"> Canceled <CancelIcon/> </div> }
-                          </div>
+                          </div>)}
+                                   
                           <img
                             src={MeetingRoomImg}
                             alt="meeting room"
@@ -155,9 +170,18 @@ const BookingHistoryPage = () => {
                 </div>
               ))}
             </div>
+            <div className="mb-20 flex justify-center">
+            <Pagination
+            count={bookingData.length}
+            rowsPerPage={rowsPerPage}
+            currentPage={currentPage}
+            handleChangePage={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+          </div>
           </>
         ) : (
-          <div className="mt-20 text-center">You have no booking history.</div>
+          <div className="mt-20 text-center">Searching...</div>
         )}
       </div>
     </div>
