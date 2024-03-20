@@ -5,6 +5,8 @@ export default class AggregateAttendeeDTO extends AbstractDTO {
     public building_id: string;
     public num_users?: number;
     public floor?: number;
+    public users?: string[];
+    public closest_buildings?: number[];
 
     constructor(building_id: string) {
         super();
