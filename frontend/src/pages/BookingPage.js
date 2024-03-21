@@ -22,6 +22,8 @@ import {
   startLoading,
   stopLoading,
   setGroupToDisplay,
+  startSearch,
+  stopSearch,
 } from "../slices/bookingSlice";
 import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
@@ -116,6 +118,8 @@ const BookingPage = () => {
       dispatch(
         initializeGroupedAttendees(reorganizeAvailableRooms(availableRooms)),
       );
+      dispatch(startSearch());
+
       dispatch(setGroupToDisplay("Group1"));
       if (!searchOnce) {
         dispatch(setUngroupedAttendees([]));
@@ -255,13 +259,9 @@ const BookingPage = () => {
               </div>
             </div>
           </form>
-          <ToogleRooms
-            showRecommended={showRecommended}
-            handleToggle={handleToggle}
-          />
           <button
             onClick={handleReset}
-            className="my-4 rounded bg-theme-dark-blue px-[54px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
+            className="mb-4 rounded bg-theme-dark-blue px-[54px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
           >
             Reset
           </button>
@@ -269,21 +269,27 @@ const BookingPage = () => {
         <div className="flex basis-2/3 flex-col text-center md:text-start">
           <div className="flex flex-col items-center md:flex-row md:justify-between">
             <div className="mb-4 text-xl font-semibold">Available Rooms</div>
-            {searchOnce && allGroupsHaveSelectedRoom ? (
-              <button
-                class="rounded bg-theme-orange px-4 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
-                onClick={handleSubmit}
-              >
-                Submit
-              </button>
-            ) : (
-              <button
-                class="cursor-not-allowed rounded-md bg-gray-300 px-4 py-2 opacity-50"
-                disabled
-              >
-                Submit
-              </button>
-            )}
+            <div className="flex items-center justify-center">
+              <ToogleRooms
+                showRecommended={showRecommended}
+                handleToggle={handleToggle}
+              />
+              {searchOnce && allGroupsHaveSelectedRoom ? (
+                <button
+                  className="rounded bg-theme-orange px-4 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </button>
+              ) : (
+                <button
+                  className="cursor-not-allowed rounded-md bg-gray-300 px-4 py-2 opacity-50"
+                  disabled
+                >
+                  Submit
+                </button>
+              )}
+            </div>
           </div>
 
           {isLoading ? (

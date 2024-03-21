@@ -20,7 +20,6 @@ const RoomManagementPage = () => {
     if (isLoading || !rooms || !rooms.result) {
       return [];
     }
-    console.log("Got rooms data");
     return rooms.result;
   }, [isLoading, rooms]);
 
@@ -257,13 +256,13 @@ const RoomManagementPage = () => {
                       </td>
                       <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
                         <div className="flex justify-start">
-                          <a
-                            href="#"
+                          <Link
+                            to={`/roomManagementEditPage/${row.roomId}`}
                             className="mr-6 text-indigo-600 hover:text-indigo-900"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <FaEdit className="size-6" />
-                          </a>
+                          </Link>
                           <a
                             href="#"
                             className="text-red-600 hover:text-red-900"
@@ -332,12 +331,13 @@ const RoomManagementPage = () => {
                       )}
                     </div>
                     <div className="flex space-x-6">
-                      <button
+                      <Link
+                        to={`/roomManagementEditPage/${row.roomId}`}
                         className="text-indigo-600 hover:text-indigo-900 "
                         onClick={(e) => e.stopPropagation()}
                       >
                         <FaEdit className="size-5" />
-                      </button>
+                      </Link>
                       <button
                         className="text-red-600 hover:text-red-900"
                         onClick={(e) => e.stopPropagation()}

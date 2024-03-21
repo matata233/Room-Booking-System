@@ -27,8 +27,8 @@ const UserManagementEditPage = () => {
 
   const handleUpdate = async (formData) => {
     try {
-      await updateUser({ id: userId, formData }).unwrap();
-      toast.success("User updated");
+      await updateUser({ id: userId, user: formData }).unwrap();
+      toast.success("User updated successfully!");
       refetch();
       navigate("/userManagementPage");
     } catch (err) {

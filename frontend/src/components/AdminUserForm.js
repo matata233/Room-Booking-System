@@ -86,7 +86,6 @@ const AdminUserForm = ({
     };
     const validation = validateUserData(formData);
     if (validation.isValid) {
-      console.log("form data", formData);
       handleSubmit(formData);
     } else {
       const validationErrors = validation.errors
