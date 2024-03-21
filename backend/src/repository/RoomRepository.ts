@@ -2,7 +2,7 @@ import AbstractRepository from "./AbstractRepository";
 import RoomDTO from "../model/dto/RoomDTO";
 import {toRoomDTO} from "../util/Mapper/RoomMapper";
 import {PrismaClient} from "@prisma/client";
-import {BadRequestError, NotFoundError} from "../util/exception/AWSRoomBookingSystemError";
+import {NotFoundError, RequestConflictError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class RoomRepository extends AbstractRepository {
     /**
@@ -12,23 +12,6 @@ export default class RoomRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
         super(database);
     }
-
-    /* ******* Just for reference, from Prisma schema *******
-    model rooms {
-    room_id          Int                @id @default(autoincrement())
-    building_id      Int
-    floor            Int
-    code             String
-    name             String?
-    seats            Int
-    is_active        Boolean
-    bookings_rooms   bookings_rooms[]
-    buildings        buildings          @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
-    rooms_equipments rooms_equipments[]
-
-    @@unique([building_id, floor, code])
-}
-    */
 
     public async findAll(): Promise<RoomDTO[]> {
         const roomList = await this.db.rooms.findMany({
@@ -83,7 +66,7 @@ export default class RoomRepository extends AbstractRepository {
         });
 
         if (!room) {
-            return Promise.reject(new NotFoundError(`Room not found with id: ${id}`));
+            return Promise.reject(new NotFoundError(`room does not exist`));
         }
 
         const roomDTO = toRoomDTO(room, room.buildings.cities, room.buildings, room.rooms_equipments);
@@ -97,7 +80,7 @@ export default class RoomRepository extends AbstractRepository {
                     building_id: dto.building!.buildingId!,
                     floor: dto.floorNumber!,
                     code: dto.roomCode!,
-                    name: dto.roomName,
+                    name: dto.roomName!,
                     seats: dto.numberOfSeats!,
                     is_active: dto.isActive!
                 }
@@ -130,26 +113,26 @@ export default class RoomRepository extends AbstractRepository {
             });
 
             if (!existingRoom) {
-                return Promise.reject(new NotFoundError(`Room not found with id: ${id}`));
+                return Promise.reject(new NotFoundError(`room does not exist`));
             }
 
             const updateData: any = {};
-            if (dto.building?.buildingId) {
+            if (dto.building?.buildingId !== undefined) {
                 updateData.building_id = dto.building.buildingId;
             }
-            if (dto.floorNumber) {
+            if (dto.floorNumber !== undefined) {
                 updateData.floor = dto.floorNumber;
             }
-            if (dto.roomCode) {
+            if (dto.roomCode !== undefined) {
                 updateData.code = dto.roomCode;
             }
-            if (dto.roomName) {
+            if (dto.roomName !== undefined) {
                 updateData.name = dto.roomName;
             }
-            if (dto.numberOfSeats) {
+            if (dto.numberOfSeats !== undefined) {
                 updateData.seats = dto.numberOfSeats;
             }
-            if (dto.isActive) {
+            if (dto.isActive !== undefined) {
                 updateData.is_active = dto.isActive;
             }
 
@@ -162,12 +145,14 @@ export default class RoomRepository extends AbstractRepository {
                 };
             }
 
-            if (dto.building?.buildingId || dto.floorNumber || dto.roomCode){
+            if (dto.building?.buildingId || dto.floorNumber || dto.roomCode) {
                 const conflictWhereClause: any = {
-                    NOT: { room_id: id } // Exclude the current room
+                    NOT: {room_id: id} // Exclude the current room
                 };
 
-                conflictWhereClause.building_id = dto.building?.buildingId ? dto.building.buildingId : existingRoom.building_id;
+                conflictWhereClause.building_id = dto.building?.buildingId
+                    ? dto.building.buildingId
+                    : existingRoom.building_id;
                 conflictWhereClause.floor = dto.floorNumber ? dto.floorNumber : existingRoom.floor;
                 conflictWhereClause.code = dto.roomCode ? dto.roomCode : existingRoom.code;
 
@@ -176,14 +161,9 @@ export default class RoomRepository extends AbstractRepository {
                 });
 
                 if (conflictRoom) {
-                    return Promise.reject(
-                        new BadRequestError(
-                            `Another room ${conflictRoom.room_id} already exists with building ID ${conflictRoom.building_id}, floor ${conflictRoom.floor}, and code ${conflictRoom.code}.`
-                        )
-                    );
+                    throw new RequestConflictError(`room ${dto.roomCode} already exists on that floor`);
                 }
             }
-
 
             const updatedRoom = await tx.rooms.update({
                 where: {room_id: id},

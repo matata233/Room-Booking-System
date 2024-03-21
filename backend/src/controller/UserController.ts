@@ -6,7 +6,8 @@ import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 import UserDTO from "../model/dto/UserDTO";
 import CityDTO from "../model/dto/CityDTO";
 import BuildingDTO from "../model/dto/BuildingDTO";
-import {role} from "@prisma/client";
+import csv from "csv-parser";
+import stream from "stream";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
@@ -194,5 +195,67 @@ export default class UserController extends AbstractController {
                 );
             }
         }
+    };
+
+    //column names in the CSV file: username, first name, last name, email, building name, floor, desk
+    public upload = async (req: Request, res: Response): Promise<any> => {
+        if (!req.file?.buffer) {
+            console.error("File buffer is undefined.");
+            return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
+        }
+
+        const processingPromises: Promise<UserDTO>[] = [];
+        let isFirstDataRow = true;
+
+        // Use stream to read the CSV file from the buffer
+        const bufferStream = new stream.PassThrough();
+        bufferStream.end(req.file.buffer);
+
+        bufferStream
+            .pipe(csv({headers: true}))
+            .on("data", (row) => {
+                if (isFirstDataRow) {
+                    // skip the first row
+                    isFirstDataRow = false;
+                    return;
+                }
+
+                const processingPromise = (async () => {
+                    const username = row._0;
+                    const firstName = row._1;
+                    const lastName = row._2;
+                    const email = row._3;
+                    const building = row._4;
+                    const floor = parseInt(row._5);
+                    const desk = parseInt(row._6);
+                    return await this.userService.upload(username, firstName, lastName, email, building, floor, desk);
+                })();
+                processingPromises.push(processingPromise);
+            })
+            .on("end", async () => {
+                try {
+                    const users = await Promise.all(processingPromises);
+                    super.onResolve(res, users);
+                } catch (error) {
+                    console.error("An error occurred while uploading users.", error);
+                    if (error instanceof UnauthorizedError) {
+                        super.onReject(res, error.code, error.message);
+                    } else {
+                        super.onReject(
+                            res,
+                            ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                            "An error occurred while uploading users."
+                        );
+                    }
+                }
+            })
+            .on("error", (error) => {
+                console.error("Error reading the CSV file:", error);
+                super.onReject(
+                    res,
+                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
+                    "An error occurred while reading the CSV file."
+                );
+            });
     };
 }

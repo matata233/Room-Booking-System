@@ -44,11 +44,9 @@ export default class BookingRepository extends AbstractRepository {
             }
         });
 
-        const bookingDTOs: BookingDTO[] = bookings.map((booking) => {
+        return bookings.map((booking) => {
             return toBookingDTO(booking, booking.users, booking.users_bookings);
         });
-
-        return bookingDTOs;
     }
 
     public async findById(id: number): Promise<BookingDTO> {
@@ -87,11 +85,7 @@ export default class BookingRepository extends AbstractRepository {
             return Promise.reject(new NotFoundError(`Booking not found with id: ${id}`));
         }
 
-        console.log(booking);
-
-        const bookingDTO = toBookingDTO(booking, booking.users, booking.users_bookings);
-
-        return bookingDTO;
+        return toBookingDTO(booking, booking.users, booking.users_bookings);
     }
 
     public async findByUserId(id: number): Promise<BookingDTO[]> {
@@ -113,6 +107,11 @@ export default class BookingRepository extends AbstractRepository {
                                 buildings: {
                                     include: {
                                         cities: true
+                                    }
+                                },
+                                rooms_equipments: {
+                                    include: {
+                                        equipments: true
                                     }
                                 }
                             }
@@ -276,7 +275,43 @@ export default class BookingRepository extends AbstractRepository {
         return result;
     }
 
-    public getSuggestedTimes(
+    public async getGroupingSuggestion(attendees: string[], num_rooms: number): Promise<string[][]> {
+        if (num_rooms > attendees.length) {
+            throw new BadRequestError("Number of rooms greater than users");
+        }
+        const ret = await this.getBuildingFloor(attendees);
+        if (num_rooms > ret.length) {
+            throw new BadRequestError("Number of rooms greater than number of different buildings in groups");
+        }
+        const remaining_buildings = ret.map((entry) => Number(entry.building_id));
+        while (ret.length > num_rooms) {
+            const to_remove = ret.pop();
+            remaining_buildings.splice(remaining_buildings.indexOf(Number(to_remove!.building_id)), 1);
+            for (const building_id of to_remove!.closest_buildings!) {
+                if (!remaining_buildings.includes(building_id)) {
+                    continue;
+                }
+                const i = this.customIndexOf(ret, (entry_1) => Number(entry_1.building_id) === building_id);
+                if (i === -1) {
+                    continue;
+                }
+                // @ts-expect-error temp
+                // eslint-disable-next-line no-unsafe-optional-chaining
+                ret[i].users!.push(...to_remove?.users);
+                // @ts-expect-error temp
+                ret[i].num_users! += to_remove?.num_users;
+                ret.sort((a, b) => Number(b.num_users! - a.num_users!));
+                break;
+            }
+        }
+        const res = [];
+        for (const entry_2 of ret) {
+            res.push(entry_2.users!);
+        }
+        return res;
+    }
+
+    public async getSuggestedTimes(
         start_time: string,
         end_time: string,
         duration: string,
@@ -287,18 +322,17 @@ export default class BookingRepository extends AbstractRepository {
         if (attendees.length <= 0) {
             return Promise.reject(new BadRequestError("No attendees inputted"));
         }
-        return this.getCityId(attendees[0]).then((city_code) => {
-            const query = this.buildTimeSuggestionQuery(
-                start_time,
-                end_time,
-                duration,
-                attendees,
-                equipments,
-                step_size,
-                city_code
-            );
-            return this.db.$queryRawUnsafe(query);
-        });
+        const city_code = await this.getCityId(attendees[0]);
+        const query = this.buildTimeSuggestionQuery(
+            start_time,
+            end_time,
+            duration,
+            attendees,
+            equipments,
+            step_size,
+            city_code
+        );
+        return await this.db.$queryRawUnsafe(query);
     }
 
     public async getAvailableRooms(
@@ -306,29 +340,14 @@ export default class BookingRepository extends AbstractRepository {
         end_time: string,
         attendees: string[],
         equipments: string[],
-        priority: string[]
+        priority: string[],
+        num_rooms: number
     ): Promise<object> {
-        let city_code: string;
-        // temp solution: query all attendees' id and email for frontend
-        // a better way: frontend send these info from request
-        const userList = await this.db.users.findMany({
-            where: {
-                email: {
-                    in: attendees
-                }
-            },
-            select: {
-                user_id: true,
-                email: true,
-                first_name: true,
-                last_name: true
-            }
-        });
         return this.getUnavailableAttendees(attendees, start_time, end_time)
-            .then((res) => {
-                if (res.length > 0) {
+            .then((unavailableAttendees) => {
+                if (unavailableAttendees.length > 0) {
                     throw new UnavailableAttendeesError(
-                        res
+                        unavailableAttendees
                             .map((user) => {
                                 return user.email + ",";
                             })
@@ -336,39 +355,36 @@ export default class BookingRepository extends AbstractRepository {
                             .slice(0, -1)
                     );
                 }
+                // Select the current user's city as the city for the booking
                 return this.getCityId(attendees[0]);
             })
-            .then((res) => {
-                city_code = res;
-                return this.getBuildingFloor(attendees);
+            .then(async (city) => {
+                const groupedAttendees = await this.getGroupingSuggestion(attendees, num_rooms);
+                const roomAllocationPromises = groupedAttendees.map(async (attendeeGroup) => {
+                    const buildingFloorList = await this.getBuildingFloor(attendeeGroup);
+                    const closest_building_id = buildingFloorList[0].building_id;
+                    const floor = buildingFloorList[0].floor as number;
+                    const recommendedRooms = await this.db.$queryRawUnsafe(
+                        this.buildRoomSearchQuery(
+                            start_time,
+                            end_time,
+                            attendeeGroup,
+                            equipments,
+                            priority,
+                            closest_building_id,
+                            city,
+                            floor
+                        )
+                    );
+                    return {
+                        attendees: attendeeGroup,
+                        rooms: toAvailableRoomDTO(recommendedRooms as never[], equipments)
+                    };
+                });
+                return await Promise.all(roomAllocationPromises);
             })
-            .then((buildingFloorList: AggregateAttendeeDTO[]) => {
-                // TODO: implement automatic multi room allocation
-                const closest_building_id = buildingFloorList[0].building_id;
-                const floor = buildingFloorList[0].floor as number;
-                const query = this.buildRoomSearchQuery(
-                    start_time,
-                    end_time,
-                    attendees,
-                    equipments,
-                    priority,
-                    closest_building_id,
-                    city_code,
-                    floor
-                );
-                return this.db.$queryRawUnsafe(query);
-            })
-            .then((res) => {
-                const roomList = toAvailableRoomDTO(res as any[], equipments);
-                console.log(roomList);
-                return {
-                    groups: [
-                        {
-                            attendees: userList,
-                            rooms: roomList
-                        }
-                    ]
-                };
+            .then((groups) => {
+                return {groups: groups};
             });
     }
 
@@ -404,37 +420,33 @@ export default class BookingRepository extends AbstractRepository {
         });
     }
 
-    private getCityId(email: string): Promise<string> {
-        return this.db.users
-            .findUnique({
-                where: {
-                    email: email
-                },
-                include: {
-                    buildings: {
-                        select: {
-                            city_id: true
-                        }
+    private async getCityId(email: string): Promise<string> {
+        const res = await this.db.users.findUnique({
+            where: {
+                email: email
+            },
+            include: {
+                buildings: {
+                    select: {
+                        city_id: true
                     }
                 }
-            })
-            .then((res) => {
-                if (res === null) {
-                    return Promise.reject(new NotFoundError(`User ${email} not found`));
-                }
-                return res.buildings.city_id;
-            });
+            }
+        });
+        if (res === null) {
+            throw new NotFoundError(`User ${email} not found`);
+        }
+        return res.buildings.city_id;
     }
 
-    private getBuildingFloor(attendees: string[]): Promise<AggregateAttendeeDTO[]> {
+    private async getBuildingFloor(attendees: string[]): Promise<AggregateAttendeeDTO[]> {
         let emails = "";
         for (let i = 0; i < attendees.length; i++) {
             emails += `'${attendees[i]}',`;
         }
         emails = emails.slice(0, -1);
-
         const query = `
-            WITH user_counts AS (SELECT building_id, COUNT(*) AS num_users
+            WITH user_counts AS (SELECT building_id, COUNT(*) AS num_users, ARRAY_AGG(email) AS users
                                  FROM users
                                  WHERE email IN (${emails})
                                  GROUP BY building_id),
@@ -445,23 +457,38 @@ export default class BookingRepository extends AbstractRepository {
                                                   FROM users
                                                   WHERE email IN (${emails})
                                                   GROUP BY building_id, floor) t
-                                            WHERE rn = 1)
-            SELECT uc.building_id, uc.num_users, mfp.floor
-            FROM user_counts uc
-                     JOIN max_floor_per_building mfp ON uc.building_id = mfp.building_id
-            ORDER BY num_users DESC`;
+                                            WHERE rn = 1),
+                 agg_users AS (SELECT uc.building_id, uc.num_users, mfp.floor, uc.users
+                               FROM user_counts uc
+                                        JOIN max_floor_per_building mfp ON uc.building_id = mfp.building_id
+                               ORDER BY num_users DESC),
+                 agg_users_dist AS (SELECT au.building_id,
+                                           au.num_users,
+                                           au.floor,
+                                           au.users,
+                                           d.building_id_to,
+                                           d.distance
+                                    FROM agg_users AS au
+                                             JOIN distances d ON au.building_id = d.building_id_from)
+            SELECT agd.building_id,
+                   agd.num_users,
+                   agd.floor,
+                   agd.users,
+                   array_agg(agd.building_id_to ORDER BY agd.distance) AS closest_buildings
+            FROM agg_users_dist agd
+            WHERE agd.building_id_to IN (SELECT building_id FROM user_counts)
+            GROUP BY agd.building_id, agd.num_users, agd.floor, agd.users`;
 
-        return this.db.$queryRawUnsafe(query).then((ret) => {
-            const res: AggregateAttendeeDTO[] = [];
-            (ret as AggregateAttendeeDTO[]).forEach((entry) => {
-                res.push(entry);
-            });
-            const sum = res.map((entry) => Number(entry.num_users)).reduce((a, b) => a + b);
-            if (sum !== attendees.length) {
-                return Promise.reject(new NotFoundError("Some users not found"));
-            }
-            return Promise.resolve(res);
+        const ret = await this.db.$queryRawUnsafe(query);
+        const res: AggregateAttendeeDTO[] = [];
+        (ret as AggregateAttendeeDTO[]).forEach((entry) => {
+            res.push(entry);
         });
+        const sum = res.map((entry_1) => Number(entry_1.num_users)).reduce((a, b) => a + b);
+        if (sum !== attendees.length) {
+            return Promise.reject(new NotFoundError("Some users not found"));
+        }
+        return res;
     }
 
     private buildRoomSearchQuery(
@@ -654,5 +681,14 @@ export default class BookingRepository extends AbstractRepository {
             LIMIT 1
         )`;
         return query;
+    }
+
+    private customIndexOf<T>(arr: T[], testF: (t: T) => boolean) {
+        for (let i = 0; i < arr.length; i++) {
+            if (testF(arr[i])) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

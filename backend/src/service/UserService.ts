@@ -1,8 +1,7 @@
 import AbstractService from "./AbstractService";
 import UserDTO from "../model/dto/UserDTO";
-import AbstractDTO from "../model/dto/AbstractDTO";
 import UserRepository from "../repository/UserRepository";
-import {BadRequestError, NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
+import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
 import {authenticator} from "../App";
 
 export default class UserService extends AbstractService {
@@ -49,6 +48,49 @@ export default class UserService extends AbstractService {
             throw new BadRequestError("Invalid desk");
         }
         return this.userRepo.create(user);
+    }
+
+    public async upload(
+        username: string,
+        firstName: string,
+        lastName: string,
+        email: string,
+        building: string,
+        floor: number,
+        desk: number
+    ): Promise<UserDTO> {
+        if (!username || typeof username !== "string") {
+            throw new BadRequestError("Invalid username");
+        }
+        if (!firstName || typeof firstName !== "string") {
+            throw new BadRequestError("Invalid first name");
+        }
+        if (!lastName || typeof lastName !== "string") {
+            throw new BadRequestError("Invalid last name");
+        }
+        if (!email || typeof email !== "string") {
+            throw new BadRequestError("Invalid email");
+        }
+        if (typeof floor !== "number") {
+            throw new BadRequestError("Invalid floor");
+        }
+        if (typeof desk !== "number") {
+            throw new BadRequestError("Invalid desk");
+        }
+        if (!building || typeof building !== "string") {
+            throw new BadRequestError("Invalid building");
+        }
+
+        const cityID = this.splitString(building).characters;
+        const buildingCode = this.splitString(building).number;
+
+        return this.userRepo.upload(username, firstName, lastName, email, floor, desk, cityID, buildingCode);
+    }
+
+    private splitString(input: string): {characters: string; number: number} {
+        const characters = input.match(/[a-zA-Z]+/g)?.join("") || "";
+        const number = parseInt(input.match(/\d+/g)?.join("") || "0", 10);
+        return {characters, number};
     }
 
     // Update user details

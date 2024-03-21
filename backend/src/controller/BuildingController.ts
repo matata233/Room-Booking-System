@@ -38,9 +38,7 @@ export default class BuildingController extends AbstractController {
             const building = await this.buildingService.getById(buildingId);
             return super.onResolve(res, building);
         } catch (error: unknown) {
-            if (error instanceof NotFoundError) {
-                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
-            } else if (error instanceof UnauthorizedError) {
+            if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
                 return super.onReject(res, error.code, error.message);
             } else {
                 // Generic error handling
