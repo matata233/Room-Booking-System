@@ -6,7 +6,6 @@ import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 import UserDTO from "../model/dto/UserDTO";
 import CityDTO from "../model/dto/CityDTO";
 import BuildingDTO from "../model/dto/BuildingDTO";
-import fs from "fs";
 import csv from "csv-parser";
 import stream from "stream";
 
@@ -206,6 +205,7 @@ export default class UserController extends AbstractController {
         }
 
         const processingPromises: Promise<UserDTO>[] = [];
+        let isFirstDataRow = true;
 
         // Use stream to read the CSV file from the buffer
         const bufferStream = new stream.PassThrough();
@@ -214,6 +214,12 @@ export default class UserController extends AbstractController {
         bufferStream
             .pipe(csv({headers: true}))
             .on("data", (row) => {
+                if (isFirstDataRow) {
+                    // skip the first row
+                    isFirstDataRow = false;
+                    return;
+                }
+
                 const processingPromise = (async () => {
                     const username = row._0;
                     const firstName = row._1;
@@ -222,17 +228,7 @@ export default class UserController extends AbstractController {
                     const building = row._4;
                     const floor = parseInt(row._5);
                     const desk = parseInt(row._6);
-                    const isActive = row._7 === "TRUE";
-                    return await this.userService.upload(
-                        username,
-                        firstName,
-                        lastName,
-                        email,
-                        building,
-                        floor,
-                        desk,
-                        isActive
-                    );
+                    return await this.userService.upload(username, firstName, lastName, email, building, floor, desk);
                 })();
                 processingPromises.push(processingPromise);
             })
@@ -241,7 +237,7 @@ export default class UserController extends AbstractController {
                     const users = await Promise.all(processingPromises);
                     super.onResolve(res, users);
                 } catch (error) {
-                    console.error("An error occurred while uploading users:", error);
+                    console.error("An error occurred while uploading users.", error);
                     if (error instanceof UnauthorizedError) {
                         super.onReject(res, error.code, error.message);
                     } else {

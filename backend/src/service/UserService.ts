@@ -57,8 +57,7 @@ export default class UserService extends AbstractService {
         email: string,
         building: string,
         floor: number,
-        desk: number,
-        isActive: boolean
+        desk: number
     ): Promise<UserDTO> {
         if (!username || typeof username !== "string") {
             throw new BadRequestError("Invalid username");
@@ -78,9 +77,6 @@ export default class UserService extends AbstractService {
         if (typeof desk !== "number") {
             throw new BadRequestError("Invalid desk");
         }
-        if (typeof isActive !== "boolean") {
-            throw new BadRequestError("Invalid isActive");
-        }
         if (!building || typeof building !== "string") {
             throw new BadRequestError("Invalid building");
         }
@@ -88,7 +84,7 @@ export default class UserService extends AbstractService {
         const cityID = this.splitString(building).characters;
         const buildingCode = this.splitString(building).number;
 
-        return this.userRepo.upload(username, firstName, lastName, email, floor, desk, isActive, cityID, buildingCode);
+        return this.userRepo.upload(username, firstName, lastName, email, floor, desk, cityID, buildingCode);
     }
 
     private splitString(input: string): {characters: string; number: number} {

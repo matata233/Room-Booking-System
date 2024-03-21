@@ -171,7 +171,6 @@ export default class UserRepository extends AbstractRepository {
         email: string,
         floor: number,
         desk: number,
-        isActive: boolean,
         cityID: string,
         buildingCode: number
     ): Promise<UserDTO> {
@@ -187,7 +186,7 @@ export default class UserRepository extends AbstractRepository {
                 floor: floor,
                 desk: desk,
                 role: "staff",
-                is_active: isActive
+                is_active: true
             }
         });
 
