@@ -1,7 +1,6 @@
 // set the user credentials to localstorage and remove them
 import { createSlice } from "@reduxjs/toolkit";
 
-
 const initialState = {
   userInfo: null,
 };
@@ -18,6 +17,6 @@ const authSlice = createSlice({
     },
   },
 });
-export const { setCredentials, logout, checkTokenExpiration } = authSlice.actions;
+export const { setCredentials, logout } = authSlice.actions;
 
 export default authSlice.reducer;
