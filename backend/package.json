@@ -52,7 +52,7 @@
         "lint": "eslint \"{src,test}/**/*\" --fix",
         "format": "prettier \"{src,test}/**/*\" --write",
         "start": "ts-node src/LocalApp.ts",
-        "dev": "npx nodemon src/LocalApp.ts"
-        "test": "mocha \"test/**/*.spec.ts\" --require ts-node/register",
+        "dev": "npx nodemon src/LocalApp.ts",
+        "test": "mocha \"test/**/*.spec.ts\" --require ts-node/register"
     }
 }
