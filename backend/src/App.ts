@@ -18,7 +18,6 @@ import EventController from "./controller/EventController";
 import EventService from "./service/EventService";
 import EventRepository from "./repository/EventRepository";
 import multer from "multer";
-import path from "path";
 
 const app = express();
 // Registers middleware
@@ -64,9 +63,8 @@ app.get(`${endpoint}/users/:id`, userController.getById);
 app.post(`${endpoint}/users/create`, userController.create);
 app.put(`${endpoint}/users/update/:id`, userController.update);
 
-// file will be saved in backend/ folder
-// const uploadDir = path.join(__dirname, "uploadedCSV");
-const upload = multer({storage: multer.memoryStorage()});
+// User upload route
+const upload = multer({storage: multer.memoryStorage()}); // multer is a middleware to handle file upload
 app.post(`${endpoint}/users/upload`, upload.single(`file`), userController.upload);
 
 // Booking route

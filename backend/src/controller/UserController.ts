@@ -205,8 +205,6 @@ export default class UserController extends AbstractController {
             return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
         }
 
-        const filePath = req.file.path;
-
         const processingPromises: Promise<UserDTO>[] = [];
 
         // Use stream to read the CSV file from the buffer
