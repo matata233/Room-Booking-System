@@ -17,6 +17,7 @@
     "@testing-library/user-event": "^13.5.0",
     "dayjs": "^1.11.10",
     "jwt-decode": "^4.0.0",
+    "ldrs": "^1.0.1",
     "react": "^18.2.0",
     "react-big-calendar": "^1.11.2",
     "react-calendar": "^4.8.0",
