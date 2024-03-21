@@ -2,18 +2,20 @@
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "../constants";
-import { checkTokenExpiration } from "./authSlice"
-import { useDispatch} from "react-redux";
+import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
-const dispatch = useDispatch();
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth?.userInfo?.token;
     if (token) {
-      dispatch(
-          checkTokenExpiration()
-      );
+      if (Date.now() >= jwtDecode(token).exp * 1000) {
+        toast.error(
+            `Your token has expired, please login again.`
+        );
+        localStorage.userInfo = null;
+      }
       headers.set("authorization", `Bearer ${token}`);
       console.log("token", token);
     }
