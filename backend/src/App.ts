@@ -18,6 +18,7 @@ import Authenticator from "./util/Authenticator";
 import EventController from "./controller/EventController";
 import EventService from "./service/EventService";
 import EventRepository from "./repository/EventRepository";
+import multer from "multer";
 
 const app = express();
 // Registers middleware
@@ -59,6 +60,10 @@ app.get(`${endpoint}/users/email`, userController.getByEmail); // register order
 app.get(`${endpoint}/users/:id`, userController.getById);
 app.post(`${endpoint}/users/create`, userController.create);
 app.put(`${endpoint}/users/update/:id`, userController.update);
+
+// User upload route
+const upload = multer({storage: multer.memoryStorage()}); // multer is a middleware to handle file upload
+app.post(`${endpoint}/users/upload`, upload.single(`file`), userController.upload);
 
 // Booking route
 app.get(`${endpoint}/booking`, bookingController.getAll);
@@ -147,4 +152,5 @@ app.get(`${endpoint}/events/:id`, eventController.getById);
 app.post(`${endpoint}/events/create`, eventController.create);
 app.put(`${endpoint}/events/:id`, eventController.update);
 app.delete(`${endpoint}/events/:id`, eventController.delete);
+
 export default app;
