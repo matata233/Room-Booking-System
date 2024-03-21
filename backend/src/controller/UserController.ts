@@ -8,6 +8,7 @@ import CityDTO from "../model/dto/CityDTO";
 import BuildingDTO from "../model/dto/BuildingDTO";
 import fs from "fs";
 import csv from "csv-parser";
+import stream from "stream";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
@@ -150,7 +151,7 @@ export default class UserController extends AbstractController {
             userToUpdateDTO.isActive = req.body.isActive === "true";
             // userToUpdateDTO.role = req.body.role as role;
             userToUpdateDTO.building = new BuildingDTO();
-            userToUpdateDTO.building.buildingId = parseInt(req.body.buildingID);
+            userToUpdateDTO.building.buildingId = parseInt(req.body.buildingId);
 
             const userUpdated = await this.userService.update(userID, userToUpdateDTO);
             return super.onResolve(res, userUpdated);
@@ -199,8 +200,8 @@ export default class UserController extends AbstractController {
 
     //column names in the CSV file: username, first name, last name, email, building name, floor, desk
     public upload = async (req: Request, res: Response): Promise<any> => {
-        if (!req.file?.path) {
-            console.error("File path is undefined.");
+        if (!req.file?.buffer) {
+            console.error("File buffer is undefined.");
             return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
         }
 
@@ -208,7 +209,11 @@ export default class UserController extends AbstractController {
 
         const processingPromises: Promise<UserDTO>[] = [];
 
-        fs.createReadStream(filePath)
+        // Use stream to read the CSV file from the buffer
+        const bufferStream = new stream.PassThrough();
+        bufferStream.end(req.file.buffer);
+
+        bufferStream
             .pipe(csv({headers: true}))
             .on("data", (row) => {
                 const processingPromise = (async () => {

@@ -4,7 +4,7 @@ import RoomDTO from "./RoomDTO";
 
 export interface Group {
     room: RoomDTO;
-    users: UserDTO[];
+    attendees: UserDTO[];
 }
 export default class BookingDTO extends AbstractDTO {
     public bookingId?: number;
