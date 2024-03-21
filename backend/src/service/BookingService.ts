@@ -4,7 +4,7 @@ import BookingRepository from "../repository/BookingRepository";
 import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class BookingService extends AbstractService {
-    public bookingRepository: BookingRepository;
+    private bookingRepository: BookingRepository;
 
     constructor(bookingRepository: BookingRepository) {
         super();
@@ -103,8 +103,16 @@ export default class BookingService extends AbstractService {
         end_time: string,
         attendees: string[],
         equipments: string[],
-        priority: string[]
+        priority: string[],
+        num_rooms: number
     ): Promise<object> {
-        return this.bookingRepository.getAvailableRooms(start_time, end_time, attendees, equipments, priority);
+        return this.bookingRepository.getAvailableRooms(
+            start_time,
+            end_time,
+            attendees,
+            equipments,
+            priority,
+            num_rooms
+        );
     }
 }
