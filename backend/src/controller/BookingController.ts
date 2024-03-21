@@ -153,7 +153,7 @@ export default class BookingController extends AbstractController {
             // bookingToUpdateDTO.startTime = new Date(req.body.startTime);
             // bookingToUpdateDTO.endTime = new Date(req.body.endTime);
             bookingToUpdateDTO.status = req.body.status as status;
-            // create an array of UserDTOs for each group of participants
+            // create 2D array of UserDTOs for each group of participants
             bookingToUpdateDTO.userDTOs = [];
             for (const group of req.body.users) {
                 // note: req.body.users is 2D array of user IDs

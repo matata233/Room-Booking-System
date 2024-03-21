@@ -233,7 +233,6 @@ export default class BookingRepository extends AbstractRepository {
                 }
             });
         });
-        
         return updatedBooking;
     }
 
