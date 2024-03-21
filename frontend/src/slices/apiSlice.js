@@ -14,7 +14,7 @@ const baseQuery = fetchBaseQuery({
         toast.error(
             `Your token has expired, please login again.`
         );
-        localStorage.userInfo = null;
+        localStorage.setItem("userInfo", null);
       }
       headers.set("authorization", `Bearer ${token}`);
       console.log("token", token);
