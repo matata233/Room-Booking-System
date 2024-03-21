@@ -13,27 +13,38 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
   );
   const [endTime, setEndTime] = useState("00:00");
 
-  const handleAddEvent = () => {
+  const handleAddEvent = (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
+
     const startDateTime = new Date(`${startDate}T${startTime}`);
     const endDateTime = new Date(`${endDate}T${endTime}`);
-    // const startDateTime2 = dayjs(`${startDate}T${startTime}`);
-    // const endDateTime = dayjs(`${endDate}T${endTime}`);
-    // console.log(startDateTime);
+
+    if (
+      dayjs(startDateTime).isAfter(dayjs(endDateTime)) ||
+      dayjs(startDateTime).isSame(dayjs(endDateTime))
+    ) {
+      alert("End time should be later than start time.");
+      return;
+    }
+
     const newEvent = {
       title,
-      startTime: dayjs(startDateTime).format("YYYY-MM-DD HH:mm:ss"),
-      endTime: dayjs(endDateTime).format("YYYY-MM-DD HH:mm:ss"),
+      startTime: startDateTime.toISOString(),
+      endTime: endDateTime.toISOString(),
     };
     onAdd(newEvent);
   };
 
   // const handleTest = () => {
-  //   console.log("startDate " + startDate);
-  //   console.log("endDate " + endDate);
+  //   console.log("startDate " + startDate + "" + startTime);
+  //   const startDateTime = new Date(`${startDate}T${startTime}`);
+
+  //   console.log("ASDFADF", startDateTime.toISOString());
+  //   console.log(
+  //     "first: " + dayjs.utc(startDateTime).format("YYYY-MM-DD HH:mm:ss"),
+  //   );
   // };
-  // const handleSubmit = (event) => {
-  //   console.log("first");
-  // };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="group relative pl-3">
@@ -109,14 +120,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
             </button>
           </div>
         </form>
-        {/* <div className="flex justify-center">
-          <button
-            onClick={handleTest}
-            className="my-4 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
-          >
-            test
-          </button>
-        </div> */}
+
         <button
           className="absolute right-4 top-5 cursor-pointer p-2"
           onClick={onClose}
@@ -124,6 +128,14 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
           <img src={CloseIconSVG} alt="Close Icon" className="h-6 w-6" />
         </button>
       </div>
+      {/* <div className="flex justify-center">
+        <button
+          onClick={handleTest}
+          className="my-4 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+        >
+          test
+        </button>
+      </div> */}
     </div>
   );
 };

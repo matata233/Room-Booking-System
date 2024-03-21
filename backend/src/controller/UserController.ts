@@ -149,7 +149,7 @@ export default class UserController extends AbstractController {
             userToUpdateDTO.isActive = req.body.isActive === "true";
             // userToUpdateDTO.role = req.body.role as role;
             userToUpdateDTO.building = new BuildingDTO();
-            userToUpdateDTO.building.buildingId = parseInt(req.body.buildingID);
+            userToUpdateDTO.building.buildingId = parseInt(req.body.buildingId);
 
             const userUpdated = await this.userService.update(userID, userToUpdateDTO);
             return super.onResolve(res, userUpdated);

@@ -5,6 +5,13 @@ import { MdDelete } from "react-icons/md";
 import dayjs from "dayjs";
 
 const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
+  // const handleTest = () => {
+  //   console.log("startDate " + event.startTime);
+  //   console.log(
+  //     "first: " + dayjs(event.startTime).format("YYYY-MM-DD hh:mm A"),
+  //   );
+  // };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="group relative pl-3">
@@ -17,19 +24,13 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
           <p className="pb-2 text-lg  text-gray-800">Start Time:</p>
           <div className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4">
             <p className="">
-              {dayjs(new Date(event.startTime)).format(
-                "YYYY-MM-DD \b \b \b hh:mm A",
-              )}
+              {dayjs(event.startTime).format("YYYY-MM-DD \b \b \b hh:mm A")}
             </p>
           </div>
 
           <p className="pb-2 text-lg  text-gray-800">End Time:</p>
           <div className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4">
-            <p>
-              {dayjs(new Date(event.endTime)).format(
-                "YYYY-MM-DD \b \b \b hh:mm A",
-              )}
-            </p>
+            <p>{dayjs(event.endTime).format("YYYY-MM-DD \b \b \b hh:mm A")}</p>
           </div>
           <div className="mb-3 flex justify-end gap-2">
             <button
@@ -53,6 +54,14 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
           <img src={CloseIconSVG} alt="Close Icon" className="h-6 w-6" />
         </button>
       </div>
+      {/* <div className="flex justify-center">
+        <button
+          onClick={handleTest}
+          className="my-4 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+        >
+          test
+        </button>
+      </div> */}
     </div>
   );
 };

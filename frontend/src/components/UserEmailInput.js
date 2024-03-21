@@ -15,6 +15,7 @@ const UserEmailInput = () => {
     refetch,
   } = useGetAllEmailsQuery();
   const dispatch = useDispatch();
+
   /**
    * 
    * {
@@ -29,10 +30,9 @@ const UserEmailInput = () => {
   const filteredEmails = userEmails?.result.filter(
     (user) => user.email !== userInfo.email,
   ); // Filter out the current user's email
+  console.log(filteredEmails);
 
-  const selectedAttendees = useSelector(
-    (state) => state.booking.ungroupedAttendees,
-  );
+  const { ungroupedAttendees } = useSelector((state) => state.booking);
 
   const handleChange = (selected) => {
     const selectedAttendees = selected.map((option) => ({
@@ -52,9 +52,9 @@ const UserEmailInput = () => {
       <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
         <div className="relative">
           <Select
-            value={selectedAttendees.map((attendee) => ({
-              value: attendee.userId,
-              label: attendee.email,
+            value={ungroupedAttendees.map((user) => ({
+              value: user.userId,
+              label: user.email,
             }))}
             closeMenuOnSelect={false}
             components={animatedComponents}

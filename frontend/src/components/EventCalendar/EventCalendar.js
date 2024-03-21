@@ -14,7 +14,6 @@ import {
   useDeleteEventMutation,
 } from "../../slices/eventsApiSlice";
 import { toast } from "react-toastify";
-import dayjs from "dayjs";
 
 const localizer = momentLocalizer(moment);
 
@@ -74,33 +73,15 @@ const EventCalendar = () => {
   };
 
   const handleSaveEvent = async (event) => {
-    // Check if the end time is later than the start time
-    if (
-      dayjs(event.startTime).isAfter(dayjs(event.endTime)) ||
-      dayjs(event.startTime).isSame(dayjs(event.endTime))
-    ) {
-      alert("End time should be later than start time.");
-      return;
-    }
     try {
-      // Determine whether to create or update the event
-      let response;
       if (isEditing) {
-        response = await updateEvent({
+        await updateEvent({
           eventId: selectedEvent.eventId,
           updatedEvent: event,
         }).unwrap();
-      } else {
-        response = await createEvent(event).unwrap();
-      }
-      // Check if there was an error in the response
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-      // Display success toast message
-      if (isEditing) {
         toast.success("Event updated");
       } else {
+        await createEvent(event).unwrap();
         toast.success("Event created");
       }
       // Close the modal
@@ -137,7 +118,7 @@ const EventCalendar = () => {
           </h1>
           <button
             className="text-md rounded bg-theme-orange px-3 py-1 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange  hover:text-white md:px-5 md:py-1 xl:px-6"
-            onClick={(date) => handleSelectDate(new Date())}
+            onClick={(date) => handleSelectDate(date.start)}
           >
             Add Event
           </button>
