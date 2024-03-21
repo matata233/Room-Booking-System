@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import express from "express";
 import {PrismaClient} from "@prisma/client";
 import RoomController from "./controller/RoomController";
@@ -28,10 +29,7 @@ const database = new PrismaClient();
 export const authenticator = Authenticator.getInstance(new UserRepository(database));
 
 const bookingController = new BookingController(new BookingService(new BookingRepository(database)));
-const roomController = new RoomController(
-    new RoomService(new RoomRepository(database), new BuildingRepository(database))
-);
-
+const roomController = new RoomController(new RoomService(new RoomRepository(database)));
 const userController = new UserController(new UserService(new UserRepository(database)));
 const buildingController = new BuildingController(new BuildingService(new BuildingRepository(database)));
 const eventController = new EventController(new EventService(new EventRepository(database)));

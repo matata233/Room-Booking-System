@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {PrismaClient} from "@prisma/client";
 import {expect, use} from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -58,13 +59,57 @@ describe("Booking tests", () => {
     });
 
     describe("Checking for available rooms", () => {
+        it("Auto-splitting check 1 room", async () => {
+            const result = await bookingService.getAvailableRooms(
+                basicBooking.startTime!.toISOString(),
+                basicBooking.endTime!.toISOString(),
+                [
+                    "YVR32_01_1@aws.ca",
+                    "YVR32_01_2@aws.ca",
+                    "team7awsome01@gmail.com",
+                    "team7awsomeuser01@gmail.com",
+                    "hsiangyi1025@gmail.com"
+                ],
+                ["VC"],
+                ["distance", "seats", "equipments"],
+                1
+            );
+            // @ts-expect-error temp
+            expect(result.groups[0].rooms).to.have.lengthOf(283);
+        });
+
+        it("Auto-splitting check", async () => {
+            const result = await bookingService.getAvailableRooms(
+                basicBooking.startTime!.toISOString(),
+                basicBooking.endTime!.toISOString(),
+                [
+                    "YVR32_01_1@aws.ca",
+                    "YVR32_01_2@aws.ca",
+                    "team7awsome01@gmail.com",
+                    "team7awsomeuser01@gmail.com",
+                    "hsiangyi1025@gmail.com"
+                ],
+                ["VC"],
+                ["distance", "seats", "equipments"],
+                4
+            );
+            // @ts-expect-error temp
+            expect(result.groups[0].rooms).to.have.lengthOf(283);
+        });
+
         it("distance check YVR", async () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                ["YVR32_01_1@aws.ca", "team7awsome01@gmail.com", "team7awsomeuser01@gmail.com", "hsiangyi1025@gmail.com"],
+                [
+                    "YVR32_01_1@aws.ca",
+                    "team7awsome01@gmail.com",
+                    "team7awsomeuser01@gmail.com",
+                    "hsiangyi1025@gmail.com"
+                ],
                 ["VC"],
                 ["seats", "equipments", "distance"]
+                ,1
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(283);
@@ -77,6 +122,7 @@ describe("Booking tests", () => {
                 ["YVR32_01_1@aws.ca"],
                 ["AV", "VC"],
                 ["distance", "seats", "equipments"]
+                ,1
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(283);
@@ -90,6 +136,7 @@ describe("Booking tests", () => {
                 ["YVR32_01_1@aws.ca"],
                 ["AV", "VC"],
                 ["distance", "seats", "equipments"]
+                ,1
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(281);
@@ -102,6 +149,7 @@ describe("Booking tests", () => {
                 ["YUL22_01_1@aws.ca"],
                 ["AV", "VC"],
                 ["distance", "seats", "equipments"]
+                ,1
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(10);
@@ -115,6 +163,7 @@ describe("Booking tests", () => {
                 ["YVR74_01_1@aws.ca"],
                 ["AV", "VC"],
                 ["distance", "seats", "equipments"]
+                ,1
             );
             expect(result).to.exist;
         });
@@ -127,6 +176,7 @@ describe("Booking tests", () => {
                 [basicBooking.userDTOs![0][0].email!],
                 ["AV", "VC"],
                 []
+                ,1
             );
             return expect(result).to.eventually.be.rejectedWith(UnavailableAttendeesError);
         });
@@ -139,6 +189,7 @@ describe("Booking tests", () => {
                 [basicBooking.userDTOs![0][1].email!],
                 ["AV", "VC"],
                 []
+                ,1
             );
             return expect(result).to.eventually.be.rejectedWith(UnavailableAttendeesError);
         });
@@ -156,6 +207,7 @@ describe("Booking tests", () => {
                 [basicBooking.userDTOs![0][0].email!],
                 ["AV", "VC"],
                 ["distance", "seats", "equipments"]
+                ,1
             );
             expect(result).to.exist;
         });
@@ -173,6 +225,7 @@ describe("Booking tests", () => {
                 [basicBooking.userDTOs![0][0].email!],
                 ["AV", "VC"],
                 []
+                ,1
             );
             return expect(result).to.eventually.be.rejectedWith(UnavailableAttendeesError);
         });

@@ -1,4 +1,4 @@
-import {bookings, users} from "@prisma/client";
+import {bookings, rooms_equipments, users} from "@prisma/client";
 import BookingDTO, {Group} from "../../model/dto/BookingDTO";
 import UserDTO from "../../model/dto/UserDTO";
 import {toUserDTO} from "./UserMapper";
@@ -95,7 +95,7 @@ const mapAttendeesToDTO = (groups: any) => {
             const room = groups.find((group: any) => group.room_id === parseInt(room_id))!.rooms;
             const building = room.buildings;
             const city = room.buildings.cities;
-            const roomDTO = toRoomDTO(room, city, building);
+            const roomDTO = toRoomDTO(room, city, building, room.rooms_equipments);
             if (roomDTO) {
                 const group: Group = {room: roomDTO, attendees: roomUsers};
                 result.push(group);

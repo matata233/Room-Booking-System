@@ -1,8 +1,7 @@
 import AbstractService from "./AbstractService";
 import UserDTO from "../model/dto/UserDTO";
-import AbstractDTO from "../model/dto/AbstractDTO";
 import UserRepository from "../repository/UserRepository";
-import {BadRequestError, NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
+import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
 import {authenticator} from "../App";
 
 export default class UserService extends AbstractService {

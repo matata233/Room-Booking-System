@@ -1,10 +1,21 @@
 import AbstractDTO from "./AbstractDTO";
-import UserDTO from "./UserDTO";
-//TODO: Until frontend team decide what data they want, there will be changed here
+import {IsInt, IsOptional} from "class-validator";
+
 export default class AggregateAttendeeDTO extends AbstractDTO {
+    @IsInt()
+    @IsOptional()
     public building_id: string;
+
+    @IsInt()
+    @IsOptional()
     public num_users?: number;
+
+    @IsInt()
+    @IsOptional()
     public floor?: number;
+
+    public users?: string[];
+    public closest_buildings?: number[];
 
     constructor(building_id: string) {
         super();
