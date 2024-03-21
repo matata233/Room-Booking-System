@@ -2,6 +2,7 @@ import AbstractService from "./AbstractService";
 import BookingDTO from "../model/dto/BookingDTO";
 import BookingRepository from "../repository/BookingRepository";
 import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
+import {bookings, status} from "@prisma/client";
 
 export default class BookingService extends AbstractService {
     private bookingRepository: BookingRepository;
@@ -76,8 +77,44 @@ export default class BookingService extends AbstractService {
         );
     }
 
-    public update(id: number, dto: BookingDTO): Promise<BookingDTO> {
-        return Promise.reject("Not Implemented");
+    public async update(id: number, dto: BookingDTO): Promise<BookingDTO> {
+        if (!id || typeof id !== "number") {
+            throw new BadRequestError("Invalid booking ID");
+        }
+        if (!dto.status || typeof dto.status !== "string") {
+            throw new BadRequestError("Invalid status");
+        }
+        if (!dto.userDTOs || dto.userDTOs.length === 0) {
+            throw new BadRequestError("Invalid participant groups");
+        }
+        for (const participantGroup of dto.userDTOs) {
+            if (!participantGroup || participantGroup.length === 0) {
+                throw new BadRequestError("Invalid participant group");
+            }
+            for (const participantUsername of participantGroup) {
+                if (
+                    !participantUsername ||
+                    !participantUsername.userId ||
+                    typeof participantUsername.userId !== "number"
+                ) {
+                    throw new BadRequestError("Invalid participant");
+                }
+            }
+        }
+        if (!dto.roomDTOs || dto.roomDTOs.length === 0) {
+            throw new BadRequestError("Invalid rooms");
+        }
+        for (const room of dto.roomDTOs) {
+            if (!room || typeof room.roomId !== "number") {
+                throw new BadRequestError("Invalid rooms");
+            }
+        }
+        return this.bookingRepository.update(
+            id,
+            dto.status,
+            dto.userDTOs.map((group) => group.map((entry) => Number(entry.userId!))!),
+            dto.roomDTOs.map((entry) => Number(entry.roomId))!
+        );
     }
 
     public getSuggestedTimes(

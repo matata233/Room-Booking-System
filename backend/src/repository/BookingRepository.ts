@@ -1,7 +1,7 @@
 import AbstractRepository from "./AbstractRepository";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import {PrismaClient, users} from "@prisma/client";
+import {bookings, PrismaClient, status, users} from "@prisma/client";
 import {
     BadRequestError,
     NotFoundError,
@@ -134,6 +134,7 @@ export default class BookingRepository extends AbstractRepository {
     ): Promise<BookingDTO> {
         const newBooking = await this.db.$transaction(async (tx) => {
             // TODO: cannot identify which room is not available, start from rooms_bookings table
+            // check if the room is available
             const conflictBooking = await tx.bookings.findFirst({
                 where: {
                     AND: [
@@ -157,7 +158,6 @@ export default class BookingRepository extends AbstractRepository {
                 // TODO: can add to error message to indicate which rooms are unavailable
                 throw new RequestConflictError("Room is unavailable in this timeslot");
             }
-
             const booking = await tx.bookings.create({
                 data: {
                     created_by: created_by,
@@ -168,6 +168,7 @@ export default class BookingRepository extends AbstractRepository {
                 }
             });
 
+            // for each group of attendees, create a user_booking entry
             for (let i = 0; i < attendees.length; i++) {
                 const group = attendees[i];
                 const roomId = parseInt(rooms[i]);
@@ -213,6 +214,65 @@ export default class BookingRepository extends AbstractRepository {
         }
 
         return toBookingDTO(newBooking, newBooking.users, newBooking.users_bookings);
+    }
+
+    public async update(id: number, status: string, attendees: number[][], rooms: number[]): Promise<BookingDTO> {
+        // remove all user_bookings
+        await this.db.users_bookings.deleteMany({
+            where: {
+                booking_id: id
+            }
+        });
+        // for each group of attendees, create a user_booking entry
+        const usersBookings = [];
+        for (let i = 0; i < attendees.length; i++) {
+            const userGroup = attendees[i];
+            const roomId = rooms[i];
+
+            const groupBookings = [];
+            // eslint-disable-next-line no-await-in-loop
+            for (let j = 0; j < userGroup.length; j++) {
+                // eslint-disable-next-line no-await-in-loop
+                const result = await this.db.users_bookings.create({
+                    data: {
+                        booking_id: id,
+                        user_id: userGroup[j],
+                        room_id: roomId
+                    }
+                });
+                groupBookings.push(result);
+            }
+            usersBookings.push(groupBookings);
+        }
+
+        // remove all room_bookings
+        await this.db.bookings_rooms.deleteMany({
+            where: {
+                booking_id: id
+            }
+        });
+        const roomsBookings = [];
+        for (let i = 0; i < rooms.length; i++) {
+            // eslint-disable-next-line no-await-in-loop
+            const roomBooking = await this.db.bookings_rooms.create({
+                data: {
+                    booking_id: id,
+                    room_id: rooms[i]
+                }
+            });
+            roomsBookings.push(roomBooking);
+        }
+
+        const updatedBooking = await this.db.bookings.update({
+            where: {
+                booking_id: id
+            },
+            data: {
+                status: status as status
+            }
+        });
+        const result = toBookingDTO(updatedBooking);
+        return result;
     }
 
     public async getGroupingSuggestion(attendees: string[], num_rooms: number): Promise<string[][]> {
