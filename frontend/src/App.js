@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Header from "./components/Header";
+import TokenExpirationListener from "./components/TokenExpirationListener";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -12,7 +13,8 @@ function App() {
           <Outlet />
         </div>
       </main>
-      <ToastContainer />
+        <TokenExpirationListener />
+        <ToastContainer />
     </>
   );
 }
