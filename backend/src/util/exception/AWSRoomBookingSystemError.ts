@@ -36,6 +36,6 @@ export class BadRequestError extends Error {
     public readonly code = ResponseCodeMessage.BAD_REQUEST_ERROR_CODE;
 
     constructor(message?: string) {
-        super(message);
+        super(ResponseCodeMessage.BAD_REQUEST_ERROR_MSG + message);
     }
 }

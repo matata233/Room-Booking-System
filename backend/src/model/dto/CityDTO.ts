@@ -1,11 +1,18 @@
 import AbstractDTO from "./AbstractDTO";
-import BuildingDTO from "./BuildingDTO";
-//TODO: Until frontend team decide what data they want, there will be changed here
+import {IsOptional, IsString} from "class-validator";
+
 export default class CityDTO extends AbstractDTO {
+    @IsString()
+    @IsOptional()
     public cityId?: string;
+
+    @IsString()
+    @IsOptional()
     public name?: string;
+
+    @IsString()
+    @IsOptional()
     public province_state?: string;
-    public buildingDTOs?: BuildingDTO[];
 
     constructor() {
         super();
