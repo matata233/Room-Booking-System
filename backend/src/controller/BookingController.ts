@@ -13,7 +13,7 @@ import {
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 import {authenticator} from "../App";
-import { status } from "@prisma/client";
+import {status} from "@prisma/client";
 
 export default class BookingController extends AbstractController {
     private bookingService: BookingService;
@@ -147,12 +147,8 @@ export default class BookingController extends AbstractController {
 
         try {
             const bookingToUpdateDTO = new BookingDTO();
-            // these fields are required for BookingDTO
             bookingToUpdateDTO.bookingId = bookingId;
-            // bookingToUpdateDTO.createdBy = req.body.createdBy;
-            // bookingToUpdateDTO.startTime = new Date(req.body.startTime);
-            // bookingToUpdateDTO.endTime = new Date(req.body.endTime);
-            bookingToUpdateDTO.status = req.body.status as status;
+            bookingToUpdateDTO.status = req.body.status;
             // create 2D array of UserDTOs for each group of participants
             bookingToUpdateDTO.userDTOs = [];
             for (const group of req.body.users) {
@@ -172,7 +168,7 @@ export default class BookingController extends AbstractController {
                 room.roomId = roomID;
                 bookingToUpdateDTO.roomDTOs.push(room);
             }
-            const updatedBooking = await this.bookingService.update(bookingToUpdateDTO);
+            const updatedBooking = await this.bookingService.update(bookingId, bookingToUpdateDTO);
             return super.onResolve(res, updatedBooking);
         } catch (error: unknown) {
             if (error instanceof BadRequestError || error instanceof UnauthorizedError) {

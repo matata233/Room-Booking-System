@@ -44,6 +44,7 @@
         "build": "npm run lint && npm run format && tsc",
         "lint": "eslint \"{src,test}/**/*\" --fix",
         "format": "prettier \"{src,test}/**/*\" --write",
-        "start": "ts-node src/LocalApp.ts"
+        "start": "ts-node src/LocalApp.ts",
+        "dev": "npx nodemon src/LocalApp.ts"
     }
 }

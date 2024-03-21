@@ -68,7 +68,7 @@ export default class BookingService extends AbstractService {
         );
     }
 
-    public async update(dto: BookingDTO): Promise<BookingDTO> {
+    public async update(id: number, dto: BookingDTO): Promise<BookingDTO> {
         // if (!dto.createdBy || typeof dto.createdBy !== "number") {
         //     throw new BadRequestError("Invalid creator ID");
         // }
@@ -81,10 +81,10 @@ export default class BookingService extends AbstractService {
         // if (dto.endTime <= dto.startTime) {
         //     throw new BadRequestError("Invalid end time");
         // }
-        if (!dto.bookingId || typeof dto.bookingId !== "number") {
+        if (!id || typeof id !== "number") {
             throw new BadRequestError("Invalid booking ID");
         }
-        if (!dto.status) {
+        if (!dto.status || typeof dto.status !== "string") {
             throw new BadRequestError("Invalid status");
         }
         if (!dto.userDTOs || dto.userDTOs.length === 0) {
@@ -112,13 +112,9 @@ export default class BookingService extends AbstractService {
                 throw new BadRequestError("Invalid rooms");
             }
         }
-        // compare the number of rooms and participant groups
-        if (dto.roomDTOs.length !== dto.userDTOs.length) {
-            throw new BadRequestError("Number of rooms must be equal to number of participant groups");
-        }
         return this.bookingRepository.update(
-            dto.bookingId,
-            dto.status as status,
+            id,
+            dto.status,
             dto.userDTOs.map((group) => group.map((entry) => Number(entry.userId!))!),
             dto.roomDTOs.map((entry) => Number(entry.roomId))!
         );
