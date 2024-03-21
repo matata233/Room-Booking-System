@@ -193,45 +193,62 @@ export default class BookingRepository extends AbstractRepository {
     }
 
     public async update(id: number, status: string, attendees: number[][], rooms: number[]): Promise<BookingDTO> {
+        // remove all user_bookings
+        await this.db.users_bookings.deleteMany({
+            where: {
+                booking_id: id
+            }
+        });
         // for each group of attendees, create a user_booking entry
         const usersBookings = [];
         for (let i = 0; i < attendees.length; i++) {
-            const group = attendees[i];
+            const userGroup = attendees[i];
             const roomId = rooms[i];
 
+            const groupBookings = [];
             // eslint-disable-next-line no-await-in-loop
-            const groupBookings = await Promise.all(
-                group.map((userId) => {
-                    return this.db.users_bookings.create({
-                        data: {
-                            booking_id: id,
-                            user_id: userId,
-                            room_id: roomId
-                        }
-                    });
-                })
-            );
+            for (let j = 0; j < userGroup.length; j++) {
+                // eslint-disable-next-line no-await-in-loop
+                const result = await this.db.users_bookings.create({
+                    data: {
+                        booking_id: id,
+                        user_id: userGroup[j],
+                        room_id: roomId
+                    }
+                });
+                groupBookings.push(result);
+            }
             usersBookings.push(groupBookings);
         }
+
+        // remove all room_bookings
+        await this.db.bookings_rooms.deleteMany({
+            where: {
+                booking_id: id
+            }
+        });
+        const roomsBookings = [];
+        for (let i = 0; i < rooms.length; i++) {
+            // eslint-disable-next-line no-await-in-loop
+            const roomBooking = await this.db.bookings_rooms.create({
+                data: {
+                    booking_id: id,
+                    room_id: rooms[i]
+                }
+            });
+            roomsBookings.push(roomBooking);
+        }
+
         const updatedBooking = await this.db.bookings.update({
             where: {
                 booking_id: id
             },
             data: {
-                status: status as status,
-                bookings_rooms: {
-                    create: rooms.map((room_id) => ({
-                        booking_id: id,
-                        room_id: room_id
-                    }))
-                },
-                users_bookings: {
-                    create: usersBookings.flat()
-                }
+                status: status as status
             }
         });
-        const updatedBookingDTO = toBookingDTO(updatedBooking);
-        return updatedBookingDTO;
+        const result = toBookingDTO(updatedBooking);
+        return result;
     }
 
     public getSuggestedTimes(

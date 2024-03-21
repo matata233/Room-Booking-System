@@ -69,18 +69,6 @@ export default class BookingService extends AbstractService {
     }
 
     public async update(id: number, dto: BookingDTO): Promise<BookingDTO> {
-        // if (!dto.createdBy || typeof dto.createdBy !== "number") {
-        //     throw new BadRequestError("Invalid creator ID");
-        // }
-        // if (!dto.startTime || dto.startTime.toString() === "Invalid Date") {
-        //     throw new BadRequestError("Invalid start time");
-        // }
-        // if (!dto.endTime || dto.endTime.toString() === "Invalid Date") {
-        //     throw new BadRequestError("Invalid end time");
-        // }
-        // if (dto.endTime <= dto.startTime) {
-        //     throw new BadRequestError("Invalid end time");
-        // }
         if (!id || typeof id !== "number") {
             throw new BadRequestError("Invalid booking ID");
         }
