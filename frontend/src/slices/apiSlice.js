@@ -2,16 +2,20 @@
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "../constants";
+import { checkTokenExpiration } from "./authSlice"
+import { useDispatch} from "react-redux";
 
+const dispatch = useDispatch();
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth?.userInfo?.token;
     if (token) {
+      dispatch(
+          checkTokenExpiration()
+      );
       headers.set("authorization", `Bearer ${token}`);
       console.log("token", token);
-    } else {
-      throw new Error("Token missing or expired");
     }
 
     return headers;

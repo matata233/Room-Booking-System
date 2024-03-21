@@ -1,6 +1,7 @@
 // set the user credentials to localstorage and remove them
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
 const initialState = {
   userInfo: null,
@@ -24,7 +25,7 @@ const authSlice = createSlice({
           toast.error(
               `Your token has expired, please login again.`
           );
-          state.userInfo = null; // Clear user info if token expired
+          logout();
         }
       }
     },
