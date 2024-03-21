@@ -26,11 +26,16 @@ const RoomManagementEditPage = () => {
 
   const handleUpdate = async (formData) => {
     try {
-      console.log("formData", formData);
-      await updateRoom({ id: roomId, room: formData });
-      refetch();
+      const transformedFormData = {
+        ...formData,
+        equipmentList: formData.equipmentIds.map((id) => ({
+          equipmentId: id,
+        })),
+      };
+      delete transformedFormData.equipmentIds;
+      console.log(transformedFormData);
+      await updateRoom({ id: roomId, room: transformedFormData });
       toast.success("Room updated successfully!");
-      refetch();
       navigate("/roomManagementPage");
     } catch (err) {
       toast.error(err?.data?.error || "Failed to update room");

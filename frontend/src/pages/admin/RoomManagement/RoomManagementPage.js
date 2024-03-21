@@ -9,12 +9,18 @@ import { MdDelete } from "react-icons/md";
 import { FaSort, FaXmark, FaCheck } from "react-icons/fa6";
 import { PiSelectionAllFill } from "react-icons/pi";
 import Pagination from "../../../components/Pagination";
-import { useGetRoomsQuery } from "../../../slices/roomsApiSlice";
+import {
+  useGetRoomsQuery,
+  useUpdateRoomMutation,
+} from "../../../slices/roomsApiSlice";
 import Loader from "../../../components/Loader";
 import Message from "../../../components/Message";
+import { toast } from "react-toastify";
 
 const RoomManagementPage = () => {
   const { data: rooms, error, isLoading, refetch } = useGetRoomsQuery();
+  const [updateRoom, { isLoading: isUpdating, error: updateError }] =
+    useUpdateRoomMutation();
 
   const roomsData = useMemo(() => {
     if (isLoading || !rooms || !rooms.result) {
@@ -55,6 +61,30 @@ const RoomManagementPage = () => {
     setCurrentPage(1); // reset to first page on search
   };
 
+  const handleToggleIsActive = async (row) => {
+    const reqBody = {
+      buildingId: row.building.buildingId,
+      floorNumber: row.floorNumber,
+      roomCode: row.roomCode, // Updated value
+      roomName: row.roomName,
+      numberOfSeats: row.numberOfSeats,
+      isActive: !row.isActive,
+      equipmentList: row.equipmentList.map((equipment) => ({
+        equipmentId: equipment.equipmentId,
+      })),
+    };
+
+    console.log("reqBody", reqBody);
+
+    try {
+      await updateRoom({ id: row.roomId, room: reqBody });
+      toast.success("Room updated successfully!");
+      refetch();
+    } catch (err) {
+      toast.error(err?.data?.error || "Failed to update room");
+      console.log(err);
+    }
+  };
   return (
     <div className="flex flex-col justify-center gap-y-4 px-10 sm:px-0">
       <div className="flex flex-col gap-y-2 sm:flex-row sm:justify-between">
@@ -185,7 +215,7 @@ const RoomManagementPage = () => {
                     </th>
                   ))}
                   <th className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
-                    Action
+                    Edit
                   </th>
                 </tr>
               </thead>
@@ -247,14 +277,23 @@ const RoomManagementPage = () => {
                         </ul>
                       </td>
 
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                        {row.isActive ? (
-                          <FaCheck className="size-6 text-green-500" />
-                        ) : (
-                          <FaXmark className="size-6 text-red-500" />
-                        )}
+                      <td className="cursor-pointer whitespace-nowrap p-3 text-sm font-medium">
+                        <div
+                          onClick={() => handleToggleIsActive(row)}
+                          className={`relative inline-flex h-6 w-12 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
+                        >
+                          <div
+                            className={`dot absolute left-[2px] top-[2px] flex h-5 w-5 items-center justify-center rounded-full bg-white transition-transform duration-300 ease-in-out ${row.isActive ? "translate-x-[24px]" : ""}`}
+                          >
+                            {row.isActive ? (
+                              <FaCheck className="size-3 text-green-500" />
+                            ) : (
+                              <FaXmark className="size-3  text-red-500" />
+                            )}
+                          </div>
+                        </div>
                       </td>
-                      <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
+                      <td className="whitespace-nowrap p-3  text-sm font-medium">
                         <div className="flex justify-start">
                           <Link
                             to={`/roomManagementEditPage/${row.roomId}`}
@@ -263,13 +302,6 @@ const RoomManagementPage = () => {
                           >
                             <FaEdit className="size-6" />
                           </Link>
-                          <a
-                            href="#"
-                            className="text-red-600 hover:text-red-900"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MdDelete className="size-6" />
-                          </a>
                         </div>
                       </td>
                     </tr>
@@ -324,11 +356,20 @@ const RoomManagementPage = () => {
                       <span className="mr-2 text-sm text-theme-dark-orange">
                         Is Active:{" "}
                       </span>
-                      {row.isActive ? (
-                        <FaCheck className="size-4 text-green-500" />
-                      ) : (
-                        <FaXmark className="size-4 text-red-500" />
-                      )}
+                      <div
+                        onClick={() => handleToggleIsActive(row)}
+                        className={`relative inline-flex h-4 w-8 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
+                      >
+                        <div
+                          className={`dot absolute left-[1px] top-[1px] flex h-[14px] w-[14px] items-center justify-center rounded-full bg-white transition-transform duration-300 ease-in-out ${row.isActive ? "translate-x-[16px]" : ""}`}
+                        >
+                          {row.isActive ? (
+                            <FaCheck className="size-2 text-green-500" />
+                          ) : (
+                            <FaXmark className="size-2  text-red-500" />
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <div className="flex space-x-6">
                       <Link
@@ -338,12 +379,6 @@ const RoomManagementPage = () => {
                       >
                         <FaEdit className="size-5" />
                       </Link>
-                      <button
-                        className="text-red-600 hover:text-red-900"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MdDelete className="size-5" />
-                      </button>
                     </div>
                   </div>
                 </div>

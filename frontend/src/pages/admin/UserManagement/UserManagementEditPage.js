@@ -29,7 +29,6 @@ const UserManagementEditPage = () => {
     try {
       await updateUser({ id: userId, user: formData }).unwrap();
       toast.success("User updated successfully!");
-      refetch();
       navigate("/userManagementPage");
     } catch (err) {
       toast.error(err?.data?.error || "Failed to update user");

@@ -15,7 +15,7 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
       query: (roomId) => ({
         url: `${ROOMS_URL}/${roomId}`,
       }),
-      providesTags: (result, error, roomId) => [{ type: "Room", id: roomId }],
+      providesTags: ["Room"],
       keepUnusedDataFor: 5,
     }),
 
@@ -34,7 +34,7 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: room,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Room", id }],
+      invalidatesTags: ["Room"],
     }),
   }),
 });

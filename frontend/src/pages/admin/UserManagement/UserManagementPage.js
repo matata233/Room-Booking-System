@@ -12,9 +12,13 @@ import Pagination from "../../../components/Pagination";
 import { useGetUsersQuery } from "../../../slices/usersApiSlice";
 import Loader from "../../../components/Loader";
 import Message from "../../../components/Message";
+import { useUpdateUserMutation } from "../../../slices/usersApiSlice";
+import { toast } from "react-toastify";
 
 const UserManagementPage = () => {
   const { data: users, error, isLoading, refetch } = useGetUsersQuery();
+  const [updateUser, { isLoading: isUpdating, error: updateError }] =
+    useUpdateUserMutation();
 
   const usersData = useMemo(() => {
     if (isLoading || !users || !users.result) {
@@ -58,6 +62,27 @@ const UserManagementPage = () => {
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
     setCurrentPage(1); // reset to first page on search
+  };
+
+  const handleToggleIsActive = async (row) => {
+    const reqBody = {
+      username: row.username,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      email: row.email,
+      floor: row.floor,
+      desk: row.desk,
+      buildingId: row.building.buildingId,
+      isActive: !row.isActive,
+    };
+
+    try {
+      await updateUser({ id: row.userId, user: reqBody }).unwrap();
+      toast.success("User updated successfully!");
+      refetch();
+    } catch (err) {
+      toast.error(err?.data?.error || "Failed to update user");
+    }
   };
 
   return (
@@ -178,7 +203,7 @@ const UserManagementPage = () => {
                   </th>
 
                   <th className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
-                    Action
+                    Edit
                   </th>
                 </tr>
               </thead>
@@ -224,14 +249,23 @@ const UserManagementPage = () => {
                         </span>
                       </td>
 
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                        {row.isActive ? (
-                          <FaCheck className="size-6 text-green-500" />
-                        ) : (
-                          <FaXmark className="size-6 text-red-500" />
-                        )}
+                      <td className="cursor-pointer whitespace-nowrap p-3 text-sm font-medium">
+                        <div
+                          onClick={() => handleToggleIsActive(row)}
+                          className={`relative inline-flex h-6 w-12 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
+                        >
+                          <div
+                            className={`dot absolute left-[2px] top-[2px] flex h-5 w-5 items-center justify-center rounded-full bg-white transition-transform duration-300 ease-in-out ${row.isActive ? "translate-x-[24px]" : ""}`}
+                          >
+                            {row.isActive ? (
+                              <FaCheck className="size-3 text-green-500" />
+                            ) : (
+                              <FaXmark className="size-3  text-red-500" />
+                            )}
+                          </div>
+                        </div>
                       </td>
-                      <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
+                      <td className="whitespace-nowrap p-3  text-sm font-medium">
                         <div className="flex justify-start">
                           <Link
                             to={`/userManagementEditPage/${row.userId}`}
@@ -240,13 +274,6 @@ const UserManagementPage = () => {
                           >
                             <FaEdit className="size-6" />
                           </Link>
-                          <a
-                            href="#"
-                            className="text-red-600 hover:text-red-900"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MdDelete className="size-6" />
-                          </a>
                         </div>
                       </td>
                     </tr>
@@ -299,11 +326,20 @@ const UserManagementPage = () => {
                       <span className="mr-2 font-bold text-theme-dark-orange">
                         Is Active:{" "}
                       </span>
-                      {row.isActive ? (
-                        <FaCheck className="size-4 text-green-500" />
-                      ) : (
-                        <FaXmark className="size-4 text-red-500" />
-                      )}
+                      <div
+                        onClick={() => handleToggleIsActive(row)}
+                        className={`relative inline-flex h-4 w-8 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
+                      >
+                        <div
+                          className={`dot absolute left-[1px] top-[1px] flex h-[14px] w-[14px] items-center justify-center rounded-full bg-white transition-transform duration-300 ease-in-out ${row.isActive ? "translate-x-[16px]" : ""}`}
+                        >
+                          {row.isActive ? (
+                            <FaCheck className="size-2 text-green-500" />
+                          ) : (
+                            <FaXmark className="size-2  text-red-500" />
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <div className="flex space-x-6">
                       <Link
@@ -313,12 +349,6 @@ const UserManagementPage = () => {
                       >
                         <FaEdit className="size-5" />
                       </Link>
-                      <button
-                        className="text-red-600 hover:text-red-900"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MdDelete className="size-5" />
-                      </button>
                     </div>
                   </div>
                 </div>
