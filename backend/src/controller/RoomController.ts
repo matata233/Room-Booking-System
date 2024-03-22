@@ -2,6 +2,7 @@ import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 import RoomService from "../service/RoomService";
 import RoomDTO from "../model/dto/RoomDTO";
+import {plainToInstance} from "class-transformer";
 
 export default class RoomController extends AbstractController {
     private roomService: RoomService;
@@ -29,7 +30,7 @@ export default class RoomController extends AbstractController {
 
     public create = async (req: Request, res: Response): Promise<Response> => {
         try {
-            return super.onResolve(res, await this.roomService.create(new RoomDTO(req.body)));
+            return super.onResolve(res, await this.roomService.create(plainToInstance(RoomDTO, req.body)));
         } catch (error) {
             return this.handleError(res, error);
         }
@@ -37,7 +38,10 @@ export default class RoomController extends AbstractController {
 
     public update = async (req: Request, res: Response): Promise<Response> => {
         try {
-            return super.onResolve(res, await this.roomService.update(parseInt(req.params.id), new RoomDTO(req.body)));
+            return super.onResolve(
+                res,
+                await this.roomService.update(parseInt(req.params.id), plainToInstance(RoomDTO, req.body))
+            );
         } catch (error) {
             return this.handleError(res, error);
         }
