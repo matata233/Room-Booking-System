@@ -56,8 +56,7 @@ export default class BuildingRepository extends AbstractRepository {
             }
         });
         if (!building) {
-            // building not found
-            throw new NotFoundError("Building not found");
+            throw new NotFoundError(`building does not exist`);
         }
 
         const buildingDTO = toBuildingDTO(building, building.cities, building.users, building.rooms);

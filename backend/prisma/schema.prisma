@@ -62,7 +62,7 @@ model rooms {
   building_id      Int
   floor            Int
   code             String
-  name             String?
+  name             String
   seats            Int
   is_active        Boolean
   bookings_rooms   bookings_rooms[]

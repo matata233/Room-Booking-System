@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {PrismaClient} from "@prisma/client";
 import BuildingRepository from "../src/repository/BuildingRepository";
 import {expect, use} from "chai";
@@ -51,8 +52,7 @@ describe("Building tests", function () {
 
         it("should reject if building does not exist", function () {
             const result = buildingService.getById(0);
-
-            return expect(result).to.eventually.be.rejectedWith(NotFoundError);
+            return expect(result).to.eventually.be.rejectedWith(NotFoundError, "Not Found: building does not exist");
         });
     });
 });

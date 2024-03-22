@@ -5,9 +5,11 @@ import { useGetBookingCurrentUserQuery } from "../slices/bookingApiSlides";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useSelector } from "react-redux";
-import CheckIcon from '@mui/icons-material/Check';
-import CancelIcon from '@mui/icons-material/Cancel';
+import CheckIcon from "@mui/icons-material/Check";
+import CancelIcon from "@mui/icons-material/Cancel";
 import Pagination from "../components/Pagination";
+import { mirage } from "ldrs";
+import StartSearchGIF from "../assets/start-search.gif";
 
 const BookingHistoryPage = () => {
   const {
@@ -25,19 +27,21 @@ const BookingHistoryPage = () => {
     return booking.result;
   }, [isLoading, booking]);
 
-    // Pagination state
-    const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-  
-    // Pagination event handlers
-    const handleChangePage = (page) => {
-      setCurrentPage(page);
-    };
-  
-    const handleChangeRowsPerPage = (event) => {
-      setRowsPerPage(parseInt(event.target.value, 10));
-      setCurrentPage(1); // Reset to first page when changing rows per page
-    };
+  mirage.register();
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // Pagination event handlers
+  const handleChangePage = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setCurrentPage(1); // Reset to first page when changing rows per page
+  };
 
   function formatDateTime(startTime, endTime) {
     const startDate = new Date(startTime);
@@ -62,7 +66,7 @@ const BookingHistoryPage = () => {
     };
   }
 
-  const { userInfo } = useSelector((state) => state.auth)
+  const { userInfo } = useSelector((state) => state.auth);
 
   return (
     <div>
@@ -75,7 +79,7 @@ const BookingHistoryPage = () => {
               {bookingData.map((book) => (
                 <div
                   key={book.bookingId}
-                  className="mx-6 mb-10 bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                  className="relative mx-6 mb-10 bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
                 >
                   {/* ----- */}
                   {book.groups.map((group, index) => (
@@ -85,29 +89,51 @@ const BookingHistoryPage = () => {
                         className="flex flex-col items-center justify-between lg:flex-row"
                       >
                         <div>
-                        {index ==  0 &&
-                          (<div className="mb-2 mt-2 text-center text-lg font-semibold">
-                            {book.status == "confirmed"? <div className="text-green-500"> Confirmed <CheckIcon/> </div> :  <div className="text-red-500"> Canceled <CancelIcon/> </div> }
-                          </div>)}
-                                   
-                          <img
-                            src={MeetingRoomImg}
-                            alt="meeting room"
-                            className="h-[25vh] object-cover"
-                          />
+                          {index == 0 && (
+                            <div className="mt-[60px] ml-10 text-center text-lg font-semibold">
+                              {book.status == "confirmed" ? (
+                                <div className="text-green-500">
+                                  {" "}
+                                  Confirmed <CheckIcon />{" "}
+                                </div>
+                              ) : (
+                                <div className="text-red-500">
+                                  {" "}
+                                  Canceled <CancelIcon />{" "}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          <div className="absolute -left-20 top-1 ml-10 mt-2 bg-theme-orange px-5 py-2">
+                            <div>
+                              <span className="font-semibold">Time:</span>{" "}
+                              {`${formatDateTime(book.startTime, book.endTime).date}` +
+                                " " +
+                                `${formatDateTime(book.startTime, book.endTime).startTime}` +
+                                " - " +
+                                `${formatDateTime(book.startTime, book.endTime).endTime}`}
+                            </div>
+                            <div className="">
+                            <span className="font-semibold">
+                              Booked by: 
+                            </span>{" "}
+                            {book.users.email}
+                          </div>
+                          </div>
+
+                          <div className="ml-10 mt-2">
+                            <img
+                              src={MeetingRoomImg}
+                              alt="meeting room"
+                              className="h-[15vh]"
+                            />
+                          </div>
                         </div>
                         <div className="mt-6 flex flex-col  justify-start gap-1">
                           <div className="mt-2 text-lg text-theme-orange">
                             {`${group.room.city.cityId}${group.room.building.code} ${group.room.floorNumber.toString().padStart(2, "0")}.${group.room.roomCode} ${group.room.roomName ? group.room.roomName : ""} `}{" "}
                           </div>
-                          <div>
-                            <span className="font-semibold">Time:</span>{" "}
-                            {`${formatDateTime(book.startTime, book.endTime).date}` +
-                              " " +
-                              `${formatDateTime(book.startTime, book.endTime).startTime}` +
-                              " - " +
-                              `${formatDateTime(book.startTime, book.endTime).endTime}`}
-                          </div>
+
                           <div className="mt-2">
                             <span className="font-semibold">Equipments:</span>{" "}
                             {group.room.equipmentList.hasAV &&
@@ -151,37 +177,50 @@ const BookingHistoryPage = () => {
                         )}
                     </div>
                   ))}
-                  {book.status == "confirmed" && userInfo.email == book.users.email && (<div className="flex justify-end">
-                  <div className="flex space-x-6 ">
-                    <button
-                      className="text-indigo-600 hover:text-indigo-900 "
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <FaEdit className="size-5" />
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-900"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MdDelete className="size-5" />
-                    </button>
-                  </div>
-                  </div>)}
+                  {book.status == "confirmed" &&
+                    userInfo.email == book.users.email && (
+                      <div className="flex justify-end">
+                        <div className="flex space-x-6 ">
+                          <button
+                            className="text-indigo-600 hover:text-indigo-900 "
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <FaEdit className="size-5" />
+                          </button>
+                          <button
+                            className="text-red-600 hover:text-red-900"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MdDelete className="size-5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
             <div className="mb-20 flex justify-center">
-            <Pagination
-            count={bookingData.length}
-            rowsPerPage={rowsPerPage}
-            currentPage={currentPage}
-            handleChangePage={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
-          />
-          </div>
+              <Pagination
+                count={bookingData.length}
+                rowsPerPage={rowsPerPage}
+                currentPage={currentPage}
+                handleChangePage={handleChangePage}
+                handleChangeRowsPerPage={handleChangeRowsPerPage}
+              />
+            </div>
           </>
         ) : (
-          <div className="mt-20 text-center">Searching...</div>
+          <div className="flex flex-col items-center justify-center">
+            <div className="mt-20 text-center">
+              <l-mirage size="150" speed="2.5" color="orange"></l-mirage>{" "}
+              Searching...
+            </div>
+            <img
+              src={StartSearchGIF}
+              alt="Start Search"
+              className="h-96 w-96"
+            />
+          </div>
         )}
       </div>
     </div>
