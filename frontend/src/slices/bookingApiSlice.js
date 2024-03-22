@@ -9,8 +9,9 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: bookingData,
       }),
-      invalidatesTags: ["Booking"],
+      providesTags: ["Booking"],
     }),
+
     confirmBooking: builder.mutation({
       query: (bookingData) => ({
         url: `${BOOKING_URL}/create`,
@@ -19,8 +20,28 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Booking"],
     }),
+
+    getBooking: builder.query({
+      query: () => ({
+        url: BOOKING_URL,
+      }),
+      providesTags: ["Booking"],
+      keepUnusedDataFor: 5,
+    }),
+
+    getBookingCurrentUser: builder.query({
+      query: () => ({
+        url: `${BOOKING_URL}/currentUser`,
+      }),
+      providesTags: ["Booking"],
+      keepUnusedDataFor: 5,
+    }),
   }),
 });
 
-export const { useGetAvailableRoomsMutation, useConfirmBookingMutation } =
-  bookingApiSlice;
+export const {
+  useGetAvailableRoomsMutation,
+  useConfirmBookingMutation,
+  useGetBookingCurrentUserQuery,
+  useGetBookingQuery,
+} = bookingApiSlice;

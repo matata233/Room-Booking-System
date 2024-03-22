@@ -16,6 +16,7 @@ import {
 import Loader from "../../../components/Loader";
 import Message from "../../../components/Message";
 import { toast } from "react-toastify";
+import CancelConfirmationModal from "../../../components/CancelConfirmationModal";
 
 const RoomManagementPage = () => {
   const { data: rooms, error, isLoading, refetch } = useGetRoomsQuery();
@@ -33,6 +34,8 @@ const RoomManagementPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [roomToToggleStatus, setRoomToToggleStatus] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { sortedData, sortBy } = useSortData(roomsData);
   const searchedData = useSearchData(sortedData, search, selectedCategory, [
@@ -61,28 +64,39 @@ const RoomManagementPage = () => {
     setCurrentPage(1); // reset to first page on search
   };
 
-  const handleToggleIsActive = async (row) => {
-    const reqBody = {
-      buildingId: row.building.buildingId,
-      floorNumber: row.floorNumber,
-      roomCode: row.roomCode, // Updated value
-      roomName: row.roomName,
-      numberOfSeats: row.numberOfSeats,
-      isActive: !row.isActive,
-      equipmentList: row.equipmentList.map((equipment) => ({
-        equipmentId: equipment.equipmentId,
-      })),
-    };
+  const requestToggleIsActive = (room) => {
+    setRoomToToggleStatus(room);
+    setIsModalOpen(true);
+  };
 
-    console.log("reqBody", reqBody);
+  const handleConfirmToggleIsActive = async () => {
+    if (roomToToggleStatus) {
+      const reqBody = {
+        username: roomToToggleStatus.username,
+        firstName: roomToToggleStatus.firstName,
+        lastName: roomToToggleStatus.lastName,
+        email: roomToToggleStatus.email,
+        floor: roomToToggleStatus.floor,
+        desk: roomToToggleStatus.desk,
+        building: {
+          buildingId: roomToToggleStatus.building.buildingId,
+        },
+        isActive: !roomToToggleStatus.isActive,
+      };
 
-    try {
-      await updateRoom({ id: row.roomId, room: reqBody });
-      toast.success("Room updated successfully!");
-      refetch();
-    } catch (err) {
-      toast.error(err?.data?.error || "Failed to update room");
-      console.log(err);
+      try {
+        await updateRoom({
+          id: roomToToggleStatus.roomId,
+          room: reqBody,
+        }).unwrap();
+        toast.success("Room status updated successfully!");
+        refetch();
+      } catch (err) {
+        toast.error(err?.data?.error || "Failed to update room status");
+      }
+
+      setIsModalOpen(false);
+      setRoomToToggleStatus(null);
     }
   };
   return (
@@ -279,7 +293,7 @@ const RoomManagementPage = () => {
 
                       <td className="cursor-pointer whitespace-nowrap p-3 text-sm font-medium">
                         <div
-                          onClick={() => handleToggleIsActive(row)}
+                          onClick={() => requestToggleIsActive(row)}
                           className={`relative inline-flex h-6 w-12 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
                         >
                           <div
@@ -357,7 +371,7 @@ const RoomManagementPage = () => {
                         Is Active:{" "}
                       </span>
                       <div
-                        onClick={() => handleToggleIsActive(row)}
+                        onClick={() => requestToggleIsActive(row)}
                         className={`relative inline-flex h-4 w-8 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
                       >
                         <div
@@ -385,6 +399,14 @@ const RoomManagementPage = () => {
               ))
             )}
           </div>
+          {isModalOpen && (
+            <CancelConfirmationModal
+              message="Are you sure you want to change the status of this room?"
+              onConfirm={handleConfirmToggleIsActive}
+              onCancel={() => setIsModalOpen(false)}
+              onClose={() => setIsModalOpen(false)}
+            />
+          )}
         </>
       )}
 

@@ -26,15 +26,7 @@ const RoomManagementEditPage = () => {
 
   const handleUpdate = async (formData) => {
     try {
-      const transformedFormData = {
-        ...formData,
-        equipmentList: formData.equipmentIds.map((id) => ({
-          equipmentId: id,
-        })),
-      };
-      delete transformedFormData.equipmentIds;
-      console.log(transformedFormData);
-      await updateRoom({ id: roomId, room: transformedFormData });
+      await updateRoom({ id: roomId, room: formData });
       toast.success("Room updated successfully!");
       navigate("/roomManagementPage");
     } catch (err) {

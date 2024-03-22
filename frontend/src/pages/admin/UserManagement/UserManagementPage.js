@@ -14,6 +14,7 @@ import Loader from "../../../components/Loader";
 import Message from "../../../components/Message";
 import { useUpdateUserMutation } from "../../../slices/usersApiSlice";
 import { toast } from "react-toastify";
+import CancelConfirmationModal from "../../../components/CancelConfirmationModal";
 
 const UserManagementPage = () => {
   const { data: users, error, isLoading, refetch } = useGetUsersQuery();
@@ -31,6 +32,8 @@ const UserManagementPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [userToToggleStatus, setUserToToggleStatus] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { sortedData, sortBy } = useSortData(usersData);
   const searchedData = useSearchData(sortedData, search, selectedCategory, [
@@ -64,7 +67,12 @@ const UserManagementPage = () => {
     setCurrentPage(1); // reset to first page on search
   };
 
-  const handleToggleIsActive = async (row) => {
+  const requestToggleIsActive = (user) => {
+    setUserToToggleStatus(user);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmToggleIsActive = async (row) => {
     const reqBody = {
       username: row.username,
       firstName: row.firstName,
@@ -72,10 +80,11 @@ const UserManagementPage = () => {
       email: row.email,
       floor: row.floor,
       desk: row.desk,
-      buildingId: row.building.buildingId,
+      building: {
+        buildingId: row.building.buildingId,
+      },
       isActive: !row.isActive,
     };
-
     try {
       await updateUser({ id: row.userId, user: reqBody }).unwrap();
       toast.success("User updated successfully!");
@@ -83,6 +92,9 @@ const UserManagementPage = () => {
     } catch (err) {
       toast.error(err?.data?.error || "Failed to update user");
     }
+
+    setIsModalOpen(false);
+    setUserToToggleStatus(null);
   };
 
   return (
@@ -251,7 +263,7 @@ const UserManagementPage = () => {
 
                       <td className="cursor-pointer whitespace-nowrap p-3 text-sm font-medium">
                         <div
-                          onClick={() => handleToggleIsActive(row)}
+                          onClick={() => requestToggleIsActive(row)}
                           className={`relative inline-flex h-6 w-12 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
                         >
                           <div
@@ -327,7 +339,7 @@ const UserManagementPage = () => {
                         Is Active:{" "}
                       </span>
                       <div
-                        onClick={() => handleToggleIsActive(row)}
+                        onClick={() => requestToggleIsActive(row)}
                         className={`relative inline-flex h-4 w-8 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
                       >
                         <div
@@ -355,6 +367,14 @@ const UserManagementPage = () => {
               ))
             )}
           </div>
+          {isModalOpen && (
+            <CancelConfirmationModal
+              message="Are you sure you want to change the status of the user?"
+              onConfirm={handleConfirmToggleIsActive}
+              onCancel={() => setIsModalOpen(false)}
+              onClose={() => setIsModalOpen(false)}
+            />
+          )}
         </>
       )}
 

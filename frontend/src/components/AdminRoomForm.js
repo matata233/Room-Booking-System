@@ -27,6 +27,7 @@ const AdminRoomForm = ({
   const [equipmentIds, setEquipmentIds] = useState([]);
   const [roomName, setRoomName] = useState("");
   const [numberOfSeats, setNumberOfSeats] = useState(null);
+  const [isActive, setIsActive] = useState(true);
 
   const equipments = [
     { id: "AV", description: "Audio/Visual Equipment" },
@@ -47,6 +48,7 @@ const AdminRoomForm = ({
       setEquipmentIds(equipmentIds);
       setRoomName(initialValues.result.roomName);
       setNumberOfSeats(initialValues.result.numberOfSeats);
+      setIsActive(initialValues.result.isActive);
 
       if (buildings && initialValues.result.building) {
         const initialBuilding = buildings.result.find(
@@ -84,10 +86,13 @@ const AdminRoomForm = ({
       buildingId,
       floorNumber: parseInt(floorNumber),
       roomCode,
-      equipmentIds,
       roomName,
       numberOfSeats: parseInt(numberOfSeats),
-      isActive: true,
+      isActive,
+      building: {
+        buildingId: building.value,
+      },
+      equipmentList: equipmentIds.map((id) => ({ equipmentId: id })),
     };
     const validation = validateRoomData(formData);
     if (validation.isValid) {
@@ -204,8 +209,8 @@ const AdminRoomForm = ({
                   <MoreInfo info={"Nearest airport code | Building number "} />
                 </div>
               </div>
-
-              {/* <div className={`relative ${extBuilding ? "hidden" : ""}`}>
+              {/* 
+              <div className={`relative ${extBuilding ? "hidden" : ""}`}>
                 <AddBuilding
                   cityId={cityId}
                   setCityId={setCityId}

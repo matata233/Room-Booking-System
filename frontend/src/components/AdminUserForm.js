@@ -29,6 +29,7 @@ const AdminUserForm = ({
   const [email, setEmail] = useState("");
   const [floor, setFloor] = useState(null);
   const [desk, setDesk] = useState(null);
+  const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
     setBuildingId(building?.value);
@@ -42,6 +43,7 @@ const AdminUserForm = ({
       setEmail(initialValues.result.email || "");
       setFloor(initialValues.result.floor || null);
       setDesk(initialValues.result.desk || null);
+      setIsActive(initialValues.result.isActive || true);
 
       if (buildings && initialValues.result.building) {
         const initialBuilding = buildings.result.find(
@@ -83,6 +85,10 @@ const AdminUserForm = ({
       email,
       floor: parseInt(floor),
       desk: parseInt(desk),
+      isActive,
+      building: {
+        buildingId: buildingId,
+      },
     };
     const validation = validateUserData(formData);
     if (validation.isValid) {
