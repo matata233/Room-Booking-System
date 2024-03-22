@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link } from "react-router-dom";
-import { useGetBookingCurrentUserQuery } from "../slices/bookingApiSlides";
+import { useGetBookingCurrentUserQuery } from "../slices/bookingApiSlice";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useSelector } from "react-redux";
@@ -90,7 +90,7 @@ const BookingHistoryPage = () => {
                       >
                         <div>
                           {index == 0 && (
-                            <div className="mt-[60px] ml-10 text-center text-lg font-semibold">
+                            <div className="ml-10 mt-[60px] text-center text-lg font-semibold">
                               {book.status == "confirmed" ? (
                                 <div className="text-green-500">
                                   {" "}
@@ -114,11 +114,9 @@ const BookingHistoryPage = () => {
                                 `${formatDateTime(book.startTime, book.endTime).endTime}`}
                             </div>
                             <div className="">
-                            <span className="font-semibold">
-                              Booked by: 
-                            </span>{" "}
-                            {book.users.email}
-                          </div>
+                              <span className="font-semibold">Booked by:</span>{" "}
+                              {book.users.email}
+                            </div>
                           </div>
 
                           <div className="ml-10 mt-2">

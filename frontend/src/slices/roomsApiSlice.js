@@ -11,6 +11,14 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
       keepUnusedDataFor: 5,
     }),
 
+    getRoomById: builder.query({
+      query: (roomId) => ({
+        url: `${ROOMS_URL}/${roomId}`,
+      }),
+      providesTags: ["Room"],
+      keepUnusedDataFor: 5,
+    }),
+
     createRoom: builder.mutation({
       query: (newRoom) => ({
         url: `${ROOMS_URL}/create`,
@@ -19,7 +27,21 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Room"],
     }),
+
+    updateRoom: builder.mutation({
+      query: ({ id, room }) => ({
+        url: `${ROOMS_URL}/${id}`,
+        method: "PUT",
+        body: room,
+      }),
+      invalidatesTags: ["Room"],
+    }),
   }),
 });
 
-export const { useGetRoomsQuery, useCreateRoomMutation } = roomsApiSlice;
+export const {
+  useGetRoomsQuery,
+  useCreateRoomMutation,
+  useGetRoomByIdQuery,
+  useUpdateRoomMutation,
+} = roomsApiSlice;

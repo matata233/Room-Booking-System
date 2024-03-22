@@ -35,6 +35,7 @@ const initialState = {
   searchOnce: false,
   loading: false,
   groupToDisplay: "Group1",
+  searching: false,
 };
 
 export const bookingSlice = createSlice({
@@ -105,6 +106,12 @@ export const bookingSlice = createSlice({
     stopLoading: (state) => {
       state.loading = false;
     },
+    startSearch: (state) => {
+      state.searching = true;
+    },
+    stopSearch: (state) => {
+      state.searching = false;
+    },
     resetBooking: (state) => (state = initialState),
   },
 });
@@ -127,6 +134,8 @@ export const {
   stopLoading,
   setSelectedRoomForGroup,
   setGroupToDisplay,
+  startSearch,
+  stopSearch,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

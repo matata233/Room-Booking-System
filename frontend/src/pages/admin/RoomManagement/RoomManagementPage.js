@@ -9,18 +9,24 @@ import { MdDelete } from "react-icons/md";
 import { FaSort, FaXmark, FaCheck } from "react-icons/fa6";
 import { PiSelectionAllFill } from "react-icons/pi";
 import Pagination from "../../../components/Pagination";
-import { useGetRoomsQuery } from "../../../slices/roomsApiSlice";
+import {
+  useGetRoomsQuery,
+  useUpdateRoomMutation,
+} from "../../../slices/roomsApiSlice";
 import Loader from "../../../components/Loader";
 import Message from "../../../components/Message";
+import { toast } from "react-toastify";
+import CancelConfirmationModal from "../../../components/CancelConfirmationModal";
 
 const RoomManagementPage = () => {
   const { data: rooms, error, isLoading, refetch } = useGetRoomsQuery();
+  const [updateRoom, { isLoading: isUpdating, error: updateError }] =
+    useUpdateRoomMutation();
 
   const roomsData = useMemo(() => {
     if (isLoading || !rooms || !rooms.result) {
       return [];
     }
-    console.log("Got rooms data");
     return rooms.result;
   }, [isLoading, rooms]);
 
@@ -28,6 +34,8 @@ const RoomManagementPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [roomToToggleStatus, setRoomToToggleStatus] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { sortedData, sortBy } = useSortData(roomsData);
   const searchedData = useSearchData(sortedData, search, selectedCategory, [
@@ -56,6 +64,41 @@ const RoomManagementPage = () => {
     setCurrentPage(1); // reset to first page on search
   };
 
+  const requestToggleIsActive = (room) => {
+    setRoomToToggleStatus(room);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmToggleIsActive = async () => {
+    if (roomToToggleStatus) {
+      const reqBody = {
+        username: roomToToggleStatus.username,
+        firstName: roomToToggleStatus.firstName,
+        lastName: roomToToggleStatus.lastName,
+        email: roomToToggleStatus.email,
+        floor: roomToToggleStatus.floor,
+        desk: roomToToggleStatus.desk,
+        building: {
+          buildingId: roomToToggleStatus.building.buildingId,
+        },
+        isActive: !roomToToggleStatus.isActive,
+      };
+
+      try {
+        await updateRoom({
+          id: roomToToggleStatus.roomId,
+          room: reqBody,
+        }).unwrap();
+        toast.success("Room status updated successfully!");
+        refetch();
+      } catch (err) {
+        toast.error(err?.data?.error || "Failed to update room status");
+      }
+
+      setIsModalOpen(false);
+      setRoomToToggleStatus(null);
+    }
+  };
   return (
     <div className="flex flex-col justify-center gap-y-4 px-10 sm:px-0">
       <div className="flex flex-col gap-y-2 sm:flex-row sm:justify-between">
@@ -95,7 +138,7 @@ const RoomManagementPage = () => {
           >
             Add New Room
           </Link>
-          <a
+          {/* <a
             href="#"
             className={`flex h-8 w-8 items-center justify-center  rounded-lg border-2 border-theme-orange p-1.5 text-theme-orange transition-colors duration-300  ease-in-out  md:hidden ${
               searchedData.length > 0 &&
@@ -121,14 +164,14 @@ const RoomManagementPage = () => {
             }}
           >
             <MdDelete />
-          </a>
+          </a> */}
         </div>
       </div>
 
       {isLoading ? (
         <Loader />
       ) : error ? (
-        <Message severity="error">{error.data.message}</Message>
+        <Message severity="error">{error.data?.message}</Message>
       ) : (
         <>
           {/* Data Table */}
@@ -136,7 +179,7 @@ const RoomManagementPage = () => {
             <table className="min-w-full divide-y">
               <thead className="sticky top-0 z-10 border-b-2 border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="p-3 text-left font-amazon-ember font-medium uppercase tracking-wider text-gray-500">
+                  {/* <th className="p-3 text-left font-amazon-ember font-medium uppercase tracking-wider text-gray-500">
                     <input
                       type="checkbox"
                       onChange={(e) => {
@@ -154,7 +197,7 @@ const RoomManagementPage = () => {
                       }
                       className="accent-theme-orange"
                     />
-                  </th>
+                  </th> */}
                   {[
                     { key: "roomId", display: "Room Id" },
                     { key: "city.cityId", display: "City Code" },
@@ -186,7 +229,7 @@ const RoomManagementPage = () => {
                     </th>
                   ))}
                   <th className="p-3 text-left font-amazon-ember text-base font-medium uppercase tracking-wider text-gray-500 hover:text-gray-700">
-                    Action
+                    Edit
                   </th>
                 </tr>
               </thead>
@@ -205,15 +248,15 @@ const RoomManagementPage = () => {
                     <tr
                       key={row.roomId}
                       className={`font-amazon-ember hover:bg-theme-orange hover:bg-opacity-10 ${selectedRows.includes(row.roomId) ? "bg-theme-orange bg-opacity-10" : ""}`}
-                      onClick={() => toggleRowSelection(row.roomId)}
+                      // onClick={() => toggleRowSelection(row.roomId)}
                     >
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
+                      {/* <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                         <input
                           type="checkbox"
                           checked={selectedRows.includes(row.roomId)}
                           className="accent-theme-orange"
                         />
-                      </td>
+                      </td> */}
                       <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                         {row.roomId}
                       </td>
@@ -240,9 +283,7 @@ const RoomManagementPage = () => {
                         <ul>
                           {row.equipmentList.length > 0 ? (
                             row.equipmentList.map((equipment, index) => (
-                              <li
-                                key={index}
-                              >{`${equipment.equipmentId}: ${equipment.description}`}</li>
+                              <li key={index}>{`${equipment.equipmentId}`}</li>
                             ))
                           ) : (
                             <li>None</li>
@@ -250,29 +291,31 @@ const RoomManagementPage = () => {
                         </ul>
                       </td>
 
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
-                        {row.isActive ? (
-                          <FaCheck className="size-6 text-green-500" />
-                        ) : (
-                          <FaXmark className="size-6 text-red-500" />
-                        )}
+                      <td className="cursor-pointer whitespace-nowrap p-3 text-sm font-medium">
+                        <div
+                          onClick={() => requestToggleIsActive(row)}
+                          className={`relative inline-flex h-6 w-12 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
+                        >
+                          <div
+                            className={`dot absolute left-[2px] top-[2px] flex h-5 w-5 items-center justify-center rounded-full bg-white transition-transform duration-300 ease-in-out ${row.isActive ? "translate-x-[24px]" : ""}`}
+                          >
+                            {row.isActive ? (
+                              <FaCheck className="size-3 text-green-500" />
+                            ) : (
+                              <FaXmark className="size-3  text-red-500" />
+                            )}
+                          </div>
+                        </div>
                       </td>
-                      <td className="whitespace-nowrap p-3 text-right text-sm font-medium">
+                      <td className="whitespace-nowrap p-3  text-sm font-medium">
                         <div className="flex justify-start">
-                          <a
-                            href="#"
+                          <Link
+                            to={`/roomManagementEditPage/${row.roomId}`}
                             className="mr-6 text-indigo-600 hover:text-indigo-900"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <FaEdit className="size-6" />
-                          </a>
-                          <a
-                            href="#"
-                            className="text-red-600 hover:text-red-900"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MdDelete className="size-6" />
-                          </a>
+                          </Link>
                         </div>
                       </td>
                     </tr>
@@ -294,8 +337,8 @@ const RoomManagementPage = () => {
               displayedData.map((row) => (
                 <div
                   key={row.roomId}
-                  className={`space-y-3 rounded-lg p-4 shadow   ${selectedRows.includes(row.roomId) ? "bg-theme-orange bg-opacity-10" : ""}`}
-                  onClick={() => toggleRowSelection(row.roomId)}
+                  className={`space-y-3 rounded-lg p-4 shadow-md`}
+                  // onClick={() => toggleRowSelection(row.roomId)}
                 >
                   <div className="font-amazon-ember text-base text-gray-900">
                     {`${row.city.cityId}${row.building.code} ${String(row.floorNumber).padStart(2, "0")}.${row.roomCode} ${row.roomName}`}
@@ -308,9 +351,7 @@ const RoomManagementPage = () => {
                     <ul>
                       {row.equipmentList.length > 0 ? (
                         row.equipmentList.map((equipment, index) => (
-                          <li
-                            key={index}
-                          >{`${equipment.equipmentId}: ${equipment.description}`}</li>
+                          <li key={index}>{`${equipment.equipmentId}`}</li>
                         ))
                       ) : (
                         <li>None</li>
@@ -329,31 +370,43 @@ const RoomManagementPage = () => {
                       <span className="mr-2 text-sm text-theme-dark-orange">
                         Is Active:{" "}
                       </span>
-                      {row.isActive ? (
-                        <FaCheck className="size-4 text-green-500" />
-                      ) : (
-                        <FaXmark className="size-4 text-red-500" />
-                      )}
+                      <div
+                        onClick={() => requestToggleIsActive(row)}
+                        className={`relative inline-flex h-4 w-8 cursor-pointer items-center justify-center rounded-full ${row.isActive ? "bg-green-500" : "bg-gray-300"}`}
+                      >
+                        <div
+                          className={`dot absolute left-[1px] top-[1px] flex h-[14px] w-[14px] items-center justify-center rounded-full bg-white transition-transform duration-300 ease-in-out ${row.isActive ? "translate-x-[16px]" : ""}`}
+                        >
+                          {row.isActive ? (
+                            <FaCheck className="size-2 text-green-500" />
+                          ) : (
+                            <FaXmark className="size-2  text-red-500" />
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <div className="flex space-x-6">
-                      <button
+                      <Link
+                        to={`/roomManagementEditPage/${row.roomId}`}
                         className="text-indigo-600 hover:text-indigo-900 "
                         onClick={(e) => e.stopPropagation()}
                       >
                         <FaEdit className="size-5" />
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-900"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MdDelete className="size-5" />
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
               ))
             )}
           </div>
+          {isModalOpen && (
+            <CancelConfirmationModal
+              message="Are you sure you want to change the status of this room?"
+              onConfirm={handleConfirmToggleIsActive}
+              onCancel={() => setIsModalOpen(false)}
+              onClose={() => setIsModalOpen(false)}
+            />
+          )}
         </>
       )}
 

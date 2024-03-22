@@ -27,6 +27,7 @@ const AdminRoomForm = ({
   const [equipmentIds, setEquipmentIds] = useState([]);
   const [roomName, setRoomName] = useState("");
   const [numberOfSeats, setNumberOfSeats] = useState(null);
+  const [isActive, setIsActive] = useState(true);
 
   const equipments = [
     { id: "AV", description: "Audio/Visual Equipment" },
@@ -36,6 +37,32 @@ const AdminRoomForm = ({
   useEffect(() => {
     setBuildingId(building?.value);
   }, [building]);
+
+  useEffect(() => {
+    if (initialValues && initialValues.result) {
+      setFloorNumber(initialValues.result.floorNumber);
+      setRoomCode(initialValues.result.roomCode);
+      const equipmentIds = initialValues.result.equipmentList.map(
+        (equipment) => equipment.equipmentId,
+      );
+      setEquipmentIds(equipmentIds);
+      setRoomName(initialValues.result.roomName);
+      setNumberOfSeats(initialValues.result.numberOfSeats);
+      setIsActive(initialValues.result.isActive);
+
+      if (buildings && initialValues.result.building) {
+        const initialBuilding = buildings.result.find(
+          (b) => b.buildingId === initialValues.result.building.buildingId,
+        );
+        if (initialBuilding) {
+          setBuilding({
+            label: `${initialBuilding.city.cityId} ${initialBuilding.code}`,
+            value: initialBuilding.buildingId,
+          });
+        }
+      }
+    }
+  }, [initialValues, buildings]);
 
   const validateRoomData = (data) => {
     const errors = [];
@@ -59,10 +86,13 @@ const AdminRoomForm = ({
       buildingId,
       floorNumber: parseInt(floorNumber),
       roomCode,
-      equipmentIds,
       roomName,
       numberOfSeats: parseInt(numberOfSeats),
-      isActive: true,
+      isActive,
+      building: {
+        buildingId: building.value,
+      },
+      equipmentList: equipmentIds.map((id) => ({ equipmentId: id })),
     };
     const validation = validateRoomData(formData);
     if (validation.isValid) {
@@ -105,40 +135,37 @@ const AdminRoomForm = ({
 
             {/* text field */}
             <div className="space-y-4 py-8 text-sm text-gray-700">
-              <div className="relative">
-                <div className="flex justify-between gap-x-8">
-                  <TextField
-                    id="name"
-                    label="Room Name"
-                    size="small"
-                    variant="standard"
-                    className="w-full"
-                    value={roomName}
-                    onChange={(event) => setRoomName(event.target.value)}
-                    InputLabelProps={{
-                      className: "text-sm md:text-base font-amazon-ember",
-                    }}
-                    inputProps={{
-                      className: "text-sm md:text-base font-amazon-ember",
-                    }}
-                  />
-
-                  <TextField
+              <div className="relative flex justify-between gap-x-8">
+                <TextField
+                  id="name"
+                  label="Room Name"
+                  size="small"
+                  variant="standard"
+                  className="w-full"
+                  value={roomName}
+                  onChange={(event) => setRoomName(event.target.value)}
+                  InputLabelProps={{
+                    className: "text-sm md:text-base font-amazon-ember",
+                  }}
+                  inputProps={{
+                    className: "text-sm md:text-base font-amazon-ember",
+                  }}
+                />
+                <div className="w-full">
+                  <label
+                    htmlFor="capacity"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Capacity*
+                  </label>
+                  <input
                     id="capacity"
-                    label="Capacity"
-                    size="small"
+                    aria-label="capacity"
                     required
-                    variant="standard"
                     type="number"
-                    className="w-full"
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
                     value={numberOfSeats}
                     onChange={(event) => setNumberOfSeats(event.target.value)}
-                    InputLabelProps={{
-                      className: "text-sm md:text-base font-amazon-ember",
-                    }}
-                    inputProps={{
-                      className: "text-sm md:text-base font-amazon-ember",
-                    }}
                   />
                 </div>
               </div>
@@ -182,8 +209,8 @@ const AdminRoomForm = ({
                   <MoreInfo info={"Nearest airport code | Building number "} />
                 </div>
               </div>
-
-              {/* <div className={`relative ${extBuilding ? "hidden" : ""}`}>
+              {/* 
+              <div className={`relative ${extBuilding ? "hidden" : ""}`}>
                 <AddBuilding
                   cityId={cityId}
                   setCityId={setCityId}
@@ -199,48 +226,42 @@ const AdminRoomForm = ({
                   setLat={setLat}
                 />
               </div> */}
-              <div className="relative flex justify-between gap-x-8 ">
-                <TextField
-                  id="floor"
-                  label="Floor"
-                  size="small"
-                  required
-                  variant="standard"
-                  type="number"
-                  className="w-full flex-1"
-                  value={floorNumber}
-                  onChange={(event) => setFloorNumber(event.target.value)}
-                  InputLabelProps={{
-                    className: "text-sm md:text-base font-amazon-ember",
-                  }}
-                  inputProps={{
-                    className: "text-sm md:text-base font-amazon-ember",
-                  }}
-                />
-
-                <div className="flex flex-1 justify-between">
-                  <TextField
-                    id="code"
-                    label="Room Code"
-                    size="small"
+              <div className="relative flex justify-between gap-x-8">
+                <div className="w-full">
+                  <label
+                    htmlFor="floorNumber"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Floor*
+                  </label>
+                  <input
+                    id="floorNumber"
+                    aria-label="floorNumber"
                     required
-                    variant="standard"
-                    className="w-full"
+                    type="number"
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
+                    value={floorNumber}
+                    onChange={(event) => setFloorNumber(event.target.value)}
+                  />
+                </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="roomCode"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Room Code*
+                  </label>
+                  <input
+                    id="roomCode"
+                    aria-label="roomCode"
+                    required
+                    type="number"
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
                     value={roomCode}
                     onChange={(event) => setRoomCode(event.target.value)}
-                    InputLabelProps={{
-                      className: "text-sm md:text-base font-amazon-ember",
-                    }}
-                    inputProps={{
-                      className: "text-sm md:text-base font-amazon-ember",
-                    }}
                   />
-                  <div className="flex-none">
-                    <MoreInfo info={'Eg. "101"'} />
-                  </div>
                 </div>
               </div>
-
               <div className="relative flex items-center justify-start gap-4">
                 {equipments.map((item) => (
                   <div className="flex gap-x-4" key={item.id}>
@@ -288,8 +309,8 @@ const AdminRoomForm = ({
                 </button>
                 <Link
                   to="/roomManagementPage"
-                  className="rounded-lg ml-4 bg-theme-dark-blue px-2 py-1.5 text-white font-amazon-ember text-sm transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white md:px-12 md:py-2.5 md:text-base"
-                  >
+                  className="ml-4 rounded-lg bg-theme-dark-blue px-2 py-1.5 font-amazon-ember text-sm text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white md:px-12 md:py-2.5 md:text-base"
+                >
                   Back
                 </Link>
               </div>
