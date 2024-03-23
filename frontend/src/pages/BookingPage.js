@@ -112,9 +112,11 @@ const BookingPage = () => {
         endTime: endDateTime,
         attendees: allAttendees,
         equipments: equipmentCodes,
+        roomCount: roomCount,
         priority: priority.map((entry) => entry.item),
       };
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
+
       dispatch(
         initializeGroupedAttendees(reorganizeAvailableRooms(availableRooms)),
       );

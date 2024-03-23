@@ -35,8 +35,8 @@ const BookingReviewPage = () => {
 
     const reqBody = {
       createdBy: userInfo.userId,
-      startTime: new Date(`${startDate}T${startTime}:00.000Z`).toISOString(),
-      endTime: new Date(`${startDate}T${endTime}:00.000Z`).toISOString(),
+      startTime: new Date(`${startDate}T${startTime}`).toISOString(),
+      endTime: new Date(`${startDate}T${endTime}`).toISOString(),
       rooms,
       users,
     };
