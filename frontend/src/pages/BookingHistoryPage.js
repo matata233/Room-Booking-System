@@ -29,6 +29,8 @@ const BookingHistoryPage = () => {
 
   mirage.register();
 
+  console.log("hi", bookingData);
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -90,7 +92,7 @@ const BookingHistoryPage = () => {
                       >
                         <div>
                           {index == 0 && (
-                            <div className="mt-[60px] ml-10 text-center text-lg font-semibold">
+                            <div className="ml-10 mt-[60px] text-center text-lg font-semibold">
                               {book.status == "confirmed" ? (
                                 <div className="text-green-500">
                                   {" "}
@@ -114,11 +116,9 @@ const BookingHistoryPage = () => {
                                 `${formatDateTime(book.startTime, book.endTime).endTime}`}
                             </div>
                             <div className="">
-                            <span className="font-semibold">
-                              Booked by: 
-                            </span>{" "}
-                            {book.users.email}
-                          </div>
+                              <span className="font-semibold">Booked by:</span>{" "}
+                              {book.users.email}
+                            </div>
                           </div>
 
                           <div className="ml-10 mt-2">
@@ -136,14 +136,11 @@ const BookingHistoryPage = () => {
 
                           <div className="mt-2">
                             <span className="font-semibold">Equipments:</span>{" "}
-                            {group.room.equipmentList.hasAV &&
-                            group.room.equipmentList.hasVC
-                              ? "AV / VC"
-                              : group.room.equipmentList.hasAV
-                                ? "AV"
-                                : group.room.equipmentList.hasVC
-                                  ? "VC"
-                                  : "None"}
+                            { group.room.equipmentList.length > 0
+                                ? group.room.equipmentList
+                                    .map((equip) => equip.equipmentId)
+                                    .join(" / ")
+                                : "None"}
                           </div>
                           <div className="mt-2">
                             <span className="font-semibold">
