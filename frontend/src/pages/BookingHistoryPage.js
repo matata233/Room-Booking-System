@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from "react";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link } from "react-router-dom";
-import { useGetBookingCurrentUserQuery } from "../slices/bookingApiSlice";
+import {
+  useGetBookingCurrentUserQuery,
+  useUpdateBookingMutation,
+} from "../slices/bookingApiSlice";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useSelector } from "react-redux";
@@ -10,6 +13,9 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import Pagination from "../components/Pagination";
 import { mirage } from "ldrs";
 import StartSearchGIF from "../assets/start-search.gif";
+import { toast } from "react-toastify";
+import EditBookingModal from "../components/EditBookingModal";
+import CancelConfirmationModal from "../components/CancelConfirmationModal";
 
 const BookingHistoryPage = () => {
   const {
@@ -27,6 +33,8 @@ const BookingHistoryPage = () => {
     return booking.result;
   }, [isLoading, booking]);
 
+  const [updateBooking] = useUpdateBookingMutation();
+
   mirage.register();
 
   console.log("hi", bookingData);
@@ -34,6 +42,57 @@ const BookingHistoryPage = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  //edit
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
+
+  const handleEditBooking = (book) => {
+    setIsEditing(true);
+    setSelectedBooking(book);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedBooking(null);
+    setIsEditing(false);
+  };
+
+  const handleCancelConfirmOpen = () => {
+    setIsCancelConfirmOpen(true);
+    // setSelectedBooking(book);
+  };
+
+  const handleCancelBooking = async () => {
+    try {
+      await updateBooking({
+        bookingId: selectedBooking.bookingId,
+        updatedBooking: { status: "canceled", users: [], rooms: [] },
+      }).unwrap();
+      toast.success("Booking updated");
+      // bookingData = [];
+      // Close the modal
+    } catch (err) {
+      // Display error toast message
+      toast.error(err?.data?.error || "Failed to save book");
+    }
+  };
+
+  const handleSaveBooking = async (book) => {
+    try {
+      if (isEditing) {
+        await updateBooking({
+          bookingId: selectedBooking.bookingId,
+          updatedBooking: book,
+        }).unwrap();
+        toast.success("Booking updated");
+      }
+      // Close the modal
+      handleCloseModal();
+    } catch (err) {
+      // Display error toast message
+      toast.error(err?.data?.error || "Failed to save book");
+    }
+  };
 
   // Pagination event handlers
   const handleChangePage = (page) => {
@@ -136,11 +195,11 @@ const BookingHistoryPage = () => {
 
                           <div className="mt-2">
                             <span className="font-semibold">Equipments:</span>{" "}
-                            { group.room.equipmentList.length > 0
-                                ? group.room.equipmentList
-                                    .map((equip) => equip.equipmentId)
-                                    .join(" / ")
-                                : "None"}
+                            {group.room.equipmentList.length > 0
+                              ? group.room.equipmentList
+                                  .map((equip) => equip.equipmentId)
+                                  .join(" / ")
+                              : "None"}
                           </div>
                           <div className="mt-2">
                             <span className="font-semibold">
@@ -180,13 +239,13 @@ const BookingHistoryPage = () => {
                         <div className="flex space-x-6 ">
                           <button
                             className="text-indigo-600 hover:text-indigo-900 "
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => handleEditBooking(book)}
                           >
                             <FaEdit className="size-5" />
                           </button>
                           <button
                             className="text-red-600 hover:text-red-900"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={() => setIsCancelConfirmOpen(true)}
                           >
                             <MdDelete className="size-5" />
                           </button>
@@ -220,6 +279,22 @@ const BookingHistoryPage = () => {
           </div>
         )}
       </div>
+
+      {isEditing && (
+        <EditBookingModal
+          book={selectedBooking}
+          onUpdate={handleSaveBooking}
+          onClose={handleCloseModal}
+        />
+      )}
+      {isCancelConfirmOpen && (
+        <CancelConfirmationModal
+          onCancel={() => setIsCancelConfirmOpen(false)}
+          onClose={() => setIsCancelConfirmOpen(false)}
+          onConfirm={handleCancelBooking}
+          message={"Are you sure you want to cancel this booking?"}
+        />
+      )}
     </div>
   );
 };
