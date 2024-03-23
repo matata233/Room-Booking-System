@@ -31,6 +31,9 @@ export default class RoomRepository extends AbstractRepository {
                         equipments: true
                     }
                 }
+            },
+            orderBy: {
+                room_id: "asc"
             }
         });
         const roomDTOs: RoomDTO[] = [];

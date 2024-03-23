@@ -7,7 +7,6 @@ import {BadRequestError, RequestConflictError, UnauthorizedError} from "../util/
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 import {authenticator} from "../App";
-import {status} from "@prisma/client";
 
 export default class BookingController extends AbstractController {
     private bookingService: BookingService;
@@ -179,7 +178,7 @@ export default class BookingController extends AbstractController {
                 attendees,
                 equipments,
                 priority,
-                num_rooms
+                num_rooms ?? 1
             );
             return super.onResolve(res, availableRooms);
         } catch (error) {
