@@ -39,6 +39,7 @@ const RoomManagementPage = () => {
 
   const { sortedData, sortBy } = useSortData(roomsData);
   const searchedData = useSearchData(sortedData, search, selectedCategory, [
+    "roomId",
     "isActive",
   ]);
   const displayedData = usePaginateData(searchedData, currentPage, rowsPerPage);
@@ -66,31 +67,32 @@ const RoomManagementPage = () => {
 
   const requestToggleIsActive = (room) => {
     setRoomToToggleStatus(room);
+    console.log(room);
     setIsModalOpen(true);
   };
 
   const handleConfirmToggleIsActive = async () => {
     if (roomToToggleStatus) {
       const reqBody = {
-        username: roomToToggleStatus.username,
-        firstName: roomToToggleStatus.firstName,
-        lastName: roomToToggleStatus.lastName,
-        email: roomToToggleStatus.email,
-        floor: roomToToggleStatus.floor,
-        desk: roomToToggleStatus.desk,
+        floorNumber: roomToToggleStatus.floorNumber,
+        roomCode: roomToToggleStatus.roomCode,
+        roomName: roomToToggleStatus.roomName,
+        numberOfSeats: roomToToggleStatus.numberOfSeats,
         building: {
           buildingId: roomToToggleStatus.building.buildingId,
         },
+        equipmentList: roomToToggleStatus.equipmentList.map((equipment) => ({
+          equipmentId: equipment.equipmentId,
+        })),
         isActive: !roomToToggleStatus.isActive,
       };
-
       try {
         await updateRoom({
           id: roomToToggleStatus.roomId,
           room: reqBody,
         }).unwrap();
-        toast.success("Room status updated successfully!");
         refetch();
+        toast.success("Room status updated successfully!");
       } catch (err) {
         toast.error(err?.data?.error || "Failed to update room status");
       }
@@ -119,13 +121,13 @@ const RoomManagementPage = () => {
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
               <option value="all">All</option>
-              <option value="roomId">Room ID</option>
-              <option value="city.cityId">City Code</option>
+              <option value="city.cityId">City</option>
               <option value="building.code">Building Code</option>
               <option value="floorNumber">Floor</option>
               <option value="roomCode">Room Number</option>
               <option value="roomName">Room Name</option>
               <option value="numberOfSeats">Capacity</option>
+              <option value="equipmentList">Equipments</option>
             </select>
           </div>
         </div>
@@ -199,8 +201,7 @@ const RoomManagementPage = () => {
                     />
                   </th> */}
                   {[
-                    { key: "roomId", display: "Room Id" },
-                    { key: "city.cityId", display: "City Code" },
+                    { key: "city.cityId", display: "City" },
                     { key: "building.code", display: "Building Code" },
                     { key: "floorNumber", display: "Floor" },
                     { key: "roomCode", display: "Room Number" },
@@ -237,7 +238,7 @@ const RoomManagementPage = () => {
                 {displayedData.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="10"
+                      colSpan="9"
                       className="text-md whitespace-nowrap p-3 text-center font-amazon-ember font-medium text-gray-900"
                     >
                       No result
@@ -257,9 +258,6 @@ const RoomManagementPage = () => {
                           className="accent-theme-orange"
                         />
                       </td> */}
-                      <td className="whitespace-nowrap p-3 text-sm text-gray-900">
-                        {row.roomId}
-                      </td>
                       <td className="whitespace-nowrap p-3 text-sm text-gray-900">
                         {row.city.cityId}
                       </td>
