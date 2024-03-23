@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link } from "react-router-dom";
-import { useGetBookingCurrentUserQuery } from "../slices/bookingApiSlides";
+import { useGetBookingCurrentUserQuery } from "../slices/bookingApiSlice";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useSelector } from "react-redux";

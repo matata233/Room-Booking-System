@@ -29,10 +29,35 @@ const AdminUserForm = ({
   const [email, setEmail] = useState("");
   const [floor, setFloor] = useState(null);
   const [desk, setDesk] = useState(null);
+  const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
     setBuildingId(building?.value);
   }, [building]);
+
+  useEffect(() => {
+    if (initialValues && initialValues.result) {
+      setUsername(initialValues.result.username || "");
+      setFirstName(initialValues.result.firstName || "");
+      setLastName(initialValues.result.lastName || "");
+      setEmail(initialValues.result.email || "");
+      setFloor(initialValues.result.floor || null);
+      setDesk(initialValues.result.desk || null);
+      setIsActive(initialValues.result.isActive || true);
+
+      if (buildings && initialValues.result.building) {
+        const initialBuilding = buildings.result.find(
+          (b) => b.buildingId === initialValues.result.building.buildingId,
+        );
+        if (initialBuilding) {
+          setBuilding({
+            label: `${initialBuilding.city.cityId} ${initialBuilding.code}`,
+            value: initialBuilding.buildingId,
+          });
+        }
+      }
+    }
+  }, [initialValues, buildings]);
 
   const validateUserData = (data) => {
     const errors = [];
@@ -60,6 +85,10 @@ const AdminUserForm = ({
       email,
       floor: parseInt(floor),
       desk: parseInt(desk),
+      isActive,
+      building: {
+        buildingId: buildingId,
+      },
     };
     const validation = validateUserData(formData);
     if (validation.isValid) {
@@ -224,41 +253,41 @@ const AdminUserForm = ({
                   setLat={setLat}
                 />
               </div> */}
-              <div className="relative flex justify-between gap-x-8 ">
-                <TextField
-                  id="floor"
-                  label="Floor"
-                  size="small"
-                  required
-                  variant="standard"
-                  type="number"
-                  className="w-full"
-                  value={floor}
-                  onChange={(event) => setFloor(event.target.value)}
-                  InputLabelProps={{
-                    className: "text-sm md:text-base font-amazon-ember",
-                  }}
-                  inputProps={{
-                    className: "text-sm md:text-base font-amazon-ember",
-                  }}
-                />
-                <TextField
-                  id="desk"
-                  label="Desk"
-                  size="small"
-                  required
-                  variant="standard"
-                  type="number"
-                  className="w-full"
-                  value={desk}
-                  onChange={(event) => setDesk(event.target.value)}
-                  InputLabelProps={{
-                    className: "text-sm md:text-base font-amazon-ember",
-                  }}
-                  inputProps={{
-                    className: "text-sm md:text-base font-amazon-ember",
-                  }}
-                />
+              <div className="relative flex justify-between gap-x-8">
+                <div className="w-full">
+                  <label
+                    htmlFor="floor"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Floor*
+                  </label>
+                  <input
+                    id="floor"
+                    aria-label="Floor"
+                    required
+                    type="number"
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
+                    value={floor}
+                    onChange={(event) => setFloor(event.target.value)}
+                  />
+                </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="desk"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Desk*
+                  </label>
+                  <input
+                    id="desk"
+                    aria-label="Desk"
+                    required
+                    type="number"
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
+                    value={desk}
+                    onChange={(event) => setDesk(event.target.value)}
+                  />
+                </div>
               </div>
 
               <div className="relative">
@@ -267,8 +296,8 @@ const AdminUserForm = ({
                 </button>
                 <Link
                   to="/userManagementPage"
-                  className="rounded-lg ml-4 bg-theme-dark-blue px-2 py-1.5 text-white font-amazon-ember text-sm transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white md:px-12 md:py-2.5 md:text-base"
-                  >
+                  className="ml-4 rounded-lg bg-theme-dark-blue px-2 py-1.5 font-amazon-ember text-sm text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white md:px-12 md:py-2.5 md:text-base"
+                >
                   Back
                 </Link>
               </div>

@@ -1,7 +1,8 @@
 import AbstractService from "./AbstractService";
 import UserDTO from "../model/dto/UserDTO";
 import UserRepository from "../repository/UserRepository";
-import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
+import {BadRequestError, NotFoundError, RequestConflictError} from "../util/exception/AWSRoomBookingSystemError";
+import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
 import {authenticator} from "../App";
 
 export default class UserService extends AbstractService {
@@ -13,41 +14,42 @@ export default class UserService extends AbstractService {
     }
 
     public async getAll(): Promise<UserDTO[]> {
-        return this.userRepo.findAll();
+        return await this.userRepo.findAll();
     }
 
     public async getAllEmail(): Promise<UserDTO[]> {
-        return this.userRepo.findAllEmail();
+        return await this.userRepo.findAllEmail();
     }
 
     public async getById(id: number): Promise<UserDTO> {
-        return this.userRepo.findById(id);
+        return await this.userRepo.findById(id);
     }
 
     public async getByEmail(email: string): Promise<UserDTO> {
-        return this.userRepo.findByEmail(email);
+        return await this.userRepo.findByEmail(email);
     }
 
     public async create(user: UserDTO): Promise<UserDTO> {
-        if (!user.username && typeof user.username !== "string") {
-            throw new BadRequestError("Invalid username");
+        await this.validateDTO(user);
+        try {
+            return await this.userRepo.create(user);
+        } catch (error) {
+            this.handlePrismaClientKnownRequestError(error, user);
+            throw error;
         }
-        if (!user.firstName && typeof user.firstName !== "string") {
-            throw new BadRequestError("Invalid first name");
+    }
+
+    public async update(userID: number, user: UserDTO): Promise<UserDTO> {
+        if (isNaN(userID)) {
+            throw new BadRequestError("invalid user ID");
         }
-        if (!user.lastName && typeof user.lastName !== "string") {
-            throw new BadRequestError("Invalid last name");
+        await this.validateDTO(user);
+        try {
+            return await this.userRepo.update(userID, user);
+        } catch (error) {
+            this.handlePrismaClientKnownRequestError(error, user);
+            throw error;
         }
-        if (!user.email && typeof user.email !== "string") {
-            throw new BadRequestError("Invalid email");
-        }
-        if (!user.floor && typeof user.floor !== "number") {
-            throw new BadRequestError("Invalid floor");
-        }
-        if (!user.desk && typeof user.desk !== "number") {
-            throw new BadRequestError("Invalid desk");
-        }
-        return this.userRepo.create(user);
     }
 
     public async upload(
@@ -87,33 +89,22 @@ export default class UserService extends AbstractService {
         return this.userRepo.upload(username, firstName, lastName, email, floor, desk, cityID, buildingCode);
     }
 
+    private handlePrismaClientKnownRequestError(error: unknown, user: UserDTO) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            if (error.code === "P2002") {
+                throw new RequestConflictError(`user ${user.username} or ${user.email} already exists`);
+            }
+            if (error.code === "P2003") {
+                throw new NotFoundError(`building does not exist`);
+            }
+        }
+        throw error;
+    }
+
     private splitString(input: string): {characters: string; number: number} {
         const characters = input.match(/[a-zA-Z]+/g)?.join("") || "";
         const number = parseInt(input.match(/\d+/g)?.join("") || "0", 10);
         return {characters, number};
-    }
-
-    // Update user details
-    public async update(userID: number, user: UserDTO): Promise<UserDTO> {
-        if (!user.username && typeof user.username !== "string") {
-            throw new BadRequestError("Invalid username");
-        }
-        if (!user.firstName && typeof user.firstName !== "string") {
-            throw new BadRequestError("Invalid first name");
-        }
-        if (!user.lastName && typeof user.lastName !== "string") {
-            throw new BadRequestError("Invalid last name");
-        }
-        if (!user.email && typeof user.email !== "string") {
-            throw new BadRequestError("Invalid email");
-        }
-        if (!user.floor && typeof user.floor !== "number") {
-            throw new BadRequestError("Invalid floor");
-        }
-        if (!user.desk && typeof user.desk !== "number") {
-            throw new BadRequestError("Invalid desk");
-        }
-        return this.userRepo.update(userID, user);
     }
 
     public login = async (googleToken: string): Promise<string> => {

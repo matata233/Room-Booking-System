@@ -46,7 +46,7 @@ const UserEmailInput = () => {
   return isLoading ? (
     <Loader />
   ) : error ? (
-    <Message variant="error">{error.message}</Message>
+    <Message severity="error">{error.message}</Message>
   ) : (
     <>
       <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">

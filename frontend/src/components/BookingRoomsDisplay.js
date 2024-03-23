@@ -5,16 +5,8 @@ import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  resetBooking,
-  setUngroupedAttendees,
-  setSearchOnce,
-  initializeGroupedAttendees,
-  setLoggedInUserGroup,
-  startLoading,
-  stopLoading,
-  setSelectedRoomForGroup,
-} from "../slices/bookingSlice";
+import { toast } from "react-toastify";
+import { setSelectedRoomForGroup, stopSearch } from "../slices/bookingSlice";
 import Message from "../components/Message";
 
 const BookingRoomsDisplay = ({ showRecommended }) => {
@@ -35,7 +27,7 @@ const BookingRoomsDisplay = ({ showRecommended }) => {
     setCurrentPage(1); // Reset to first page when changing rows per page
   };
 
-  const { groupedAttendees, groupToDisplay } = useSelector(
+  const { groupedAttendees, groupToDisplay, searching } = useSelector(
     (state) => state.booking,
   );
 
@@ -48,7 +40,15 @@ const BookingRoomsDisplay = ({ showRecommended }) => {
     if (showRecommended) {
       rooms = rooms.filter((room) => room.recommended === true);
     }
-    console.log(rooms);
+
+    if (searching && rooms.length === 0 && groupToDisplay !== "Ungrouped") {
+      if (showRecommended) {
+        toast.info("No recommended rooms found");
+      } else {
+        toast.info("No available rooms found");
+      }
+      dispatch(stopSearch());
+    }
     return rooms;
   }, [groupedAttendees, groupToDisplay, showRecommended]);
 
