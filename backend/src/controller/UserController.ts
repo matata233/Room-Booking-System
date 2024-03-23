@@ -6,6 +6,7 @@ import UserDTO from "../model/dto/UserDTO";
 import csv from "csv-parser";
 import stream from "stream";
 import {plainToInstance} from "class-transformer";
+import {authenticator} from "../App";
 
 export default class UserController extends AbstractController {
     private userService: UserService;
@@ -83,7 +84,7 @@ export default class UserController extends AbstractController {
             if (!googleToken) {
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Token is required.");
             }
-            const jwtToken = await this.userService.login(googleToken);
+            const jwtToken = await authenticator.login(googleToken);
 
             // Send generated JWT token back to frontend
             return res.status(200).json({
