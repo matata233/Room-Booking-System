@@ -67,7 +67,6 @@ const RoomManagementPage = () => {
 
   const requestToggleIsActive = (room) => {
     setRoomToToggleStatus(room);
-    console.log(room);
     setIsModalOpen(true);
   };
 
