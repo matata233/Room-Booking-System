@@ -116,7 +116,7 @@ const BookingPage = () => {
         priority: priority.map((entry) => entry.item),
       };
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
-      console.log("availableRooms", availableRooms);
+
       dispatch(
         initializeGroupedAttendees(reorganizeAvailableRooms(availableRooms)),
       );
@@ -146,10 +146,12 @@ const BookingPage = () => {
         // ,ap over each attendee to create a new object with userId instead of user_id
         const updatedAttendees = group.attendees
           .map((attendee) => ({
-            ...attendee,
             userId: attendee.user_id,
+            user_id: undefined,
+            ...attendee,
           }))
-          .filter((attendee) => attendee.email !== userInfo.email); // exclude logged-in user
+          .filter((attendee) => attendee.email !== userInfo.email) // exclude logged-in user
+          .map(({ user_id, first_name, last_name, ...rest }) => rest); // remove user_id field
 
         const filteredAttendees = updatedAttendees.filter(
           (attendee) => attendee.email !== userInfo.email,

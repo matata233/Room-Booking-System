@@ -41,16 +41,31 @@ const BookingRoomsDisplay = ({ showRecommended }) => {
       rooms = rooms.filter((room) => room.recommended === true);
     }
 
-    if (searching && rooms.length === 0 && groupToDisplay !== "Ungrouped") {
-      if (showRecommended) {
-        toast.info("No recommended rooms found");
-      } else {
-        toast.info("No available rooms found");
-      }
+    const selectedRoomsInOtherGroups = new Set(
+      groupedAttendees
+        .filter(
+          (group) => group.groupId !== groupToDisplay && group.selectedRoom,
+        )
+        .map((group) => group.selectedRoom.roomId),
+    );
+    rooms = rooms.filter(
+      (room) => !selectedRoomsInOtherGroups.has(room.roomId),
+    );
+
+    if (
+      searching &&
+      rooms.length === 0 &&
+      groupToDisplay !== "Ungrouped" &&
+      groupToDisplay !== false
+    ) {
+      const message = showRecommended
+        ? "No recommended rooms found"
+        : "No available rooms found";
+      toast.info(message);
       dispatch(stopSearch());
     }
     return rooms;
-  }, [groupedAttendees, groupToDisplay, showRecommended]);
+  }, [groupedAttendees, groupToDisplay, showRecommended, searching, dispatch]);
 
   // Calculate paginated data
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -67,7 +82,7 @@ const BookingRoomsDisplay = ({ showRecommended }) => {
     <div className="flex flex-col items-center justify-center">
       {availableRoomsData.length > 0 ? ( // If there are available rooms
         <>
-          <div className="flex flex-col gap-4">
+          <div className="flex h-[1400px] flex-col gap-4 overflow-y-auto">
             {paginatedData.map((room) => (
               <div
                 key={room.roomId}
