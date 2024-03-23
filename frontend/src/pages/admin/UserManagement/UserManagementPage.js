@@ -25,6 +25,7 @@ const UserManagementPage = () => {
     if (isLoading || !users || !users.result) {
       return [];
     }
+
     return users.result;
   }, [isLoading, users]);
 
@@ -38,11 +39,7 @@ const UserManagementPage = () => {
   const { sortedData, sortBy } = useSortData(usersData);
   const searchedData = useSearchData(sortedData, search, selectedCategory, [
     "userId",
-    "floor",
-    "desk",
     "isActive",
-    "city",
-    "building",
   ]);
   const displayedData = usePaginateData(searchedData, currentPage, rowsPerPage);
 
@@ -72,29 +69,34 @@ const UserManagementPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleConfirmToggleIsActive = async (row) => {
-    const reqBody = {
-      username: row.username,
-      firstName: row.firstName,
-      lastName: row.lastName,
-      email: row.email,
-      floor: row.floor,
-      desk: row.desk,
-      building: {
-        buildingId: row.building.buildingId,
-      },
-      isActive: !row.isActive,
-    };
-    try {
-      await updateUser({ id: row.userId, user: reqBody }).unwrap();
-      toast.success("User updated successfully!");
-      refetch();
-    } catch (err) {
-      toast.error(err?.data?.error || "Failed to update user");
-    }
+  const handleConfirmToggleIsActive = async () => {
+    if (userToToggleStatus) {
+      const reqBody = {
+        username: userToToggleStatus.username,
+        firstName: userToToggleStatus.firstName,
+        lastName: userToToggleStatus.lastName,
+        email: userToToggleStatus.email,
+        floor: userToToggleStatus.floor,
+        desk: userToToggleStatus.desk,
+        building: {
+          buildingId: userToToggleStatus.building.buildingId,
+        },
+        isActive: !userToToggleStatus.isActive,
+      };
 
-    setIsModalOpen(false);
-    setUserToToggleStatus(null);
+      try {
+        await updateUser({
+          id: userToToggleStatus.userId,
+          user: reqBody,
+        }).unwrap();
+        refetch();
+        toast.success("User status updated successfully");
+      } catch (err) {
+        toast.error(err?.data?.error || "Failed to update user status");
+      }
+      setIsModalOpen(false);
+      setUserToToggleStatus(null);
+    }
   };
 
   return (
@@ -121,6 +123,10 @@ const UserManagementPage = () => {
               <option value="email">Email</option>
               <option value="firstName">First Name</option>
               <option value="lastName">Last Name</option>
+              <option value="city.cityId">City</option>
+              <option value="building.code">Building Code</option>
+              <option value="floor">Floor</option>
+              <option value="desk">Desk</option>
             </select>
           </div>
         </div>
@@ -198,6 +204,10 @@ const UserManagementPage = () => {
                     { key: "email", display: "Email" },
                     { key: "firstName", display: "First Name" },
                     { key: "lastName", display: "Last Name" },
+                    { key: "city.cityId", display: "City" },
+                    { key: "building.code", display: "Building Code" },
+                    { key: "floor", display: "Floor" },
+                    { key: "desk", display: "Desk" },
                     { key: "role", display: "Role" },
                   ].map((header) => (
                     <th
@@ -223,7 +233,7 @@ const UserManagementPage = () => {
                 {displayedData.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan="11"
                       className="text-md whitespace-nowrap p-3 text-center font-amazon-ember font-medium text-gray-900"
                     >
                       No result
@@ -252,6 +262,18 @@ const UserManagementPage = () => {
                       </td>
                       <td className="whitespace-nowrap p-3 text-sm text-gray-500">
                         {row.lastName}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
+                        {row.city.cityId}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
+                        {row.building.code}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
+                        {String(row.floor).padStart(2, "0")}
+                      </td>
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
+                        {row.desk}
                       </td>
                       <td className="whitespace-nowrap p-3">
                         <span
@@ -307,10 +329,10 @@ const UserManagementPage = () => {
               displayedData.map((row) => (
                 <div
                   key={row.userId}
-                  className={`max-h-40 space-y-3 rounded-lg p-4 shadow  ${selectedRows.includes(row.userId) ? "bg-theme-orange bg-opacity-10" : ""}`}
+                  className={`space-y-3 rounded-lg p-4 shadow  ${selectedRows.includes(row.userId) ? "bg-theme-orange bg-opacity-10" : ""}`}
                   // onClick={() => toggleRowSelection(row.userId)}
                 >
-                  {/* avatar + name */}
+                  {/* name */}
                   <div className="flex items-center justify-between">
                     <div className="break-words font-amazon-ember text-sm font-medium text-gray-900">
                       {row.firstName} {row.lastName}
@@ -329,8 +351,17 @@ const UserManagementPage = () => {
                     {`${row.username}`}
                   </div>
                   {/* email */}
-                  <div className="break-words  text-sm text-gray-700">
-                    {row.email}
+                  <div className="break-words text-sm text-gray-900">
+                    <span className="font-bold text-theme-dark-orange">
+                      Email:{" "}
+                    </span>
+                    {`${row.email}`}
+                  </div>
+                  <div className="break-words text-sm text-gray-900">
+                    <span className="font-bold text-theme-dark-orange">
+                      Location:{" "}
+                    </span>
+                    {`${row.city.cityId} ${row.building.code}, Floor ${String(row.floor).padStart(2, "0")}, Desk ${row.desk}`}
                   </div>
                   {/* status + action */}
                   <div className="flex items-center  justify-between space-x-2 text-sm">
