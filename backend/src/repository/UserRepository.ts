@@ -19,6 +19,9 @@ export default class UserRepository extends AbstractRepository {
                         cities: true
                     }
                 }
+            },
+            orderBy: {
+                user_id: "asc"
             }
         });
 

@@ -12,16 +12,16 @@ export default class RoomService extends AbstractService {
         this.roomRepo = roomRepo;
     }
 
-    public getAll(): Promise<RoomDTO[]> {
+    public async getAll(): Promise<RoomDTO[]> {
         // TODO: current user role check - admin only
-        return this.roomRepo.findAll();
+        return await this.roomRepo.findAll();
     }
 
-    public getById(id: number): Promise<RoomDTO> {
+    public async getById(id: number): Promise<RoomDTO> {
         if (isNaN(id)) {
             throw new BadRequestError("invalid room ID");
         }
-        return this.roomRepo.findById(id);
+        return await this.roomRepo.findById(id);
     }
 
     public async create(dto: RoomDTO): Promise<RoomDTO> {
@@ -30,14 +30,7 @@ export default class RoomService extends AbstractService {
         try {
             return await this.roomRepo.create(dto);
         } catch (error) {
-            if (error instanceof PrismaClientKnownRequestError) {
-                if (error.code === "P2002") {
-                    throw new RequestConflictError(`room ${dto.roomCode} already exists on the same building floor`);
-                }
-                if (error.code === "P2003") {
-                    throw new NotFoundError(`building does not exist`);
-                }
-            }
+            this.handlePrismaClientKnownRequestError(error, dto);
             throw error;
         }
     }
@@ -51,12 +44,20 @@ export default class RoomService extends AbstractService {
         try {
             return await this.roomRepo.updateById(id, dto);
         } catch (error) {
-            if (error instanceof PrismaClientKnownRequestError) {
-                if (error.code === "P2003") {
-                    throw new NotFoundError(`building does not exist`);
-                }
-            }
+            this.handlePrismaClientKnownRequestError(error, dto);
             throw error;
         }
+    }
+
+    private handlePrismaClientKnownRequestError(error: unknown, dto: RoomDTO) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            if (error.code === "P2002") {
+                throw new RequestConflictError(`room ${dto.roomCode} already exists on the same building and floor`);
+            }
+            if (error.code === "P2003") {
+                throw new NotFoundError(`building does not exist`);
+            }
+        }
+        throw error;
     }
 }
