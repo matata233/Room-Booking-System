@@ -376,8 +376,21 @@ export default class BookingRepository extends AbstractRepository {
                             floor
                         )
                     );
+                    const attendeeList = await this.db.users.findMany({
+                        where: {
+                            email: {
+                                in: attendeeGroup
+                            }
+                        },
+                        select: {
+                            user_id: true,
+                            email: true,
+                            first_name: true,
+                            last_name: true
+                        }
+                    });
                     return {
-                        attendees: attendeeGroup,
+                        attendees: attendeeList,
                         rooms: toAvailableRoomDTO(recommendedRooms as never[], equipments)
                     };
                 });
