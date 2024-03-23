@@ -57,7 +57,13 @@ export default class Authenticator {
         }
     };
 
-    public validateGoogleToken = async (googleToken: string): Promise<UserDTO> => {
+    public login = async (googleToken: string): Promise<string> => {
+        const userData = await this.validateGoogleToken(googleToken);
+        const token = await this.generateJwtToken(userData);
+        return token;
+    };
+
+    private validateGoogleToken = async (googleToken: string): Promise<UserDTO> => {
         const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
         if (!decodedUserInfo) {
             return Promise.reject(new UnauthorizedError(`Invalid token`));
@@ -89,7 +95,7 @@ export default class Authenticator {
         return user;
     };
 
-    public generateJwtToken = async (userDTO: UserDTO): Promise<string> => {
+    private generateJwtToken = async (userDTO: UserDTO): Promise<string> => {
         const payload = {
             userId: userDTO.userId,
             username: userDTO.username,
