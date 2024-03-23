@@ -9,14 +9,25 @@ const FileUpload = () => {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadUserCSV, { isLoading, error }] = useUploadUserCSVMutation();
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file.type === "text/csv" || file.name.endsWith(".csv")) {
-      setSelectedFile(file);
-    } else {
-      alert("Only CSV files are allowed");
-      setSelectedFile(null);
+    if (file) {
+      if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+        // Check the file size
+        if (file.size > MAX_FILE_SIZE) {
+          alert(
+            "The file is too large. Please upload a file smaller than 2MB.",
+          );
+          setSelectedFile(null);
+          return;
+        }
+        setSelectedFile(file);
+      } else {
+        alert("Only CSV files are allowed.");
+        setSelectedFile(null);
+      }
     }
   };
 
