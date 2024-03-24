@@ -254,7 +254,7 @@ const UserManagementPage = () => {
                         />
                       </td> */}
                       <td className="whitespace-nowrap p-3">{row.username}</td>
-                      <td className="ext-sm whitespace-nowrap p-3 text-gray-500">
+                      <td className="whitespace-nowrap p-3 text-sm text-gray-500">
                         {row.email}
                       </td>
                       <td className="whitespace-nowrap p-3 text-sm text-gray-500">

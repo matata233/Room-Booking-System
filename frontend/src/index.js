@@ -26,6 +26,9 @@ import UserManagementPage from "./pages/admin/UserManagement/UserManagementPage"
 import RoomManagementAddPage from "./pages/admin/RoomManagement/RoomManagementAddPage";
 import RoomManagementEditPage from "./pages/admin/RoomManagement/RoomManagementEditPage";
 import RoomManagementPage from "./pages/admin/RoomManagement/RoomManagementPage";
+import BuildingManagementPage from "./pages/admin/RoomManagement/BuildingManagementPage";
+import BuildingManagementAddPage from "./pages/admin/RoomManagement/BuildingManagementAddPage";
+import BuildingManagementEditPage from "./pages/admin/RoomManagement/BuildingManagementEditPage";
 import { persistor, store } from "./store";
 import { PersistGate } from "redux-persist/integration/react";
 import { StyledEngineProvider } from "@mui/material/styles";
@@ -68,6 +71,20 @@ const router = createBrowserRouter(
         <Route
           path="/roomManagementEditPage/:id"
           element={<RoomManagementEditPage />}
+        />
+
+        <Route
+          path="/buildingManagementPage"
+          element={<BuildingManagementPage />}
+        />
+
+        <Route
+          path="/buildingManagementAddPage"
+          element={<BuildingManagementAddPage />}
+        />
+        <Route
+          path="/buildingManagementEditPage/:id"
+          element={<BuildingManagementEditPage />}
         />
       </Route>
     </Route>,

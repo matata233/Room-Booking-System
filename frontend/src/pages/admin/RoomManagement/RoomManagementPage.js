@@ -132,12 +132,18 @@ const RoomManagementPage = () => {
         </div>
 
         {/* Add New Room + Select All (mobile)  + Delete Selected */}
-        <div className="flex justify-start gap-x-4 ">
+        <div className="flex justify-start gap-x-4 font-amazon-ember ">
           <Link
             to="/roomManagementAddPage"
-            className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-sm text-theme-dark-blue transition-colors duration-300 ease-in-out  hover:bg-theme-dark-orange hover:text-white   md:h-10 md:text-base"
+            className="cursor-pointer rounded-lg bg-theme-orange px-2 py-1 text-sm text-theme-dark-blue transition-colors duration-300 ease-in-out  hover:bg-theme-dark-orange hover:text-white   md:px-4 md:py-2 md:text-base"
           >
             Add New Room
+          </Link>
+          <Link
+            to="/buildingManagementPage"
+            className="cursor-pointer rounded-lg bg-theme-dark-blue px-2 py-1 text-sm text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white md:px-4 md:py-2 md:text-base"
+          >
+            Building Management
           </Link>
           {/* <a
             href="#"
