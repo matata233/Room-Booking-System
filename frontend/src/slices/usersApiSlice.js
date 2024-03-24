@@ -52,6 +52,15 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+
+    uploadUserCSV: builder.mutation({
+      query: (formData) => ({
+        url: `${USERS_URL}/upload`,
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -62,4 +71,5 @@ export const {
   useCreateUserMutation,
   useGetAllEmailsQuery,
   useUpdateUserMutation,
+  useUploadUserCSVMutation,
 } = usersApiSlice;
