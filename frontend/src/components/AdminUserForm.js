@@ -37,13 +37,13 @@ const AdminUserForm = ({
 
   useEffect(() => {
     if (initialValues && initialValues.result) {
-      setUsername(initialValues.result.username || "");
-      setFirstName(initialValues.result.firstName || "");
-      setLastName(initialValues.result.lastName || "");
-      setEmail(initialValues.result.email || "");
-      setFloor(initialValues.result.floor || null);
-      setDesk(initialValues.result.desk || null);
-      setIsActive(initialValues.result.isActive || true);
+      setUsername(initialValues.result.username);
+      setFirstName(initialValues.result.firstName);
+      setLastName(initialValues.result.lastName);
+      setEmail(initialValues.result.email);
+      setFloor(initialValues.result.floor);
+      setDesk(initialValues.result.desk);
+      setIsActive(initialValues.result.isActive);
 
       if (buildings && initialValues.result.building) {
         const initialBuilding = buildings.result.find(
