@@ -9,10 +9,8 @@ import {
 const AddBuilding = ({
   cityId,
   setCityId,
-  code,
-  setCode,
-  isActive,
-  setIsActive,
+  buildngCode,
+  setBuildingCode,
   address,
   setAddress,
   lon,
@@ -22,54 +20,6 @@ const AddBuilding = ({
 }) => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-      <TextField
-        label="City Code"
-        value={cityId}
-        size="small"
-        required
-        variant="standard"
-        onChange={(e) => setCityId(e.target.value)}
-        InputLabelProps={{
-          className: "text-sm md:text-base font-amazon-ember",
-        }}
-        inputProps={{
-          className: "text-sm md:text-base font-amazon-ember",
-        }}
-      />
-      <TextField
-        label="Building Code"
-        value={code}
-        size="small"
-        required
-        variant="standard"
-        onChange={(e) => setCode(e.target.value)}
-        type="number"
-        InputLabelProps={{
-          className: "text-sm md:text-base font-amazon-ember",
-        }}
-        inputProps={{
-          className: "text-sm md:text-base font-amazon-ember",
-        }}
-      />
-
-      <FormGroup>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              name="isActive"
-              color="primary"
-            />
-          }
-          label={
-            <Typography style={{ fontFamily: "AmazonEmber" }}>
-              Active
-            </Typography>
-          }
-        />
-      </FormGroup>
-
       <TextField
         label="Address"
         value={address}
@@ -86,13 +36,12 @@ const AddBuilding = ({
       />
 
       <TextField
-        label="Longitude"
-        value={lon}
+        label="City Code"
+        value={cityId}
         size="small"
         required
         variant="standard"
-        onChange={(e) => setLon(e.target.value)}
-        type="number"
+        onChange={(e) => setCityId(e.target.value)}
         InputLabelProps={{
           className: "text-sm md:text-base font-amazon-ember",
         }}
@@ -100,21 +49,60 @@ const AddBuilding = ({
           className: "text-sm md:text-base font-amazon-ember",
         }}
       />
-      <TextField
-        label="Latitude"
-        value={lat}
-        size="small"
-        required
-        variant="standard"
-        onChange={(e) => setLat(e.target.value)}
-        type="number"
-        InputLabelProps={{
-          className: "text-sm md:text-base font-amazon-ember",
-        }}
-        inputProps={{
-          className: "text-sm md:text-base font-amazon-ember",
-        }}
-      />
+      <div className="relative w-full">
+        <label
+          htmlFor="buildingCode"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Building Code*
+        </label>
+        <input
+          id="buildingCode"
+          aria-label="buildingCode"
+          required
+          type="number"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
+          value={buildngCode}
+          onChange={(event) => setBuildingCode(event.target.value)}
+        />
+      </div>
+
+      <div className="relative w-full">
+        <label
+          htmlFor="longitude"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Longitude*
+        </label>
+        <input
+          id="longitude"
+          aria-label="longitude"
+          required
+          type="number"
+          step="0.000001" // 6 decimal places
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
+          value={lon}
+          onChange={(event) => setLon(event.target.value)}
+        />
+      </div>
+      <div className="relative w-full">
+        <label
+          htmlFor="latitude"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Latitude*
+        </label>
+        <input
+          id="latitude"
+          aria-label="latitude"
+          required
+          type="number"
+          step="0.000001"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
+          value={lat}
+          onChange={(event) => setLat(event.target.value)}
+        />
+      </div>
     </div>
   );
 };

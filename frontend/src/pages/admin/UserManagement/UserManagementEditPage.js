@@ -41,7 +41,7 @@ const UserManagementEditPage = () => {
       secondaryHeader={secondaryHeader}
       buttonText={buttonText}
       handleSubmit={handleUpdate}
-      initialValues={userInfo}
+      initialValues={isLoading ? null : userInfo}
     />
   );
 };

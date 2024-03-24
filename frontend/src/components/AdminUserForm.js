@@ -6,7 +6,10 @@ import dummyBuildings from "../dummyData/dummyBuildings";
 import AutoDropdown from "./AutoDropdown";
 import ToggleBuilding from "./ToggleBuilding";
 import AddBuilding from "./AddBuilding";
-import { useGetBuildingsQuery } from "../slices/buildingsApiSlice";
+import {
+  useGetBuildingsQuery,
+  useCreateBuildingMutation,
+} from "../slices/buildingsApiSlice";
 import MoreInfo from "./MoreInfo";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -19,8 +22,10 @@ const AdminUserForm = ({
   initialValues = {},
 }) => {
   const { data: buildings, error, isLoading, refetch } = useGetBuildingsQuery();
+  const [createBuilding, { isLoading: isBuildingLoading }] =
+    useCreateBuildingMutation();
 
-  //  const [extBuilding, setExtBuilding] = useState(true);
+  const [extBuilding, setExtBuilding] = useState(true);
   const [building, setBuilding] = useState(null);
   const [buildingId, setBuildingId] = useState(null);
   const [username, setUsername] = useState("");
@@ -30,6 +35,12 @@ const AdminUserForm = ({
   const [floor, setFloor] = useState(null);
   const [desk, setDesk] = useState(null);
   const [isActive, setIsActive] = useState(true);
+
+  const [cityId, setCityId] = useState("");
+  const [buildingCode, setBuildingCode] = useState(null);
+  const [address, setAddress] = useState("");
+  const [lon, setLon] = useState(null);
+  const [lat, setLat] = useState(null);
 
   useEffect(() => {
     setBuildingId(building?.value);
@@ -69,6 +80,19 @@ const AdminUserForm = ({
     if (!Number.isInteger(data.desk) || data.desk <= 0) {
       errors.push("invalid desk number");
     }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  };
+
+  const validateBuildingData = (data) => {
+    const errors = [];
+
+    if (!Number.isInteger(data.code) || data.code < 0) {
+      errors.push("invalid building code");
+    }
     return {
       isValid: errors.length === 0,
       errors,
@@ -77,28 +101,59 @@ const AdminUserForm = ({
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    const formData = {
-      buildingId,
-      username,
-      firstName,
-      lastName,
-      email,
-      floor: parseInt(floor),
-      desk: parseInt(desk),
-      isActive,
-      building: {
-        buildingId: buildingId,
-      },
-    };
-    const validation = validateUserData(formData);
-    if (validation.isValid) {
-      handleSubmit(formData);
-    } else {
-      const validationErrors = validation.errors
-        .map((error, index) => `${index + 1}. ${error}`)
-        .join(" ; ");
+    let buildingIdLocal = null;
+    if (extBuilding) {
+      buildingIdLocal = buildingId;
+    }
+    if (!extBuilding) {
+      const buildingFormData = {
+        city: { cityId },
+        code: parseInt(buildingCode),
+        address,
+        lon: parseFloat(lon),
+        lat: parseFloat(lat),
+        isActive: true,
+      };
 
-      toast.error(`User data validation failed: ${validationErrors}`);
+      const buildingValidation = validateBuildingData(buildingFormData);
+      if (buildingValidation.isValid) {
+        try {
+          const buildingData = await createBuilding(buildingFormData).unwrap();
+          buildingIdLocal = buildingData.result.buildingId;
+        } catch (err) {
+          toast.error(err?.data?.error || "Failed to create building");
+          return;
+        }
+      } else {
+        const validationErrors = buildingValidation.errors
+          .map((error, index) => `${index + 1}. ${error}`)
+          .join(" ; ");
+        toast.error(`Building data validation failed: ${validationErrors}`);
+        return;
+      }
+    }
+
+    if (buildingIdLocal) {
+      const userFormData = {
+        building: { buildingId: buildingIdLocal },
+        username,
+        firstName,
+        lastName,
+        email,
+        floor: parseInt(floor),
+        desk: parseInt(desk),
+        isActive,
+      };
+      const userValidation = validateUserData(userFormData);
+      if (userValidation.isValid) {
+        handleSubmit(userFormData);
+      } else {
+        const validationErrors = userValidation.errors
+          .map((error, index) => `${index + 1}. ${error}`)
+          .join(" ; ");
+
+        toast.error(`User data validation failed: ${validationErrors}`);
+      }
     }
   };
 
@@ -198,61 +253,65 @@ const AdminUserForm = ({
               </div>
 
               {/* Toggle Existing/New building */}
-              {/* <ToggleBuilding
+              <ToggleBuilding
                 extBuilding={extBuilding}
                 setExtBuilding={setExtBuilding}
                 setBuilding={setBuilding}
-              /> */}
+              />
+              {extBuilding ? (
+                <div className="relative">
+                  <div className="flex justify-between">
+                    {/* Autocomplete */}
+                    <div className="grow">
+                      <AutoDropdown
+                        label="Building"
+                        options={
+                          isLoading
+                            ? [{ label: "Loading...", value: null }]
+                            : error
+                              ? [
+                                  {
+                                    label: "Error fetching buildings",
+                                    value: null,
+                                  },
+                                ]
+                              : buildings.result
+                                  .filter((building) => building.isActive)
+                                  .map((building) => ({
+                                    label: `${building.city.cityId} ${building.code}`,
+                                    value: building.buildingId,
+                                  }))
+                        }
+                        isLoading={isLoading}
+                        error={error}
+                        selectedValue={building}
+                        setSelectedValue={setBuilding}
+                        className="w-full"
+                      />
+                    </div>
 
-              <div className="relative">
-                <div className="flex justify-between">
-                  {/* Autocomplete */}
-                  <div className="grow">
-                    <AutoDropdown
-                      label="Building"
-                      options={
-                        isLoading
-                          ? [{ label: "Loading...", value: null }]
-                          : error
-                            ? [
-                                {
-                                  label: "Error fetching buildings",
-                                  value: null,
-                                },
-                              ]
-                            : buildings.result.map((building) => ({
-                                label: `${building.city.cityId} ${building.code}`,
-                                value: building.buildingId,
-                              }))
-                      }
-                      isLoading={isLoading}
-                      error={error}
-                      selectedValue={building}
-                      setSelectedValue={setBuilding}
-                      className="w-full"
+                    <MoreInfo
+                      info={"Nearest airport code | Building number "}
                     />
                   </div>
-
-                  <MoreInfo info={"Nearest airport code | Building number "} />
                 </div>
-              </div>
-              {/* 
-              <div className="relative">
-                <AddBuilding
-                  cityId={cityId}
-                  setCityId={setCityId}
-                  code={code}
-                  setCode={setCode}
-                  isActive={isActive}
-                  setIsActive={setIsActive}
-                  address={address}
-                  setAddress={setAddress}
-                  lon={lon}
-                  setLon={setLon}
-                  lat={lat}
-                  setLat={setLat}
-                />
-              </div> */}
+              ) : (
+                <div className="relative">
+                  <AddBuilding
+                    cityId={cityId}
+                    setCityId={setCityId}
+                    buildingCode={buildingCode}
+                    setBuildingCode={setBuildingCode}
+                    address={address}
+                    setAddress={setAddress}
+                    lon={lon}
+                    setLon={setLon}
+                    lat={lat}
+                    setLat={setLat}
+                  />
+                </div>
+              )}
+
               <div className="relative flex justify-between gap-x-8">
                 <div className="w-full">
                   <label

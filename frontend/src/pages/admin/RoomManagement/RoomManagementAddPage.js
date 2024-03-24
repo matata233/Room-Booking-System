@@ -15,7 +15,7 @@ const RoomManagementAddPage = () => {
   const handleSubmit = async (formData) => {
     try {
       await createRoom(formData).unwrap();
-      toast.success("Room created");
+      toast.success("Room created successfully!");
       navigate("/roomManagementPage");
     } catch (err) {
       toast.error(err?.data?.error || "Failed to create room");

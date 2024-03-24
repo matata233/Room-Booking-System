@@ -10,7 +10,17 @@ export const buildingsApiSlice = apiSlice.injectEndpoints({
       providesTags: ["Building"],
       keepUnusedDataFor: 5,
     }),
+
+    createBuilding: builder.mutation({
+      query: (building) => ({
+        url: `${BUILDINGS_URL}/create`,
+        method: "POST",
+        body: building,
+      }),
+      invalidatesTags: ["Building"],
+    }),
   }),
 });
 
-export const { useGetBuildingsQuery } = buildingsApiSlice;
+export const { useGetBuildingsQuery, useCreateBuildingMutation } =
+  buildingsApiSlice;
