@@ -2,7 +2,6 @@ import AbstractService from "./AbstractService";
 import BookingDTO from "../model/dto/BookingDTO";
 import BookingRepository from "../repository/BookingRepository";
 import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
-import {bookings, status} from "@prisma/client";
 
 export default class BookingService extends AbstractService {
     private bookingRepository: BookingRepository;
@@ -143,6 +142,12 @@ export default class BookingService extends AbstractService {
         priority: string[],
         num_rooms: number
     ): Promise<object> {
+        if (new Date(start_time) <= new Date()) {
+            throw new BadRequestError("Start time has already passed");
+        }
+        if (new Date(end_time) <= new Date(start_time)) {
+            throw new BadRequestError("Invalid end time");
+        }
         return this.bookingRepository.getAvailableRooms(
             start_time,
             end_time,

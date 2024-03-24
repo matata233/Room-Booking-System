@@ -1106,39 +1106,40 @@ VALUES (339, 7, 1, '007.A', '', 10, TRUE),
 SELECT setval('rooms_room_id_seq', (SELECT MAX(room_id) FROM rooms));
 
 INSERT INTO users (user_id, username, first_name, last_name, email, building_id, floor, desk, role, is_active)
-VALUES (1, 'YVR32_01_1', 'YVR32_01_1', 'YVR32_01_1', 'YVR32_01_1@aws.ca', 1, 1, 100, 'staff', TRUE),
-       (2, 'YVR32_01_2', 'YVR32_01_2', 'YVR32_01_2', 'YVR32_01_2@aws.ca', 1, 1, 100, 'staff', TRUE),
-       (3, 'YVR32_01_off', 'YVR32_01_off', 'YVR32_01_off', 'YVR32_01_off@aws.ca', 1, 1, 100, 'staff', FALSE),
-       (4, 'YVR32_03_1', 'YVR32_03_1', 'YVR32_03_1', 'YVR32_03_1@aws.ca', 1, 3, 100, 'staff', TRUE),
-       (5, 'YVR32_05_1', 'YVR32_05_1', 'YVR32_05_1', 'YVR32_05_1@aws.ca', 1, 5, 100, 'staff', TRUE),
-       (6, 'YVR41_01_1', 'YVR41_01_1', 'YVR41_01_1', 'YVR41_01_1@aws.ca', 2, 1, 100, 'staff', TRUE),
-       (7, 'YVR41_01_2', 'YVR41_01_2', 'YVR41_01_2', 'YVR41_01_2@aws.ca', 2, 1, 100, 'staff', TRUE),
-       (8, 'YVR41_01_3', 'YVR41_01_3', 'YVR41_01_3', 'YVR41_01_3@aws.ca', 2, 1, 100, 'staff', TRUE),
-       (9, 'YVR74_01_1', 'YVR74_01_1', 'YVR74_01_1', 'YVR74_01_1@aws.ca', 3, 1, 100, 'staff', TRUE),
-       (10, 'YVR74_01_2', 'YVR74_01_2', 'YVR74_01_2', 'YVR74_01_2@aws.ca', 3, 1, 100, 'staff', TRUE),
-       (11, 'YVR74_01_3', 'YVR74_01_3', 'YVR74_01_3', 'YVR74_01_3@aws.ca', 3, 1, 100, 'staff', TRUE),
-       (12, 'YVR63_01_1', 'YVR63_01_1', 'YVR63_01_1', 'YVR63_01_1@aws.ca', 4, 1, 100, 'staff', TRUE),
-       (13, 'YVR63_01_2', 'YVR63_01_2', 'YVR63_01_2', 'YVR63_01_2@aws.ca', 4, 1, 100, 'staff', TRUE),
-       (14, 'YVR63_01_3', 'YVR63_01_3', 'YVR63_01_3', 'YVR63_01_3@aws.ca', 4, 1, 100, 'staff', TRUE),
-       (15, 'YVR73_01_1', 'YVR73_01_1', 'YVR73_01_1', 'YVR73_01_1@aws.ca', 5, 1, 100, 'staff', TRUE),
-       (16, 'YVR73_01_2', 'YVR73_01_2', 'YVR73_01_2', 'YVR73_01_2@aws.ca', 5, 1, 100, 'staff', TRUE),
-       (17, 'YVR73_01_3', 'YVR73_01_3', 'YVR73_01_3', 'YVR73_01_3@aws.ca', 5, 1, 100, 'staff', TRUE),
-       (18, 'YUL22_01_1', 'YUL22_01_1', 'YUL22_01_1', 'YUL22_01_1@aws.ca', 7, 1, 100, 'staff', TRUE),
-       (19, 'team7awsome01', 'Admin 1', 'Test', 'team7awsome01@gmail.com', 3, 4, 1, 'admin', TRUE),
-       (20, 'team7awsome02', 'Admin 2', 'Test', 'team7awsome02@gmail.com', 3, 4, 1, 'admin', TRUE),
-       (21, 'team7awsome098', 'Admin 3', 'Test', 'team7awsome98@gmail.com', 3, 4, 1, 'admin', TRUE),
-       (22, 'team7awsomeuser01', 'Staff 1', 'Test', 'team7awsomeuser01@gmail.com', 4, 4, 1, 'staff', TRUE),
-       (23, 'team7awsomeuser12', 'Staff 2', 'Test', 'team7awsomeuser12@gmail.com', 4, 4, 1, 'staff', TRUE),
-       (24, 'team7awsomeuser22', 'Staff 3', 'Test', 'team7awsomeuser22@gmail.com', 4, 4, 1, 'staff', TRUE),
+
+VALUES (1, 'team7awsome01', 'Admin 1', 'Test', 'team7awsome01@gmail.com', 1, 1, 1, 'admin', TRUE),
+       (2, 'team7awsome02', 'Admin 2', 'Test', 'team7awsome02@gmail.com', 2, 3, 1, 'admin', TRUE),
+       (3, 'team7awsome098', 'Admin 3', 'Test', 'team7awsome98@gmail.com', 3, 5, 1, 'admin', TRUE),
+       (4, 'team7awsomeuser01', 'Staff 1', 'Test', 'team7awsomeuser01@gmail.com', 4, 2, 1, 'staff', TRUE),
+       (5, 'team7awsomeuser12', 'Staff 2', 'Test', 'team7awsomeuser12@gmail.com', 5, 4, 1, 'staff', TRUE),
+       (6, 'team7awsomeuser22', 'Staff 3', 'Test', 'team7awsomeuser22@gmail.com', 6, 6, 1, 'staff', TRUE),
+       (7, 'YVR32_01_1', 'YVR32_01_1', 'YVR32_01_1', 'YVR32_01_1@aws.ca', 1, 1, 100, 'staff', TRUE),
+       (8, 'YVR32_01_2', 'YVR32_01_2', 'YVR32_01_2', 'YVR32_01_2@aws.ca', 1, 1, 100, 'staff', TRUE),
+       (9, 'YVR32_01_off', 'YVR32_01_off', 'YVR32_01_off', 'YVR32_01_off@aws.ca', 1, 1, 100, 'staff', FALSE),
+       (10, 'YVR32_03_1', 'YVR32_03_1', 'YVR32_03_1', 'YVR32_03_1@aws.ca', 1, 3, 100, 'staff', TRUE),
+       (11, 'YVR32_05_1', 'YVR32_05_1', 'YVR32_05_1', 'YVR32_05_1@aws.ca', 1, 5, 100, 'staff', TRUE),
+       (12, 'YVR41_01_1', 'YVR41_01_1', 'YVR41_01_1', 'YVR41_01_1@aws.ca', 2, 1, 100, 'staff', TRUE),
+       (13, 'YVR41_01_2', 'YVR41_01_2', 'YVR41_01_2', 'YVR41_01_2@aws.ca', 2, 1, 100, 'staff', TRUE),
+       (14, 'YVR41_01_3', 'YVR41_01_3', 'YVR41_01_3', 'YVR41_01_3@aws.ca', 2, 1, 100, 'staff', TRUE),
+       (15, 'YVR74_01_1', 'YVR74_01_1', 'YVR74_01_1', 'YVR74_01_1@aws.ca', 3, 1, 100, 'staff', TRUE),
+       (16, 'YVR74_01_2', 'YVR74_01_2', 'YVR74_01_2', 'YVR74_01_2@aws.ca', 3, 1, 100, 'staff', TRUE),
+       (17, 'YVR74_01_3', 'YVR74_01_3', 'YVR74_01_3', 'YVR74_01_3@aws.ca', 3, 1, 100, 'staff', TRUE),
+       (18, 'YVR63_01_1', 'YVR63_01_1', 'YVR63_01_1', 'YVR63_01_1@aws.ca', 4, 1, 100, 'staff', TRUE),
+       (19, 'YVR63_01_2', 'YVR63_01_2', 'YVR63_01_2', 'YVR63_01_2@aws.ca', 4, 1, 100, 'staff', TRUE),
+       (20, 'YVR63_01_3', 'YVR63_01_3', 'YVR63_01_3', 'YVR63_01_3@aws.ca', 4, 1, 100, 'staff', TRUE),
+       (21, 'YVR73_01_1', 'YVR73_01_1', 'YVR73_01_1', 'YVR73_01_1@aws.ca', 5, 1, 100, 'staff', TRUE),
+       (22, 'YVR73_01_2', 'YVR73_01_2', 'YVR73_01_2', 'YVR73_01_2@aws.ca', 5, 1, 100, 'staff', TRUE),
+       (23, 'YVR73_01_3', 'YVR73_01_3', 'YVR73_01_3', 'YVR73_01_3@aws.ca', 5, 1, 100, 'staff', TRUE),
+       (24, 'YUL22_01_1', 'YUL22_01_1', 'YUL22_01_1', 'YUL22_01_1@aws.ca', 7, 1, 100, 'staff', TRUE),
        (25, 'michelle', 'Michelle', 'Chen', 'hsiangyi1025@gmail.com', 5, 1, 102, 'admin', TRUE);
 
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
 
 INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status)
-VALUES (1, 11, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed'),
-       (2, 11, '2024-03-23T12:00Z', '2025-03-26T19:00Z', '2025-03-26T20:00Z', 'canceled'),
-       (3, 12, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'canceled'),
-       (4, 9, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed');
+VALUES (1, 1, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed'),
+       (2, 1, '2024-03-23T12:00Z', '2025-03-26T19:00Z', '2025-03-26T20:00Z', 'canceled'),
+       (3, 2, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'canceled'),
+       (4, 4, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed');
 
 SELECT setval('bookings_booking_id_seq', (SELECT MAX(booking_id) FROM bookings));
 
@@ -1151,13 +1152,13 @@ VALUES (1, 1),
        (4, 2);
 
 INSERT INTO users_bookings(user_id, booking_id, room_id)
-VALUES (11, 1, 1),
-       (11, 2, 2),
+VALUES (1, 1, 1),
+       (1, 2, 2),
        (2, 2, 3),
        (3, 2, 4),
        (4, 2, 4),
-       (12, 3, 2),
-       (9, 4, 2);
+       (2, 3, 2),
+       (4, 4, 2);
 
 INSERT INTO distances (building_id_from, building_id_to, distance)
 VALUES (1, 1, 0),
