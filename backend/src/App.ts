@@ -146,6 +146,7 @@ app.put(`${endpoint}/booking/:id`, bookingController.update);
 // Building routes
 app.get(`${endpoint}/buildings`, buildingController.getAll);
 app.get(`${endpoint}/buildings/:id`, buildingController.getById);
+app.post(`${endpoint}/buildings/create`, buildingController.create);
 
 // Event routes
 app.get(`${endpoint}/events`, eventController.getAllByCurrentUser);
