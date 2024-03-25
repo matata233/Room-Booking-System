@@ -72,90 +72,98 @@ const BookingHistoryPage = () => {
 
   return (
     <div>
-      <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
+      <div className="flex w-full flex-col items-center gap-y-12 font-amazon-ember">
         <h1 className="text-center text-2xl font-semibold">Booking History</h1>
 
         {bookingData.length > 0 ? (
           <>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col">
               {bookingData.map((book) => (
                 <div
                   key={book.bookingId}
-                  className="relative mx-6 mb-10 bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                  className="relative mx-6 mb-10 bg-white px-5 pb-5 pt-[120px] shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:pt-[105px] lg:pt-28"
                 >
                   {/* ----- */}
                   {book.groups.map((group, index) => (
                     <div>
                       <div
                         key={group.room.roomId}
-                        className="flex flex-col items-center justify-between lg:flex-row"
+                        className="flex flex-col items-center justify-center lg:flex-row lg:items-start lg:justify-between lg:gap-20 "
                       >
-                        <div>
-                          {index == 0 && (
-                            <div className="ml-10 mt-[60px] text-center text-lg font-semibold">
-                              {book.status == "confirmed" ? (
-                                <div className="text-green-500">
-                                  {" "}
-                                  Confirmed <CheckIcon />{" "}
-                                </div>
-                              ) : (
-                                <div className="text-red-500">
-                                  {" "}
-                                  Canceled <CancelIcon />{" "}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                          <div className="absolute -left-20 top-1 ml-10 mt-2 bg-theme-orange px-5 py-2">
-                            <div>
-                              <span className="font-semibold">Time:</span>{" "}
-                              {`${formatDateTime(book.startTime, book.endTime).date}` +
-                                " " +
-                                `${formatDateTime(book.startTime, book.endTime).startTime}` +
-                                " - " +
-                                `${formatDateTime(book.startTime, book.endTime).endTime}`}
-                            </div>
-                            <div className="">
-                              <span className="font-semibold">Booked by:</span>{" "}
-                              {book.users.email}
-                            </div>
+                        <div className="absolute -top-2 bg-theme-orange px-5 py-1 lg:-left-10 lg:top-7">
+                          <div>
+                            <span className="font-semibold">Time:</span>{" "}
+                            {`${formatDateTime(book.startTime, book.endTime).date}` +
+                              " " +
+                              `${formatDateTime(book.startTime, book.endTime).startTime}` +
+                              " - " +
+                              `${formatDateTime(book.startTime, book.endTime).endTime}`}
                           </div>
-
-                          <div className="ml-10 mt-2">
+                          <div className="">
+                            <span className="font-semibold">Booked by:</span>{" "}
+                            {book.users.email}
+                          </div>
+                        </div>
+                        {index == 0 && (
+                          <div className="text-md absolute top-20 m-2 text-center font-semibold sm:top-14 lg:left-80 lg:top-9">
+                            {book.status == "confirmed" ? (
+                              <div className="text-green-500">
+                                {" "}
+                                Confirmed <CheckIcon />{" "}
+                              </div>
+                            ) : (
+                              <div className="text-red-500">
+                                {" "}
+                                Canceled <CancelIcon />{" "}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {/* Room Information */}
+                        <div className="flex flex-row items-center gap-2 lg:items-start ">
+                          <div className="m-5 hidden  lg:flex">
                             <img
                               src={MeetingRoomImg}
                               alt="meeting room"
-                              className="h-[15vh]"
+                              className="h-[20vh]"
                             />
                           </div>
-                        </div>
-                        <div className="mt-6 flex flex-col  justify-start gap-1">
-                          <div className="mt-2 text-lg text-theme-orange">
-                            {`${group.room.city.cityId}${group.room.building.code} ${group.room.floorNumber.toString().padStart(2, "0")}.${group.room.roomCode} ${group.room.roomName ? group.room.roomName : ""} `}{" "}
-                          </div>
 
-                          <div className="mt-2">
-                            <span className="font-semibold">Equipments:</span>{" "}
-                            { group.room.equipmentList.length > 0
-                                ? group.room.equipmentList
-                                    .map((equip) => equip.equipmentId)
-                                    .join(" / ")
-                                : "None"}
-                          </div>
-                          <div className="mt-2">
-                            <span className="font-semibold">
-                              Number of Seats:
-                            </span>{" "}
-                            {group.room.numberOfSeats}
+                          <div className="mt-2 flex flex-col justify-center sm:justify-start">
+                            <div className="m-2 border-b-2 border-zinc-200 text-left font-semibold">
+                              <h2>Room Information:</h2>
+                            </div>
+                            <div className="w-72 px-2">
+                              <div className="text-mb text-theme-orange">
+                                {`${group.room.city.cityId}${group.room.building.code} ${group.room.floorNumber.toString().padStart(2, "0")}.${group.room.roomCode} ${group.room.roomName ? group.room.roomName : ""} `}{" "}
+                              </div>
+
+                              <div className="">
+                                <span className="font-semibold">
+                                  Equipments:
+                                </span>{" "}
+                                {group.room.equipmentList.length > 0
+                                  ? group.room.equipmentList
+                                      .map((equip) => equip.equipmentId)
+                                      .join(" / ")
+                                  : "None"}
+                              </div>
+                              <div className="">
+                                <span className="font-semibold">
+                                  Number of Seats:
+                                </span>{" "}
+                                {group.room.numberOfSeats}
+                              </div>
+                            </div>
                           </div>
                         </div>
 
                         {/* Attendees */}
-                        <div className="mt-10 flex flex-col lg:mt-0">
-                          <div className="mb-2 text-center font-semibold">
+                        <div className="mb-5 mt-8 flex flex-col sm:mx-5 lg:mt-2">
+                          <div className="m-2 border-b-2 border-zinc-200 text-left font-semibold">
                             <h2>Attendee(s):</h2>
                           </div>
-                          <div className="h-32 w-80 overflow-y-auto rounded-lg bg-gray-200 pl-4 pt-2">
+                          <div className=" w-72 px-2">
                             {group.attendees.map((attendee) => (
                               <div className="flex items-center">
                                 <div className="h-2 w-2 rounded-full bg-theme-orange"></div>
@@ -176,8 +184,8 @@ const BookingHistoryPage = () => {
                   ))}
                   {book.status == "confirmed" &&
                     userInfo.email == book.users.email && (
-                      <div className="flex justify-end">
-                        <div className="flex space-x-6 ">
+                      <div className="mr-5 flex justify-end">
+                        <div className="flex space-x-4 ">
                           <button
                             className="text-indigo-600 hover:text-indigo-900 "
                             onClick={(e) => e.stopPropagation()}
