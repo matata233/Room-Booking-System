@@ -92,7 +92,6 @@ const BookingRoomsDisplay = () => {
   const handleOnClick = (room) => {
     return () => {
       dispatch(setSelectedRoomForGroup({ groupId: groupToDisplay, room }));
-      navigate("/bookingReview");
     };
   };
 

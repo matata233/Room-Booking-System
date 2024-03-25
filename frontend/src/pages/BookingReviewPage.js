@@ -47,7 +47,6 @@ const BookingReviewPage = () => {
   const handleOnClick = async () => {
     try {
       const reqBody = createRequestBody();
-      console.log(reqBody);
       const response = await confirmBooking(reqBody).unwrap();
       dispatch(resetBooking());
       navigate("/bookingComplete", { state: response });
