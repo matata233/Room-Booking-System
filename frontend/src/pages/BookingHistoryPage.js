@@ -81,16 +81,16 @@ const BookingHistoryPage = () => {
               {bookingData.map((book) => (
                 <div
                   key={book.bookingId}
-                  className="relative mx-6 mb-10 bg-white px-5 pb-5 pt-[120px] shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:pt-[105px] lg:pt-28"
+                  className="relative mx-6 mb-10 bg-white px-5 pb-5 pt-[105px] shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl lg:pt-28"
                 >
                   {/* ----- */}
                   {book.groups.map((group, index) => (
                     <div>
                       <div
                         key={group.room.roomId}
-                        className="flex flex-col items-center justify-center lg:flex-row lg:items-start lg:justify-between lg:gap-20 "
+                        className="flex flex-col items-center justify-center lg:flex-row lg:items-start lg:justify-between lg:gap-24 "
                       >
-                        <div className="absolute -top-2 bg-theme-orange px-5 py-1 lg:-left-10 lg:top-7">
+                        <div className="absolute -left-6 top-4 bg-theme-orange px-5 py-1 lg:-left-12 lg:top-7">
                           <div>
                             <span className="font-semibold">Time:</span>{" "}
                             {`${formatDateTime(book.startTime, book.endTime).date}` +
@@ -105,7 +105,7 @@ const BookingHistoryPage = () => {
                           </div>
                         </div>
                         {index == 0 && (
-                          <div className="text-md absolute top-20 m-2 text-center font-semibold sm:top-14 lg:left-80 lg:top-9">
+                          <div className="text-md absolute right-4 top-20 m-2 font-semibold lg:top-9">
                             {book.status == "confirmed" ? (
                               <div className="text-green-500">
                                 {" "}
@@ -121,7 +121,7 @@ const BookingHistoryPage = () => {
                         )}
                         {/* Room Information */}
                         <div className="flex flex-row items-center gap-2 lg:items-start ">
-                          <div className="m-5 hidden  lg:flex">
+                          <div className="m-5 hidden lg:flex">
                             <img
                               src={MeetingRoomImg}
                               alt="meeting room"
@@ -159,7 +159,7 @@ const BookingHistoryPage = () => {
                         </div>
 
                         {/* Attendees */}
-                        <div className="mb-5 mt-8 flex flex-col sm:mx-5 lg:mt-2">
+                        <div className="my-6 flex flex-col sm:mx-5 lg:mt-2">
                           <div className="m-2 border-b-2 border-zinc-200 text-left font-semibold">
                             <h2>Attendee(s):</h2>
                           </div>
@@ -184,7 +184,7 @@ const BookingHistoryPage = () => {
                   ))}
                   {book.status == "confirmed" &&
                     userInfo.email == book.users.email && (
-                      <div className="mr-5 flex justify-end">
+                      <div className="mb-3 mr-1 flex justify-end lg:m-0">
                         <div className="flex space-x-4 ">
                           <button
                             className="text-indigo-600 hover:text-indigo-900 "
