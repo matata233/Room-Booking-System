@@ -103,17 +103,46 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                [[
-                    "team7awsome01@gmail.com",
-                    "YVR41_05@aws.ca"
-                ]],
+                [
+                    [
+                        "team7awsome98@gmail.com",
+                        "team7awsomeuser12@gmail.com"
+                    ],
+                    [
+                        "team7awsome02@gmail.com",
+                        "team7awsome01@gmail.com"
+                    ],
+                    [
+                        "team7awsomeuser01@gmail.com",
+                        "team7awsomeuser22@gmail.com",
+                        "YVR32_01_1@aws.ca"
+                    ]
+                ],
                 [],
                 ["distance", "seats", "equipments"],
-                1,
-                false
+                3,
+                true
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(283);
+        });
+
+        it("Auto-splitting check only 1 building in city", async () => {
+            const result = await bookingService.getAvailableRooms(
+                basicBooking.startTime!.toISOString(),
+                basicBooking.endTime!.toISOString(),
+                [
+                    [
+                        "team7awsomeuser22@gmail.com"
+                    ]
+                ],
+                [],
+                ["distance", "seats", "equipments"],
+                1,
+                true
+            );
+            // @ts-expect-error temp
+            expect(result.groups[0].rooms).to.have.lengthOf(55);
         });
 
         it("distance check YVR", async () => {
