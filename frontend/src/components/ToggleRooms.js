@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 const ToggleRooms = ({ showRecommended, handleToggle }) => {
   return (
-    <div className="flex items-center justify-center p-5">
+    <div className="flex h-[40px] items-center justify-center">
       <label
         className={`mr-2 ${showRecommended ? "text-gray-400" : "text-black"}`}
       >
