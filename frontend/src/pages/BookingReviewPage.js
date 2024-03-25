@@ -21,10 +21,10 @@ const BookingReviewPage = () => {
 
   const formattedStartTime = moment(utcStartTime)
     .tz(moment.tz.guess())
-    .format("YYYY-MM-YY HH:mm z");
+    .format("YYYY-MM-DD HH:mm z");
   const formattedEndTime = moment(utcEndTime)
     .tz(moment.tz.guess())
-    .format("YYYY-MM-YY HH:mm z");
+    .format("YYYY-MM-DD HH:mm z");
 
   const [confirmBooking, { isLoading, error }] = useConfirmBookingMutation();
 
