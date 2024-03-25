@@ -2,19 +2,28 @@ import React from "react";
 import BookingStepper from "../components/BookingStepper";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link, useLocation } from "react-router-dom";
+import moment from "moment";
 
 const BookingCompletePage = () => {
   const location = useLocation();
   const bookingData = location.state;
-  const startTime = new Date(bookingData.result.startTime);
-  const endTime = new Date(bookingData.result.endTime);
+  const startTime = bookingData.result.startTime;
+  const endTime = bookingData.result.endTime;
 
-  const formattedDate = startTime.toISOString().split("T")[0];
-  const formattedStartHour = startTime
-    .toISOString()
+  const formattedDate = moment.utc(startTime).local().format().split("T")[0];
+  const formattedStartHour = moment
+    .utc(startTime)
+    .local()
+    .format()
     .split("T")[1]
     .substring(0, 5);
-  const formattedEndHour = endTime.toISOString().split("T")[1].substring(0, 5);
+  const formattedEndHour = moment
+    .utc(endTime)
+    .local()
+    .format()
+    .split("T")[1]
+    .substring(0, 5);
+  console.log(formattedDate, formattedStartHour, formattedEndHour);
   return (
     <div>
       <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
