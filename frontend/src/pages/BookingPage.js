@@ -25,6 +25,7 @@ import {
   setGroupToDisplay,
   startSearch,
   stopSearch,
+  toggleRegroup,
 } from "../slices/bookingSlice";
 import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
@@ -145,6 +146,7 @@ const BookingPage = () => {
       if (!searchOnce) {
         dispatch(setUngroupedAttendees([]));
         dispatch(setSearchOnce(true));
+        dispatch(toggleRegroup());
       }
     } catch (err) {
       toast.error(err?.data?.error || "Failed to get available rooms");

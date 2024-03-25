@@ -37,7 +37,7 @@ const initialState = {
   groupToDisplay: "Group1",
   searching: false,
   showRecommended: true,
-  regroup: false,
+  regroup: true,
 };
 
 export const bookingSlice = createSlice({
