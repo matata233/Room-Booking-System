@@ -118,6 +118,9 @@ export default class BookingRepository extends AbstractRepository {
                         }
                     }
                 }
+            },
+            orderBy: {
+                created_at: "desc"
             }
         });
 
@@ -283,12 +286,28 @@ export default class BookingRepository extends AbstractRepository {
         roomCount: number,
         regroup: boolean
     ): Promise<object> {
-        await this.checkAttendeeAvailabilities(attendees.flat(), startTime, endTime);
-        const attendeeGroups = regroup ? await this.getGroupingSuggestion(attendees.flat(), roomCount) : attendees;
-        const roomSearchPromises = attendeeGroups.map(async (group) => {
-            return await this.searchForRooms(group, startTime, endTime, equipments, priority);
-        });
-        return {groups: await Promise.all(roomSearchPromises)};
+        const flatAttendees = attendees.flat();
+        await this.checkAttendeeAvailabilities(flatAttendees, startTime, endTime);
+        const attendeeCityIds = await Promise.all(flatAttendees.map((attendee) => this.getCityId(attendee)));
+        const uniqueCityIds = new Set(attendeeCityIds);
+        const isMultiCity = uniqueCityIds.size > 1;
+        let attendeeGroups: string[][];
+        if (isMultiCity) {
+            attendeeGroups = [...uniqueCityIds].map((cityId) =>
+                flatAttendees.filter((_, i) => attendeeCityIds[i] === cityId)
+            );
+        } else {
+            if (!regroup && roomCount !== attendees.length) {
+                throw new BadRequestError(
+                    "please turn on auto-regroup after changing the number of rooms or switching between one or multiple cities"
+                );
+            }
+            attendeeGroups = regroup ? await this.getGroupingSuggestion(flatAttendees, roomCount) : attendees;
+        }
+        const roomSearchResults = await Promise.all(
+            attendeeGroups.map((group) => this.searchForRooms(group, startTime, endTime, equipments, priority))
+        );
+        return {isMultiCity: isMultiCity, groups: roomSearchResults};
     }
 
     public async getSuggestedTimes(

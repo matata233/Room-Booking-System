@@ -145,9 +145,6 @@ export default class BookingService extends AbstractService {
         if (new Date(endTime) <= new Date(startTime)) {
             throw new BadRequestError("Invalid end time");
         }
-        if (!regroup && roomCount !== attendees.length) {
-            throw new BadRequestError("please use auto-regroup after changing the number of rooms");
-        }
         return this.bookingRepository.getAvailableRooms(
             startTime,
             endTime,
