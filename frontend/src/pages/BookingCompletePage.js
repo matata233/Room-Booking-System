@@ -2,7 +2,7 @@ import React from "react";
 import BookingStepper from "../components/BookingStepper";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link, useLocation } from "react-router-dom";
-import moment from "moment";
+import moment from "moment-timezone";
 
 const BookingCompletePage = () => {
   const location = useLocation();
@@ -10,20 +10,12 @@ const BookingCompletePage = () => {
   const startTime = bookingData.result.startTime;
   const endTime = bookingData.result.endTime;
 
-  const formattedDate = moment.utc(startTime).local().format().split("T")[0];
-  const formattedStartHour = moment
-    .utc(startTime)
-    .local()
-    .format()
-    .split("T")[1]
-    .substring(0, 5);
-  const formattedEndHour = moment
-    .utc(endTime)
-    .local()
-    .format()
-    .split("T")[1]
-    .substring(0, 5);
-  console.log(formattedDate, formattedStartHour, formattedEndHour);
+  const formattedStartTime = moment(startTime)
+    .tz(moment.tz.guess())
+    .format("YYYY-MM-YY HH:mm z");
+  const formattedEndTime = moment(endTime)
+    .tz(moment.tz.guess())
+    .format("YYYY-MM-YY HH:mm z");
   return (
     <div>
       <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
@@ -59,16 +51,13 @@ const BookingCompletePage = () => {
               })}
             </p>
             <p className="mb-4">
+              From{" "}
               <span className="font-bold text-theme-orange">
-                {formattedDate}
-              </span>{" "}
-              from{" "}
-              <span className="font-bold text-theme-orange">
-                {formattedStartHour}
+                {formattedStartTime}
               </span>{" "}
               to{" "}
               <span className="font-bold text-theme-orange">
-                {formattedEndHour}
+                {formattedEndTime}
               </span>
             </p>
             <h1 className="mb-2 text-xl font-semibold">Happy Meeting!</h1>
