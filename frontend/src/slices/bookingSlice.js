@@ -36,6 +36,8 @@ const initialState = {
   loading: false,
   groupToDisplay: "Group1",
   searching: false,
+  showRecommended: true,
+  regroup: false,
 };
 
 export const bookingSlice = createSlice({
@@ -113,6 +115,12 @@ export const bookingSlice = createSlice({
       state.searching = false;
     },
     resetBooking: (state) => (state = initialState),
+    toggleShowRecommended: (state) => {
+      state.showRecommended = !state.showRecommended;
+    },
+    toggleRegroup: (state) => {
+      state.regroup = !state.regroup;
+    },
   },
 });
 
@@ -136,6 +144,8 @@ export const {
   setGroupToDisplay,
   startSearch,
   stopSearch,
+  toggleShowRecommended,
+  toggleRegroup,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

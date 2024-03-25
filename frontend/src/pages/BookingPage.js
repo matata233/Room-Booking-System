@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import LoggedInUserGroup from "../components/LoggedInUserGroup";
 import ToogleRooms from "../components/ToggleRooms";
+import ToggleRegroup from "../components/ToggleRegroup";
 import {
   resetBooking,
   setUngroupedAttendees,
@@ -41,12 +42,6 @@ const BookingPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [showRecommended, setShowRecommended] = useState(true);
-
-  const handleToggle = () => {
-    setShowRecommended(!showRecommended);
-  };
-
   const {
     startTime,
     endTime,
@@ -59,6 +54,7 @@ const BookingPage = () => {
     searchOnce,
     loading,
     loggedInUser,
+    regroup,
   } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -97,24 +93,47 @@ const BookingPage = () => {
       const endDateTime = new Date(`${startDate}T${endTime}`).toISOString();
 
       const equipmentCodes = equipments.map((equip) => equip.id);
+
       let attendeeEmails = [];
+
       if (searchOnce) {
-        attendeeEmails = groupedAttendees.reduce((acc, group) => {
-          const emails = group.attendees.map((attendee) => attendee.email);
-          return acc.concat(emails);
-        }, []);
+        groupedAttendees.forEach((group) => {
+          if (group.groupId !== "Ungrouped") {
+            const emails = group.attendees.map((attendee) => attendee.email);
+            attendeeEmails.push(emails);
+          }
+        });
+
+        // Check if logged in user has a group and add them to it
+        const loggedInUserGroupIndex = groupedAttendees.findIndex(
+          (group) => group.groupId === loggedInUser.group,
+        );
+        if (loggedInUserGroupIndex !== -1) {
+          attendeeEmails[loggedInUserGroupIndex].push(userInfo.email);
+        } else {
+          // unlikely to happen, but just in case
+          attendeeEmails.push([userInfo.email]);
+        }
       } else {
-        attendeeEmails = ungroupedAttendees.map((attendee) => attendee.email);
+        // ungrouped case
+        attendeeEmails = [
+          [
+            userInfo.email,
+            ...ungroupedAttendees.map((attendee) => attendee.email),
+          ],
+        ];
       }
-      const allAttendees = [userInfo.email, ...attendeeEmails];
       const reqBody = {
         startTime: startDateTime,
         endTime: endDateTime,
-        attendees: allAttendees,
+        attendees: attendeeEmails,
         equipments: equipmentCodes,
         roomCount: roomCount,
+        regroup: regroup,
         priority: priority.map((entry) => entry.item),
       };
+
+      console.log("reqBody", reqBody);
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
 
       dispatch(
@@ -250,7 +269,14 @@ const BookingPage = () => {
                   <UserEmailInput />
                 </>
               )}
-              <div className="my-4 flex w-80 justify-center">
+
+              {searchOnce && (
+                <div>
+                  <h2>Regroup</h2>
+                  <ToggleRegroup />
+                </div>
+              )}
+              <div className="my-4 flex items-center justify-center">
                 <button
                   type="submit"
                   className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
@@ -262,7 +288,7 @@ const BookingPage = () => {
           </form>
           <button
             onClick={handleReset}
-            className="mb-4 rounded bg-theme-dark-blue px-[54px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
+            className="mb-4 rounded bg-theme-dark-blue px-[52px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
           >
             Reset
           </button>
@@ -274,10 +300,7 @@ const BookingPage = () => {
             </div>
 
             <div className="flex items-start justify-center gap-4">
-              <ToogleRooms
-                showRecommended={showRecommended}
-                handleToggle={handleToggle}
-              />
+              <ToogleRooms />
               {searchOnce && allGroupsHaveSelectedRoom ? (
                 <button
                   className="rounded bg-theme-orange px-4 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
@@ -301,7 +324,7 @@ const BookingPage = () => {
           ) : error ? (
             <Message severity="error">{error.message}</Message>
           ) : (
-            <BookingRoomsDisplay showRecommended={showRecommended} />
+            <BookingRoomsDisplay />
           )}
         </div>
       </div>
