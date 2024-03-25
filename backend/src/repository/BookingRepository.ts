@@ -284,7 +284,7 @@ export default class BookingRepository extends AbstractRepository {
         regroup: boolean
     ): Promise<object> {
         await this.checkAttendeeAvailabilities(attendees.flat(), startTime, endTime);
-        const attendeeGroups = regroup ? await this.getGroupingSuggestion(attendees[0], roomCount) : attendees;
+        const attendeeGroups = regroup ? await this.getGroupingSuggestion(attendees.flat(), roomCount) : attendees;
         const roomSearchPromises = attendeeGroups.map(async (group) => {
             return await this.searchForRooms(group, startTime, endTime, equipments, priority);
         });
