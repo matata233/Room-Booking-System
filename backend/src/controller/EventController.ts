@@ -1,6 +1,6 @@
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
-import {BadRequestError, NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
+import {NotFoundError} from "../util/exception/AWSRoomBookingSystemError";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
 import EventDTO from "../model/dto/EventDTO";
 import {authenticator} from "../App";
@@ -18,16 +18,8 @@ export default class EventController extends AbstractController {
         try {
             const events = await this.eventService.getAll();
             return super.onResolve(res, events);
-        } catch (error: unknown) {
-            if (error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while fetching events."
-                );
-            }
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 
@@ -36,16 +28,8 @@ export default class EventController extends AbstractController {
             const currentUser = await authenticator.getCurrentUser(req.headers.authorization);
             const events = await this.eventService.getAllByCurrentUser(currentUser.userId!);
             return super.onResolve(res, events);
-        } catch (error: unknown) {
-            if (error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while fetching events."
-                );
-            }
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 
@@ -63,19 +47,8 @@ export default class EventController extends AbstractController {
                 throw new NotFoundError(`Event not found with id: ${eventId}`);
             }
             return super.onResolve(res, event);
-        } catch (error: unknown) {
-            if (error instanceof NotFoundError) {
-                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
-            } else if (error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                // Generic error handling
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while fetching event details."
-                );
-            }
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 
@@ -89,18 +62,8 @@ export default class EventController extends AbstractController {
             eventReq.endTime = req.body.endTime;
             const newEvent = await this.eventService.create(eventReq);
             return super.onResolve(res, newEvent);
-        } catch (error: unknown) {
-            console.log(error);
-            if (error instanceof BadRequestError || error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                // Generic error handling
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while creating an event."
-                );
-            }
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 
@@ -118,21 +81,8 @@ export default class EventController extends AbstractController {
             eventReq.endTime = req.body.endTime;
             const event = await this.eventService.update(eventId, eventReq);
             return super.onResolve(res, event);
-        } catch (error: unknown) {
-            if (error instanceof BadRequestError) {
-                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, error.message);
-            } else if (error instanceof NotFoundError) {
-                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
-            } else if (error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                // Generic error handling
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while fetching event details."
-                );
-            }
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 
@@ -147,18 +97,8 @@ export default class EventController extends AbstractController {
             eventReq.created_by = currentUser.userId;
             await this.eventService.delete(eventId, eventReq);
             return super.onResolve(res, {message: `Event id:${eventId} has been deleted.`});
-        } catch (error: unknown) {
-            if (error instanceof NotFoundError) {
-                return super.onReject(res, ResponseCodeMessage.NOT_FOUND_CODE, error.message);
-            } else if (error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while deleting an event."
-                );
-            }
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 }

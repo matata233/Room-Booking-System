@@ -5,10 +5,6 @@ import {PrismaClient} from "@prisma/client";
 import {NotFoundError, RequestConflictError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class RoomRepository extends AbstractRepository {
-    /**
-     * Constructs a new instance of the RoomRepository class.
-     * The PrismaClient instance used for database operations.
-     */
     constructor(database: PrismaClient) {
         super(database);
     }
@@ -19,11 +15,6 @@ export default class RoomRepository extends AbstractRepository {
                 buildings: {
                     include: {
                         cities: true
-                    }
-                },
-                bookings_rooms: {
-                    include: {
-                        bookings: true
                     }
                 },
                 rooms_equipments: {
@@ -55,11 +46,6 @@ export default class RoomRepository extends AbstractRepository {
                         cities: true
                     }
                 },
-                bookings_rooms: {
-                    include: {
-                        bookings: true
-                    }
-                },
                 rooms_equipments: {
                     include: {
                         equipments: true
@@ -72,8 +58,7 @@ export default class RoomRepository extends AbstractRepository {
             return Promise.reject(new NotFoundError(`room does not exist`));
         }
 
-        const roomDTO = toRoomDTO(room, room.buildings.cities, room.buildings, room.rooms_equipments);
-        return roomDTO;
+        return toRoomDTO(room, room.buildings.cities, room.buildings, room.rooms_equipments);
     }
 
     public async create(dto: RoomDTO): Promise<RoomDTO> {
@@ -175,11 +160,6 @@ export default class RoomRepository extends AbstractRepository {
                     buildings: {
                         include: {
                             cities: true
-                        }
-                    },
-                    bookings_rooms: {
-                        include: {
-                            bookings: true
                         }
                     },
                     rooms_equipments: {

@@ -1,6 +1,6 @@
 import UserDTO from "../model/dto/UserDTO";
 import {jwtDecode} from "jwt-decode";
-import jwt, {JsonWebTokenError, TokenExpiredError} from "jsonwebtoken";
+import jwt, {JsonWebTokenError} from "jsonwebtoken";
 import {NotFoundError, UnauthorizedError} from "./exception/AWSRoomBookingSystemError";
 import UserRepository from "../repository/UserRepository";
 import {role} from "@prisma/client";
@@ -59,8 +59,7 @@ export default class Authenticator {
 
     public login = async (googleToken: string): Promise<string> => {
         const userData = await this.validateGoogleToken(googleToken);
-        const token = await this.generateJwtToken(userData);
-        return token;
+        return await this.generateJwtToken(userData);
     };
 
     private validateGoogleToken = async (googleToken: string): Promise<UserDTO> => {
