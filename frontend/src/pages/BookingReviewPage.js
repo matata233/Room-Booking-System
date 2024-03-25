@@ -49,8 +49,6 @@ const BookingReviewPage = () => {
       const reqBody = createRequestBody();
       const response = await confirmBooking(reqBody).unwrap();
       dispatch(resetBooking());
-      console.log("reqbody for complete", reqBody);
-      console.log("response for complete", response);
       navigate("/bookingComplete", { state: response });
       toast.success("Booking confirmed successfully");
     } catch (err) {
