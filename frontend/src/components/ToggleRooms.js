@@ -1,6 +1,11 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleShowRecommended } from "../slices/bookingSlice";
 
-const ToggleRooms = ({ showRecommended, handleToggle }) => {
+const ToggleRooms = () => {
+  const dispatch = useDispatch();
+  const { showRecommended } = useSelector((state) => state.booking);
+
   return (
     <div className="flex h-[40px] items-center justify-center">
       <label
@@ -8,7 +13,12 @@ const ToggleRooms = ({ showRecommended, handleToggle }) => {
       >
         All
       </label>
-      <div className="relative cursor-pointer" onClick={handleToggle}>
+      <div
+        className="relative cursor-pointer"
+        onClick={() => {
+          dispatch(toggleShowRecommended());
+        }}
+      >
         <div
           className={`block h-8 w-14 rounded-full ${showRecommended ? "bg-orange-300" : "bg-gray-300"}`}
         ></div>

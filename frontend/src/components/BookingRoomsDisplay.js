@@ -7,9 +7,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setSelectedRoomForGroup, stopSearch } from "../slices/bookingSlice";
 
-const BookingRoomsDisplay = ({ showRecommended }) => {
+const BookingRoomsDisplay = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showRecommended } = useSelector((state) => state.booking);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);

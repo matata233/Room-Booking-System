@@ -12,23 +12,27 @@ const FileUpload = () => {
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      if (file.type === "text/csv" || file.name.endsWith(".csv")) {
-        // Check the file size
-        if (file.size > MAX_FILE_SIZE) {
-          alert(
-            "The file is too large. Please upload a file smaller than 2MB.",
-          );
-          setSelectedFile(null);
-          return;
-        }
+    const file = event.target.files
+      ? event.target.files[0]
+      : event.dataTransfer.files[0];
+    if (file && (file.type === "text/csv" || file.name.endsWith(".csv"))) {
+      if (file.size <= MAX_FILE_SIZE) {
         setSelectedFile(file);
       } else {
-        alert("Only CSV files are allowed.");
-        setSelectedFile(null);
+        alert("The file is too large. Please upload a file smaller than 2MB.");
       }
+    } else {
+      alert("Only CSV files are allowed.");
     }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    handleFileChange(event);
   };
 
   const handleSubmit = async () => {
@@ -56,6 +60,8 @@ const FileUpload = () => {
       <label
         htmlFor="file-upload"
         className="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100"
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
       >
         <div className="flex flex-col items-center justify-center pb-6 pt-5">
           <FaCloudUploadAlt className="mb-2 size-8 text-gray-400" />
