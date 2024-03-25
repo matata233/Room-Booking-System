@@ -2,12 +2,10 @@ import React, { useState, useMemo } from "react";
 import StartSearchGIF from "../assets/start-search.gif";
 import Pagination from "../components/Pagination";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
-import { Link, useNavigate } from "react-router-dom";
-import Loader from "../components/Loader";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setSelectedRoomForGroup, stopSearch } from "../slices/bookingSlice";
-import Message from "../components/Message";
 
 const BookingRoomsDisplay = ({ showRecommended }) => {
   const dispatch = useDispatch();
@@ -31,7 +29,14 @@ const BookingRoomsDisplay = ({ showRecommended }) => {
     (state) => state.booking,
   );
 
-  const availableRoomsData = useMemo(() => {
+  // State for search query
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearchInputChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredRooms = useMemo(() => {
     // find the group by groupToDisplay
     const group = groupedAttendees.find((g) => g.groupId === groupToDisplay);
     let rooms = group ? (group.rooms ? group.rooms : []) : [];
@@ -64,23 +69,46 @@ const BookingRoomsDisplay = ({ showRecommended }) => {
       toast.info(message);
       dispatch(stopSearch());
     }
-    return rooms;
-  }, [groupedAttendees, groupToDisplay, showRecommended, searching, dispatch]);
+
+    // Filter rooms based on search query
+    return rooms.filter((room) =>
+      room.roomName.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [
+    groupedAttendees,
+    groupToDisplay,
+    showRecommended,
+    searching,
+    dispatch,
+    searchQuery,
+  ]);
 
   // Calculate paginated data
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const paginatedData = availableRoomsData.slice(startIndex, endIndex);
+  const paginatedData = filteredRooms.slice(startIndex, endIndex);
 
   const handleOnClick = (room) => {
     return () => {
       dispatch(setSelectedRoomForGroup({ groupId: groupToDisplay, room }));
+      navigate("/bookingReview");
     };
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      {availableRoomsData.length > 0 ? ( // If there are available rooms
+    <div className="flex flex-col items-center justify-center sm:items-stretch">
+      {/* Search Bar */}
+      <div className="my-4 flex items-center sm:m-0">
+        <label className="mr-2 sm:my-4">Search:</label>
+        <input
+          type="text"
+          placeholder="Enter room name..."
+          value={searchQuery}
+          onChange={handleSearchInputChange}
+          className="text-md h-9 w-60 rounded-lg border-2 border-gray-200 p-2  md:text-base"
+        />
+      </div>
+      {filteredRooms.length > 0 ? ( // If there are available rooms
         <>
           <div className="flex h-[1400px] flex-col gap-4 overflow-y-auto">
             {paginatedData.map((room) => (
@@ -130,7 +158,7 @@ const BookingRoomsDisplay = ({ showRecommended }) => {
             ))}
           </div>
           <Pagination
-            count={availableRoomsData.length}
+            count={filteredRooms.length}
             rowsPerPage={rowsPerPage}
             currentPage={currentPage}
             handleChangePage={handleChangePage}
