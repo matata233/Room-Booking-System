@@ -12,10 +12,10 @@ const BookingCompletePage = () => {
 
   const formattedStartTime = moment(startTime)
     .tz(moment.tz.guess())
-    .format("YYYY-MM-YY HH:mm z");
+    .format("YYYY-MM-DD HH:mm z");
   const formattedEndTime = moment(endTime)
     .tz(moment.tz.guess())
-    .format("YYYY-MM-YY HH:mm z");
+    .format("YYYY-MM-DD HH:mm z");
   return (
     <div>
       <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
