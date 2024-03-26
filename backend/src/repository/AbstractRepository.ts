@@ -4,7 +4,7 @@ import {PrismaClient} from "@prisma/client";
 export default abstract class AbstractRepository {
     protected db;
 
-    constructor(database: PrismaClient) {
+    protected constructor(database: PrismaClient) {
         this.db = database;
     }
 

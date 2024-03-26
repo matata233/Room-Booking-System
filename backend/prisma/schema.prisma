@@ -16,17 +16,7 @@ model bookings {
   end_time       DateTime         @db.Timestamp(6)
   status         status
   users          users            @relation(fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-  bookings_rooms bookings_rooms[]
   users_bookings users_bookings[]
-}
-
-model bookings_rooms {
-  booking_id Int
-  room_id    Int
-  bookings   bookings @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
-  rooms      rooms    @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([booking_id, room_id])
 }
 
 model buildings {
@@ -65,7 +55,6 @@ model rooms {
   name             String
   seats            Int
   is_active        Boolean
-  bookings_rooms   bookings_rooms[]
   buildings        buildings          @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction)
   rooms_equipments rooms_equipments[]
   users_bookings   users_bookings[]

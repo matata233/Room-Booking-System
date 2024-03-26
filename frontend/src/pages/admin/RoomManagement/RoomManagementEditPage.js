@@ -26,7 +26,7 @@ const RoomManagementEditPage = () => {
 
   const handleUpdate = async (formData) => {
     try {
-      await updateRoom({ id: roomId, room: formData });
+      await updateRoom({ id: roomId, room: formData }).unwrap();
       toast.success("Room updated successfully!");
       navigate("/roomManagementPage");
     } catch (err) {

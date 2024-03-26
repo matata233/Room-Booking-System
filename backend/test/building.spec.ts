@@ -8,8 +8,11 @@ import BuildingDTO from "../src/model/dto/BuildingDTO";
 import CityDTO from "../src/model/dto/CityDTO";
 import {NotFoundError} from "../src/util/exception/AWSRoomBookingSystemError";
 import {getInitQueries, initDatabase} from "./Util";
+import {plainToInstance} from "class-transformer";
+import chaiSubset from "chai-subset";
 
 use(chaiAsPromised);
+use(chaiSubset);
 
 describe("Building tests", function () {
     const db = new PrismaClient();
@@ -53,6 +56,35 @@ describe("Building tests", function () {
         it("should reject if building does not exist", function () {
             const result = buildingService.getById(0);
             return expect(result).to.eventually.be.rejectedWith(NotFoundError, "Not Found: building does not exist");
+        });
+    });
+
+    describe("Create buildings", function () {
+        it("should create a building", async function () {
+            await buildingService.create(
+                plainToInstance(BuildingDTO, {
+                    city: {
+                        cityId: "YVR"
+                    },
+                    code: 100,
+                    lat: 49.282598,
+                    lon: -123.11998,
+                    address: "Address",
+                    isActive: true
+                })
+            );
+
+            expect(await buildingService.getAll()).to.containSubset([{
+                buildingId: 8,
+                city: {
+                    cityId: "YVR"
+                },
+                code: 100,
+                lat: 49.282598,
+                lon: -123.11998,
+                address: "Address",
+                isActive: true
+            }]);
         });
     });
 });
