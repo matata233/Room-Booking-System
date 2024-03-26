@@ -16,6 +16,7 @@ import StartSearchGIF from "../assets/start-search.gif";
 import { toast } from "react-toastify";
 import EditBookingModal from "../components/EditBookingModal";
 import CancelConfirmationModal from "../components/CancelConfirmationModal";
+import moment from "moment-timezone";
 
 const BookingHistoryPage = () => {
   const {
@@ -104,26 +105,19 @@ const BookingHistoryPage = () => {
     setCurrentPage(1); // Reset to first page when changing rows per page
   };
 
-  function formatDateTime(startTime, endTime) {
-    const startDate = new Date(startTime);
-    const endDate = new Date(endTime);
+  function formatDateTime(utcTime) {
+    console.log("time", utcTime)
+    const transferedTime = moment(utcTime)
+    .tz(moment.tz.guess())
+    .format("YYYY-MM-YY HH:mm z");
+    console.log("time2",transferedTime)
 
-    const formattedDate = startDate.toISOString().split("T")[0];
-
-    const formattedStartTime = startDate
-      .toISOString()
-      .split("T")[1]
-      .substring(0, 5);
-
-    const formattedEndTime = endDate
-      .toISOString()
-      .split("T")[1]
-      .substring(0, 5);
+    const [date, time, timezone] = transferedTime.split(' ');
 
     return {
-      date: formattedDate,
-      startTime: formattedStartTime,
-      endTime: formattedEndTime,
+      date: date,
+      time: time,
+      timezone: timezone
     };
   }
 
@@ -168,12 +162,21 @@ const BookingHistoryPage = () => {
                           <div className="absolute -left-20 top-1 ml-10 mt-2 bg-theme-orange px-5 py-2">
                             <div>
                               <span className="font-semibold">Time:</span>{" "}
-                              {`${formatDateTime(book.startTime, book.endTime).date}` +
-                                " " +
-                                `${formatDateTime(book.startTime, book.endTime).startTime}` +
-                                " - " +
-                                `${formatDateTime(book.startTime, book.endTime).endTime}`}
+                              {`${formatDateTime(book.startTime).date} ` +
+                                `${formatDateTime(book.startTime).time} ` +
+                                (formatDateTime(book.startTime)
+                                  .date ===
+                                formatDateTime(book.endTime)
+                                  .date
+                                  ? "- " +
+                                    `${formatDateTime(book.endTime).time}` + " " +
+                                    `${formatDateTime(book.endTime).timezone}`
+                                  : " to " +
+                                    `${formatDateTime(book.endTime).date} ` +
+                                    `${formatDateTime(book.endTime).time}` + " " 
+                                    `${formatDateTime(book.endTime).timezone}`)}
                             </div>
+
                             <div className="">
                               <span className="font-semibold">Booked by:</span>{" "}
                               {book.users.email}
