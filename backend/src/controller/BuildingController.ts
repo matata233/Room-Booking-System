@@ -1,8 +1,8 @@
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 import BuildingService from "../service/BuildingService";
-import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
-import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
+import {plainToInstance} from "class-transformer";
+import BuildingDTO from "../model/dto/BuildingDTO";
 
 export default class BuildingController extends AbstractController {
     private buildingService: BuildingService;
@@ -12,47 +12,28 @@ export default class BuildingController extends AbstractController {
         this.buildingService = buildingService;
     }
 
-    public getAll = async (req: Request, res: Response): Promise<Response> => {
+    public getAll = async (_req: Request, res: Response): Promise<Response> => {
         try {
-            const buildings = await this.buildingService.getAll();
-            return super.onResolve(res, buildings);
-        } catch (error: unknown) {
-            if (error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while fetching buildings."
-                );
-            }
+            return super.onResolve(res, await this.buildingService.getAll());
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 
     public getById = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const buildingId = parseInt(req.params.id);
-            if (isNaN(buildingId)) {
-                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Invalid building ID.");
-            }
-            const building = await this.buildingService.getById(buildingId);
-            return super.onResolve(res, building);
-        } catch (error: unknown) {
-            if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                // Generic error handling
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while fetching building details."
-                );
-            }
+            return super.onResolve(res, await this.buildingService.getById(parseInt(req.params.id)));
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 
     public create = async (req: Request, res: Response): Promise<Response> => {
-        return Promise.reject("Not implemented");
+        try {
+            return super.onResolve(res, await this.buildingService.create(plainToInstance(BuildingDTO, req.body)));
+        } catch (error) {
+            return this.handleError(res, error);
+        }
     };
 
     public update = async (req: Request, res: Response): Promise<Response> => {

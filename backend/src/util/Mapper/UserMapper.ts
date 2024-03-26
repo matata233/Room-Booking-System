@@ -1,6 +1,5 @@
-import {bookings, buildings, cities, users} from "@prisma/client";
+import {buildings, cities, users} from "@prisma/client";
 import UserDTO from "../../model/dto/UserDTO";
-import BookingDTO from "../../model/dto/BookingDTO";
 import BuildingDTO from "../../model/dto/BuildingDTO";
 import CityDTO from "../../model/dto/CityDTO";
 

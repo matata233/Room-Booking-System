@@ -3,7 +3,6 @@ import UserDTO from "../model/dto/UserDTO";
 import UserRepository from "../repository/UserRepository";
 import {BadRequestError, NotFoundError, RequestConflictError} from "../util/exception/AWSRoomBookingSystemError";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
-import {authenticator} from "../App";
 
 export default class UserService extends AbstractService {
     private userRepo: UserRepository;
@@ -106,10 +105,4 @@ export default class UserService extends AbstractService {
         const number = parseInt(input.match(/\d+/g)?.join("") || "0", 10);
         return {characters, number};
     }
-
-    public login = async (googleToken: string): Promise<string> => {
-        const userData = await authenticator.validateGoogleToken(googleToken);
-        const token = await authenticator.generateJwtToken(userData);
-        return token;
-    };
 }

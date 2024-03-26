@@ -2,7 +2,6 @@ import AbstractService from "./AbstractService";
 import BookingDTO from "../model/dto/BookingDTO";
 import BookingRepository from "../repository/BookingRepository";
 import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
-import {bookings, status} from "@prisma/client";
 
 export default class BookingService extends AbstractService {
     private bookingRepository: BookingRepository;
@@ -17,6 +16,9 @@ export default class BookingService extends AbstractService {
     }
 
     public getById(id: number): Promise<BookingDTO> {
+        if (isNaN(id)) {
+            throw new BadRequestError("invalid booking ID");
+        }
         return this.bookingRepository.findById(id);
     }
 
@@ -118,38 +120,39 @@ export default class BookingService extends AbstractService {
     }
 
     public getSuggestedTimes(
-        start_time: string,
-        end_time: string,
+        startTime: string,
+        endTime: string,
         duration: string,
         attendees: string[],
         equipments: string[],
-        step_size: string
+        stepSize: string
     ): Promise<object> {
-        return this.bookingRepository.getSuggestedTimes(
-            start_time,
-            end_time,
-            duration,
-            attendees,
-            equipments,
-            step_size
-        );
+        return this.bookingRepository.getSuggestedTimes(startTime, endTime, duration, attendees, equipments, stepSize);
     }
 
     public getAvailableRooms(
-        start_time: string,
-        end_time: string,
-        attendees: string[],
+        startTime: string,
+        endTime: string,
+        attendees: string[][],
         equipments: string[],
         priority: string[],
-        num_rooms: number
+        roomCount: number,
+        regroup: boolean
     ): Promise<object> {
+        if (new Date(startTime) <= new Date()) {
+            throw new BadRequestError("Start time has already passed");
+        }
+        if (new Date(endTime) <= new Date(startTime)) {
+            throw new BadRequestError("Invalid end time");
+        }
         return this.bookingRepository.getAvailableRooms(
-            start_time,
-            end_time,
+            startTime,
+            endTime,
             attendees,
             equipments,
             priority,
-            num_rooms
+            roomCount,
+            regroup
         );
     }
 }

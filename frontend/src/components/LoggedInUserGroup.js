@@ -20,6 +20,9 @@ const LoggedInUserGroup = () => {
     value: loggedInUser.group,
     label: loggedInUser.group,
   };
+  const handleChange = (selectedOption) => {
+    dispatch(setLoggedInUserGroup(selectedOption?.value));
+  };
 
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
@@ -31,6 +34,7 @@ const LoggedInUserGroup = () => {
           isClearable={false}
           name="logged-in-user-room"
           options={groupIdsExceptUngrouped}
+          onChange={handleChange}
           styles={{
             control: (provided) => ({
               ...provided,

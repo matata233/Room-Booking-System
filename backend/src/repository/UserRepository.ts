@@ -2,11 +2,10 @@ import AbstractRepository from "./AbstractRepository";
 import UserDTO from "../model/dto/UserDTO";
 import {PrismaClient} from "@prisma/client/extension";
 import {toUserDTO} from "../util/Mapper/UserMapper";
-import {NotFoundError} from "../util/exception/AWSRoomBookingSystemError";
+import {NotFoundError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class UserRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
-        // The PrismaClient instance
         super(database);
     }
 
@@ -138,6 +137,19 @@ export default class UserRepository extends AbstractRepository {
     }
 
     public async update(userID: number, user: UserDTO): Promise<UserDTO> {
+        const toUpdate = await this.db.users.findUnique({
+            where: {
+                user_id: userID
+            }
+        });
+        if (!toUpdate) {
+            throw new NotFoundError("user does not exist");
+        }
+        if (toUpdate.role === "admin") {
+            throw new UnauthorizedError(
+                "cannot make changes to an admin user, please contact the database administrator for help"
+            );
+        }
         const updatedUser = await this.db.users.update({
             where: {
                 user_id: userID
@@ -150,8 +162,7 @@ export default class UserRepository extends AbstractRepository {
                 building_id: user.building!.buildingId!,
                 floor: user.floor!,
                 desk: user.desk!,
-                // role: user.role ?? "staff",
-                is_active: user.isActive ?? true
+                is_active: user.isActive!
             }
         });
 

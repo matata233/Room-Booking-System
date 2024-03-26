@@ -16,6 +16,7 @@ import RoomDTO from "../src/model/dto/RoomDTO";
 import EventService from "../src/service/EventService";
 import EventRepository from "../src/repository/EventRepository";
 import EventDTO from "../src/model/dto/EventDTO";
+import {plainToInstance} from "class-transformer";
 
 use(chaiAsPromised);
 
@@ -32,14 +33,14 @@ describe("Booking tests", () => {
         basicBooking = new BookingDTO();
         basicBooking.createdBy = 1;
         basicBooking.createdAt = new Date();
-        basicBooking.startTime = new Date("2025-01-01T14:00:00");
-        basicBooking.endTime = new Date("2025-01-01T15:00:00");
+        basicBooking.startTime = new Date("2025-01-01T14:00:00Z");
+        basicBooking.endTime = new Date("2025-01-01T15:00:00Z");
         const user1 = new UserDTO();
         user1.userId = basicBooking.createdBy;
-        user1.email = "YVR32_01_1@aws.ca";
+        user1.email = "team7awsome01@gmail.com";
         const user2 = new UserDTO();
-        user2.userId = 6;
-        user2.email = "YVR41_01_1@aws.ca";
+        user2.userId = 4;
+        user2.email = "team7awsomeuser01@gmail.com";
         basicBooking.userDTOs = [[user1, user2]];
         const room = new RoomDTO();
         room.roomId = 1;
@@ -53,8 +54,27 @@ describe("Booking tests", () => {
         });
 
         it("should get current user's bookings", async () => {
-            const result = await bookingService.getByUserId(11);
+            const result = await bookingService.getByUserId(1);
             expect(result).to.have.lengthOf(2);
+        });
+    });
+
+    describe("Updating bookings", () => {
+    });
+
+    describe("Cancelling bookings", () => {
+        it("should cancel booking not yet started", async () => {
+            await bookingService.update(
+                1,
+                plainToInstance(BookingDTO, {
+                    bookingId: 1,
+                    status: "canceled",
+                    userDTOs: [[{userId: 11}, {userId: 12}]],
+                    roomDTOs: [{roomId: 1}]
+                })
+            );
+            const result = await bookingService.getById(1);
+            expect(result.status).to.equal("canceled");
         });
     });
 
@@ -63,16 +83,17 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                [
+                [[
                     "YVR32_01_1@aws.ca",
                     "YVR32_01_2@aws.ca",
                     "team7awsome01@gmail.com",
                     "team7awsomeuser01@gmail.com",
                     "hsiangyi1025@gmail.com"
-                ],
+                ]],
                 ["VC"],
                 ["distance", "seats", "equipments"],
-                1
+                1,
+                true
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(283);
@@ -83,33 +104,61 @@ describe("Booking tests", () => {
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
                 [
-                    "YVR32_01_1@aws.ca",
-                    "YVR32_01_2@aws.ca",
-                    "team7awsome01@gmail.com",
-                    "team7awsomeuser01@gmail.com",
-                    "hsiangyi1025@gmail.com"
+                    [
+                        "team7awsome98@gmail.com",
+                        "team7awsomeuser12@gmail.com"
+                    ],
+                    [
+                        "team7awsome02@gmail.com",
+                        "team7awsome01@gmail.com"
+                    ],
+                    [
+                        "team7awsomeuser01@gmail.com",
+                        "team7awsomeuser22@gmail.com",
+                        "YVR32_01_1@aws.ca"
+                    ]
                 ],
-                ["VC"],
+                [],
                 ["distance", "seats", "equipments"],
-                4
+                3,
+                true
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(283);
+        });
+
+        it("Auto-splitting check only 1 building in city", async () => {
+            const result = await bookingService.getAvailableRooms(
+                basicBooking.startTime!.toISOString(),
+                basicBooking.endTime!.toISOString(),
+                [
+                    [
+                        "team7awsomeuser22@gmail.com"
+                    ]
+                ],
+                [],
+                ["distance", "seats", "equipments"],
+                1,
+                true
+            );
+            // @ts-expect-error temp
+            expect(result.groups[0].rooms).to.have.lengthOf(55);
         });
 
         it("distance check YVR", async () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                [
+                [[
                     "YVR32_01_1@aws.ca",
                     "team7awsome01@gmail.com",
                     "team7awsomeuser01@gmail.com",
                     "hsiangyi1025@gmail.com"
-                ],
+                ]],
                 ["VC"],
-                ["seats", "equipments", "distance"]
-                ,1
+                ["seats", "equipments", "distance"],
+                1,
+                true
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(283);
@@ -119,10 +168,11 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                ["YVR32_01_1@aws.ca"],
+                [["YVR32_01_1@aws.ca"]],
                 ["AV", "VC"],
-                ["distance", "seats", "equipments"]
-                ,1
+                ["distance", "seats", "equipments"],
+                1,
+                true
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(283);
@@ -133,10 +183,11 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 "2024-03-26T19:00:00.000Z",
                 "2024-03-26T20:00:00.000Z",
-                ["YVR32_01_1@aws.ca"],
+                [["YVR32_01_1@aws.ca"]],
                 ["AV", "VC"],
-                ["distance", "seats", "equipments"]
-                ,1
+                ["distance", "seats", "equipments"],
+                1,
+                true
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(281);
@@ -146,10 +197,11 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                ["YUL22_01_1@aws.ca"],
+                [["YUL22_01_1@aws.ca"]],
                 ["AV", "VC"],
-                ["distance", "seats", "equipments"]
-                ,1
+                ["distance", "seats", "equipments"],
+                1,
+                true
             );
             // @ts-expect-error temp
             expect(result.groups[0].rooms).to.have.lengthOf(10);
@@ -160,10 +212,11 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                ["YVR74_01_1@aws.ca"],
+                [["YVR74_01_1@aws.ca"]],
                 ["AV", "VC"],
-                ["distance", "seats", "equipments"]
-                ,1
+                ["distance", "seats", "equipments"],
+                1,
+                true
             );
             expect(result).to.exist;
         });
@@ -173,12 +226,16 @@ describe("Booking tests", () => {
             const result = bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                [basicBooking.userDTOs![0][0].email!],
+                [[basicBooking.userDTOs![0][0].email!]],
                 ["AV", "VC"],
-                []
-                ,1
+                ["distance", "seats", "equipments"],
+                1,
+                true
             );
-            return expect(result).to.eventually.be.rejectedWith(UnavailableAttendeesError);
+            return expect(result).to.eventually.be.rejectedWith(
+                UnavailableAttendeesError,
+                "Attendee(s) Unavaiable: Admin 1 Test (team7awsome01@gmail.com)"
+            );
         });
 
         it("should reject if conflicting booking as participant", async () => {
@@ -186,10 +243,11 @@ describe("Booking tests", () => {
             const result = bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                [basicBooking.userDTOs![0][1].email!],
+                [[basicBooking.userDTOs![0][1].email!]],
                 ["AV", "VC"],
-                []
-                ,1
+                ["distance", "seats", "equipments"],
+                1,
+                true
             );
             return expect(result).to.eventually.be.rejectedWith(UnavailableAttendeesError);
         });
@@ -204,10 +262,11 @@ describe("Booking tests", () => {
             const result = await bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                [basicBooking.userDTOs![0][0].email!],
+                [[basicBooking.userDTOs![0][0].email!]],
                 ["AV", "VC"],
-                ["distance", "seats", "equipments"]
-                ,1
+                ["distance", "seats", "equipments"],
+                1,
+                true
             );
             expect(result).to.exist;
         });
@@ -222,10 +281,11 @@ describe("Booking tests", () => {
             const result = bookingService.getAvailableRooms(
                 basicBooking.startTime!.toISOString(),
                 basicBooking.endTime!.toISOString(),
-                [basicBooking.userDTOs![0][0].email!],
+                [[basicBooking.userDTOs![0][0].email!]],
                 ["AV", "VC"],
-                []
-                ,1
+                ["distance", "seats", "equipments"],
+                1,
+                true
             );
             return expect(result).to.eventually.be.rejectedWith(UnavailableAttendeesError);
         });
@@ -239,8 +299,8 @@ describe("Booking tests", () => {
 
         it("should create valid bookings consecutively", async () => {
             await bookingService.create(basicBooking);
-            basicBooking.startTime?.setHours(15);
-            basicBooking.endTime?.setHours(16);
+            basicBooking.startTime?.setUTCHours(15);
+            basicBooking.endTime?.setUTCHours(16);
             const result = await bookingService.create(basicBooking);
             expect(result).to.exist;
         });
@@ -261,15 +321,15 @@ describe("Booking tests", () => {
         });
 
         it("should reject if start time has already passed", () => {
-            basicBooking.startTime!.setFullYear(2023);
-            basicBooking.endTime!.setFullYear(2023);
+            basicBooking.startTime!.setUTCFullYear(2023);
+            basicBooking.endTime!.setUTCFullYear(2023);
             const result = bookingService.create(basicBooking);
 
             return expect(result).to.be.eventually.rejectedWith(BadRequestError);
         });
 
         it("should reject if end time is before start time", () => {
-            basicBooking.endTime!.setHours(13);
+            basicBooking.endTime!.setUTCHours(13);
             const result = bookingService.create(basicBooking);
 
             return expect(result).to.be.eventually.rejectedWith(BadRequestError);

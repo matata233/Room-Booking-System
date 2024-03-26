@@ -1,9 +1,6 @@
 import AbstractDTO from "./AbstractDTO";
-import RoomDTO from "./RoomDTO";
-import UserDTO from "./UserDTO";
 import CityDTO from "./CityDTO";
 import {
-    IsArray,
     IsBoolean,
     IsInt,
     IsLatitude,
@@ -19,50 +16,33 @@ import {Type} from "class-transformer";
 export default class BuildingDTO extends AbstractDTO {
     @IsInt()
     @IsOptional()
-    public buildingId?: number;
+    buildingId?: number;
+
+    @Type(() => CityDTO)
+    @ValidateNested()
+    @IsOptional()
+    city?: CityDTO;
 
     @IsInt()
     @Min(0)
     @IsOptional()
-    public code?: number;
-
-    @IsString()
-    @IsOptional()
-    public address?: string;
+    code?: number;
 
     @IsNumber()
     @IsLatitude()
     @IsOptional()
-    public lat?: number;
+    lat?: number;
 
     @IsNumber()
     @IsLongitude()
     @IsOptional()
-    public lon?: number;
+    lon?: number;
+
+    @IsString()
+    @IsOptional()
+    address?: string;
 
     @IsBoolean()
     @IsOptional()
-    public isActive?: boolean;
-
-    @Type(() => CityDTO)
-    @IsArray()
-    @ValidateNested({each: true})
-    @IsOptional()
-    public city?: CityDTO;
-
-    @Type(() => RoomDTO)
-    @IsArray()
-    @ValidateNested({each: true})
-    @IsOptional()
-    public rooms?: RoomDTO[];
-
-    @Type(() => UserDTO)
-    @IsArray()
-    @ValidateNested({each: true})
-    @IsOptional()
-    public users?: UserDTO[];
-
-    constructor() {
-        super();
-    }
+    isActive?: boolean;
 }

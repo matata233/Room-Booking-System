@@ -184,7 +184,7 @@ describe("Room tests", function () {
             );
             return expect(result).to.eventually.be.rejectedWith(
                 RequestConflictError,
-                "Conflict: room 101 already exists on the same building floor"
+                "Conflict: room 101 already exists on the same building and floor"
             );
         });
 
