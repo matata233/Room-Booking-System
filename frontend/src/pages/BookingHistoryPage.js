@@ -106,11 +106,9 @@ const BookingHistoryPage = () => {
   };
 
   function formatDateTime(utcTime) {
-    console.log("time", utcTime)
     const transferedTime = moment(utcTime)
     .tz(moment.tz.guess())
-    .format("YYYY-MM-YY HH:mm z");
-    console.log("time2",transferedTime)
+    .format("YYYY-MM-DD HH:mm z");
 
     const [date, time, timezone] = transferedTime.split(' ');
 
@@ -168,13 +166,10 @@ const BookingHistoryPage = () => {
                                   .date ===
                                 formatDateTime(book.endTime)
                                   .date
-                                  ? "- " +
-                                    `${formatDateTime(book.endTime).time}` + " " +
-                                    `${formatDateTime(book.endTime).timezone}`
-                                  : " to " +
-                                    `${formatDateTime(book.endTime).date} ` +
-                                    `${formatDateTime(book.endTime).time}` + " " 
-                                    `${formatDateTime(book.endTime).timezone}`)}
+                                  ? `- ${formatDateTime(book.endTime).time} ${formatDateTime(book.endTime).timezone}`
+                  
+                                  : `to ${formatDateTime(book.endTime).date} ${formatDateTime(book.endTime).time} ${formatDateTime(book.endTime).timezone}` 
+                                )}
                             </div>
 
                             <div className="">
