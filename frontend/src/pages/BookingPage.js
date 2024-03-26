@@ -122,6 +122,11 @@ const BookingPage = () => {
           ],
         ];
       }
+
+      if (regroup) {
+        attendeeEmails = [attendeeEmails.flat()];
+      }
+
       const reqBody = {
         startTime: startDateTime,
         endTime: endDateTime,
