@@ -1,8 +1,9 @@
 import AbstractDTO from "./AbstractDTO";
 import UserDTO from "./UserDTO";
 import RoomDTO from "./RoomDTO";
-import {IsDate, IsInt, IsOptional, IsString} from "class-validator";
+import {IsArray, IsDate, IsInt, IsOptional, IsString, ValidateNested} from "class-validator";
 import {Type} from "class-transformer";
+import EquipmentDTO from "./EquipmentDTO";
 
 export interface Group {
     room: RoomDTO;
@@ -12,45 +13,55 @@ export interface Group {
 export default class BookingDTO extends AbstractDTO {
     @IsInt()
     @IsOptional()
-    public bookingId?: number;
+    bookingId?: number;
 
     @IsInt()
     @IsOptional()
-    public createdBy?: number;
+    createdBy?: number;
 
     @IsDate()
     @IsOptional()
-    public createdAt?: Date;
+    createdAt?: Date;
 
     @IsDate()
     @IsOptional()
-    public startTime?: Date;
+    startTime?: Date;
 
     @IsDate()
     @IsOptional()
-    public endTime?: Date;
+    endTime?: Date;
 
     @IsString()
     @IsOptional()
-    public status?: string;
+    status?: string;
+
+    @IsInt()
+    @IsOptional()
+    roomCount?: number;
 
     @Type(() => UserDTO)
     @IsOptional()
-    public userDTOs?: UserDTO[][];
+    userDTOs?: UserDTO[][];
 
     @Type(() => RoomDTO)
     @IsOptional()
-    public roomDTOs?: RoomDTO[];
+    roomDTOs?: RoomDTO[];
 
     // the following field are added based on request from frontend
     @Type(() => UserDTO)
     @IsOptional()
-    public users?: UserDTO; // creator
+    users?: UserDTO; // creator
+
+    @IsArray()
+    @IsOptional()
+    priority?: string[];
+
+    @Type(() => EquipmentDTO)
+    @IsArray()
+    @ValidateNested({each: true})
+    @IsOptional()
+    equipments?: EquipmentDTO[];
 
     @IsOptional()
-    public groups?: Group[]; // participants in each room
-
-    constructor() {
-        super();
-    }
+    groups?: Group[]; // participants in each room
 }

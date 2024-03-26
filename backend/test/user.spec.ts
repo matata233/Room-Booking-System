@@ -23,18 +23,30 @@ describe("User tests", function() {
 
     describe("Create users", function() {
         it("111", async function() {
-            const result = await userService.create(plainToInstance(UserDTO, {
+            const result = await userService.create(
+                plainToInstance(UserDTO, {
+                    username: "newUser",
+                    firstName: "First",
+                    lastName: "Last",
+                    email: "aa@gmail.com",
+                    floor: 5,
+                    desk: 505,
+                    building: {
+                        buildingId: 1
+                    }
+                })
+            );
+            expect(result).to.containSubset({
                 username: "newUser",
                 firstName: "First",
                 lastName: "Last",
-                email: "team7awsome01@gmail.com",
+                email: "aa@gmail.com",
                 floor: 5,
                 desk: 505,
                 building: {
                     buildingId: 1
                 }
-            }));
-            expect(result).to.containSubset([]);
+            });
         });
     });
 });

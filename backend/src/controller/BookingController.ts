@@ -3,7 +3,6 @@ import RoomDTO from "../model/dto/RoomDTO";
 import UserDTO from "../model/dto/UserDTO";
 import BookingService from "../service/BookingService";
 import ResponseCodeMessage from "../util/enum/ResponseCodeMessage";
-import {BadRequestError, RequestConflictError, UnauthorizedError} from "../util/exception/AWSRoomBookingSystemError";
 import AbstractController from "./AbstractController";
 import {Request, Response} from "express";
 import {authenticator} from "../App";
@@ -16,10 +15,9 @@ export default class BookingController extends AbstractController {
         this.bookingService = bookingService;
     }
 
-    public getAll = async (req: Request, res: Response): Promise<Response> => {
+    public getAll = async (_req: Request, res: Response): Promise<Response> => {
         try {
-            const bookings = await this.bookingService.getAll();
-            return super.onResolve(res, bookings);
+            return super.onResolve(res, await this.bookingService.getAll());
         } catch (error) {
             return this.handleError(res, error);
         }
@@ -27,12 +25,7 @@ export default class BookingController extends AbstractController {
 
     public getById = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const bookingId = parseInt(req.params.id);
-            if (isNaN(bookingId)) {
-                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Invalid booking ID.");
-            }
-            const booking = await this.bookingService.getById(bookingId);
-            return super.onResolve(res, booking);
+            return super.onResolve(res, await this.bookingService.getById(parseInt(req.params.id)));
         } catch (error) {
             return this.handleError(res, error);
         }
@@ -41,8 +34,7 @@ export default class BookingController extends AbstractController {
     public getByCurrentUserId = async (req: Request, res: Response): Promise<Response> => {
         try {
             const currentUser = await authenticator.getCurrentUser(req.headers.authorization);
-            const bookings = await this.bookingService.getByUserId(currentUser.userId!);
-            return super.onResolve(res, bookings);
+            return super.onResolve(res, await this.bookingService.getByUserId(currentUser.userId!));
         } catch (error) {
             return this.handleError(res, error);
         }
@@ -76,24 +68,9 @@ export default class BookingController extends AbstractController {
             dto.createdBy = req.body.createdBy;
             dto.createdAt = new Date();
 
-            const newBooking = await this.bookingService.create(dto);
-            return super.onResolve(res, newBooking);
-        } catch (error: unknown) {
-            console.log(error);
-            if (
-                error instanceof BadRequestError ||
-                error instanceof RequestConflictError ||
-                error instanceof UnauthorizedError
-            ) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                // Generic error handling
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while creating the room."
-                );
-            }
+            return super.onResolve(res, await this.bookingService.create(dto));
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 
@@ -130,57 +107,58 @@ export default class BookingController extends AbstractController {
                 room.roomId = roomID;
                 bookingToUpdateDTO.roomDTOs.push(room);
             }
-            const updatedBooking = await this.bookingService.update(bookingId, bookingToUpdateDTO);
-            return super.onResolve(res, updatedBooking);
-        } catch (error: unknown) {
-            if (error instanceof BadRequestError || error instanceof UnauthorizedError) {
-                return super.onReject(res, error.code, error.message);
-            } else {
-                return super.onReject(
-                    res,
-                    ResponseCodeMessage.UNEXPECTED_ERROR_CODE,
-                    "An error occurred while updating the booking."
-                );
-            }
+            return super.onResolve(res, await this.bookingService.update(bookingId, bookingToUpdateDTO));
+        } catch (error) {
+            return this.handleError(res, error);
         }
     };
 
     public getSuggestedTimes = async (req: Request, res: Response): Promise<Response> => {
-        const start_time = req.body.start_time;
-        const end_time = req.body.end_time;
-        const duration = req.body.duration;
-        const attendees = req.body.attendees;
-        const equipments = req.body.equipments;
-        const step_size = req.body.step_size;
+        try {
+            const startTime = req.body.start_time;
+            const endTime = req.body.end_time;
+            const duration = req.body.duration;
+            const attendees = req.body.attendees;
+            const equipments = req.body.equipments;
+            const stepSize = req.body.step_size;
 
-        return this.bookingService
-            .getSuggestedTimes(start_time, end_time, duration, attendees, equipments, step_size)
-            .then((time_slots) => {
-                // return super.onReject( res, 400, "" );
-                return super.onResolve(res, time_slots);
-            })
-            .catch((err: BadRequestError) => {
-                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, err.message);
-            });
+            return super.onResolve(
+                res,
+                await this.bookingService.getSuggestedTimes(
+                    startTime,
+                    endTime,
+                    duration,
+                    attendees,
+                    equipments,
+                    stepSize
+                )
+            );
+        } catch (error) {
+            return this.handleError(res, error);
+        }
     };
 
     public getAvailableRooms = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const start_time = req.body.startTime!;
-            const end_time = req.body.endTime!;
+            const startTime = req.body.startTime!;
+            const endTime = req.body.endTime!;
             const attendees = req.body.attendees!;
             const equipments = req.body.equipments!;
             const priority = req.body.priority!;
-            const num_rooms = req.body.roomCount!;
-            const availableRooms = await this.bookingService.getAvailableRooms(
-                start_time,
-                end_time,
-                attendees,
-                equipments,
-                priority,
-                num_rooms ?? 1
+            const roomCount = req.body.roomCount!;
+            const regroup = req.body.regroup!;
+            return super.onResolve(
+                res,
+                await this.bookingService.getAvailableRooms(
+                    startTime,
+                    endTime,
+                    attendees,
+                    equipments,
+                    priority,
+                    roomCount,
+                    regroup
+                )
             );
-            return super.onResolve(res, availableRooms);
         } catch (error) {
             return this.handleError(res, error);
         }

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useConfirmBookingMutation } from "../slices/bookingApiSlice";
 import { resetBooking } from "../slices/bookingSlice";
 import { toast } from "react-toastify";
+import moment from "moment-timezone";
 const BookingReviewPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -14,6 +15,16 @@ const BookingReviewPage = () => {
   const { startDate, startTime, endTime, groupedAttendees, loggedInUser } =
     useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
+
+  const utcStartTime = new Date(`${startDate}T${startTime}`).toISOString();
+  const utcEndTime = new Date(`${startDate}T${endTime}`).toISOString();
+
+  const formattedStartTime = moment(utcStartTime)
+    .tz(moment.tz.guess())
+    .format("YYYY-MM-DD HH:mm z");
+  const formattedEndTime = moment(utcEndTime)
+    .tz(moment.tz.guess())
+    .format("YYYY-MM-DD HH:mm z");
 
   const [confirmBooking, { isLoading, error }] = useConfirmBookingMutation();
 
@@ -35,8 +46,8 @@ const BookingReviewPage = () => {
 
     const reqBody = {
       createdBy: userInfo.userId,
-      startTime: new Date(`${startDate}T${startTime}`).toISOString(),
-      endTime: new Date(`${startDate}T${endTime}`).toISOString(),
+      startTime: utcStartTime,
+      endTime: utcEndTime,
       rooms,
       users,
     };
@@ -47,7 +58,6 @@ const BookingReviewPage = () => {
   const handleOnClick = async () => {
     try {
       const reqBody = createRequestBody();
-      console.log(reqBody);
       const response = await confirmBooking(reqBody).unwrap();
       dispatch(resetBooking());
       navigate("/bookingComplete", { state: response });
@@ -67,17 +77,17 @@ const BookingReviewPage = () => {
       <div className="flex w-full flex-col gap-y-12 font-amazon-ember ">
         <BookingStepper currentStage={2} />
 
-        <div className="mx-6 rounded-xl border-4 border-transparent bg-theme-orange px-5 py-5 text-center transition-all duration-300 hover:border-theme-orange hover:bg-white hover:text-theme-orange md:w-1/4 md:text-start">
+        <div className="mx-6 rounded-xl border-4 border-transparent bg-theme-orange px-5 py-5 text-center transition-all duration-300 hover:border-theme-orange hover:bg-white hover:text-theme-orange md:w-1/2 md:text-start lg:w-1/4">
           <div>
             <span className="font-semibold">
               {` ${groupedAttendees.length - 1} Room${groupedAttendees.length - 1 > 1 ? "s" : ""}`}
             </span>
           </div>
           <div>
-            <span className="font-semibold">Date: </span> {startDate}
+            <span className="font-semibold">{`From ${formattedStartTime}`}</span>{" "}
           </div>
           <div>
-            <span className="font-semibold">Time: </span> {startTime}-{endTime}
+            <span className="font-semibold">{`To ${formattedEndTime}`}</span>{" "}
           </div>
         </div>
 

@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import LoggedInUserGroup from "../components/LoggedInUserGroup";
 import ToogleRooms from "../components/ToggleRooms";
+import ToggleRegroup from "../components/ToggleRegroup";
 import {
   resetBooking,
   setUngroupedAttendees,
@@ -24,6 +25,7 @@ import {
   setGroupToDisplay,
   startSearch,
   stopSearch,
+  toggleRegroup,
 } from "../slices/bookingSlice";
 import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
@@ -41,12 +43,6 @@ const BookingPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [showRecommended, setShowRecommended] = useState(true);
-
-  const handleToggle = () => {
-    setShowRecommended(!showRecommended);
-  };
-
   const {
     startTime,
     endTime,
@@ -59,6 +55,7 @@ const BookingPage = () => {
     searchOnce,
     loading,
     loggedInUser,
+    regroup,
   } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -97,24 +94,56 @@ const BookingPage = () => {
       const endDateTime = new Date(`${startDate}T${endTime}`).toISOString();
 
       const equipmentCodes = equipments.map((equip) => equip.id);
+
       let attendeeEmails = [];
+
       if (searchOnce) {
-        attendeeEmails = groupedAttendees.reduce((acc, group) => {
-          const emails = group.attendees.map((attendee) => attendee.email);
-          return acc.concat(emails);
-        }, []);
+        groupedAttendees.forEach((group) => {
+          // check if the group is not 'ungrouped' or if it is 'ungrouped' but has attendees
+          if (
+            group.groupId !== "ungrouped" ||
+            (group.groupId === "ungrouped" && group.attendees.length > 0)
+          ) {
+            const emails = group.attendees.map((attendee) => attendee.email);
+            attendeeEmails.push(emails);
+          }
+        });
+
+        // Check if logged in user has a group and add them to it
+        const loggedInUserGroupIndex = groupedAttendees.findIndex(
+          (group) => group.groupId === loggedInUser.group,
+        );
+        if (loggedInUserGroupIndex !== -1) {
+          attendeeEmails[loggedInUserGroupIndex].push(userInfo.email);
+        } else {
+          // unlikely to happen, but just in case
+          attendeeEmails.push([userInfo.email]);
+        }
       } else {
-        attendeeEmails = ungroupedAttendees.map((attendee) => attendee.email);
+        // ungrouped case
+        attendeeEmails = [
+          [
+            userInfo.email,
+            ...ungroupedAttendees.map((attendee) => attendee.email),
+          ],
+        ];
       }
-      const allAttendees = [userInfo.email, ...attendeeEmails];
+
+      if (regroup) {
+        attendeeEmails = [attendeeEmails.flat()];
+      }
+
       const reqBody = {
         startTime: startDateTime,
         endTime: endDateTime,
-        attendees: allAttendees,
+        attendees: attendeeEmails,
         equipments: equipmentCodes,
         roomCount: roomCount,
+        regroup: regroup,
         priority: priority.map((entry) => entry.item),
       };
+
+      console.log("reqBody", reqBody);
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
 
       dispatch(
@@ -126,6 +155,7 @@ const BookingPage = () => {
       if (!searchOnce) {
         dispatch(setUngroupedAttendees([]));
         dispatch(setSearchOnce(true));
+        dispatch(toggleRegroup());
       }
     } catch (err) {
       toast.error(err?.data?.error || "Failed to get available rooms");
@@ -203,13 +233,12 @@ const BookingPage = () => {
       <div className="flex w-full flex-col items-center gap-10 md:flex-row md:items-start md:justify-between">
         {/* Input Part */}
         <div className="flex basis-1/3 flex-col items-center justify-center">
-          {" "}
           <form onSubmit={handleSearch}>
             <h1 className="mb-4 text-center text-xl font-semibold md:text-start">
               Book a Room
             </h1>
             <div className="flex flex-col gap-3">
-              <h2>Select Time</h2>
+              <h2 className="mt-4">Select Time</h2>
               <TimeDropdowns />
               {/* <h2>Meeting Type</h2>
             <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
@@ -251,7 +280,14 @@ const BookingPage = () => {
                   <UserEmailInput />
                 </>
               )}
-              <div className="my-4 flex w-80 justify-center">
+
+              {searchOnce && (
+                <div>
+                  <h2>Regroup</h2>
+                  <ToggleRegroup />
+                </div>
+              )}
+              <div className="my-4 flex items-center justify-center">
                 <button
                   type="submit"
                   className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
@@ -263,19 +299,19 @@ const BookingPage = () => {
           </form>
           <button
             onClick={handleReset}
-            className="mb-4 rounded bg-theme-dark-blue px-[54px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
+            className="mb-4 rounded bg-theme-dark-blue px-[52px] py-2 text-white transition-colors duration-300  ease-in-out hover:bg-theme-blue hover:text-white"
           >
             Reset
           </button>
         </div>
         <div className="flex basis-2/3 flex-col text-center md:text-start">
-          <div className="flex flex-col items-center md:flex-row md:justify-between">
-            <div className="mb-4 text-xl font-semibold">Available Rooms</div>
-            <div className="flex items-center justify-center">
-              <ToogleRooms
-                showRecommended={showRecommended}
-                handleToggle={handleToggle}
-              />
+          <div className="flex flex-col md:flex-row md:justify-between">
+            <div>
+              <div className="mb-4 text-xl font-semibold">Available Rooms</div>
+            </div>
+
+            <div className="flex items-start justify-center gap-4">
+              <ToogleRooms />
               {searchOnce && allGroupsHaveSelectedRoom ? (
                 <button
                   className="rounded bg-theme-orange px-4 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
@@ -299,7 +335,7 @@ const BookingPage = () => {
           ) : error ? (
             <Message severity="error">{error.message}</Message>
           ) : (
-            <BookingRoomsDisplay showRecommended={showRecommended} />
+            <BookingRoomsDisplay />
           )}
         </div>
       </div>
