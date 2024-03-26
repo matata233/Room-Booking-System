@@ -99,10 +99,8 @@ const BookingPage = () => {
 
       if (searchOnce) {
         groupedAttendees.forEach((group) => {
-          if (group.groupId !== "Ungrouped") {
-            const emails = group.attendees.map((attendee) => attendee.email);
-            attendeeEmails.push(emails);
-          }
+          const emails = group.attendees.map((attendee) => attendee.email);
+          attendeeEmails.push(emails);
         });
 
         // Check if logged in user has a group and add them to it
