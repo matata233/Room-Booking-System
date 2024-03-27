@@ -25,7 +25,9 @@ import {
   setGroupToDisplay,
   startSearch,
   stopSearch,
-  toggleRegroup,
+  setRegroup,
+  setRoomCount,
+  setIsMultiCity,
 } from "../slices/bookingSlice";
 import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
@@ -56,6 +58,7 @@ const BookingPage = () => {
     loading,
     loggedInUser,
     regroup,
+    isMultiCity,
   } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -99,11 +102,8 @@ const BookingPage = () => {
 
       if (searchOnce) {
         groupedAttendees.forEach((group) => {
-          // check if the group is not 'ungrouped' or if it is 'ungrouped' but has attendees
-          if (
-            group.groupId !== "Ungrouped" ||
-            (group.groupId === "Ungrouped" && group.attendees.length > 0)
-          ) {
+          // check if the group has attendees
+          if (group.attendees.length > 0) {
             const emails = group.attendees.map((attendee) => attendee.email);
             attendeeEmails.push(emails);
           }
@@ -152,10 +152,11 @@ const BookingPage = () => {
       dispatch(startSearch());
 
       dispatch(setGroupToDisplay("Group1"));
+
       if (!searchOnce) {
         dispatch(setUngroupedAttendees([]));
         dispatch(setSearchOnce(true));
-        dispatch(toggleRegroup());
+        dispatch(setRegroup(false));
       }
     } catch (err) {
       toast.error(err?.data?.error || "Failed to get available rooms");
@@ -202,6 +203,17 @@ const BookingPage = () => {
         };
       },
     );
+
+    const newRoomCount = availableRooms.result.groups.length;
+    const isMultiCity = availableRooms.result.isMultiCity;
+    dispatch(setIsMultiCity(isMultiCity));
+    if (isMultiCity) {
+      dispatch(setRoomCount(newRoomCount));
+      dispatch(setRegroup(true));
+      toast.info(
+        "Attendees are from different cities. Room counts may be adjusted to match the number of cities.",
+      );
+    }
 
     if (loggedInUserGroup) {
       dispatch(setLoggedInUserGroup(loggedInUserGroup));
@@ -281,7 +293,7 @@ const BookingPage = () => {
                 </>
               )}
 
-              {searchOnce && (
+              {searchOnce && !isMultiCity && (
                 <div>
                   <h2>Regroup</h2>
                   <ToggleRegroup />
@@ -333,7 +345,7 @@ const BookingPage = () => {
           {isLoading ? (
             <Loader />
           ) : error ? (
-            <Message severity="error">{error.message}</Message>
+            <Message severity="error">{error.data?.error}</Message>
           ) : (
             <BookingRoomsDisplay />
           )}

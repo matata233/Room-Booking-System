@@ -5,7 +5,6 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import Loader from "./Loader";
-import Message from "./Message";
 import { useSelector } from "react-redux";
 
 const Accordion = ({

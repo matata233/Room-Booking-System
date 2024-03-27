@@ -38,6 +38,7 @@ const initialState = {
   searching: false,
   showRecommended: true,
   regroup: true,
+  isMultiCity: false,
 };
 
 export const bookingSlice = createSlice({
@@ -118,8 +119,11 @@ export const bookingSlice = createSlice({
     toggleShowRecommended: (state) => {
       state.showRecommended = !state.showRecommended;
     },
-    toggleRegroup: (state) => {
-      state.regroup = !state.regroup;
+    setRegroup: (state, action) => {
+      state.regroup = action.payload;
+    },
+    setIsMultiCity: (state, action) => {
+      state.isMultiCity = action.payload;
     },
   },
 });
@@ -145,7 +149,8 @@ export const {
   startSearch,
   stopSearch,
   toggleShowRecommended,
-  toggleRegroup,
+  setRegroup,
+  setIsMultiCity,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

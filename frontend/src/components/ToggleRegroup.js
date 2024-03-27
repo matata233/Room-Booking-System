@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleRegroup } from "../slices/bookingSlice";
+import { setRegroup } from "../slices/bookingSlice";
 
 const ToggleRooms = () => {
   const dispatch = useDispatch();
@@ -11,7 +11,7 @@ const ToggleRooms = () => {
 
   useEffect(() => {
     if (ungroupedHasAttendees && !regroup) {
-      dispatch(toggleRegroup());
+      dispatch(setRegroup(true));
     }
   }, [ungroupedHasAttendees, regroup, dispatch]);
 
@@ -25,7 +25,7 @@ const ToggleRooms = () => {
           className={`relative ${ungroupedHasAttendees ? "cursor-not-allowed" : "cursor-pointer"}`}
           onClick={() => {
             if (!ungroupedHasAttendees) {
-              dispatch(toggleRegroup());
+              dispatch(setRegroup(true));
             }
           }}
         >
