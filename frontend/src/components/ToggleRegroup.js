@@ -25,7 +25,7 @@ const ToggleRooms = () => {
           className={`relative ${ungroupedHasAttendees ? "cursor-not-allowed" : "cursor-pointer"}`}
           onClick={() => {
             if (!ungroupedHasAttendees) {
-              dispatch(setRegroup(true));
+              dispatch(setRegroup(!regroup));
             }
           }}
         >
