@@ -1,15 +1,9 @@
 import React from "react";
-import {
-  TextField,
-  Switch,
-  FormControlLabel,
-  FormGroup,
-  Typography,
-} from "@mui/material";
+import { TextField } from "@mui/material";
 const AddBuilding = ({
   cityId,
   setCityId,
-  buildngCode,
+  buildingCode,
   setBuildingCode,
   address,
   setAddress,
@@ -62,7 +56,7 @@ const AddBuilding = ({
           required
           type="number"
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
-          value={buildngCode}
+          value={buildingCode}
           onChange={(event) => setBuildingCode(event.target.value)}
         />
       </div>

@@ -101,8 +101,8 @@ const BookingPage = () => {
         groupedAttendees.forEach((group) => {
           // check if the group is not 'ungrouped' or if it is 'ungrouped' but has attendees
           if (
-            group.groupId !== "ungrouped" ||
-            (group.groupId === "ungrouped" && group.attendees.length > 0)
+            group.groupId !== "Ungrouped" ||
+            (group.groupId === "Ungrouped" && group.attendees.length > 0)
           ) {
             const emails = group.attendees.map((attendee) => attendee.email);
             attendeeEmails.push(emails);

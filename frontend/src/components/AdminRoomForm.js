@@ -157,7 +157,7 @@ const AdminRoomForm = ({
           .map((error, index) => `${index + 1}. ${error}`)
           .join(" ; ");
 
-        toast.error(`User data validation failed: ${validationErrors}`);
+        toast.error(`Room data validation failed: ${validationErrors}`);
       }
     }
   };
