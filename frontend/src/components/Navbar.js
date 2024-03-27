@@ -36,7 +36,7 @@ const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
           id="user-availability"
           onClick={handleNavbarClick}
         >
-          User Schedule
+          Your Schedule
         </Link>
       </div>
       <div className={`py-1 ${isAdmin ? "" : "hidden"}`}>

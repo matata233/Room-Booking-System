@@ -14,13 +14,13 @@ export const CancelConfirmationModal = ({
           <h1 className="font-natural text-md mt-5 xl:pl-4">{message}</h1>
           <div className="mt-4 flex justify-center gap-2">
             <button
-              className="h-8 w-24 rounded bg-rose-600 text-white transition-colors  duration-300 ease-in-out hover:bg-rose-700 hover:text-white xl:h-10 xl:w-28"
+              className="h-8 w-24 rounded bg-green-500 text-white transition-colors  duration-300 ease-in-out hover:bg-green-600 xl:h-10 xl:w-28"
               onClick={onConfirm}
             >
               Confirm
             </button>
             <button
-              className="h-8 w-24 rounded bg-theme-orange text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white xl:h-10 xl:w-28"
+              className="h-8 w-24 rounded bg-rose-600 text-white transition-colors  duration-300 ease-in-out hover:bg-rose-700  xl:h-10 xl:w-28"
               onClick={onCancel}
             >
               Cancel
