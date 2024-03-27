@@ -159,7 +159,7 @@ const BookingHistoryPage = () => {
                         </div>
 
                         {index == 0 && (
-                          <div className="text-md mt-4 flex w-full justify-end pr-2 font-semibold lg:absolute lg:right-3 lg:top-8">
+                          <div className="text-md mt-4 flex w-full justify-end pr-2 font-semibold lg:absolute lg:right-5 lg:top-7">
                             {book.status == "confirmed" ? (
                               <div className="text-green-500">
                                 {" "}
@@ -239,7 +239,7 @@ const BookingHistoryPage = () => {
                   ))}
                   {book.status == "confirmed" &&
                     userInfo.email == book.users.email && (
-                      <div className="mb-3 mr-2 flex justify-end lg:m-0">
+                      <div className="mb-3 mr-2 flex justify-end lg:mr-5">
                         <div className="flex space-x-4 ">
                           <button
                             className="text-indigo-600 hover:text-indigo-900 "
