@@ -13,7 +13,7 @@ const baseQuery = fetchBaseQuery({
       if (Date.now() >= jwtDecode(token).exp * 1000) {
         localStorage.setItem("userInfo", null);
         toast.error(`Your token has expired, please login again.`);
-        localStorage.clear();
+
         const event = new CustomEvent("token-expired");
         window.dispatchEvent(event);
       }
