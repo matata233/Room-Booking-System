@@ -107,15 +107,15 @@ const BookingHistoryPage = () => {
 
   function formatDateTime(utcTime) {
     const transferedTime = moment(utcTime)
-    .tz(moment.tz.guess())
-    .format("YYYY-MM-DD HH:mm z");
+      .tz(moment.tz.guess())
+      .format("YYYY-MM-DD HH:mm z");
 
-    const [date, time, timezone] = transferedTime.split(' ');
+    const [date, time, timezone] = transferedTime.split(" ");
 
     return {
       date: date,
       time: time,
-      timezone: timezone
+      timezone: timezone,
     };
   }
 
@@ -132,7 +132,7 @@ const BookingHistoryPage = () => {
               {bookingData.map((book) => (
                 <div
                   key={book.bookingId}
-                  className="relative mx-6 mb-10 bg-white px-5 pb-5 pt-[105px] shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl lg:pt-28"
+                  className="relative mx-6 mb-10 bg-white px-2 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl lg:pt-28"
                 >
                   {/* ----- */}
                   {book.groups.map((group, index) => (
@@ -141,50 +141,25 @@ const BookingHistoryPage = () => {
                         key={group.room.roomId}
                         className="flex flex-col items-center justify-center lg:flex-row lg:items-start lg:justify-between lg:gap-24 "
                       >
-                        <div>
-                          {index == 0 && (
-                            <div className="ml-10 mt-[60px] text-center text-lg font-semibold">
-                              {book.status == "confirmed" ? (
-                                <div className="text-green-500">
-                                  {" "}
-                                  Confirmed <CheckIcon />{" "}
-                                </div>
-                              ) : (
-                                <div className="text-red-500">
-                                  {" "}
-                                  Canceled <CancelIcon />{" "}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        <div className="absolute -left-6 top-4 bg-theme-orange px-5 py-1 lg:-left-12 lg:top-7">
-                            <div>
-                              <span className="font-semibold">Time:</span>{" "}
-                              {`${formatDateTime(book.startTime).date} ` +
-                                `${formatDateTime(book.startTime).time} ` +
-                                (formatDateTime(book.startTime)
-                                  .date ===
-                                formatDateTime(book.endTime)
-                                  .date
-                                  ? `- ${formatDateTime(book.endTime).time} ${formatDateTime(book.endTime).timezone}`
-                  
-                                  : `to ${formatDateTime(book.endTime).date} ${formatDateTime(book.endTime).time} ${formatDateTime(book.endTime).timezone}` 
-                                )}
-                            </div>
-
-                            <div className="">
-                              <span className="font-semibold">Booked by:</span>{" "}
-                              {book.users.email}
-                            </div>
-
+                        <div className="w-full bg-theme-orange px-5 py-1 lg:absolute lg:-left-10 lg:top-7 lg:w-auto">
+                          <div>
+                            <span className="font-semibold">Time:</span>{" "}
+                            {`${formatDateTime(book.startTime).date} ` +
+                              `${formatDateTime(book.startTime).time} ` +
+                              (formatDateTime(book.startTime).date ===
+                              formatDateTime(book.endTime).date
+                                ? `- ${formatDateTime(book.endTime).time} ${formatDateTime(book.endTime).timezone}`
+                                : `to ${formatDateTime(book.endTime).date} ${formatDateTime(book.endTime).time} ${formatDateTime(book.endTime).timezone}`)}
                           </div>
-                          <div className="">
+
+                          <div>
                             <span className="font-semibold">Booked by:</span>{" "}
                             {book.users.email}
                           </div>
                         </div>
+
                         {index == 0 && (
-                          <div className="text-md absolute right-4 top-20 m-2 font-semibold lg:top-9">
+                          <div className="text-md mt-4 flex w-full justify-end pr-2 font-semibold lg:absolute lg:right-3 lg:top-8">
                             {book.status == "confirmed" ? (
                               <div className="text-green-500">
                                 {" "}
@@ -198,6 +173,7 @@ const BookingHistoryPage = () => {
                             )}
                           </div>
                         )}
+
                         {/* Room Information */}
                         <div className="flex flex-row items-center gap-2 lg:items-start ">
                           <div className="m-5 hidden lg:flex">
@@ -208,7 +184,7 @@ const BookingHistoryPage = () => {
                             />
                           </div>
 
-                          <div className="mt-2 flex flex-col justify-center sm:justify-start">
+                          <div className="flex flex-col justify-center sm:justify-start lg:mt-2">
                             <div className="m-2 border-b-2 border-zinc-200 text-left font-semibold">
                               <h2>Room Information:</h2>
                             </div>
@@ -263,7 +239,7 @@ const BookingHistoryPage = () => {
                   ))}
                   {book.status == "confirmed" &&
                     userInfo.email == book.users.email && (
-                      <div className="mb-3 mr-1 flex justify-end lg:m-0">
+                      <div className="mb-3 mr-2 flex justify-end lg:m-0">
                         <div className="flex space-x-4 ">
                           <button
                             className="text-indigo-600 hover:text-indigo-900 "
