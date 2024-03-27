@@ -41,7 +41,7 @@ const RoomManagementEditPage = () => {
       secondaryHeader={secondaryHeader}
       buttonText={buttonText}
       handleSubmit={handleUpdate}
-      initialValues={roomInfo}
+      initialValues={isLoading ? null : roomInfo}
     />
   );
 };

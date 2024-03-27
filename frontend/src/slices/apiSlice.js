@@ -12,10 +12,9 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       if (Date.now() >= jwtDecode(token).exp * 1000) {
         localStorage.setItem("userInfo", null);
-        toast.error(
-            `Your token has expired, please login again.`
-        );
-        const event = new CustomEvent('token-expired');
+        toast.error(`Your token has expired, please login again.`);
+        localStorage.clear();
+        const event = new CustomEvent("token-expired");
         window.dispatchEvent(event);
       }
       headers.set("authorization", `Bearer ${token}`);
@@ -27,6 +26,6 @@ const baseQuery = fetchBaseQuery({
 });
 export const apiSlice = createApi({
   baseQuery: baseQuery,
-  tagTypes: ["Room", "User", "Event","Booking"],
+  tagTypes: ["Room", "User", "Event", "Booking"],
   endpoints: (builder) => ({}),
 });
