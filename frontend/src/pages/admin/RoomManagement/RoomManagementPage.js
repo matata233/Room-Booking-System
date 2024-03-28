@@ -404,6 +404,8 @@ const RoomManagementPage = () => {
           </div>
           {isModalOpen && (
             <CancelConfirmationModal
+              confirmButton={"confirm"}
+              cancelButton={"close"}
               message="Are you sure you want to change the status of this room?"
               onConfirm={handleConfirmToggleIsActive}
               onCancel={() => setIsModalOpen(false)}

@@ -247,9 +247,9 @@ const BookingHistoryPage = () => {
                             Edit Attendee(s)
                           </button>
 
-                          <button 
-                          onClick={() => setIsCancelConfirmOpen(true)}
-                          className="rounded bg-white border border-theme-orange px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
+                          <button
+                            onClick={() => setIsCancelConfirmOpen(true)}
+                            className="rounded border border-theme-orange bg-white px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:border-orange-200 hover:bg-orange-100 hover:bg-opacity-90"
                           >
                             Cancel Booking
                           </button>
@@ -293,6 +293,8 @@ const BookingHistoryPage = () => {
       )}
       {isCancelConfirmOpen && (
         <CancelConfirmationModal
+          confirmButton={"cancel"}
+          cancelButton={"close"}
           onCancel={() => setIsCancelConfirmOpen(false)}
           onClose={() => setIsCancelConfirmOpen(false)}
           onConfirm={handleCancelBooking}
