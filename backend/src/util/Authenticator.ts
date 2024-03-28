@@ -92,7 +92,7 @@ export default class Authenticator {
         try {
             await this.verifyIdToken(googleToken);
         }catch (error){
-            return Promise.reject(error);
+            return Promise.reject(new UnauthorizedError(`Google token with bad integrity`));
         }
         // fetch the user by email
         return await this.fetchUserByEmail(decodedUserInfo.email);
