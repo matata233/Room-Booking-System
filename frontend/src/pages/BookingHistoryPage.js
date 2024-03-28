@@ -5,8 +5,6 @@ import {
   useGetBookingCurrentUserQuery,
   useUpdateBookingMutation,
 } from "../slices/bookingApiSlice";
-import { FaEdit } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
 import { useSelector } from "react-redux";
 import CheckIcon from "@mui/icons-material/Check";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -239,19 +237,21 @@ const BookingHistoryPage = () => {
                   ))}
                   {book.status == "confirmed" &&
                     userInfo.email == book.users.email && (
-                      <div className="mb-3 mr-2 flex justify-end lg:mr-5">
+                      <div className="mb-1 mr-2 flex justify-end lg:mr-5">
                         <div className="flex space-x-4 ">
                           <button
-                            className="text-indigo-600 hover:text-indigo-900 "
+                            type="submit"
                             onClick={(e) => handleEditBooking(book)}
+                            className="rounded bg-theme-orange px-5 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
                           >
-                            <FaEdit className="size-5" />
+                            Edit Attendee(s)
                           </button>
-                          <button
-                            className="text-red-600 hover:text-red-900"
-                            onClick={() => setIsCancelConfirmOpen(true)}
+
+                          <button 
+                          onClick={() => setIsCancelConfirmOpen(true)}
+                          className="rounded bg-white border border-theme-orange px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
                           >
-                            <MdDelete className="size-5" />
+                            Cancel Booking
                           </button>
                         </div>
                       </div>

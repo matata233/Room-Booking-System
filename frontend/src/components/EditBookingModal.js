@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CloseIconSVG from "../assets/close-icon.svg";
+import UserEmailInput from "./UserEmailInput";
 
 const EditBookingModal = ({ book, onClose, onUpdate }) => {
   console.log("book: ", book);
@@ -28,17 +29,12 @@ const EditBookingModal = ({ book, onClose, onUpdate }) => {
           className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg lg:w-96"
         >
           <h1 className="font-natural mb-5 mt-1 text-2xl lg:mt-2 ">
-            Edit Booking
+            Edit Attendee(s)
           </h1>
           <label className="mb-1 block">
-            Status <span className="text-red-600">*</span>
+            Attendee(s) <span className="text-red-600">*</span>
           </label>
-          <input
-            type="text"
-            value={updatedStatus}
-            onChange={(e) => setUpdatedStatus(e.target.value)}
-            className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
-          />
+          <UserEmailInput />
           <div className="flex justify-center">
             <button
               type="submit"
