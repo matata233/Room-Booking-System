@@ -3,6 +3,7 @@ import CloseIconSVG from "../assets/close-icon.svg";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import dayjs from "dayjs";
+import moment from "moment-timezone";
 
 const EventDetailsModal = ({ event, onClose, onEdit, onDelete, type }) => {
   // const handleTest = () => {
@@ -11,6 +12,14 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete, type }) => {
   //     "first: " + dayjs(event.startTime).format("YYYY-MM-DD hh:mm A"),
   //   );
   // };
+  const formattedStartTime = moment(event.startTime)
+    .tz(moment.tz.guess())
+    .format("YYYY-MM-DD HH:mm z");
+  const formattedEndTime = moment(event.endTime)
+    .tz(moment.tz.guess())
+    .format("YYYY-MM-DD HH:mm z");
+
+  const userTimezone = moment.tz(moment.tz.guess()).zoneAbbr();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -28,6 +37,7 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete, type }) => {
               <span className="ml-2">
                 {dayjs(event.startTime).format("hh:mm A")}
               </span>
+              <span className="ml-2">{userTimezone}</span>
             </p>
           </div>
 
@@ -38,6 +48,7 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete, type }) => {
               <span className="ml-2">
                 {dayjs(event.endTime).format("hh:mm A")}
               </span>
+              <span className="ml-2">{userTimezone}</span>
             </p>
           </div>
           {event.type === "event" && (
