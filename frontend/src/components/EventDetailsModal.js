@@ -4,7 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import dayjs from "dayjs";
 
-const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
+const EventDetailsModal = ({ event, onClose, onEdit, onDelete, type }) => {
   // const handleTest = () => {
   //   console.log("startDate " + event.startTime);
   //   console.log(
@@ -16,7 +16,7 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="group relative pl-3">
         <div className="absolute inset-0 transform rounded-3xl bg-gradient-to-br from-orange-300 to-theme-orange shadow-lg duration-300 group-hover:-rotate-3"></div>
-        <div className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg lg:w-96">
+        <div className="relative w-80 flex-col rounded-3xl bg-white p-6 pb-10 shadow-lg lg:w-96">
           <h1 className="font-natural mb-5 mt-1 text-3xl text-theme-dark-orange  lg:mt-2 ">
             {event.title}
           </h1>
@@ -40,20 +40,22 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
               </span>
             </p>
           </div>
-          <div className="mb-3 flex justify-end gap-2">
-            <button
-              className="text-indigo-600 hover:text-indigo-900"
-              onClick={() => onEdit(event.eventId)}
-            >
-              <FaEdit className="h-[27px] w-[25px]" />
-            </button>
-            <button
-              className="text-red-600 hover:text-red-900"
-              onClick={() => onDelete(event.eventId)}
-            >
-              <MdDelete className="h-7 w-7" />
-            </button>
-          </div>
+          {event.type === "event" && (
+            <div className="flex justify-end gap-2">
+              <button
+                className="text-indigo-600 hover:text-indigo-900"
+                onClick={() => onEdit(event.eventId)}
+              >
+                <FaEdit className="h-[27px] w-[25px]" />
+              </button>
+              <button
+                className="text-red-600 hover:text-red-900"
+                onClick={() => onDelete(event.eventId)}
+              >
+                <MdDelete className="h-7 w-7" />
+              </button>
+            </div>
+          )}
         </div>
         <button
           className="absolute right-2 top-2 cursor-pointer p-2"
