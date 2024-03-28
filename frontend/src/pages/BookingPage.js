@@ -103,7 +103,10 @@ const BookingPage = () => {
       if (searchOnce) {
         groupedAttendees.forEach((group) => {
           // check if the group has attendees
-          if (group.attendees.length > 0) {
+          if (
+            group.groupId !== "Ungrouped" ||
+            (group.groupId === "Ungrouped" && group.attendees.length > 0)
+          ) {
             const emails = group.attendees.map((attendee) => attendee.email);
             attendeeEmails.push(emails);
           }
@@ -159,6 +162,7 @@ const BookingPage = () => {
         dispatch(setRegroup(false));
       }
     } catch (err) {
+      console.log(err);
       toast.error(err?.data?.error || "Failed to get available rooms");
       console.log(err?.data?.error);
     } finally {
