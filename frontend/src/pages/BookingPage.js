@@ -33,6 +33,8 @@ import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
 import Message from "../components/Message";
 import BookingRoomsDisplay from "../components/BookingRoomsDisplay";
+import ToggleSuggestedTime from "../components/ToggleSuggestedTime";
+import SuggestedTimeInput from "../components/SuggestedTimeInput";
 
 const BookingPage = () => {
   const {
@@ -59,6 +61,7 @@ const BookingPage = () => {
     loggedInUser,
     regroup,
     isMultiCity,
+    suggestedTimeMode,
   } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -103,7 +106,10 @@ const BookingPage = () => {
       if (searchOnce) {
         groupedAttendees.forEach((group) => {
           // check if the group has attendees
-          if (group.attendees.length > 0) {
+          if (
+            group.groupId !== "Ungrouped" ||
+            (group.groupId === "Ungrouped" && group.attendees.length > 0)
+          ) {
             const emails = group.attendees.map((attendee) => attendee.email);
             attendeeEmails.push(emails);
           }
@@ -252,7 +258,8 @@ const BookingPage = () => {
             </h1>
             <div className="flex flex-col gap-3">
               <h2 className="mt-4">Select Time</h2>
-              <TimeDropdowns />
+              <ToggleSuggestedTime />
+              {suggestedTimeMode ? <SuggestedTimeInput /> : <TimeDropdowns />}
               {/* <h2>Meeting Type</h2>
             <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
               <div className="relative">

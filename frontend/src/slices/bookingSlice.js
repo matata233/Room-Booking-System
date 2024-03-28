@@ -39,6 +39,7 @@ const initialState = {
   showRecommended: true,
   regroup: true,
   isMultiCity: false,
+  suggestedTimeMode: true,
 };
 
 export const bookingSlice = createSlice({
@@ -125,6 +126,9 @@ export const bookingSlice = createSlice({
     setIsMultiCity: (state, action) => {
       state.isMultiCity = action.payload;
     },
+    toggleSuggestedTimeMode: (state) => {
+      state.suggestedTimeMode = !state.suggestedTimeMode;
+    },
   },
 });
 
@@ -151,6 +155,7 @@ export const {
   toggleShowRecommended,
   setRegroup,
   setIsMultiCity,
+  toggleSuggestedTimeMode,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;
