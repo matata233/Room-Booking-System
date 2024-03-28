@@ -8,6 +8,7 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./index.css";
 import { useGetEventsQuery } from "../../slices/eventsApiSlice";
+import { useGetBookingCurrentUserQuery } from "../../slices/bookingApiSlice";
 import {
   useCreateEventMutation,
   useUpdateEventMutation,
@@ -19,6 +20,9 @@ const localizer = momentLocalizer(moment);
 
 const EventCalendar = () => {
   const { data: events, isLoading: isGetEventsLoading } = useGetEventsQuery();
+  const { data: booking, isLoading: isGetBookingsLoading } =
+    useGetBookingCurrentUserQuery();
+
   const [createEvent] = useCreateEventMutation();
   const [updateEvent] = useUpdateEventMutation();
   const [deleteEvent] = useDeleteEventMutation();
@@ -29,8 +33,26 @@ const EventCalendar = () => {
     if (isGetEventsLoading || !events || !events.result) {
       return [];
     }
-    return events.result;
+    return events.result.map((event) => ({
+      ...event,
+      type: "event",
+    }));
   }, [isGetEventsLoading, events]);
+
+  const bookingsData = useMemo(() => {
+    if (isGetBookingsLoading || !booking || !booking.result) {
+      return [];
+    }
+    return booking.result.map((booking) => ({
+      ...booking,
+      title: "Company Meeting",
+      type: "booking",
+    }));
+  }, [isGetBookingsLoading, booking]);
+
+  const calendarEvents = useMemo(() => {
+    return [...eventsData, ...bookingsData];
+  }, [eventsData, bookingsData]);
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -41,8 +63,8 @@ const EventCalendar = () => {
   const [isDetails, setIsDetails] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const handleSelectEvent = (event) => {
-    setSelectedEvent(event);
+  const handleSelectEvent = (eventOrBooking) => {
+    setSelectedEvent({ ...eventOrBooking, type: eventOrBooking.type });
     setIsDetails(true);
   };
 
@@ -101,13 +123,12 @@ const EventCalendar = () => {
     setIsConfirmed(false);
   };
 
-  // const handleTest = () => {
-  //   console.log(eventsData);
-  //   // events.forEach((event) => {
-  //   //   console.log("event", event);
-  //   // });
-  //   console.log("second");
-  // };
+  const handleTest = () => {
+    bookingsData.forEach((book) => {
+      console.log("event", book);
+    });
+    console.log("second");
+  };
 
   return (
     <div className="flex w-screen justify-center gap-10">
@@ -126,7 +147,7 @@ const EventCalendar = () => {
         <div className="h-[550px] px-5 md:h-[800px]">
           <Calendar
             localizer={localizer}
-            events={eventsData}
+            events={calendarEvents}
             startAccessor={(event) => {
               return new Date(event.startTime);
             }}
@@ -174,14 +195,14 @@ const EventCalendar = () => {
             onClose={handleCloseModal}
           />
         )}
-        {/* <div className="flex justify-center">
+        <div className="flex justify-center">
           <button
             onClick={handleTest}
             className="my-4 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
           >
             test
           </button>
-        </div> */}
+        </div>
       </div>
     </div>
   );
