@@ -123,12 +123,12 @@ const EventCalendar = () => {
     setIsConfirmed(false);
   };
 
-  const handleTest = () => {
-    bookingsData.forEach((book) => {
-      console.log("event", book);
-    });
-    console.log("second");
-  };
+  // const handleTest = () => {
+  //   bookingsData.forEach((book) => {
+  //     console.log("event", book);
+  //   });
+  //   console.log("second");
+  // };
 
   return (
     <div className="flex w-screen justify-center gap-10">
@@ -195,14 +195,14 @@ const EventCalendar = () => {
             onClose={handleCloseModal}
           />
         )}
-        <div className="flex justify-center">
+        {/* <div className="flex justify-center">
           <button
             onClick={handleTest}
             className="my-4 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
           >
             test
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
