@@ -47,7 +47,7 @@ const AdminBuildingForm = ({
       code: parseInt(buildingCode),
       address,
       lon: parseFloat(lon),
-      lat: parseInt(lon),
+      lat: parseFloat(lat),
       isActive: true,
     };
     const buildingValidation = validateBuildingData(buildingFormData);
