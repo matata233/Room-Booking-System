@@ -4,20 +4,22 @@ import RoomMngtSVG from "../../../assets/room-mngt.svg";
 import UserMngtSVG from "../../../assets/user-mngt.svg";
 import RoomIconSVG from "../../../assets/room-icon.svg";
 import UserIconSVG from "../../../assets/user-icon.svg";
+import QuestionMarkIconSVG from "../../../assets/question-mark-icon.svg";
+import Tooltip from "@mui/material/Tooltip";
 
 function AdminHomePage() {
   return (
     <div className="flex  flex-col items-center justify-center font-amazon-ember">
-      <h1 className="mx-10  text-center text-4xl text-theme-dark-blue  lg:text-5xl">
+      <h1 className="mx-10 my-6 text-center text-4xl text-theme-dark-blue  lg:text-5xl">
         Booking Administration System
       </h1>
-      <div className="my-3 flex-col gap-4 sm:flex">
+      <div className="mb-14 flex-col gap-4 sm:flex">
         <div className="flex flex-col items-center md:flex-row">
           <div className="min-w-16">
             <img src={RoomIconSVG} alt="Room Mngt Icon" className="h-10 w-16" />
           </div>
           <p className="w-96 px-4  text-center md:ml-10 md:w-[550px]  md:text-start lg:w-[770px]">
-            Room Management allows the you to add/change/delete rooms into the
+            Room Management allows you to add/change/delete rooms into the
             system and record various features of the room.
           </p>
         </div>
@@ -39,7 +41,17 @@ function AdminHomePage() {
             alt="Meeting Room"
             src={RoomMngtSVG}
           />
-          <h2 className="p-3 text-2xl">Room Management</h2>
+          <div className="flex items-center">
+            <h2 className="p-3 text-2xl">Room Management</h2>
+            <Tooltip title="Manage your rooms effectively by adding, changing, or deleting room.">
+              <img
+                className="size-5 object-cover"
+                alt="question mark"
+                src={QuestionMarkIconSVG}
+              />
+            </Tooltip>
+          </div>
+
           <div className="m-5">
             <Link
               to="/roomManagementPage"
@@ -55,7 +67,17 @@ function AdminHomePage() {
             alt="Meeting Room"
             src={UserMngtSVG}
           />
-          <h2 className="p-3 text-2xl">User Management</h2>
+          <div className="flex items-center">
+            <h2 className="p-3 text-2xl">User Management</h2>
+            <Tooltip title="Manage user profiles by importing user data, and performing updates or deletions.">
+              <img
+                className="size-5 object-cover"
+                alt="question mark"
+                src={QuestionMarkIconSVG}
+              />
+            </Tooltip>
+          </div>
+
           <div className="m-5">
             <Link
               to="/userManagementPage"

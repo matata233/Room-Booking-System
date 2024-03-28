@@ -24,13 +24,21 @@ const EventDetailsModal = ({ event, onClose, onEdit, onDelete }) => {
           <p className="pb-2 text-lg  text-gray-800">Start Time:</p>
           <div className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4">
             <p className="">
-              {dayjs(event.startTime).format("YYYY-MM-DD \b \b \b hh:mm A")}
+              <span>{dayjs(event.startTime).format("YYYY-MM-DD")}</span>
+              <span className="ml-2">
+                {dayjs(event.startTime).format("hh:mm A")}
+              </span>
             </p>
           </div>
 
           <p className="pb-2 text-lg  text-gray-800">End Time:</p>
           <div className="mb-2 block w-full appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4">
-            <p>{dayjs(event.endTime).format("YYYY-MM-DD \b \b \b hh:mm A")}</p>
+            <p>
+              <span>{dayjs(event.endTime).format("YYYY-MM-DD")}</span>
+              <span className="ml-2">
+                {dayjs(event.endTime).format("hh:mm A")}
+              </span>
+            </p>
           </div>
           <div className="mb-3 flex justify-end gap-2">
             <button
