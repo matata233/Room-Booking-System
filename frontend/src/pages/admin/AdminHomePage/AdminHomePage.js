@@ -17,7 +17,7 @@ function AdminHomePage() {
             <img src={RoomIconSVG} alt="Room Mngt Icon" className="h-10 w-16" />
           </div>
           <p className="w-96 px-4  text-center md:ml-10 md:w-[550px]  md:text-start lg:w-[770px]">
-            Room Management allows the you to add/change/delete rooms into the
+            Room Management allows you to add/change/delete rooms into the
             system and record various features of the room.
           </p>
         </div>
