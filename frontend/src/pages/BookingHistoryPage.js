@@ -242,14 +242,14 @@ const BookingHistoryPage = () => {
                           <button
                             type="submit"
                             onClick={(e) => handleEditBooking(book)}
-                            className="mb-1 rounded bg-theme-orange px-5 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                            className="rounded bg-theme-orange px-5 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
                           >
                             Edit Attendee(s)
                           </button>
 
                           <button 
                           onClick={() => setIsCancelConfirmOpen(true)}
-                          className="mb-1 rounded bg-white border border-theme-orange px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
+                          className="rounded bg-white border border-theme-orange px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
                           >
                             Cancel Booking
                           </button>
