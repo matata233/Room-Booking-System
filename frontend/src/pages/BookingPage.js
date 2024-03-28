@@ -159,6 +159,7 @@ const BookingPage = () => {
         dispatch(setRegroup(false));
       }
     } catch (err) {
+      console.log(err);
       toast.error(err?.data?.error || "Failed to get available rooms");
       console.log(err?.data?.error);
     } finally {
