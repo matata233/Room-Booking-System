@@ -53,23 +53,24 @@ const LoginPage = () => {
   };
 
   return (
-      <div className="flex flex-col items-center justify-center font-amazon-ember">
-        <h1 className="font-natural text-2xl md:font-semibold mb-4">
-          Login Using Your Google Account
-        </h1>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="flex h-96 w-auto flex-col items-center  bg-white shadow-2xl">
+        <p className="mx-5 my-4 w-full border-b-[1px] border-zinc-400 py-2 text-center text-lg font-extralight text-zinc-400">
+          Log In with Your Account and Get Started
+        </p>
         <div className="group relative shadow-xl">
-          <div className="absolute inset-0 rounded-md bg-theme-orange opacity-40 duration-300 group-hover:translate-x-3 group-hover:translate-y-3"></div>
+          <div className="mt-2 rounded-md bg-theme-orange opacity-40 duration-300 group-hover:translate-x-3 group-hover:translate-y-3"></div>
           {/* Google Login Button */}
           <GoogleLogin
-              onSuccess={handleLogin}
-              onError={() => {
-                toast.error("Login failed");
-              }}
+            onSuccess={handleLogin}
+            onError={() => {
+              toast.error("Login failed");
+            }}
           />
         </div>
       </div>
+    </div>
   );
-
 };
 
 export default LoginPage;

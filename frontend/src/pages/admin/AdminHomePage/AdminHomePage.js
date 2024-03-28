@@ -10,7 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 function AdminHomePage() {
   return (
     <div className="flex  flex-col items-center justify-center font-amazon-ember">
-      <h1 className="mx-10 my-6 text-center text-4xl text-theme-dark-blue  lg:text-5xl">
+      <h1 className="mx-10 mb-16 mt-6 text-center text-4xl text-theme-dark-blue  lg:text-5xl">
         Booking Administration System
       </h1>
       <div className="mb-14 flex-col gap-4 sm:flex">
@@ -34,18 +34,18 @@ function AdminHomePage() {
           </p>
         </div>
       </div>
-      <div className="my-1 flex flex-col gap-5 md:flex-row md:gap-8">
-        <div className="mx-10 flex w-auto flex-col items-center bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:mx-0 md:w-8/12 md:px-9">
+      <div className="my-1 flex flex-col gap-5 md:flex-row md:gap-10">
+        <div className="mx-10 flex w-auto flex-col items-center bg-white px-5 py-5 shadow-xl transition-all duration-300 hover:shadow-2xl md:mx-0 md:w-8/12 md:px-9">
           <img
             className="h-40 object-cover md:h-60"
-            alt="Meeting Room"
+            alt="Room Management"
             src={RoomMngtSVG}
           />
-          <div className="flex items-center">
+          <div className="flex flex-row items-center justify-center">
             <h2 className="p-3 text-2xl">Room Management</h2>
             <Tooltip title="Manage your rooms effectively by adding, changing, or deleting room.">
               <img
-                className="size-5 object-cover"
+                className="size-5"
                 alt="question mark"
                 src={QuestionMarkIconSVG}
               />
@@ -55,23 +55,23 @@ function AdminHomePage() {
           <div className="m-5">
             <Link
               to="/roomManagementPage"
-              className="rounded bg-theme-orange px-8 py-0.5 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+              className="rounded bg-theme-orange px-10 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
             >
               Go
             </Link>
           </div>
         </div>
-        <div className="mx-10 flex w-auto flex-col items-center bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:mx-0 md:w-8/12 md:px-9">
+        <div className="mx-10 flex w-auto flex-col items-center bg-white px-5 py-5 shadow-xl transition-all duration-300 hover:shadow-2xl md:mx-0 md:w-8/12 md:px-9">
           <img
             className="h-40 object-cover md:h-60"
-            alt="Meeting Room"
+            alt="User Management"
             src={UserMngtSVG}
           />
-          <div className="flex items-center">
+          <div className="flex items-center justify-center">
             <h2 className="p-3 text-2xl">User Management</h2>
             <Tooltip title="Manage user profiles by importing user data, and performing updates or deletions.">
               <img
-                className="size-5 object-cover"
+                className="size-5"
                 alt="question mark"
                 src={QuestionMarkIconSVG}
               />
@@ -81,7 +81,7 @@ function AdminHomePage() {
           <div className="m-5">
             <Link
               to="/userManagementPage"
-              className="rounded bg-theme-orange px-8 py-0.5 text-theme-dark-blue transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+              className="rounded bg-theme-orange px-10 py-2 text-theme-dark-blue transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
             >
               Go
             </Link>
