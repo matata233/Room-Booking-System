@@ -227,11 +227,11 @@ const AdminRoomForm = ({
               </div>
 
               {/* Toggle Existing/New building */}
-              <ToggleBuilding
+              {/* <ToggleBuilding
                 extBuilding={extBuilding}
                 setExtBuilding={setExtBuilding}
                 setBuilding={setBuilding}
-              />
+              /> */}
               {extBuilding ? (
                 <div className="relative">
                   <div className="flex justify-between">

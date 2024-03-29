@@ -6,9 +6,18 @@ import dayjs from "dayjs";
 const persistedUserInfo = localStorage.getItem("userInfo");
 const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;
 
+const getNextHour = () => {
+  const now = dayjs();
+  return now.minute() || now.second() || now.millisecond()
+    ? now.add(1, "hour").startOf("hour")
+    : now.startOf("hour");
+};
+
+const nextHour = getNextHour();
+
 const initialState = {
-  startDate: dayjs(new Date()).format("YYYY-MM-DD"),
-  startTime: "00:00",
+  startDate: nextHour.format("YYYY-MM-DD"),
+  startTime: nextHour.format("HH:mm"),
   endTime: "23:45",
   equipments: [],
   priority: [
