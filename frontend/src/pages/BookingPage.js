@@ -19,12 +19,10 @@ import {
   setSearchOnce,
   initializeGroupedAttendees,
   setLoggedInUserGroup,
-  setSelectedRoom,
   startLoading,
   stopLoading,
   setGroupToDisplay,
   startSearch,
-  stopSearch,
   setRegroup,
   setRoomCount,
   setIsMultiCity,
@@ -149,22 +147,20 @@ const BookingPage = () => {
       console.log("reqBody", reqBody);
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
 
+      if (!searchOnce) {
+        dispatch(setUngroupedAttendees([]));
+        dispatch(setSearchOnce(true));
+      }
+      dispatch(setRegroup(false)); // always set to Same Group unless isMultiCity
       dispatch(
         initializeGroupedAttendees(reorganizeAvailableRooms(availableRooms)),
       );
       dispatch(startSearch());
 
       dispatch(setGroupToDisplay("Group1"));
-
-      if (!searchOnce) {
-        dispatch(setUngroupedAttendees([]));
-        dispatch(setSearchOnce(true));
-        dispatch(setRegroup(false));
-      }
     } catch (err) {
       console.log(err);
       toast.error(err?.data?.error || "Failed to get available rooms");
-      console.log(err?.data?.error);
     } finally {
       dispatch(stopLoading());
     }
@@ -210,9 +206,9 @@ const BookingPage = () => {
 
     const newRoomCount = availableRooms.result.groups.length;
     const isMultiCity = availableRooms.result.isMultiCity;
+    dispatch(setRoomCount(newRoomCount));
     dispatch(setIsMultiCity(isMultiCity));
     if (isMultiCity) {
-      dispatch(setRoomCount(newRoomCount));
       dispatch(setRegroup(true));
       toast.info(
         "Attendees are from different cities. Room counts may be adjusted to match the number of cities.",
@@ -254,6 +250,23 @@ const BookingPage = () => {
               Book a Room
             </h1>
             <div className="flex flex-col gap-3">
+              {searchOnce ? (
+                loading ? (
+                  <Loader />
+                ) : (
+                  <>
+                    <h2>Your assigned group: </h2>
+                    <LoggedInUserGroup />
+                    <h2>Enter user emails by group</h2>
+                    <UserEmailGroup />
+                  </>
+                )
+              ) : (
+                <>
+                  <h2>Enter all user emails</h2>
+                  <UserEmailInput />
+                </>
+              )}
               <h2 className="mt-4">Select Time</h2>
               <TimeDropdowns />
               {/* <h2>Meeting Type</h2>
@@ -279,23 +292,6 @@ const BookingPage = () => {
 
               <h2>Number of Rooms </h2>
               <UserRoomCountInput />
-              {searchOnce ? (
-                loading ? (
-                  <Loader />
-                ) : (
-                  <>
-                    <h2>Your assigned room: </h2>
-                    <LoggedInUserGroup />
-                    <h2>Enter user emails by group</h2>
-                    <UserEmailGroup />
-                  </>
-                )
-              ) : (
-                <>
-                  <h2>Enter all user emails</h2>
-                  <UserEmailInput />
-                </>
-              )}
 
               {searchOnce && !isMultiCity && (
                 <div>
@@ -330,14 +326,14 @@ const BookingPage = () => {
               <ToogleRooms />
               {searchOnce && allGroupsHaveSelectedRoom ? (
                 <button
-                  className="rounded bg-theme-orange px-4 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                  className="rounded bg-theme-orange px-6 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
                   onClick={handleSubmit}
                 >
                   Submit
                 </button>
               ) : (
                 <button
-                  className="cursor-not-allowed rounded-md bg-gray-300 px-4 py-2 opacity-50"
+                  className="cursor-not-allowed rounded-md bg-gray-300 px-6 py-2 opacity-50"
                   disabled
                 >
                   Submit

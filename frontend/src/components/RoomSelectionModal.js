@@ -1,7 +1,7 @@
 import React from "react";
 import CloseIconSVG from "../assets/close-icon.svg";
 
-export const CancelConfirmationModal = ({
+export const RoomSelectionModal = ({
   onCancel,
   onClose,
   onConfirm,
@@ -11,7 +11,9 @@ export const CancelConfirmationModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg xl:w-96">
         <div className="flex flex-col">
-          <div className="font-natural text-md mt-5 xl:pl-4">{message}</div>
+          <div className="text-md flex flex-col items-center space-y-2">
+            <div className="font-natural text-md my-5">{message}</div>
+          </div>
           <div className="mt-4 flex justify-center gap-2">
             <button
               className="h-8 w-24 rounded bg-green-500 text-white transition-colors  duration-300 ease-in-out hover:bg-green-600 xl:h-10 xl:w-28"
@@ -42,4 +44,4 @@ export const CancelConfirmationModal = ({
   );
 };
 
-export default CancelConfirmationModal;
+export default RoomSelectionModal;

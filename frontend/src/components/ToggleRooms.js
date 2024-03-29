@@ -9,10 +9,11 @@ const ToggleRooms = () => {
   return (
     <div className="flex h-[40px] items-center justify-center">
       <label
-        className={`mr-2 ${showRecommended ? "text-gray-400" : "text-black"}`}
+        className={`mr-2 ${showRecommended ? "text-black" : "text-gray-400"}`}
       >
-        All
+        Recommended
       </label>
+
       <div
         className="relative cursor-pointer"
         onClick={() => {
@@ -20,16 +21,16 @@ const ToggleRooms = () => {
         }}
       >
         <div
-          className={`block h-8 w-14 rounded-full ${showRecommended ? "bg-orange-300" : "bg-gray-300"}`}
+          className={`block h-8 w-14 rounded-full ${showRecommended ? "bg-gray-300" : "bg-orange-300"}`}
         ></div>
         <div
-          className={`dot absolute left-1 top-1 h-6 w-6 rounded-full transition ${showRecommended ? "translate-x-6 transform bg-theme-dark-orange" : "bg-gray-400"}`}
+          className={`dot absolute left-1 top-1 h-6 w-6 rounded-full transition ${showRecommended ? "bg-gray-400" : "translate-x-6 transform bg-theme-dark-orange"}`}
         ></div>
       </div>
       <label
-        className={`ml-2 ${showRecommended ? "text-theme-dark-orange" : "text-gray-400"}`}
+        className={`ml-2 ${showRecommended ? "text-gray-400" : "text-theme-dark-orange"}`}
       >
-        Recommended
+        All
       </label>
     </div>
   );
