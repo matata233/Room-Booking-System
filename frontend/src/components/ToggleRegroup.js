@@ -4,36 +4,27 @@ import { setRegroup } from "../slices/bookingSlice";
 
 const ToggleRooms = () => {
   const dispatch = useDispatch();
-  const { regroup, groupedAttendees, roomCount } = useSelector(
-    (state) => state.booking,
-  );
+  const { regroup, groupedAttendees } = useSelector((state) => state.booking);
   const ungroupedHasAttendees = groupedAttendees.some(
     (group) => group.groupId === "Ungrouped" && group.attendees.length > 0,
   );
 
-  // Fix: We still need to disable "regrouping" when the user sets a group to 0 attendees, but the number of rooms does not match.
-  const nonEmptyGroupsCount = groupedAttendees.reduce((count, group) => {
-    // increment the count if the group has attendees
-    return group.attendees.length > 0 ? count + 1 : count;
-  }, 0);
-  const roomCountNotMatchGroupCount = nonEmptyGroupsCount !== roomCount;
-
   useEffect(() => {
-    if (ungroupedHasAttendees || roomCountNotMatchGroupCount) {
+    if (ungroupedHasAttendees && !regroup) {
       dispatch(setRegroup(true));
     }
-  }, [ungroupedHasAttendees, roomCountNotMatchGroupCount, dispatch]);
+  }, [ungroupedHasAttendees, regroup, dispatch]);
 
   return (
     <div className="flex-col items-center justify-between">
       <div className="flex h-[40px] items-center justify-center">
         <label className={`mr-2 ${regroup ? "text-gray-400" : "text-black"}`}>
-          Same Group
+          Off
         </label>
         <div
-          className={`relative ${ungroupedHasAttendees || roomCountNotMatchGroupCount ? "cursor-not-allowed" : "cursor-pointer"}`}
+          className={`relative ${ungroupedHasAttendees ? "cursor-not-allowed" : "cursor-pointer"}`}
           onClick={() => {
-            if (!ungroupedHasAttendees && !roomCountNotMatchGroupCount) {
+            if (!ungroupedHasAttendees) {
               dispatch(setRegroup(!regroup));
             }
           }}
@@ -48,18 +39,13 @@ const ToggleRooms = () => {
         <label
           className={`ml-2 ${regroup ? "text-theme-dark-orange" : "text-gray-400"}`}
         >
-          Regroup
+          On
         </label>
       </div>
       {/* Disable the toggle button if ungrouped has attendees */}
-
-      {(ungroupedHasAttendees || roomCountNotMatchGroupCount) && (
+      {ungroupedHasAttendees && (
         <div className="text-sm text-red-500">
-          Toggle is disabled as you{" "}
-          {ungroupedHasAttendees
-            ? "entered ungrouped attendees"
-            : "updated room count"}
-          .
+          To turn off, please remove ungrouped attendees
         </div>
       )}
     </div>
