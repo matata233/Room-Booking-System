@@ -85,26 +85,26 @@ const Header = () => {
               to="/booking"
               className={`${isBookingPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
             >
-              <li>Book a Room</li>
+              <li>New Booking</li>
             </Link>
             <Link
               to="/bookingHistory"
               className={`${isBookingHistoryPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
             >
-              <li>Booking History</li>
+              <li>My Bookings</li>
             </Link>
             <Link
               to="/userSchedule"
               className={`${isUserSchedule ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
             >
-              <li>Your Schedule</li>
+              <li>My Schedule</li>
             </Link>
             {userInfo && userInfo.role === "admin" && (
               <Link
                 to="/userManagementPage"
                 className={`${isUserManagementPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
               >
-                <li>User Management</li>
+                <li>Manage Users</li>
               </Link>
             )}
             {userInfo && userInfo.role === "admin" && (
@@ -112,7 +112,7 @@ const Header = () => {
                 to="/roomManagementPage"
                 className={`${isRoomManagementPage ? "text-theme-orange" : "hover:text-theme-orange"} cursor-pointer `}
               >
-                <li>Room Management</li>
+                <li>Manage Rooms</li>
               </Link>
             )}
           </ul>
