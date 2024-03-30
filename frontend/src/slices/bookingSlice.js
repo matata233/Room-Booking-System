@@ -1,24 +1,20 @@
 // bookingSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 
 const persistedUserInfo = localStorage.getItem("userInfo");
 const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;
 
-const getNextHour = () => {
-  const now = dayjs();
-  return now.minute() || now.second() || now.millisecond()
-    ? now.add(1, "hour").startOf("hour")
-    : now.startOf("hour");
+const getNextDay = () => {
+  return dayjs().add(1, "day").startOf("day");
 };
 
-const nextHour = getNextHour();
+const nextDay = getNextDay();
 
 const initialState = {
-  startDate: nextHour.format("YYYY-MM-DD"),
-  startTime: nextHour.format("HH:mm"),
-  endTime: "23:45",
+  startDate: nextDay.format("YYYY-MM-DD"),
+  startTime: "10:00",
+  endTime: "12:00",
   equipments: [],
   priority: [
     {
