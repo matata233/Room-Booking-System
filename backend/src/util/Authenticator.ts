@@ -11,6 +11,8 @@ interface GoogleUser {
     given_name: string;
     family_name: string;
     exp: number;
+    aud: string;
+    iss: string;
 }
 
 export default class Authenticator {
@@ -63,13 +65,24 @@ export default class Authenticator {
     };
 
     private validateGoogleToken = async (googleToken: string): Promise<UserDTO> => {
+        const CLIENT_ID: string = '682437365013-hcj4g0l2c042umnvr28kbikenhnjrrre.apps.googleusercontent.com';
         const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
         if (!decodedUserInfo) {
             return Promise.reject(new UnauthorizedError(`Invalid token`));
         }
+        // check if exp has passed
         if (Date.now() >= decodedUserInfo.exp * 1000) {
             return Promise.reject(new UnauthorizedError(`Expired token`));
         }
+        //check aud
+        if (decodedUserInfo.aud !== CLIENT_ID) {
+            return Promise.reject(new UnauthorizedError(`Invalid audience`));
+        }
+        //check iss
+        if (!['accounts.google.com', 'https://accounts.google.com'].includes(decodedUserInfo.iss)) {
+            return Promise.reject(new UnauthorizedError(`Invalid issuer (iss) in token`));
+        }
+
         // fetch the user by email
         return await this.fetchUserByEmail(decodedUserInfo.email);
     };
