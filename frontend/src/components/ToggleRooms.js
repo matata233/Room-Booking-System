@@ -9,7 +9,12 @@ const ToggleRooms = () => {
   return (
     <div className="flex h-[40px] items-center justify-center">
       <label
-        className={`mr-2 ${showRecommended ? "text-black" : "text-gray-400"}`}
+        onClick={() => {
+          if (!showRecommended) {
+            dispatch(toggleShowRecommended());
+          }
+        }}
+        className={`mr-2 cursor-pointer ${showRecommended ? "text-black" : "text-gray-400"}`}
       >
         Recommended
       </label>
@@ -28,7 +33,12 @@ const ToggleRooms = () => {
         ></div>
       </div>
       <label
-        className={`ml-2 ${showRecommended ? "text-gray-400" : "text-theme-dark-orange"}`}
+        onClick={() => {
+          if (showRecommended) {
+            dispatch(toggleShowRecommended());
+          }
+        }}
+        className={`ml-2 cursor-pointer  ${showRecommended ? "text-gray-400" : "text-theme-dark-orange"}`}
       >
         All
       </label>

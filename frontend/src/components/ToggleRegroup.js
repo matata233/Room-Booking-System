@@ -18,7 +18,14 @@ const ToggleRooms = () => {
   return (
     <div className="flex-col items-center justify-between">
       <div className="flex h-[40px] items-center justify-center">
-        <label className={`mr-2 ${regroup ? "text-gray-400" : "text-black"}`}>
+        <label
+          onClick={() => {
+            if (!ungroupedHasAttendees) {
+              dispatch(setRegroup(false));
+            }
+          }}
+          className={`mr-2 cursor-pointer ${regroup ? "text-gray-400" : "text-black"}`}
+        >
           Off
         </label>
         <div
@@ -37,7 +44,12 @@ const ToggleRooms = () => {
           ></div>
         </div>
         <label
-          className={`ml-2 ${regroup ? "text-theme-dark-orange" : "text-gray-400"}`}
+          onClick={() => {
+            if (!ungroupedHasAttendees) {
+              dispatch(setRegroup(true));
+            }
+          }}
+          className={`ml-2 cursor-pointer ${regroup ? "text-theme-dark-orange" : "text-gray-400"}`}
         >
           On
         </label>
