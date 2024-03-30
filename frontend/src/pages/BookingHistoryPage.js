@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link } from "react-router-dom";
 import {
   useGetBookingCurrentUserQuery,
   useUpdateBookingMutation,
 } from "../slices/bookingApiSlice";
-import { useSelector } from "react-redux";
+import { setGroupedAttendees, setUngroupedAttendees } from "../slices/bookingSlice";
 import CheckIcon from "@mui/icons-material/Check";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Pagination from "../components/Pagination";
@@ -28,15 +29,14 @@ const BookingHistoryPage = () => {
     if (isLoading || !booking || !booking.result) {
       return [];
     }
-    console.log("Got booking data");
     return booking.result;
   }, [isLoading, booking]);
 
   const [updateBooking] = useUpdateBookingMutation();
+  const dispatch = useDispatch();
+  const { ungroupedAttendees } = useSelector((state) => state.booking);
 
   mirage.register();
-
-  console.log("hi", bookingData);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,11 +44,14 @@ const BookingHistoryPage = () => {
   //edit
   const [isEditing, setIsEditing] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState(0);
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
 
-  const handleEditBooking = (book) => {
+  const handleEditBooking = (booking, index) => {
+    dispatch(setUngroupedAttendees(booking.groups[index].attendees));
     setIsEditing(true);
-    setSelectedBooking(book);
+    setSelectedBooking(booking);
+    setSelectedGroup(index);
   };
 
   const handleCloseModal = () => {
@@ -56,39 +59,57 @@ const BookingHistoryPage = () => {
     setIsEditing(false);
   };
 
-  const handleCancelConfirmOpen = () => {
+  const handleCancelConfirmOpen = (booking) => {
     setIsCancelConfirmOpen(true);
-    // setSelectedBooking(book);
+    setSelectedBooking(booking);
   };
 
   const handleCancelBooking = async () => {
     try {
       await updateBooking({
         bookingId: selectedBooking.bookingId,
-        updatedBooking: { status: "canceled", users: [], rooms: [] },
+        updatedBooking: { 
+          status: "canceled", 
+          users: getAttendees(selectedBooking), 
+          rooms: getRooms(selectedBooking) 
+        },
       }).unwrap();
       toast.success("Booking updated");
+      setIsCancelConfirmOpen(false);
       // bookingData = [];
       // Close the modal
     } catch (err) {
       // Display error toast message
+      console.log(err);
       toast.error(err?.data?.error || "Failed to save book");
     }
   };
 
-  const handleSaveBooking = async (book) => {
+  const handleSaveBooking = async () => {
     try {
-      if (isEditing) {
-        await updateBooking({
-          bookingId: selectedBooking.bookingId,
-          updatedBooking: book,
-        }).unwrap();
-        toast.success("Booking updated");
+      console.log("selected booking", selectedBooking);
+      const users = getAttendees(selectedBooking);
+      const newAttendees = [];
+      ungroupedAttendees.map((attendee) => {
+        newAttendees.push(attendee.userId);
+      });
+      users[selectedGroup] = newAttendees;
+      const body = { 
+        status: "confirmed",
+        users:users,
+        rooms:getRooms(selectedBooking)
       }
+      console.log(body);
+      await updateBooking({
+        bookingId: selectedBooking.bookingId,
+        updatedBooking: { status: "confirmed", users: users, rooms: getRooms(selectedBooking) },
+      }).unwrap();
+      toast.success("Booking updated");
       // Close the modal
       handleCloseModal();
     } catch (err) {
       // Display error toast message
+      console.log(err);
       toast.error(err?.data?.error || "Failed to save book");
     }
   };
@@ -115,6 +136,26 @@ const BookingHistoryPage = () => {
       time: time,
       timezone: timezone,
     };
+  }
+
+  function getRooms(booking) {
+    const rooms = [];
+    booking.groups.forEach((group) => {
+      rooms.push(group.room.roomId);
+    })
+    return rooms;
+  }
+
+  function getAttendees(booking) {
+    const allAttendees = [];
+    booking.groups.forEach((group) => {
+      const attendees = [];
+      group.attendees.forEach((attendee) => {
+        attendees.push(attendee.userId);
+      });
+      allAttendees.push(attendees);
+    })
+    return allAttendees;
   }
 
   const { userInfo } = useSelector((state) => state.auth);
@@ -226,6 +267,34 @@ const BookingHistoryPage = () => {
                           </div>
                         </div>
                       </div>
+                      {book.status === "confirmed" &&
+                        userInfo.email === book.users.email && (
+                          <div className="mr-2 lg:mr-5">
+                            <div className="flex justify-end">
+                              <button
+                                type="submit"
+                                onClick={(e) => handleEditBooking(book, index)}
+                                className="rounded bg-theme-orange px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                              >
+                                Edit Attendee(s)
+                              </button>
+                            </div>
+                            {index === book.groups.length - 1 && (
+                              <div className="mt-3">
+                                <div className="w-full border-t border border-grey-700"></div>
+                                <div className="mt-3 flex justify-end">
+                                  <button
+                                    onClick={() => handleCancelConfirmOpen(book)}
+                                    className="rounded border border-theme-orange bg-white px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
+                                  >
+                                    Cancel Booking
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                       {book.groups.length > 1 &&
                         index < book.groups.length - 1 && (
                           <>
@@ -235,27 +304,6 @@ const BookingHistoryPage = () => {
                         )}
                     </div>
                   ))}
-                  {book.status == "confirmed" &&
-                    userInfo.email == book.users.email && (
-                      <div className="mb-1 mr-2 flex justify-end lg:mr-5">
-                        <div className="flex space-x-4 ">
-                          <button
-                            type="submit"
-                            onClick={(e) => handleEditBooking(book)}
-                            className="rounded bg-theme-orange px-5 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
-                          >
-                            Edit Attendee(s)
-                          </button>
-
-                          <button
-                            onClick={() => setIsCancelConfirmOpen(true)}
-                            className="rounded border border-theme-orange bg-white px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:border-orange-200 hover:bg-orange-100 hover:bg-opacity-90"
-                          >
-                            Cancel Booking
-                          </button>
-                        </div>
-                      </div>
-                    )}
                 </div>
               ))}
             </div>
@@ -286,7 +334,6 @@ const BookingHistoryPage = () => {
 
       {isEditing && (
         <EditBookingModal
-          book={selectedBooking}
           onUpdate={handleSaveBooking}
           onClose={handleCloseModal}
         />

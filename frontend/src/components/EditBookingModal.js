@@ -1,23 +1,12 @@
 import React, { useState } from "react";
 import CloseIconSVG from "../assets/close-icon.svg";
-import UserEmailInput from "./UserEmailInput";
+import UserEmailInputEdit from "./UserEmailInputEdit";
 
-const EditBookingModal = ({ book, onClose, onUpdate }) => {
-  console.log("book: ", book);
-  const [updatedStatus, setUpdatedStatus] = useState(book.status);
-  const [updatedAttendees, setUpdatedAttendee] = useState([]);
+const EditBookingModal = ({ onClose, onUpdate }) => {
 
   const handleUpdate = (e) => {
     e.preventDefault(); // Prevent default form submission behavior
-
-    const status = {updatedStatus}
-    const attendees = {updatedAttendees}
-
-    const updatedBooking = {
-      bookingId: book.bookingId,
-      status: status,
-    };
-    onUpdate(updatedBooking);
+    onUpdate();
   };
 
   return (
@@ -34,7 +23,7 @@ const EditBookingModal = ({ book, onClose, onUpdate }) => {
           <label className="mb-1 block">
             Attendee(s) <span className="text-red-600">*</span>
           </label>
-          <UserEmailInput />
+          <UserEmailInputEdit />
           <div className="flex justify-center">
             <button
               type="submit"
