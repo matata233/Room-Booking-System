@@ -53,7 +53,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="flex h-96 w-auto flex-col items-center  bg-white shadow-2xl">
         <p className="w-80 border-b-[1.4px] border-zinc-400 px-5 py-4 text-center text-lg font-extralight text-zinc-500 opacity-60">
           Log In and Get Started
