@@ -23,6 +23,10 @@ const UserEmailInputEdit = () => {
 
   const { ungroupedAttendees } = useSelector((state) => state.booking);
 
+  const editableAttendees = ungroupedAttendees.filter(
+    (user) => user.email !== userInfo.email
+  );
+
   const handleChange = (selected) => {
     const selectedAttendees = selected.map((option) => ({
       userId: option.value,
@@ -41,7 +45,7 @@ const UserEmailInputEdit = () => {
       <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
         <div className="relative">
           <Select
-            value={ungroupedAttendees.map((user) => ({
+            value={editableAttendees.map((user) => ({
               value: user.userId,
               label: user.email,
             }))}
