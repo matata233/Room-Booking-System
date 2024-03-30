@@ -34,9 +34,9 @@ const BookingHistoryPage = () => {
 
   const [updateBooking] = useUpdateBookingMutation();
 
-  mirage.register();
+  console.log("1", bookingData);
 
-  console.log("hi", bookingData);
+  mirage.register();
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -226,6 +226,34 @@ const BookingHistoryPage = () => {
                           </div>
                         </div>
                       </div>
+                      {book.status === "confirmed" &&
+                        userInfo.email === book.users.email && (
+                          <div className="mr-2 lg:mr-5">
+                            <div className="flex justify-end">
+                              <button
+                                type="submit"
+                                onClick={(e) => handleEditBooking(book)}
+                                className="rounded bg-theme-orange px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                              >
+                                Edit Attendee(s)
+                              </button>
+                            </div>
+                            {index === book.groups.length - 1 && (
+                              <div className="mt-3">
+                                <div className="w-full border-t border border-grey-700"></div>
+                                <div className="mt-3 flex justify-end">
+                                  <button
+                                    onClick={() => setIsCancelConfirmOpen(true)}
+                                    className="rounded border border-theme-orange bg-white px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
+                                  >
+                                    Cancel Booking
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                       {book.groups.length > 1 &&
                         index < book.groups.length - 1 && (
                           <>
@@ -235,27 +263,6 @@ const BookingHistoryPage = () => {
                         )}
                     </div>
                   ))}
-                  {book.status == "confirmed" &&
-                    userInfo.email == book.users.email && (
-                      <div className="mb-1 mr-2 flex justify-end lg:mr-5">
-                        <div className="flex space-x-4 ">
-                          <button
-                            type="submit"
-                            onClick={(e) => handleEditBooking(book)}
-                            className="rounded bg-theme-orange px-5 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
-                          >
-                            Edit Attendee(s)
-                          </button>
-
-                          <button 
-                          onClick={() => setIsCancelConfirmOpen(true)}
-                          className="rounded bg-white border border-theme-orange px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
-                          >
-                            Cancel Booking
-                          </button>
-                        </div>
-                      </div>
-                    )}
                 </div>
               ))}
             </div>

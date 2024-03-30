@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import CloseIconSVG from "../assets/close-icon.svg";
-import UserEmailInput from "./UserEmailInput";
+import UserEmailInputEdit from "./UserEmailInputEdit";
 
 const EditBookingModal = ({ book, onClose, onUpdate }) => {
-  console.log("book: ", book);
+  console.log("book111", book);
   const [updatedStatus, setUpdatedStatus] = useState(book.status);
   const [updatedAttendees, setUpdatedAttendee] = useState([]);
 
@@ -34,7 +34,7 @@ const EditBookingModal = ({ book, onClose, onUpdate }) => {
           <label className="mb-1 block">
             Attendee(s) <span className="text-red-600">*</span>
           </label>
-          <UserEmailInput />
+          <UserEmailInputEdit />
           <div className="flex justify-center">
             <button
               type="submit"
