@@ -190,7 +190,19 @@ const BookingHistoryPage = () => {
       <div className="flex w-full flex-col items-center gap-y-12 font-amazon-ember">
         <h1 className="text-center text-2xl font-semibold">Booking History</h1>
 
-        {bookingData.length > 0 ? (
+        {isLoading? (
+           <div className="flex flex-col items-center justify-center">
+           <div className="mt-20 text-center">
+             <l-mirage size="150" speed="2.5" color="orange"></l-mirage>{" "}
+             Searching...
+           </div>
+           <img
+             src={StartSearchGIF}
+             alt="Start Search"
+             className="h-96 w-96"
+           />
+         </div>
+        ) : bookingData.length > 0 ? (
           <>
             <div className="flex flex-col">
               {bookingData.map((book) => (
@@ -343,16 +355,8 @@ const BookingHistoryPage = () => {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center">
-            <div className="mt-20 text-center">
-              <l-mirage size="150" speed="2.5" color="orange"></l-mirage>{" "}
-              Searching...
-            </div>
-            <img
-              src={StartSearchGIF}
-              alt="Start Search"
-              className="h-96 w-96"
-            />
+          <div className="text-center mt-20">
+            No booking found.
           </div>
         )}
       </div>
