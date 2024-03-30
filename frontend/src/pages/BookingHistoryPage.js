@@ -68,10 +68,10 @@ const BookingHistoryPage = () => {
     try {
       await updateBooking({
         bookingId: selectedBooking.bookingId,
-        updatedBooking: { 
-          status: "canceled", 
-          users: getAttendees(selectedBooking), 
-          rooms: getRooms(selectedBooking) 
+        updatedBooking: {
+          status: "canceled",
+          users: getAttendees(selectedBooking),
+          rooms: getRooms(selectedBooking)
         },
       }).unwrap();
       toast.success("Booking updated");
@@ -94,7 +94,7 @@ const BookingHistoryPage = () => {
         newAttendees.push(attendee.userId);
       });
       users[selectedGroup] = newAttendees;
-      const body = { 
+      const body = {
         status: "confirmed",
         users:users,
         rooms:getRooms(selectedBooking)
@@ -356,7 +356,7 @@ const BookingHistoryPage = () => {
           </>
         ) : (
           <div className="text-center mt-20">
-            No booking found.
+            Looks like you don't have any bookings yet
           </div>
         )}
       </div>
