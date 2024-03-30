@@ -1,20 +1,19 @@
-import AbstractDTO from "./AbstractDTO";
-import {IsOptional, IsString} from "class-validator";
+import AbstractDTO, {BUILDINGS} from "./AbstractDTO";
+import {IsNotEmpty, IsOptional, IsString, Matches} from "class-validator";
 
 export default class CityDTO extends AbstractDTO {
-    @IsString()
-    @IsOptional()
-    public cityId?: string;
+    @IsNotEmpty({groups: [BUILDINGS]})
+    @Matches("^[a-zA-Z]{3}$", undefined, {
+        groups: [BUILDINGS],
+        message: "city must be 3-letter airport code"
+    })
+    cityId?: string;
 
     @IsString()
     @IsOptional()
-    public name?: string;
+    name?: string;
 
     @IsString()
     @IsOptional()
-    public province_state?: string;
-
-    constructor() {
-        super();
-    }
+    province_state?: string;
 }

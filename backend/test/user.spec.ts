@@ -12,18 +12,18 @@ import UserService from "../src/service/UserService";
 use(chaiAsPromised);
 use(chaiSubset);
 
-describe("User tests", function() {
+describe("User tests", function () {
     const db = new PrismaClient();
     const initQueries = getInitQueries();
     const userService = new UserService(new UserRepository(db));
 
-    beforeEach(async function() {
+    beforeEach(async function () {
         await initDatabase(initQueries, db);
     });
 
-    describe("Create users", function() {
-        it("111", async function() {
-            const result = await userService.create(
+    describe("Create users", function () {
+        it("111", async function () {
+            await userService.create(
                 plainToInstance(UserDTO, {
                     username: "newUser",
                     firstName: "First",
@@ -33,9 +33,11 @@ describe("User tests", function() {
                     desk: 505,
                     building: {
                         buildingId: 1
-                    }
+                    },
+                    isActive: true
                 })
             );
+            const result = await userService.getById(31);
             expect(result).to.containSubset({
                 username: "newUser",
                 firstName: "First",
@@ -45,7 +47,8 @@ describe("User tests", function() {
                 desk: 505,
                 building: {
                     buildingId: 1
-                }
+                },
+                isActive: true
             });
         });
     });

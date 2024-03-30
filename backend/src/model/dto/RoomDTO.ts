@@ -1,49 +1,47 @@
-import AbstractDTO from "./AbstractDTO";
+import AbstractDTO, {BOOKINGS_CREATE, BOOKINGS_UPDATE, ROOMS} from "./AbstractDTO";
 import EquipmentDTO from "./EquipmentDTO";
 import CityDTO from "./CityDTO";
 import BuildingDTO from "./BuildingDTO";
 import {Type} from "class-transformer";
-import {IsArray, IsBoolean, IsInt, IsOptional, IsString, Min, ValidateNested} from "class-validator";
+import {IsArray, IsBoolean, IsDefined, IsInt, IsNotEmpty, IsString, Min, ValidateNested} from "class-validator";
 
 export default class RoomDTO extends AbstractDTO {
-    @IsInt()
-    @IsOptional()
+    @IsNotEmpty({groups: [BOOKINGS_CREATE, BOOKINGS_UPDATE]})
+    @IsInt({groups: [BOOKINGS_CREATE, BOOKINGS_UPDATE]})
     roomId?: number;
 
-    @IsInt()
-    @IsOptional()
+    @IsNotEmpty({groups: [ROOMS]})
+    @IsInt({groups: [ROOMS]})
+    @Min(1, {groups: [ROOMS]})
     floorNumber?: number;
 
-    @IsInt()
-    @Min(1)
-    @IsOptional()
+    @IsNotEmpty({groups: [ROOMS]})
+    @IsInt({groups: [ROOMS]})
+    @Min(1, {groups: [ROOMS]})
     numberOfSeats?: number;
 
-    @IsString()
-    @IsOptional()
+    @IsNotEmpty({groups: [ROOMS]})
+    @IsString({groups: [ROOMS]})
     roomCode?: string;
 
-    @IsString()
-    @IsOptional()
+    @IsDefined({groups: [ROOMS]})
+    @IsString({groups: [ROOMS]})
     roomName?: string;
 
-    @IsBoolean()
-    @IsOptional()
+    @IsNotEmpty({groups: [ROOMS]})
+    @IsBoolean({groups: [ROOMS]})
     isActive?: boolean;
 
-    @Type(() => CityDTO)
-    @ValidateNested()
-    @IsOptional()
     city?: CityDTO;
 
+    @IsNotEmpty({groups: [ROOMS]})
     @Type(() => BuildingDTO)
-    @ValidateNested()
-    @IsOptional()
+    @ValidateNested({groups: [ROOMS]})
     building?: BuildingDTO;
 
+    @IsNotEmpty({groups: [ROOMS]})
     @Type(() => EquipmentDTO)
     @IsArray()
-    @ValidateNested({each: true})
-    @IsOptional()
+    @ValidateNested({each: true, groups: [ROOMS]})
     equipmentList?: EquipmentDTO[];
 }

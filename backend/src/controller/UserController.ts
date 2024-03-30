@@ -16,46 +16,26 @@ export default class UserController extends AbstractController {
         this.userService = userService;
     }
 
-    public getAll = async (req: Request, res: Response): Promise<Response> => {
+    public getAll = async (_req: Request, res: Response): Promise<Response> => {
         try {
-            const users = await this.userService.getAll();
-            return super.onResolve(res, users);
-        } catch (error: unknown) {
+            return super.onResolve(res, await this.userService.getAll());
+        } catch (error) {
             return this.handleError(res, error);
         }
     };
 
-    public getAllEmail = async (req: Request, res: Response): Promise<Response> => {
+    public getAllEmail = async (_req: Request, res: Response): Promise<Response> => {
         try {
-            const users = await this.userService.getAllEmail();
-            return super.onResolve(res, users);
-        } catch (error: unknown) {
+            return super.onResolve(res, await this.userService.getAllEmail());
+        } catch (error) {
             return this.handleError(res, error);
         }
     };
 
     public getById = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const userId = parseInt(req.params.id);
-            if (isNaN(userId)) {
-                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Invalid user ID.");
-            }
-            const user = await this.userService.getById(userId);
-            return super.onResolve(res, user);
-        } catch (error: unknown) {
-            return this.handleError(res, error);
-        }
-    };
-
-    public getByEmail = async (req: Request, res: Response): Promise<Response> => {
-        try {
-            const email = req.query?.email; // Extract the email from the request body, equivalent to const email = req.body.email;
-            if (!email || typeof email !== "string") {
-                return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Email is required.");
-            }
-            const user = await this.userService.getByEmail(email);
-            return super.onResolve(res, user);
-        } catch (error: unknown) {
+            return super.onResolve(res, await this.userService.getById(parseInt(req.params.id)));
+        } catch (error) {
             return this.handleError(res, error);
         }
     };
@@ -69,9 +49,11 @@ export default class UserController extends AbstractController {
     };
 
     public update = async (req: Request, res: Response): Promise<Response> => {
-        const userID: number = parseInt(req.params.id);
         try {
-            return super.onResolve(res, await this.userService.update(userID, plainToInstance(UserDTO, req.body)));
+            return super.onResolve(
+                res,
+                await this.userService.update(parseInt(req.params.id), plainToInstance(UserDTO, req.body))
+            );
         } catch (error) {
             return this.handleError(res, error);
         }
@@ -79,7 +61,7 @@ export default class UserController extends AbstractController {
 
     public login = async (req: Request, res: Response): Promise<Response> => {
         try {
-            //Extract the Google OAuth token from the request body
+            // Extract the Google OAuth token from the request body
             const googleToken: string = req.body.token;
             if (!googleToken) {
                 return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Token is required.");
@@ -96,45 +78,34 @@ export default class UserController extends AbstractController {
         }
     };
 
-    //column names in the CSV file: username, first name, last name, email, building name, floor, desk
     public upload = async (req: Request, res: Response): Promise<any> => {
         if (!req.file?.buffer) {
-            console.error("File buffer is undefined.");
             return super.onReject(res, ResponseCodeMessage.BAD_REQUEST_ERROR_CODE, "Please upload a CSV file!");
         }
 
-        const processingPromises: Promise<UserDTO>[] = [];
-        let isFirstDataRow = true;
+        const users: UserDTO[] = [];
 
-        // Use stream to read the CSV file from the buffer
         const bufferStream = new stream.PassThrough();
         bufferStream.end(req.file.buffer);
 
         bufferStream
-            .pipe(csv({headers: true}))
+            .pipe(csv())
             .on("data", (row) => {
-                if (isFirstDataRow) {
-                    // skip the first row
-                    isFirstDataRow = false;
-                    return;
-                }
-
-                const processingPromise = (async () => {
-                    const username = row._0;
-                    const firstName = row._1;
-                    const lastName = row._2;
-                    const email = row._3;
-                    const building = row._4;
-                    const floor = parseInt(row._5);
-                    const desk = parseInt(row._6);
-                    return await this.userService.upload(username, firstName, lastName, email, building, floor, desk);
-                })();
-                processingPromises.push(processingPromise);
+                users.push(
+                    plainToInstance(UserDTO, {
+                        username: row["username"],
+                        firstName: row["firstname"],
+                        lastName: row["lastname"],
+                        email: row["email"],
+                        buildingStr: row["building"],
+                        floor: parseInt(row["floor"]),
+                        desk: parseInt(row["desk"])
+                    })
+                );
             })
             .on("end", async () => {
                 try {
-                    const users = await Promise.all(processingPromises);
-                    super.onResolve(res, users);
+                    return super.onResolve(res, await this.userService.upload(users));
                 } catch (error) {
                     return this.handleError(res, error);
                 }

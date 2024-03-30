@@ -1,57 +1,76 @@
-import AbstractDTO from "./AbstractDTO";
+import AbstractDTO, {BOOKINGS_CREATE, BOOKINGS_GET_AVAIL, BOOKINGS_UPDATE, USERS, USERS_UPLOAD} from "./AbstractDTO";
 import BuildingDTO from "./BuildingDTO";
 import CityDTO from "./CityDTO";
 import {role} from "@prisma/client";
-import {IsBoolean, IsEmail, IsEnum, IsInt, IsOptional, IsString} from "class-validator";
+import {
+    IsAlpha,
+    IsBoolean,
+    IsEmail,
+    IsEnum,
+    IsInt,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    Matches,
+    Min,
+    ValidateNested
+} from "class-validator";
 import {Type} from "class-transformer";
 
 export default class UserDTO extends AbstractDTO {
-    @IsInt()
-    @IsOptional()
-    public userId?: number;
+    @IsNotEmpty({groups: [BOOKINGS_CREATE, BOOKINGS_UPDATE]})
+    @IsInt({groups: [BOOKINGS_CREATE, BOOKINGS_UPDATE]})
+    userId?: number;
 
-    @IsString()
-    @IsOptional()
-    public username?: string;
+    @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
+    @IsString({groups: [USERS, USERS_UPLOAD]})
+    @Matches("^[a-zA-Z][a-zA-Z0-9_-]*$", undefined, {groups: [USERS, USERS_UPLOAD]})
+    username?: string;
 
-    @IsString()
-    @IsOptional()
-    public firstName?: string;
+    @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
+    @IsString({groups: [USERS, USERS_UPLOAD]})
+    @IsAlpha(undefined, {groups: [USERS, USERS_UPLOAD]})
+    firstName?: string;
 
-    @IsString()
-    @IsOptional()
-    public lastName?: string;
+    @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
+    @IsString({groups: [USERS, USERS_UPLOAD]})
+    @IsAlpha(undefined, {groups: [USERS, USERS_UPLOAD]})
+    lastName?: string;
 
-    @IsString()
-    @IsOptional()
-    @IsEmail()
-    public email?: string;
+    @IsNotEmpty({groups: [BOOKINGS_GET_AVAIL, USERS, USERS_UPLOAD]})
+    @IsEmail(undefined, {groups: [BOOKINGS_GET_AVAIL, USERS, USERS_UPLOAD]})
+    email?: string;
 
-    @IsInt()
-    @IsOptional()
-    public floor?: number;
+    @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
+    @IsInt({groups: [USERS, USERS_UPLOAD]})
+    @Min(1, {groups: [USERS, USERS_UPLOAD]})
+    floor?: number;
 
-    @IsInt()
-    @IsOptional()
-    public desk?: number;
+    @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
+    @IsInt({groups: [USERS, USERS_UPLOAD]})
+    @Min(1, {groups: [USERS, USERS_UPLOAD]})
+    desk?: number;
 
-    @IsBoolean()
-    @IsOptional()
-    public isActive?: boolean;
+    @IsNotEmpty({groups: [USERS]})
+    @IsBoolean({groups: [USERS]})
+    isActive?: boolean;
 
+    // TODO: Add role validation once frontend finishes role selection
     @IsEnum(role)
     @IsOptional()
-    public role?: role;
+    role?: role;
 
-    @Type(() => CityDTO)
-    @IsOptional()
-    public city?: CityDTO;
+    city?: CityDTO;
 
+    @IsNotEmpty({groups: [USERS_UPLOAD], message: "building should not be empty"})
+    @Matches("^[a-zA-Z]{3}\\d+$", undefined, {
+        groups: [USERS_UPLOAD],
+        message: "building must follow the format of YVR32 with no spaces"
+    })
+    buildingStr?: string;
+
+    @IsNotEmpty({groups: [USERS]})
     @Type(() => BuildingDTO)
-    @IsOptional()
-    public building?: BuildingDTO;
-
-    constructor() {
-        super();
-    }
+    @ValidateNested({groups: [USERS]})
+    building?: BuildingDTO;
 }

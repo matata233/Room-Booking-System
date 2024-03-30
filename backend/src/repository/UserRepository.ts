@@ -11,7 +11,6 @@ export default class UserRepository extends AbstractRepository {
 
     public async findAll(): Promise<UserDTO[]> {
         const userList = await this.db.users.findMany({
-            // Get all users. users is the table name in the database.
             include: {
                 buildings: {
                     include: {
@@ -23,10 +22,8 @@ export default class UserRepository extends AbstractRepository {
                 user_id: "asc"
             }
         });
-
         const userDTOs: UserDTO[] = [];
         for (const user of userList) {
-            // toUserDTO is a function that maps the user to the UserDTO
             userDTOs.push(toUserDTO(user, user.buildings.cities, user.buildings));
         }
         return userDTOs;
@@ -39,28 +36,25 @@ export default class UserRepository extends AbstractRepository {
             },
             select: {
                 user_id: true,
-                username: true,
+                email: true,
                 first_name: true,
-                email: true
+                last_name: true
             }
         });
         const userDTOs: UserDTO[] = [];
         for (const user of userList) {
-            // until I can find a better way to re-construct the mapper
-            // typescript prevents a partial mapping due to the fields of model is not optional
             const userDTO = new UserDTO();
             userDTO.userId = user.user_id;
-            userDTO.username = user.username;
-            userDTO.firstName = user.first_name;
             userDTO.email = user.email;
+            userDTO.firstName = user.first_name;
+            userDTO.lastName = user.last_name;
             userDTOs.push(userDTO);
         }
         return userDTOs;
     }
 
     public async findById(id: number): Promise<UserDTO> {
-        // find the user by id and include the building and city
-        const user = await this.db.users.findUnique({
+        const user = await this.db.users.findUniqueOrThrow({
             where: {
                 user_id: id
             },
@@ -72,14 +66,7 @@ export default class UserRepository extends AbstractRepository {
                 }
             }
         });
-
-        if (!user) {
-            //not found
-            return Promise.reject(new NotFoundError(`User not found with id: ${id}`));
-        }
-        const userDTO = toUserDTO(user, user.buildings.cities, user.buildings);
-
-        return userDTO;
+        return toUserDTO(user, user.buildings.cities, user.buildings);
     }
 
     public async findByEmail(email: string): Promise<UserDTO> {
@@ -97,11 +84,10 @@ export default class UserRepository extends AbstractRepository {
         });
 
         if (!user) {
-            return Promise.reject(new NotFoundError(`User not found with email: ${email}`));
+            throw new NotFoundError(`User not found with email: ${email}`);
         }
 
-        const userDTO = toUserDTO(user, user.buildings.cities, user.buildings);
-        return userDTO;
+        return toUserDTO(user, user.buildings.cities, user.buildings);
     }
 
     public async create(user: UserDTO): Promise<UserDTO> {
@@ -115,36 +101,18 @@ export default class UserRepository extends AbstractRepository {
                 floor: user.floor!,
                 desk: user.desk!,
                 role: user.role ?? "staff",
-                is_active: user.isActive ?? true,
-                bookings: {
-                    create: []
-                },
-                events: {
-                    create: []
-                }
+                is_active: user.isActive ?? true
             }
         });
-        const getBuilding = await this.db.buildings.findUnique({
-            where: {
-                building_id: user.building?.buildingId
-            },
-            include: {
-                cities: true
-            }
-        });
-        const newUserDTO = getBuilding ? toUserDTO(newUser, getBuilding.cities, getBuilding) : ({} as UserDTO);
-        return newUserDTO;
+        return toUserDTO(newUser);
     }
 
     public async update(userID: number, user: UserDTO): Promise<UserDTO> {
-        const toUpdate = await this.db.users.findUnique({
+        const toUpdate = await this.db.users.findUniqueOrThrow({
             where: {
                 user_id: userID
             }
         });
-        if (!toUpdate) {
-            throw new NotFoundError("user does not exist");
-        }
         if (toUpdate.role === "admin") {
             throw new UnauthorizedError(
                 "cannot make changes to an admin user, please contact the database administrator for help"
@@ -165,76 +133,41 @@ export default class UserRepository extends AbstractRepository {
                 is_active: user.isActive!
             }
         });
-
-        const getBuilding = await this.db.buildings.findUnique({
-            where: {
-                building_id: user.building?.buildingId
-            },
-            include: {
-                cities: true
-            }
-        });
-        const updatedUserDTO = getBuilding ? toUserDTO(updatedUser, getBuilding.cities, getBuilding) : ({} as UserDTO);
-        return updatedUserDTO;
+        return toUserDTO(updatedUser);
     }
 
-    public async upload(
-        userName: string,
-        firstName: string,
-        lastName: string,
-        email: string,
-        floor: number,
-        desk: number,
-        cityID: string,
-        buildingCode: number
-    ): Promise<UserDTO> {
-        const buildingID = await this.getBuildingId(cityID, buildingCode);
+    public async upload(users: UserDTO[]): Promise<UserDTO[]> {
+        return this.db.$transaction(async (tx) => {
+            return Promise.all(
+                users.map(async (dto) => {
+                    const building = await tx.buildings.findUnique({
+                        where: {
+                            city_id_code: {
+                                city_id: dto.buildingStr!.substring(0, 3).toUpperCase(),
+                                code: parseInt(dto.buildingStr!.substring(3))
+                            }
+                        }
+                    });
 
-        const user = await this.db.users.create({
-            data: {
-                username: userName,
-                first_name: firstName,
-                last_name: lastName,
-                email: email,
-                building_id: buildingID,
-                floor: floor,
-                desk: desk,
-                role: "staff",
-                is_active: true
-            }
+                    if (!building) {
+                        throw new NotFoundError("building does not exist");
+                    }
+
+                    return tx.users.create({
+                        data: {
+                            username: dto.username!.trim(),
+                            first_name: dto.firstName!.trim(),
+                            last_name: dto.lastName!.trim(),
+                            email: dto.email!,
+                            building_id: building.building_id,
+                            floor: dto.floor!,
+                            desk: dto.desk!,
+                            role: "staff",
+                            is_active: true
+                        }
+                    });
+                })
+            );
         });
-
-        const getBuilding = await this.db.buildings.findUnique({
-            where: {
-                building_id: buildingID
-            },
-            include: {
-                cities: true
-            }
-        });
-
-        if (!getBuilding) {
-            return Promise.reject(new NotFoundError(`Building not found`));
-        }
-        return toUserDTO(user, getBuilding.cities, getBuilding);
-    }
-
-    private async getBuildingId(city_id: string, code: number): Promise<number> {
-        const building = await this.db.buildings.findUnique({
-            where: {
-                city_id_code: {
-                    city_id: city_id,
-                    code: code
-                }
-            },
-            select: {
-                building_id: true
-            }
-        });
-
-        if (!building) {
-            return Promise.reject(new NotFoundError(`Building not found with`));
-        }
-        return building.building_id;
     }
 }
