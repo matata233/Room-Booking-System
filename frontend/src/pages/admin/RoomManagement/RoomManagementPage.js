@@ -121,9 +121,9 @@ const RoomManagementPage = () => {
             >
               <option value="all">All</option>
               <option value="city.cityId">City</option>
-              <option value="building.code">Building Code</option>
+              <option value="building.code">Building Number</option>
               <option value="floorNumber">Floor</option>
-              <option value="roomCode">Room Number</option>
+              <option value="roomCode">Room Code</option>
               <option value="roomName">Room Name</option>
               <option value="numberOfSeats">Capacity</option>
               <option value="equipmentList">Equipments</option>
@@ -207,9 +207,9 @@ const RoomManagementPage = () => {
                   </th> */}
                   {[
                     { key: "city.cityId", display: "City" },
-                    { key: "building.code", display: "Building Code" },
+                    { key: "building.code", display: "Building Number" },
                     { key: "floorNumber", display: "Floor" },
-                    { key: "roomCode", display: "Room Number" },
+                    { key: "roomCode", display: "Room Code" },
                     { key: "roomName", display: "Room Name" },
                     { key: "numberOfSeats", display: "Capacity" },
                   ].map((header) => (
@@ -404,6 +404,8 @@ const RoomManagementPage = () => {
           </div>
           {isModalOpen && (
             <CancelConfirmationModal
+              confirmButton={"confirm"}
+              cancelButton={"close"}
               message="Are you sure you want to change the status of this room?"
               onConfirm={handleConfirmToggleIsActive}
               onCancel={() => setIsModalOpen(false)}

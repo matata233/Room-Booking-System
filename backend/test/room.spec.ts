@@ -184,7 +184,7 @@ describe("Room tests", function () {
             );
             return expect(result).to.eventually.be.rejectedWith(
                 RequestConflictError,
-                "Conflict: room 101 already exists on the same building and floor"
+                "Conflict: another room with the same building, floor, and code already exists"
             );
         });
 
@@ -223,7 +223,10 @@ describe("Room tests", function () {
                     ]
                 })
             );
-            return expect(result).to.eventually.be.rejectedWith(BadRequestError, "Bad Request: invalid equipmentList");
+            return expect(result).to.eventually.be.rejectedWith(
+                BadRequestError,
+                "Bad Request: equipmentId must be one of the following values: AV, VC"
+            );
         });
 
         it("should reject create when floor number is not a number", function () {
@@ -240,7 +243,10 @@ describe("Room tests", function () {
                     equipmentList: []
                 })
             );
-            return expect(result).to.eventually.be.rejectedWith(BadRequestError, "Bad Request: invalid floorNumber");
+            return expect(result).to.eventually.be.rejectedWith(
+                BadRequestError,
+                "Bad Request: floorNumber must not be less than 1, floorNumber must be an integer number"
+            );
         });
     });
 
@@ -326,7 +332,6 @@ describe("Room tests", function () {
                 },
                 equipmentList: []
             };
-            expect(updateResult).to.containSubset(expected);
             const getByIdResult = await roomService.getById(1);
             expect(getByIdResult).to.containSubset(expected);
         });
@@ -336,7 +341,7 @@ describe("Room tests", function () {
                 1,
                 plainToInstance(RoomDTO, {
                     floorNumber: 300,
-                    roomCode: "newCode 2",
+                    roomCode: "007.A",
                     roomName: "newName 2",
                     numberOfSeats: 1,
                     isActive: true,
@@ -353,7 +358,7 @@ describe("Room tests", function () {
             const expected = {
                 roomId: 1,
                 floorNumber: 300,
-                roomCode: "newCode 2",
+                roomCode: "007.A",
                 roomName: "newName 2",
                 numberOfSeats: 1,
                 isActive: true,
@@ -379,45 +384,22 @@ describe("Room tests", function () {
             expect(getByIdResult).to.containSubset(expected);
         });
 
-        it("should update room is_active status", async function () {
-            const updateResult = await roomService.update(
-                1,
+        it("should reject update if new room does not exist", function () {
+            const result = roomService.update(
+                0,
                 plainToInstance(RoomDTO, {
-                    isActive: false
+                    floorNumber: 1,
+                    roomCode: "newCode",
+                    roomName: "newName",
+                    numberOfSeats: 10,
+                    isActive: true,
+                    building: {
+                        buildingId: 0
+                    },
+                    equipmentList: []
                 })
             );
-            const expected = {
-                roomId: 1,
-                floorNumber: 1,
-                roomCode: "101",
-                roomName: "Stanley",
-                numberOfSeats: 4,
-                isActive: false,
-                city: {
-                    cityId: "YVR",
-                    name: "Vancouver",
-                    province_state: "BC"
-                },
-                building: {
-                    buildingId: 1,
-                    code: 32,
-                    address: "32 Vancouver St, Vancouver, BC A1B 2C3",
-                    isActive: true
-                },
-                equipmentList: [
-                    {
-                        equipmentId: "AV",
-                        description: "Audio visual equipment in room"
-                    },
-                    {
-                        equipmentId: "VC",
-                        description: "Video Conference equipment in room"
-                    }
-                ]
-            };
-            expect(updateResult).to.containSubset(expected);
-            const getByIdResult = await roomService.getById(1);
-            expect(getByIdResult).to.containSubset(expected);
+            return expect(result).to.eventually.be.rejectedWith(NotFoundError, "Not Found: room does not exist");
         });
 
         it("should reject update if new building id does not exist", function () {
@@ -455,7 +437,7 @@ describe("Room tests", function () {
             );
             return expect(result).to.eventually.be.rejectedWith(
                 RequestConflictError,
-                "Conflict: room 102 already exists on that floor"
+                "Conflict: another room with the same building, floor, and code already exists"
             );
         });
     });

@@ -6,11 +6,16 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setSelectedRoomForGroup, stopSearch } from "../slices/bookingSlice";
+import { ImCheckboxUnchecked, ImCheckboxChecked } from "react-icons/im";
+import RoomSelectionModal from "./RoomSelectionModal";
 
 const BookingRoomsDisplay = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showRecommended } = useSelector((state) => state.booking);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRoomForModal, setSelectedRoomForModal] = useState(null);
+  const [messageForModal, setMessageForModal] = useState(null);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,9 +31,8 @@ const BookingRoomsDisplay = () => {
     setCurrentPage(1); // Reset to first page when changing rows per page
   };
 
-  const { groupedAttendees, groupToDisplay, searching } = useSelector(
-    (state) => state.booking,
-  );
+  const { groupedAttendees, groupToDisplay, searching, equipments } =
+    useSelector((state) => state.booking);
 
   // State for search query
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,9 +93,69 @@ const BookingRoomsDisplay = () => {
   const endIndex = startIndex + rowsPerPage;
   const paginatedData = filteredRooms.slice(startIndex, endIndex);
 
-  const handleOnClick = (room) => {
+  const handleRoomSelection = (room) => {
     return () => {
-      dispatch(setSelectedRoomForGroup({ groupId: groupToDisplay, room }));
+      if (!room.recommended) {
+        setSelectedRoomForModal(room);
+        let warnings = [];
+
+        // Check for AV equipment
+        if (
+          equipments.some((equipment) => equipment.id === "AV") &&
+          !room.hasAV
+        ) {
+          warnings.push(
+            <li key="av">
+              The meeting requires AV equipment, but it's not available in this
+              room.
+            </li>,
+          );
+        }
+
+        // Check for VC equipment
+        if (
+          equipments.some((equipment) => equipment.id === "VC") &&
+          !room.hasVC
+        ) {
+          warnings.push(
+            <li key="vc">
+              The meeting requires VC equipment, but it's not available in this
+              room.
+            </li>,
+          );
+        }
+
+        // Check if the room is big enough
+        if (!room.isBigEnough) {
+          warnings.push(
+            <li key="size">The room is not big enough for the group.</li>,
+          );
+        }
+
+        // Construct the JSX message
+        let messageJSX = (
+          <div>
+            {warnings.length > 0 && (
+              <div>
+                <p>
+                  Please review the following{" "}
+                  {warnings.length === 1 ? "issue" : "issues"} before
+                  proceeding:
+                </p>
+                <ul className="my-6 text-theme-blue">{warnings}</ul>
+              </div>
+            )}
+            <p className="text-red-400">
+              This room is not recommended. Are you sure you want to select it?
+            </p>
+          </div>
+        );
+
+        setMessageForModal(messageJSX);
+        setIsModalOpen(true);
+      } else {
+        dispatch(setSelectedRoomForGroup({ groupId: groupToDisplay, room }));
+      }
     };
   };
 
@@ -114,7 +178,7 @@ const BookingRoomsDisplay = () => {
             {paginatedData.map((room) => (
               <div
                 key={room.roomId}
-                className="flex flex-col justify-between bg-white px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl xl:flex-row"
+                className={`flex flex-col justify-between ${room.recommended ? "bg-white" : "bg-zinc-200"} px-5 py-5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl xl:flex-row`}
               >
                 <div className="flex flex-col items-center xl:flex-row">
                   <div className="">
@@ -146,17 +210,46 @@ const BookingRoomsDisplay = () => {
                   </div>
                 </div>
 
-                <div className="m-5 flex justify-center xl:items-end">
-                  <button
-                    onClick={handleOnClick(room)}
-                    className="rounded bg-theme-orange px-8 py-0.5 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
-                  >
-                    Book
-                  </button>
+                <div
+                  className="group m-5 flex cursor-pointer  justify-center xl:items-end"
+                  onClick={handleRoomSelection(room)}
+                >
+                  {groupedAttendees.find(
+                    (group) => group.groupId === groupToDisplay,
+                  )?.selectedRoom?.roomId === room.roomId ? (
+                    <>
+                      {" "}
+                      <ImCheckboxChecked className="size-6 text-theme-orange" />
+                      <span className="ml-3 text-theme-orange">Select</span>
+                    </>
+                  ) : (
+                    <>
+                      <ImCheckboxUnchecked className="size-6 group-hover:text-theme-orange" />{" "}
+                      <span className="ml-3 group-hover:text-theme-orange">
+                        Select
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
           </div>
+          {isModalOpen && (
+            <RoomSelectionModal
+              message={messageForModal}
+              onConfirm={() => {
+                dispatch(
+                  setSelectedRoomForGroup({
+                    groupId: groupToDisplay,
+                    room: selectedRoomForModal,
+                  }),
+                );
+                setIsModalOpen(false);
+              }}
+              onCancel={() => setIsModalOpen(false)}
+              onClose={() => setIsModalOpen(false)}
+            />
+          )}
           <Pagination
             count={filteredRooms.length}
             rowsPerPage={rowsPerPage}

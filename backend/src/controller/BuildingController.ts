@@ -37,6 +37,13 @@ export default class BuildingController extends AbstractController {
     };
 
     public update = async (req: Request, res: Response): Promise<Response> => {
-        return Promise.reject("Not implemented");
+        try {
+            return super.onResolve(
+                res,
+                await this.buildingService.update(parseInt(req.params.id), plainToInstance(BuildingDTO, req.body))
+            );
+        } catch (error) {
+            return this.handleError(res, error);
+        }
     };
 }

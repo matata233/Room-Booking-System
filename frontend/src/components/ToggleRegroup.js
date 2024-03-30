@@ -19,7 +19,7 @@ const ToggleRooms = () => {
     <div className="flex-col items-center justify-between">
       <div className="flex h-[40px] items-center justify-center">
         <label className={`mr-2 ${regroup ? "text-gray-400" : "text-black"}`}>
-          Same Group
+          Off
         </label>
         <div
           className={`relative ${ungroupedHasAttendees ? "cursor-not-allowed" : "cursor-pointer"}`}
@@ -39,13 +39,13 @@ const ToggleRooms = () => {
         <label
           className={`ml-2 ${regroup ? "text-theme-dark-orange" : "text-gray-400"}`}
         >
-          Regroup
+          On
         </label>
       </div>
       {/* Disable the toggle button if ungrouped has attendees */}
       {ungroupedHasAttendees && (
         <div className="text-sm text-red-500">
-          Toggle is disabled as you entered ungrouped attendees.
+          To turn off, please remove ungrouped attendees
         </div>
       )}
     </div>

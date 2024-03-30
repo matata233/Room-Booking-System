@@ -130,22 +130,26 @@ const BookingReviewPage = () => {
 
               <div className="mt-10 flex flex-col lg:mt-0">
                 <div className="mb-2 text-center font-semibold">
-                  <h2>Attendee(s):</h2>
+                  {/* Calculate total attendees and determine singular or plural form */}
+                  <h2>
+                    {`${group.groupId === loggedInUser.group ? group.attendees.length + 1 : group.attendees.length} Attendee${group.groupId === loggedInUser.group ? (group.attendees.length + 1 !== 1 ? "s" : "") : group.attendees.length !== 1 ? "s" : ""}`}
+                  </h2>
                 </div>
                 <div className="h-32 w-80 overflow-y-auto rounded-lg bg-gray-200 pl-4 pt-2">
-                  {group.attendees.map((attendee, idx) => (
-                    <div key={idx} className="flex items-center">
-                      <div className="h-2 w-2 rounded-full bg-theme-orange"></div>
-                      <div className="ml-2">{attendee.email}</div>
-                    </div>
-                  ))}
-                  {/* check if the logged in user is in this group */}
+                  {/* Check if the logged-in user is in this group and display them */}
                   {group.groupId === loggedInUser.group && (
                     <div className="flex items-center">
                       <div className="h-2 w-2 rounded-full bg-theme-orange"></div>
                       <div className="ml-2">{userInfo.email}</div>
                     </div>
                   )}
+                  {/* Map over attendees to display each */}
+                  {group.attendees.map((attendee, idx) => (
+                    <div key={idx} className="flex items-center">
+                      <div className="h-2 w-2 rounded-full bg-theme-orange"></div>
+                      <div className="ml-2">{attendee.email}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

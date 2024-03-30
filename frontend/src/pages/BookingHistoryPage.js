@@ -340,6 +340,8 @@ const BookingHistoryPage = () => {
       )}
       {isCancelConfirmOpen && (
         <CancelConfirmationModal
+          confirmButton={"cancel"}
+          cancelButton={"close"}
           onCancel={() => setIsCancelConfirmOpen(false)}
           onClose={() => setIsCancelConfirmOpen(false)}
           onConfirm={handleCancelBooking}

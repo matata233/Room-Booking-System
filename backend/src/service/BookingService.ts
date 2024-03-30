@@ -2,6 +2,8 @@ import AbstractService from "./AbstractService";
 import BookingDTO from "../model/dto/BookingDTO";
 import BookingRepository from "../repository/BookingRepository";
 import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
+import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
+import {BOOKINGS_CREATE, BOOKINGS_GET_AVAIL, BOOKINGS_UPDATE} from "../model/dto/AbstractDTO";
 
 export default class BookingService extends AbstractService {
     private bookingRepository: BookingRepository;
@@ -16,9 +18,7 @@ export default class BookingService extends AbstractService {
     }
 
     public getById(id: number): Promise<BookingDTO> {
-        if (isNaN(id)) {
-            throw new BadRequestError("invalid booking ID");
-        }
+        this.validateId(id, "booking");
         return this.bookingRepository.findById(id);
     }
 
@@ -27,101 +27,66 @@ export default class BookingService extends AbstractService {
     }
 
     public async create(dto: BookingDTO): Promise<BookingDTO> {
-        if (!dto.startTime || dto.startTime.toString() === "Invalid Date") {
-            throw new BadRequestError("Invalid start time");
+        await this.validateIncomingDTO(dto, {groups: [BOOKINGS_CREATE]});
+        if (dto.endTime! <= dto.startTime!) {
+            throw new BadRequestError("end time must be greater than start time");
         }
-        if (dto.startTime <= new Date()) {
-            throw new BadRequestError("Start time has already passed");
+        if (dto.roomDTOs!.length !== dto.userDTOs!.length) {
+            throw new BadRequestError("number of rooms must be equal to number of attendee groups");
         }
-        if (!dto.endTime || dto.endTime.toString() === "Invalid Date" || dto.endTime <= dto.startTime) {
-            throw new BadRequestError("Invalid end time");
+        try {
+            return await this.bookingRepository.create(
+                dto.createdBy!,
+                dto.createdAt!,
+                dto.startTime!,
+                dto.endTime!,
+                dto.roomDTOs!.map((room) => room.roomId!),
+                dto.userDTOs!.map((group) => group.map((entry) => entry.userId!)!)
+            );
+        } catch (error) {
+            this.handlePrismaError(error);
+            throw error;
         }
-        if (!dto.endTime || dto.endTime.toString() === "Invalid Date") {
-            throw new BadRequestError("Invalid end time");
-        }
-        if (dto.endTime <= dto.startTime) {
-            throw new BadRequestError("End time must be greater than start time");
-        }
-        if (!dto.userDTOs || dto.userDTOs.length === 0) {
-            throw new BadRequestError("No participants");
-        }
-        for (const participantGroup of dto.userDTOs) {
-            if (!participantGroup || participantGroup.length === 0) {
-                throw new BadRequestError("Invalid participant group");
-            }
-            for (const participantUsername of participantGroup) {
-                if (!participantUsername || !participantUsername.userId) {
-                    throw new BadRequestError("Invalid participant");
-                }
-            }
-        }
-        if (!dto.roomDTOs || dto.roomDTOs.length === 0) {
-            throw new BadRequestError("Invalid rooms");
-        }
-        for (const room of dto.roomDTOs) {
-            if (!room || typeof room.roomId !== "number") {
-                throw new BadRequestError("Invalid rooms");
-            }
-        }
-        if (dto.roomDTOs.length !== dto.userDTOs.length) {
-            throw new BadRequestError("Number of rooms must be equal to number of participant groups");
-        }
-        if (dto.createdBy === undefined) {
-            throw new BadRequestError("Invalid creator ID");
-        }
-        return this.bookingRepository.create(
-            dto.createdBy,
-            dto.createdAt!.toISOString(),
-            dto.startTime.toISOString(),
-            dto.endTime.toISOString(),
-            dto.roomDTOs.map((entry) => String(entry.roomId))!,
-            dto.userDTOs.map((group) => group.map((entry) => entry.userId!)!)
-        );
     }
 
     public async update(id: number, dto: BookingDTO): Promise<BookingDTO> {
-        if (!id || typeof id !== "number") {
-            throw new BadRequestError("Invalid booking ID");
+        this.validateId(id, "booking");
+        await this.validateIncomingDTO(dto, {groups: [BOOKINGS_UPDATE]});
+        if (dto.roomDTOs!.length !== dto.userDTOs!.length) {
+            throw new BadRequestError("number of rooms must be equal to number of attendee groups");
         }
-        if (!dto.status || typeof dto.status !== "string") {
-            throw new BadRequestError("Invalid status");
+        try {
+            return await this.bookingRepository.update(
+                id,
+                dto.status!,
+                dto.userDTOs!.map((group) => group.map((entry) => Number(entry.userId!))!),
+                dto.roomDTOs!.map((entry) => Number(entry.roomId))!
+            );
+        } catch (error) {
+            this.handlePrismaError(error);
+            throw error;
         }
-        if (!dto.userDTOs || dto.userDTOs.length === 0) {
-            throw new BadRequestError("Invalid participant groups");
+    }
+
+    public async getAvailableRooms(dto: BookingDTO): Promise<object> {
+        await this.validateIncomingDTO(dto, {groups: [BOOKINGS_GET_AVAIL]});
+        if (dto.endTime! <= dto.startTime!) {
+            throw new BadRequestError("end time must be greater than start time");
         }
-        for (const participantGroup of dto.userDTOs) {
-            if (!participantGroup || participantGroup.length === 0) {
-                throw new BadRequestError("Invalid participant group");
-            }
-            for (const participantUsername of participantGroup) {
-                if (
-                    !participantUsername ||
-                    !participantUsername.userId ||
-                    typeof participantUsername.userId !== "number"
-                ) {
-                    throw new BadRequestError("Invalid participant");
-                }
-            }
-        }
-        if (!dto.roomDTOs || dto.roomDTOs.length === 0) {
-            throw new BadRequestError("Invalid rooms");
-        }
-        for (const room of dto.roomDTOs) {
-            if (!room || typeof room.roomId !== "number") {
-                throw new BadRequestError("Invalid rooms");
-            }
-        }
-        return this.bookingRepository.update(
-            id,
-            dto.status,
-            dto.userDTOs.map((group) => group.map((entry) => Number(entry.userId!))!),
-            dto.roomDTOs.map((entry) => Number(entry.roomId))!
+        return this.bookingRepository.getAvailableRooms(
+            dto.startTime!,
+            dto.endTime!,
+            dto.userDTOs!.filter((group) => group.length > 0).map((group) => group.map((entry) => entry.email!)!),
+            dto.equipments!.map((equipment) => equipment.equipmentId!),
+            dto.priority!,
+            dto.roomCount!,
+            dto.regroup!
         );
     }
 
     public getSuggestedTimes(
-        startTime: string,
-        endTime: string,
+        startTime: Date,
+        endTime: Date,
         duration: string,
         attendees: string[],
         equipments: string[],
@@ -130,29 +95,9 @@ export default class BookingService extends AbstractService {
         return this.bookingRepository.getSuggestedTimes(startTime, endTime, duration, attendees, equipments, stepSize);
     }
 
-    public getAvailableRooms(
-        startTime: string,
-        endTime: string,
-        attendees: string[][],
-        equipments: string[],
-        priority: string[],
-        roomCount: number,
-        regroup: boolean
-    ): Promise<object> {
-        if (new Date(startTime) <= new Date()) {
-            throw new BadRequestError("Start time has already passed");
+    private handlePrismaError(error: unknown) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            this.toKnownErrors(error, "booking", "", "user");
         }
-        if (new Date(endTime) <= new Date(startTime)) {
-            throw new BadRequestError("Invalid end time");
-        }
-        return this.bookingRepository.getAvailableRooms(
-            startTime,
-            endTime,
-            attendees,
-            equipments,
-            priority,
-            roomCount,
-            regroup
-        );
     }
 }

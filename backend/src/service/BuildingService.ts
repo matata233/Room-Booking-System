@@ -1,8 +1,8 @@
 import AbstractService from "./AbstractService";
 import BuildingRepository from "../repository/BuildingRepository";
 import BuildingDTO from "../model/dto/BuildingDTO";
-import {BadRequestError, NotFoundError, RequestConflictError} from "../util/exception/AWSRoomBookingSystemError";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
+import {BUILDINGS} from "../model/dto/AbstractDTO";
 
 export default class BuildingService extends AbstractService {
     private buildingRepo: BuildingRepository;
@@ -17,30 +17,34 @@ export default class BuildingService extends AbstractService {
     }
 
     public getById(id: number): Promise<BuildingDTO> {
-        if (isNaN(id)) {
-            throw new BadRequestError("invalid building ID");
-        }
+        this.validateId(id, "building");
         return this.buildingRepo.findById(id);
     }
 
     public async create(dto: BuildingDTO): Promise<BuildingDTO> {
-        await this.validateDTO(dto);
+        await this.validateIncomingDTO(dto, {groups: [BUILDINGS]});
         try {
             return await this.buildingRepo.create(dto);
         } catch (error) {
-            if (error instanceof PrismaClientKnownRequestError) {
-                if (error.code === "P2002") {
-                    throw new RequestConflictError(`building ${dto.code} already exists in ${dto.city?.cityId}`);
-                }
-                if (error.code === "P2003") {
-                    throw new NotFoundError(`city ${dto.city?.cityId} does not exist`);
-                }
-            }
+            this.handlePrismaError(error);
             throw error;
         }
     }
 
-    public update(id: number, dto: BuildingDTO): Promise<BuildingDTO> {
-        return Promise.reject("Not implemented");
+    public async update(id: number, dto: BuildingDTO): Promise<BuildingDTO> {
+        this.validateId(id, "building");
+        await this.validateIncomingDTO(dto, {groups: [BUILDINGS]});
+        try {
+            return await this.buildingRepo.updateById(id, dto);
+        } catch (error) {
+            this.handlePrismaError(error);
+            throw error;
+        }
+    }
+
+    private handlePrismaError(error: unknown) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            this.toKnownErrors(error, "building", "city and building number", "city");
+        }
     }
 }
