@@ -111,7 +111,9 @@ CREATE TABLE distances
 INSERT INTO cities (city_id, name, province_state)
 VALUES ('YVR', 'Vancouver', 'BC'),
        ('YYZ', 'Toronto', 'ON'),
-       ('YUL', 'Montreal', 'QC');
+       ('YUL', 'Montreal', 'QC'),
+       ('SEA', 'Seattle', 'WA'),
+       ('PDX', 'Portland', 'OR');
 
 INSERT INTO buildings (building_id, city_id, code, address, lat, lon, is_active)
 VALUES (1, 'YVR', 32, '32 Vancouver St, Vancouver, BC A1B 2C3', 49.278140, -123.128805, TRUE),
@@ -132,7 +134,7 @@ INSERT INTO rooms (room_id, building_id, floor, code, name, seats, is_active)
 VALUES (1, 1, 1, '101', 'Stanley', 4, TRUE),
        (2, 1, 1, '102', 'Trafalgar', 6, TRUE),
        (3, 1, 1, '404', 'Lighthouse', 18, TRUE),
-       (4, 1, 1, '405', 'Earles Casual', 4, TRUE),
+       (4, 1, 1, '405', 'Earles Casual', 4, FALSE),
        (5, 1, 1, '406', 'Riley', 8, TRUE),
        (6, 1, 2, '101', 'Yaletown', 4, TRUE),
        (7, 1, 2, '102', 'Kerrisdale', 6, TRUE),
@@ -1098,50 +1100,55 @@ SELECT setval('rooms_room_id_seq', (SELECT MAX(room_id) FROM rooms));
 
 INSERT INTO users (user_id, username, first_name, last_name, email, building_id, floor, desk, role, is_active)
 
-VALUES (1, 'team7awsome01', 'Admin 1', 'Test', 'team7awsome01@gmail.com', 1, 10, 1, 'admin', TRUE),
-       (2, 'team7awsome02', 'Admin 2', 'Test', 'team7awsome02@gmail.com', 2, 3, 1, 'admin', TRUE),
-       (3, 'team7awsome098', 'Admin 3', 'Test', 'team7awsome98@gmail.com', 3, 5, 1, 'admin', TRUE),
-       (4, 'team7awsomeuser01', 'Staff 1', 'Test', 'team7awsomeuser01@gmail.com', 4, 2, 1, 'staff', TRUE),
-       (5, 'team7awsomeuser12', 'Staff 2', 'Test', 'team7awsomeuser12@gmail.com', 5, 4, 1, 'staff', TRUE),
-       (6, 'team7awsomeuser22', 'Staff 3', 'Test', 'team7awsomeuser22@gmail.com', 6, 6, 1, 'staff', TRUE),
-       (7, 'YVR32_01_1', 'YVR32_01_1', 'YVR32_01_1', 'YVR32_01_1@aws.ca', 1, 1, 100, 'staff', TRUE),
-       (8, 'YVR32_01_2', 'YVR32_01_2', 'YVR32_01_2', 'YVR32_01_2@aws.ca', 1, 1, 100, 'staff', TRUE),
-       (9, 'YVR32_01_off', 'YVR32_01_off', 'YVR32_01_off', 'YVR32_01_off@aws.ca', 1, 1, 100, 'staff', FALSE),
-       (10, 'YVR32_03_1', 'YVR32_03_1', 'YVR32_03_1', 'YVR32_03_1@aws.ca', 1, 3, 100, 'staff', TRUE),
-       (11, 'YVR32_05_1', 'YVR32_05_1', 'YVR32_05_1', 'YVR32_05_1@aws.ca', 1, 5, 100, 'staff', TRUE),
-       (12, 'YVR41_01_1', 'YVR41_01_1', 'YVR41_01_1', 'YVR41_01_1@aws.ca', 2, 1, 100, 'staff', TRUE),
-       (13, 'YVR41_01_2', 'YVR41_01_2', 'YVR41_01_2', 'YVR41_01_2@aws.ca', 2, 1, 100, 'staff', TRUE),
-       (14, 'YVR41_05_1', 'YVR41_05_1', 'YVR41_05_1', 'YVR41_05_1@aws.ca', 2, 5, 100, 'staff', TRUE),
-       (15, 'YVR74_01_1', 'YVR74_01_1', 'YVR74_01_1', 'YVR74_01_1@aws.ca', 3, 1, 100, 'staff', TRUE),
-       (16, 'YVR74_01_2', 'YVR74_01_2', 'YVR74_01_2', 'YVR74_01_2@aws.ca', 3, 1, 100, 'staff', TRUE),
-       (17, 'YVR74_01_3', 'YVR74_01_3', 'YVR74_01_3', 'YVR74_01_3@aws.ca', 3, 1, 100, 'staff', TRUE),
-       (18, 'YVR63_01_1', 'YVR63_01_1', 'YVR63_01_1', 'YVR63_01_1@aws.ca', 4, 1, 100, 'staff', TRUE),
-       (19, 'YVR63_01_2', 'YVR63_01_2', 'YVR63_01_2', 'YVR63_01_2@aws.ca', 4, 1, 100, 'staff', TRUE),
-       (20, 'YVR63_01_3', 'YVR63_01_3', 'YVR63_01_3', 'YVR63_01_3@aws.ca', 4, 1, 100, 'staff', TRUE),
-       (21, 'YVR73_01_1', 'YVR73_01_1', 'YVR73_01_1', 'YVR73_01_1@aws.ca', 5, 1, 100, 'staff', TRUE),
-       (22, 'YVR73_01_2', 'YVR73_01_2', 'YVR73_01_2', 'YVR73_01_2@aws.ca', 5, 1, 100, 'staff', TRUE),
-       (23, 'YVR73_01_3', 'YVR73_01_3', 'YVR73_01_3', 'YVR73_01_3@aws.ca', 5, 1, 100, 'staff', TRUE),
-       (24, 'YUL22_01_1', 'YUL22_01_1', 'YUL22_01_1', 'YUL22_01_1@aws.ca', 7, 1, 100, 'staff', TRUE),
-       (25, 'michelle', 'Michelle', 'Chen', 'hsiangyi1025@gmail.com', 5, 1, 102, 'admin', TRUE);
+VALUES (1, 'team7awsome01', 'AdminOne', 'Test', 'team7awsome01@gmail.com', 1, 10, 1, 'admin', TRUE),
+       (2, 'team7awsome02', 'AdminTwo', 'Test', 'team7awsome02@gmail.com', 2, 3, 1, 'admin', TRUE),
+       (3, 'team7awsome098', 'AdminThree', 'Test', 'team7awsome98@gmail.com', 3, 5, 1, 'admin', TRUE),
+       (4, 'team7awsomeuser01', 'StaffOne', 'Test', 'team7awsomeuser01@gmail.com', 4, 2, 1, 'staff', TRUE),
+       (5, 'team7awsomeuser12', 'StaffTwo', 'Test', 'team7awsomeuser12@gmail.com', 5, 4, 1, 'staff', TRUE),
+       (6, 'team7awsomeuser22', 'StaffThree', 'Test', 'team7awsomeuser22@gmail.com', 6, 6, 1, 'staff', TRUE),
+       (7, 'YVR32_01_1', 'First', 'Last', 'YVR32_01_1@aws.ca', 1, 1, 100, 'staff', TRUE),
+       (8, 'YVR32_01_2', 'First', 'Last', 'YVR32_01_2@aws.ca', 1, 1, 100, 'staff', TRUE),
+       (9, 'YVR32_01_off', 'First', 'Last', 'YVR32_01_off@aws.ca', 1, 1, 100, 'staff', FALSE),
+       (10, 'YVR32_03_1', 'First', 'Last', 'YVR32_03_1@aws.ca', 1, 3, 100, 'staff', TRUE),
+       (11, 'YVR32_05_1', 'First', 'Last', 'YVR32_05_1@aws.ca', 1, 5, 100, 'staff', TRUE),
+       (12, 'YVR41_01_1', 'First', 'Last', 'YVR41_01_1@aws.ca', 2, 1, 100, 'staff', TRUE),
+       (13, 'YVR41_01_2', 'First', 'Last', 'YVR41_01_2@aws.ca', 2, 1, 100, 'staff', TRUE),
+       (14, 'YVR41_05_1', 'First', 'Last', 'YVR41_05_1@aws.ca', 2, 5, 100, 'staff', TRUE),
+       (15, 'YVR74_01_1', 'First', 'Last', 'YVR74_01_1@aws.ca', 3, 1, 100, 'staff', TRUE),
+       (16, 'YVR74_01_2', 'First', 'Last', 'YVR74_01_2@aws.ca', 3, 1, 100, 'staff', TRUE),
+       (17, 'YVR74_01_3', 'First', 'Last', 'YVR74_01_3@aws.ca', 3, 1, 100, 'staff', TRUE),
+       (18, 'YVR63_01_1', 'First', 'Last', 'YVR63_01_1@aws.ca', 4, 1, 100, 'staff', TRUE),
+       (19, 'YVR63_01_2', 'First', 'Last', 'YVR63_01_2@aws.ca', 4, 1, 100, 'staff', TRUE),
+       (20, 'YVR63_01_3', 'First', 'Last', 'YVR63_01_3@aws.ca', 4, 1, 100, 'staff', TRUE),
+       (21, 'YVR73_01_1', 'First', 'Last', 'YVR73_01_1@aws.ca', 5, 1, 100, 'staff', TRUE),
+       (22, 'YVR73_01_2', 'First', 'Last', 'YVR73_01_2@aws.ca', 5, 1, 100, 'staff', TRUE),
+       (23, 'YVR73_01_3', 'First', 'Last', 'YVR73_01_3@aws.ca', 5, 1, 100, 'staff', TRUE),
+       (24, 'YYZ34_01_1', 'First', 'Last', 'YYZ34_01_1@aws.ca', 6, 1, 100, 'staff', TRUE),
+       (25, 'YYZ34_01_2', 'First', 'Last', 'YYZ34_01_2@aws.ca', 6, 1, 100, 'staff', TRUE),
+       (26, 'YYZ34_01_3', 'First', 'Last', 'YYZ34_01_3@aws.ca', 6, 1, 100, 'staff', TRUE),
+       (27, 'YUL22_01_1', 'First', 'Last', 'YUL22_01_1@aws.ca', 7, 1, 100, 'staff', TRUE),
+       (28, 'YUL22_01_2', 'First', 'Last', 'YUL22_01_2@aws.ca', 7, 1, 100, 'staff', TRUE),
+       (29, 'YUL22_01_3', 'First', 'Last', 'YUL22_01_3@aws.ca', 7, 1, 100, 'staff', TRUE),
+       (30, 'michelle', 'Michelle', 'Chen', 'hsiangyi1025@gmail.com', 5, 1, 102, 'admin', TRUE);
 
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
 
-INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status)
-VALUES (1, 1, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed'),
-       (2, 1, '2024-03-23T12:00Z', '2025-03-26T19:00Z', '2025-03-26T20:00Z', 'canceled'),
-       (3, 2, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'canceled'),
-       (4, 4, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed');
-
-SELECT setval('bookings_booking_id_seq', (SELECT MAX(booking_id) FROM bookings));
-
-INSERT INTO users_bookings(user_id, booking_id, room_id)
-VALUES (1, 1, 1),
-       (1, 2, 2),
-       (2, 2, 3),
-       (3, 2, 4),
-       (4, 2, 4),
-       (2, 3, 2),
-       (4, 4, 2);
+-- INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status)
+-- VALUES (1, 1, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed'),
+--        (2, 1, '2024-03-23T12:00Z', '2025-03-26T19:00Z', '2025-03-26T20:00Z', 'canceled'),
+--        (3, 2, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'canceled'),
+--        (4, 4, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed');
+--
+-- SELECT setval('bookings_booking_id_seq', (SELECT MAX(booking_id) FROM bookings));
+--
+-- INSERT INTO users_bookings(user_id, booking_id, room_id)
+-- VALUES (1, 1, 1),
+--        (1, 2, 2),
+--        (2, 2, 3),
+--        (3, 2, 4),
+--        (4, 2, 4),
+--        (2, 3, 2),
+--        (4, 4, 2);
 
 INSERT INTO distances (building_id_from, building_id_to, distance)
 VALUES (1, 1, 0),

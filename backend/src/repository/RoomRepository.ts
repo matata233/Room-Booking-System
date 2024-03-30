@@ -2,7 +2,6 @@ import AbstractRepository from "./AbstractRepository";
 import RoomDTO from "../model/dto/RoomDTO";
 import {toRoomDTO} from "../util/Mapper/RoomMapper";
 import {PrismaClient} from "@prisma/client";
-import {NotFoundError, RequestConflictError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class RoomRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
@@ -28,7 +27,6 @@ export default class RoomRepository extends AbstractRepository {
             }
         });
         const roomDTOs: RoomDTO[] = [];
-        // Convert each room to a RoomDTO and add it to the array
         for (const room of roomList) {
             roomDTOs.push(toRoomDTO(room, room.buildings.cities, room.buildings, room.rooms_equipments));
         }
@@ -36,7 +34,7 @@ export default class RoomRepository extends AbstractRepository {
     }
 
     public async findById(id: number): Promise<RoomDTO> {
-        const room = await this.db.rooms.findUnique({
+        const room = await this.db.rooms.findUniqueOrThrow({
             where: {
                 room_id: id
             },
@@ -54,10 +52,6 @@ export default class RoomRepository extends AbstractRepository {
             }
         });
 
-        if (!room) {
-            return Promise.reject(new NotFoundError(`room does not exist`));
-        }
-
         return toRoomDTO(room, room.buildings.cities, room.buildings, room.rooms_equipments);
     }
 
@@ -74,88 +68,45 @@ export default class RoomRepository extends AbstractRepository {
                 }
             });
 
-            const equipmentPromises = dto.equipmentList!.map((equipment) =>
-                tx.rooms_equipments.create({
-                    data: {
-                        room_id: roomAdded.room_id,
-                        equipment_id: equipment.equipmentId!
-                    }
-                })
+            await Promise.all(
+                dto.equipmentList!.map((equipment) =>
+                    tx.rooms_equipments.create({
+                        data: {
+                            room_id: roomAdded.room_id,
+                            equipment_id: equipment.equipmentId!
+                        }
+                    })
+                )
             );
-
-            await Promise.all(equipmentPromises);
 
             return roomAdded;
         });
 
         const roomDTO = new RoomDTO();
         roomDTO.roomId = newRoom.room_id;
-        console.log("Room created: ", roomDTO);
         return roomDTO;
     }
 
     public async updateById(id: number, dto: RoomDTO): Promise<RoomDTO> {
-        return await this.db.$transaction(async (tx) => {
-            const existingRoom = await tx.rooms.findUnique({
-                where: {room_id: id}
-            });
-
-            if (!existingRoom) {
-                return Promise.reject(new NotFoundError(`room does not exist`));
-            }
-
-            const updateData: any = {};
-            if (dto.building?.buildingId !== undefined) {
-                updateData.building_id = dto.building.buildingId;
-            }
-            if (dto.floorNumber !== undefined) {
-                updateData.floor = dto.floorNumber;
-            }
-            if (dto.roomCode !== undefined) {
-                updateData.code = dto.roomCode;
-            }
-            if (dto.roomName !== undefined) {
-                updateData.name = dto.roomName;
-            }
-            if (dto.numberOfSeats !== undefined) {
-                updateData.seats = dto.numberOfSeats;
-            }
-            if (dto.isActive !== undefined) {
-                updateData.is_active = dto.isActive;
-            }
-
-            if (dto.equipmentList) {
-                updateData.rooms_equipments = {
-                    deleteMany: {},
-                    create: dto.equipmentList.map((equipment) => ({
-                        equipment_id: equipment.equipmentId!
-                    }))
-                };
-            }
-
-            if (dto.building?.buildingId || dto.floorNumber || dto.roomCode) {
-                const conflictWhereClause: any = {
-                    NOT: {room_id: id} // Exclude the current room
-                };
-
-                conflictWhereClause.building_id = dto.building?.buildingId
-                    ? dto.building.buildingId
-                    : existingRoom.building_id;
-                conflictWhereClause.floor = dto.floorNumber ? dto.floorNumber : existingRoom.floor;
-                conflictWhereClause.code = dto.roomCode ? dto.roomCode : existingRoom.code;
-
-                const conflictRoom = await tx.rooms.findFirst({
-                    where: conflictWhereClause
-                });
-
-                if (conflictRoom) {
-                    throw new RequestConflictError(`room ${dto.roomCode} already exists on that floor`);
-                }
-            }
-
+        return this.db.$transaction(async (tx) => {
             const updatedRoom = await tx.rooms.update({
-                where: {room_id: id},
-                data: updateData,
+                where: {
+                    room_id: id
+                },
+                data: {
+                    building_id: dto.building!.buildingId,
+                    floor: dto.floorNumber,
+                    code: dto.roomCode,
+                    seats: dto.numberOfSeats,
+                    name: dto.roomName,
+                    is_active: dto.isActive,
+                    rooms_equipments: {
+                        deleteMany: {},
+                        create: dto.equipmentList!.map((equipment) => ({
+                            equipment_id: equipment.equipmentId!
+                        }))
+                    }
+                },
                 include: {
                     buildings: {
                         include: {

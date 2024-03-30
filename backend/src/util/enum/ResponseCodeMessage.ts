@@ -14,5 +14,5 @@ export default class ResponseCodeMessage {
     public static REQUEST_CONFLICT_MSG = "Conflict: ";
 
     public static UNAVAILABLE_ATEENDEES = 410;
-    public static UNAVAILABLE_ATTENDEES_MSG = "Attendee(s) Unavaiable: ";
+    public static UNAVAILABLE_ATTENDEES_MSG = "Attendee(s) Unavailable: ";
 }
