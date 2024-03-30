@@ -2,22 +2,11 @@ import React, { useState } from "react";
 import CloseIconSVG from "../assets/close-icon.svg";
 import UserEmailInputEdit from "./UserEmailInputEdit";
 
-const EditBookingModal = ({ book, onClose, onUpdate }) => {
-  console.log("book111", book);
-  const [updatedStatus, setUpdatedStatus] = useState(book.status);
-  const [updatedAttendees, setUpdatedAttendee] = useState([]);
+const EditBookingModal = ({ onClose, onUpdate }) => {
 
   const handleUpdate = (e) => {
     e.preventDefault(); // Prevent default form submission behavior
-
-    const status = {updatedStatus}
-    const attendees = {updatedAttendees}
-
-    const updatedBooking = {
-      bookingId: book.bookingId,
-      status: status,
-    };
-    onUpdate(updatedBooking);
+    onUpdate();
   };
 
   return (
