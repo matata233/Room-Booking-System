@@ -4,7 +4,6 @@ import jwt, {JsonWebTokenError} from "jsonwebtoken";
 import {NotFoundError, UnauthorizedError} from "./exception/AWSRoomBookingSystemError";
 import UserRepository from "../repository/UserRepository";
 import {role} from "@prisma/client";
-import { OAuth2Client } from 'google-auth-library';
 
 interface GoogleUser {
     email: string;
@@ -63,24 +62,6 @@ export default class Authenticator {
         return await this.generateJwtToken(userData);
     };
 
-    private verifyIdToken = async (idToken: string): Promise<boolean> => {
-        const CLIENT_ID: string = '682437365013-hcj4g0l2c042umnvr28kbikenhnjrrre.apps.googleusercontent.com';
-        const client = new OAuth2Client(CLIENT_ID);
-        try {
-            const ticket = await client.verifyIdToken({
-                idToken,
-                audience: CLIENT_ID,
-            });
-            console.log(ticket);
-            const payload = ticket.getPayload();
-            console.log(payload);
-            return Promise.resolve(true);
-        } catch (error) {
-            console.error(error);
-            return Promise.reject(error);
-        }
-    }
-
     private validateGoogleToken = async (googleToken: string): Promise<UserDTO> => {
         const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
         if (!decodedUserInfo) {
@@ -88,11 +69,6 @@ export default class Authenticator {
         }
         if (Date.now() >= decodedUserInfo.exp * 1000) {
             return Promise.reject(new UnauthorizedError(`Expired token`));
-        }
-        try {
-            await this.verifyIdToken(googleToken);
-        }catch (error){
-            return Promise.reject(new UnauthorizedError(`Google token with bad integrity`));
         }
         // fetch the user by email
         return await this.fetchUserByEmail(decodedUserInfo.email);
