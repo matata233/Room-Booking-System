@@ -45,6 +45,14 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
   //   );
   // };
 
+  function getCurrentDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="group relative pl-3">
@@ -72,6 +80,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
           </label>
           <input
             type="date"
+            min={getCurrentDate()}
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"
@@ -94,6 +103,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
           </label>
           <input
             type="date"
+            min={getCurrentDate()}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             className="mb-2 block w-full cursor-pointer appearance-none rounded-md bg-orange-50 px-4 py-2 leading-tight text-black focus:bg-orange-50 focus:outline-none lg:mb-4"

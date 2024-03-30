@@ -20,7 +20,7 @@ const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
           id="booking"
           onClick={handleNavbarClick}
         >
-          Book a Room
+          New Booking
         </Link>
         <Link
           to={"/bookingHistory"}
@@ -28,7 +28,7 @@ const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
           id="booking-history"
           onClick={handleNavbarClick}
         >
-          Booking History
+          My Bookings
         </Link>
         <Link
           to={"/userSchedule"}
@@ -36,7 +36,7 @@ const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
           id="user-availability"
           onClick={handleNavbarClick}
         >
-          Your Schedule
+          My Schedule
         </Link>
       </div>
       <div className={`py-1 ${isAdmin ? "" : "hidden"}`}>
@@ -46,7 +46,7 @@ const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
           id="user-management"
           onClick={handleNavbarClick}
         >
-          User Management
+          Manage Users
         </Link>
         <Link
           to={"/roomManagementPage"}
@@ -54,7 +54,7 @@ const Navbar = ({ handleLogout, handleNavbarClick, isAdmin = false }) => {
           id="room-management"
           onClick={handleNavbarClick}
         >
-          Room Management
+          Manage Rooms
         </Link>
       </div>
       <div className="py-1">

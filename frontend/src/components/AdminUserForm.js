@@ -35,6 +35,7 @@ const AdminUserForm = ({
   const [floor, setFloor] = useState(null);
   const [desk, setDesk] = useState(null);
   const [isActive, setIsActive] = useState(true);
+  const [role, setRole] = useState("staff");
 
   const [cityId, setCityId] = useState("");
   const [buildingCode, setBuildingCode] = useState(null);
@@ -54,6 +55,7 @@ const AdminUserForm = ({
       setEmail(initialValues.result.email);
       setFloor(initialValues.result.floor);
       setDesk(initialValues.result.desk);
+      setRole(initialValues.result.role);
       setIsActive(initialValues.result.isActive);
 
       if (buildings && initialValues.result.building) {
@@ -140,6 +142,7 @@ const AdminUserForm = ({
         firstName,
         lastName,
         email,
+        role,
         floor: parseInt(floor),
         desk: parseInt(desk),
         isActive,
@@ -252,12 +255,45 @@ const AdminUserForm = ({
                 />
               </div>
 
+              <div className="relative flex h-[40px] items-center">
+                <label
+                  onClick={() => setRole("staff")}
+                  className={`mr-2  cursor-pointer ${role === "staff" ? "text-black" : "text-gray-400"}`}
+                >
+                  Staff
+                </label>
+
+                <div
+                  className="relative cursor-pointer"
+                  onClick={() => {
+                    if (role === "staff") {
+                      setRole("admin");
+                    } else {
+                      setRole("staff");
+                    }
+                  }}
+                >
+                  <div
+                    className={`block h-8 w-14 rounded-full ${role === "staff" ? "bg-gray-300" : "bg-orange-300"}`}
+                  ></div>
+                  <div
+                    className={`dot absolute left-1 top-1 h-6 w-6 rounded-full transition ${role === "staff" ? "bg-gray-400" : "translate-x-6 transform bg-theme-dark-orange"}`}
+                  ></div>
+                </div>
+                <label
+                  onClick={() => setRole("admin")}
+                  className={`ml-2  cursor-pointer ${role === "staff" ? "text-gray-400" : "text-theme-dark-orange"}`}
+                >
+                  Admin
+                </label>
+              </div>
+
               {/* Toggle Existing/New building */}
-              <ToggleBuilding
+              {/* <ToggleBuilding
                 extBuilding={extBuilding}
                 setExtBuilding={setExtBuilding}
                 setBuilding={setBuilding}
-              />
+              /> */}
               {extBuilding ? (
                 <div className="relative">
                   <div className="flex justify-between">

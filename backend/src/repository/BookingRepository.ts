@@ -1,7 +1,7 @@
 import AbstractRepository from "./AbstractRepository";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import {PrismaClient} from "@prisma/client";
+import {bookings, PrismaClient} from "@prisma/client";
 import {
     BadRequestError,
     NotFoundError,
@@ -18,85 +18,29 @@ export default class BookingRepository extends AbstractRepository {
     public async findAll(): Promise<BookingDTO[]> {
         const bookings = await this.db.bookings.findMany({
             include: {
-                users: {
-                    include: {
-                        buildings: {
-                            include: {
-                                cities: true
-                            }
-                        }
-                    }
-                },
-                users_bookings: {
-                    include: {
-                        users: true,
-                        rooms: {
-                            include: {
-                                buildings: {
-                                    include: {
-                                        cities: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                users: {include: {buildings: {include: {cities: true}}}},
+                users_bookings: {include: {users: true, rooms: {include: {buildings: {include: {cities: true}}}}}}
             }
         });
-
         return bookings.map((booking) => {
             return toBookingDTO(booking, booking.users, booking.users_bookings);
         });
     }
 
     public async findById(id: number): Promise<BookingDTO> {
-        const booking = await this.db.bookings.findUnique({
-            where: {
-                booking_id: id
-            },
+        const booking = await this.db.bookings.findUniqueOrThrow({
+            where: {booking_id: id},
             include: {
-                users: {
-                    include: {
-                        buildings: {
-                            include: {
-                                cities: true
-                            }
-                        }
-                    }
-                },
-                users_bookings: {
-                    include: {
-                        users: true,
-                        rooms: {
-                            include: {
-                                buildings: {
-                                    include: {
-                                        cities: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                users: {include: {buildings: {include: {cities: true}}}},
+                users_bookings: {include: {users: true, rooms: {include: {buildings: {include: {cities: true}}}}}}
             }
         });
-
-        if (!booking) {
-            return Promise.reject(new NotFoundError(`Booking not found with id: ${id}`));
-        }
-
         return toBookingDTO(booking, booking.users, booking.users_bookings);
     }
 
     public async findByUserId(id: number): Promise<BookingDTO[]> {
         const bookings = await this.db.bookings.findMany({
-            where: {
-                users_bookings: {
-                    some: {
-                        user_id: id
-                    }
-                }
-            },
+            where: {users_bookings: {some: {user_id: id}}},
             include: {
                 users: true,
                 users_bookings: {
@@ -104,64 +48,32 @@ export default class BookingRepository extends AbstractRepository {
                         users: true,
                         rooms: {
                             include: {
-                                buildings: {
-                                    include: {
-                                        cities: true
-                                    }
-                                },
-                                rooms_equipments: {
-                                    include: {
-                                        equipments: true
-                                    }
-                                }
+                                buildings: {include: {cities: true}},
+                                rooms_equipments: {include: {equipments: true}}
                             }
                         }
                     }
                 }
             },
-            orderBy: {
-                created_at: "desc"
-            }
+            orderBy: {created_at: "desc"}
         });
-
         return bookings.map((booking) => toBookingDTO(booking, booking.users, booking.users_bookings));
     }
 
     public async create(
         createdBy: number,
-        createdAt: string,
-        startTime: string,
-        endTime: string,
-        rooms: string[],
+        createdAt: Date,
+        startTime: Date,
+        endTime: Date,
+        rooms: number[],
         attendees: number[][]
     ): Promise<BookingDTO> {
         const newBooking = await this.db.$transaction(async (tx) => {
-            // TODO: check for attendee availability again
-            // TODO: cannot identify which room is not available, start from rooms_bookings table
-            // check if the room is available
-            const conflictBooking = await tx.bookings.findFirst({
-                where: {
-                    AND: [
-                        {start_time: {lt: endTime}},
-                        {end_time: {gt: startTime}},
-                        {status: {not: "canceled"}},
-                        {
-                            users_bookings: {
-                                some: {
-                                    room_id: {
-                                        in: rooms.map((room) => parseInt(room))
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
-            });
+            await Promise.all([
+                this.checkAttendeeAvail(attendees.flat(), "user_id", startTime, endTime, null),
+                this.checkRoomAvail(rooms, endTime, startTime)
+            ]);
 
-            if (conflictBooking !== null) {
-                // TODO: can add to error message to indicate which rooms are unavailable
-                throw new RequestConflictError("Room is unavailable in this timeslot");
-            }
             const booking = await tx.bookings.create({
                 data: {
                     created_by: createdBy,
@@ -172,114 +84,44 @@ export default class BookingRepository extends AbstractRepository {
                 }
             });
 
-            // for each group of attendees, create a user_booking entry
-            for (let i = 0; i < attendees.length; i++) {
-                const group = attendees[i];
-                const roomId = parseInt(rooms[i]);
+            await tx.users_bookings.createMany({data: this.getUsersBookingData(attendees, rooms, booking)});
 
-                // eslint-disable-next-line no-await-in-loop
-                await Promise.all(
-                    group.map((userId) => {
-                        return tx.users_bookings.create({
-                            data: {
-                                booking_id: booking.booking_id,
-                                user_id: userId,
-                                room_id: roomId
-                            }
-                        });
-                    })
-                );
-            }
-
-            return tx.bookings.findUnique({
+            return tx.bookings.findUniqueOrThrow({
                 where: {booking_id: booking.booking_id},
                 include: {
                     users: true,
-                    users_bookings: {
-                        include: {
-                            users: true,
-                            rooms: {
-                                include: {
-                                    buildings: {
-                                        include: {
-                                            cities: true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    users_bookings: {include: {users: true, rooms: {include: {buildings: {include: {cities: true}}}}}}
                 }
             });
         });
-
-        if (newBooking === null) {
-            throw new Error();
-        }
 
         return toBookingDTO(newBooking, newBooking.users, newBooking.users_bookings);
     }
 
     public async update(id: number, status: string, attendees: number[][], rooms: number[]): Promise<BookingDTO> {
-        return await this.db.$transaction(async (tx) => {
-            // TODO: check time
-
-            const currentBooking = await tx.bookings.findUnique({
-                where: {booking_id: id}
+        return this.db.$transaction(async (tx) => {
+            const curr = await tx.bookings.findUniqueOrThrow({
+                where: {booking_id: id, status: {not: "canceled"}}
             });
-
-            if (!currentBooking || currentBooking.status === "canceled") {
-                throw new NotFoundError("booking does not exist or has been canceled");
-            }
 
             if (status === "canceled") {
-                await tx.bookings.update({
-                    where: {
-                        booking_id: id
-                    },
-                    data: {
-                        status: status
-                    }
-                });
-                return Promise.resolve({});
+                await tx.bookings.update({where: {booking_id: id}, data: {status: status}});
+                return {};
             }
 
-            await this.checkAttendeeAvailabilitiesForUpdate(attendees, currentBooking);
+            await this.checkAttendeeAvail(attendees.flat(), "user_id", curr.start_time, curr.end_time, curr.booking_id);
 
-            await tx.users_bookings.deleteMany({
-                where: {
-                    booking_id: id
-                }
-            });
+            await tx.users_bookings.deleteMany({where: {booking_id: id}});
 
-            // for each group of attendees, create a user_booking entry
-            const usersBookings = [];
-            for (let i = 0; i < attendees.length; i++) {
-                const userGroup = attendees[i];
-                const roomId = rooms[i];
+            await tx.users_bookings.createMany({data: this.getUsersBookingData(attendees, rooms, curr)});
 
-                const groupBookings = [];
-                for (let j = 0; j < userGroup.length; j++) {
-                    // eslint-disable-next-line no-await-in-loop
-                    const result = await tx.users_bookings.create({
-                        data: {
-                            booking_id: id,
-                            user_id: userGroup[j],
-                            room_id: roomId
-                        }
-                    });
-                    groupBookings.push(result);
-                }
-                usersBookings.push(groupBookings);
-            }
-
-            return Promise.resolve({});
+            return {};
         });
     }
 
     public async getAvailableRooms(
-        startTime: string,
-        endTime: string,
+        startTime: Date,
+        endTime: Date,
         attendees: string[][],
         equipments: string[],
         priority: string[],
@@ -287,7 +129,7 @@ export default class BookingRepository extends AbstractRepository {
         regroup: boolean
     ): Promise<object> {
         const flatAttendees = attendees.flat();
-        await this.checkAttendeeAvailabilities(flatAttendees, startTime, endTime);
+        await this.checkAttendeeAvail(attendees.flat(), "email", startTime, endTime, null);
         const attendeeCityIds = await Promise.all(flatAttendees.map((attendee) => this.getCityId(attendee)));
         const uniqueCityIds = new Set(attendeeCityIds);
         const isMultiCity = uniqueCityIds.size > 1;
@@ -299,7 +141,7 @@ export default class BookingRepository extends AbstractRepository {
         } else {
             if (!regroup && roomCount !== attendees.length) {
                 throw new BadRequestError(
-                    "please turn on auto-regroup after changing the number of rooms or switching between one or multiple cities"
+                    "please turn on auto-regroup to reassign attendees as you either have an empty group or changed the number of rooms"
                 );
             }
             attendeeGroups = regroup ? await this.getGroupingSuggestion(flatAttendees, roomCount) : attendees;
@@ -311,8 +153,8 @@ export default class BookingRepository extends AbstractRepository {
     }
 
     public async getSuggestedTimes(
-        startTime: string,
-        endTime: string,
+        startTime: Date,
+        endTime: Date,
         duration: string,
         attendees: string[],
         equipments: string[],
@@ -334,48 +176,54 @@ export default class BookingRepository extends AbstractRepository {
         return await this.db.$queryRawUnsafe(query);
     }
 
-    // TODO: refactor this
-    private async checkAttendeeAvailabilitiesForUpdate(attendees: number[][], currentBooking: any) {
-        const unavailableAttendees = await this.db.users.findMany({
+    private getUsersBookingData(attendees: number[][], rooms: number[], curr: bookings) {
+        const data = [];
+        for (let i = 0; i < attendees.length; i++) {
+            const roomId = rooms[i];
+            for (const userId of attendees[i]) {
+                data.push({
+                    booking_id: curr.booking_id,
+                    user_id: userId,
+                    room_id: roomId
+                });
+            }
+        }
+        return data;
+    }
+
+    private async checkRoomAvail(rooms: number[], endTime: Date, startTime: Date) {
+        const unavailableRooms = await this.db.rooms.findMany({
             where: {
-                user_id: {
-                    in: attendees.flat()
-                },
+                room_id: {in: rooms},
                 OR: [
+                    {is_active: false},
                     {
                         users_bookings: {
                             some: {
                                 bookings: {
                                     AND: [
-                                        {start_time: {lt: currentBooking.end_time}},
-                                        {end_time: {gt: currentBooking.end_time}},
-                                        {status: {not: "canceled"}},
-                                        {booking_id: {not: currentBooking.booking_id}}
+                                        {start_time: {lt: endTime}},
+                                        {end_time: {gt: startTime}},
+                                        {status: {not: "canceled"}}
                                     ]
                                 }
-                            }
-                        }
-                    },
-                    {
-                        events: {
-                            some: {
-                                AND: [
-                                    {start_time: {lt: currentBooking!.end_time}},
-                                    {end_time: {gt: currentBooking!.start_time}}
-                                ]
                             }
                         }
                     }
                 ]
             },
-            include: {
-                users_bookings: true
-            }
+            include: {buildings: true}
         });
-
-        if (unavailableAttendees.length > 0) {
-            throw new UnavailableAttendeesError(
-                unavailableAttendees.map((user) => `${user.first_name} ${user.last_name} (${user.email})`).join(", ")
+        if (unavailableRooms.length > 0) {
+            for (const room of unavailableRooms) {
+                if (room.is_active === false) {
+                    throw new RequestConflictError(
+                        `room ${room.buildings.city_id}${room.buildings.code} ${room.floor}.${room.code} ${room.name} has been deactivated`
+                    );
+                }
+            }
+            throw new RequestConflictError(
+                `room ${unavailableRooms.map((room) => `${room.buildings.city_id}${room.buildings.code} ${room.floor}.${room.code} ${room.name}`).join(", ")} is no longer available in the timeslot you selected`
             );
         }
     }
@@ -389,7 +237,15 @@ export default class BookingRepository extends AbstractRepository {
         }
         const uniqueBuildings = await this.getBuildingFloor(attendees);
         if (roomCount > uniqueBuildings.length) {
-            throw new BadRequestError("Number of rooms greater than number of different buildings in groups");
+            // TODO: replace with better algorithm
+            const res = [];
+            while (res.length < roomCount) {
+                res.push([attendees.pop()!]);
+            }
+            while (attendees.length !== 0) {
+                res[res.length - 1].push(attendees.pop()!);
+            }
+            return res;
         }
         const remainingBuildings = uniqueBuildings.map((entry) => Number(entry.building_id));
         while (uniqueBuildings.length > roomCount) {
@@ -421,8 +277,8 @@ export default class BookingRepository extends AbstractRepository {
 
     private async searchForRooms(
         attendeeGroup: string[],
-        startTime: string,
-        endTime: string,
+        startTime: Date,
+        endTime: Date,
         equipments: string[],
         priority: string[]
     ) {
@@ -443,17 +299,8 @@ export default class BookingRepository extends AbstractRepository {
             )
         );
         const attendeeList = await this.db.users.findMany({
-            where: {
-                email: {
-                    in: attendeeGroup
-                }
-            },
-            select: {
-                user_id: true,
-                email: true,
-                first_name: true,
-                last_name: true
-            }
+            where: {email: {in: attendeeGroup}},
+            select: {user_id: true, email: true, first_name: true, last_name: true}
         });
         return {
             attendees: attendeeList,
@@ -461,13 +308,18 @@ export default class BookingRepository extends AbstractRepository {
         };
     }
 
-    private async checkAttendeeAvailabilities(attendees: string[], startTime: string, endTime: string) {
+    private async checkAttendeeAvail(
+        attendeeIdentifiers: string[] | number[],
+        identifierType: "user_id" | "email",
+        startTime: Date,
+        endTime: Date,
+        excludeBookingId: number | null
+    ) {
         const unavailableAttendees = await this.db.users.findMany({
             where: {
-                email: {
-                    in: attendees
-                },
+                [identifierType]: {in: attendeeIdentifiers},
                 OR: [
+                    {is_active: false},
                     {
                         users_bookings: {
                             some: {
@@ -475,26 +327,25 @@ export default class BookingRepository extends AbstractRepository {
                                     AND: [
                                         {start_time: {lt: endTime}},
                                         {end_time: {gt: startTime}},
-                                        {status: {not: "canceled"}}
+                                        {status: {not: "canceled"}},
+                                        excludeBookingId === null ? {} : {booking_id: {not: excludeBookingId}}
                                     ]
                                 }
                             }
                         }
                     },
-                    {
-                        events: {
-                            some: {
-                                AND: [{start_time: {lt: endTime}}, {end_time: {gt: startTime}}]
-                            }
-                        }
-                    }
+                    {events: {some: {AND: [{start_time: {lt: endTime}}, {end_time: {gt: startTime}}]}}}
                 ]
-            },
-            include: {
-                users_bookings: true
             }
         });
         if (unavailableAttendees.length > 0) {
+            for (const unavailableAttendee of unavailableAttendees) {
+                if (unavailableAttendee.is_active === false) {
+                    throw new UnavailableAttendeesError(
+                        `${unavailableAttendee.first_name} ${unavailableAttendee.last_name} (${unavailableAttendee.email}) has been deactivated`
+                    );
+                }
+            }
             throw new UnavailableAttendeesError(
                 unavailableAttendees.map((user) => `${user.first_name} ${user.last_name} (${user.email})`).join(", ")
             );
@@ -503,16 +354,8 @@ export default class BookingRepository extends AbstractRepository {
 
     private async getCityId(email: string): Promise<string> {
         const res = await this.db.users.findUnique({
-            where: {
-                email: email
-            },
-            include: {
-                buildings: {
-                    select: {
-                        city_id: true
-                    }
-                }
-            }
+            where: {email: email},
+            include: {buildings: {select: {city_id: true}}}
         });
         if (res === null) {
             throw new NotFoundError(`User ${email} not found`);
@@ -598,8 +441,8 @@ export default class BookingRepository extends AbstractRepository {
     }
 
     private buildRoomSearchQuery(
-        startTime: string,
-        endTime: string,
+        startTime: Date,
+        endTime: Date,
         attendees: string[],
         equipments: string[],
         priorities: string[],
@@ -664,8 +507,8 @@ export default class BookingRepository extends AbstractRepository {
                          (SELECT ub.room_id
                           FROM users_bookings ub
                           JOIN bookings b ON b.booking_id = ub.booking_id
-                          WHERE b.start_time < '${endTime}'
-                              AND b.end_time > '${startTime}'
+                          WHERE b.start_time < '${endTime.toISOString()}'
+                              AND b.end_time > '${startTime.toISOString()}'
                               AND b.status != 'canceled' ) )
             SELECT buildings.city_id,
                    buildings.code AS building_code,
@@ -686,9 +529,10 @@ export default class BookingRepository extends AbstractRepository {
         //@formatter:on
     }
 
+    // TODO: add toISOString()
     private buildTimeSuggestionQuery(
-        startTime: string,
-        endTime: string,
+        startTime: Date,
+        endTime: Date,
         duration: string,
         attendees: string[],
         equipments: string[],
@@ -706,43 +550,43 @@ export default class BookingRepository extends AbstractRepository {
         //@formatter:off
         let query = `
             WITH RECURSIVE dates AS (
-              SELECT TIMESTAMP '${startTime}' AS dt 
+              SELECT TIMESTAMP '${startTime}' AS dt
               UNION ALL
               SELECT dt + INTERVAL '${stepSize}'
-              FROM dates 
+              FROM dates
               WHERE dt + INTERVAL '${stepSize}' < TIMESTAMP '${endTime}'
-            ), 
+            ),
             room_availability AS (
-              SELECT 
-                DISTINCT r.room_id, 
-                b2.start_time, 
-                b2.end_time 
-              FROM 
-                rooms r 
-                LEFT JOIN buildings b ON r.building_id = b.building_id 
-                LEFT JOIN users_bookings ub ON r.room_id = ub.room_id 
-                LEFT JOIN bookings b2 ON ub.booking_id = b2.booking_id 
-              WHERE 
+              SELECT
+                DISTINCT r.room_id,
+                b2.start_time,
+                b2.end_time
+              FROM
+                rooms r
+                LEFT JOIN buildings b ON r.building_id = b.building_id
+                LEFT JOIN users_bookings ub ON r.room_id = ub.room_id
+                LEFT JOIN bookings b2 ON ub.booking_id = b2.booking_id
+              WHERE
                 b.city_id = '${city}' AND (b2.start_time < '${endTime}' OR b2.end_time > '${startTime}')
-            ), 
+            ),
             user_ids AS (
-              SELECT u.user_id 
-              FROM users u 
+              SELECT u.user_id
+              FROM users u
               WHERE u.email IN ${userList}
-            ), 
+            ),
             user_bookings_overlap AS (
-              SELECT 
-                ub.user_id, 
-                b.start_time, 
-                b.end_time 
-              FROM 
-                users_bookings ub 
-                JOIN bookings b ON ub.booking_id = b.booking_id 
-              WHERE 
+              SELECT
+                ub.user_id,
+                b.start_time,
+                b.end_time
+              FROM
+                users_bookings ub
+                JOIN bookings b ON ub.booking_id = b.booking_id
+              WHERE
                 b.start_time < '${endTime}' AND b.end_time > '${startTime}' AND ub.user_id IN (SELECT user_id FROM user_ids)
-            ), 
+            ),
             room_equipment_info AS (
-              SELECT 
+              SELECT
                 room_id
         `;
         //@formatter:on

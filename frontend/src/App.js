@@ -13,8 +13,19 @@ function App() {
           <Outlet />
         </div>
       </main>
-        <TokenExpirationListener />
-        <ToastContainer />
+      <TokenExpirationListener />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }

@@ -1,33 +1,31 @@
-import React, { useState, useMemo } from "react";
+import React from "react";
 import BookingStepper from "../components/BookingStepper";
 import DragAndDrop from "../components/DragAndDrop";
 import UserEquipInput from "../components/UserEquipInput";
 import UserEmailInput from "../components/UserEmailInput";
 import TimeDropdowns from "../components/TimeDropdown";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import LoggedInUserGroup from "../components/LoggedInUserGroup";
-import ToogleRooms from "../components/ToggleRooms";
+import ToggleRooms from "../components/ToggleRooms";
 import ToggleRegroup from "../components/ToggleRegroup";
 import {
-  resetBooking,
-  setUngroupedAttendees,
-  setSearchOnce,
   initializeGroupedAttendees,
-  setLoggedInUserGroup,
-  setSelectedRoom,
-  startLoading,
-  stopLoading,
+  resetBooking,
   setGroupToDisplay,
-  startSearch,
-  stopSearch,
+  setIsMultiCity,
+  setLoggedInUserGroup,
   setRegroup,
   setRoomCount,
-  setIsMultiCity,
+  setSearchOnce,
+  setUngroupedAttendees,
+  startLoading,
+  startSearch,
+  stopLoading,
 } from "../slices/bookingSlice";
 import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
@@ -152,22 +150,20 @@ const BookingPage = () => {
       console.log("reqBody", reqBody);
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
 
+      if (!searchOnce) {
+        dispatch(setUngroupedAttendees([]));
+        dispatch(setSearchOnce(true));
+      }
+      dispatch(setRegroup(false)); // always set to Same Group unless isMultiCity
       dispatch(
         initializeGroupedAttendees(reorganizeAvailableRooms(availableRooms)),
       );
       dispatch(startSearch());
 
       dispatch(setGroupToDisplay("Group1"));
-
-      if (!searchOnce) {
-        dispatch(setUngroupedAttendees([]));
-        dispatch(setSearchOnce(true));
-        dispatch(setRegroup(false));
-      }
     } catch (err) {
       console.log(err);
       toast.error(err?.data?.error || "Failed to get available rooms");
-      console.log(err?.data?.error);
     } finally {
       dispatch(stopLoading());
     }
@@ -213,9 +209,9 @@ const BookingPage = () => {
 
     const newRoomCount = availableRooms.result.groups.length;
     const isMultiCity = availableRooms.result.isMultiCity;
+    dispatch(setRoomCount(newRoomCount));
     dispatch(setIsMultiCity(isMultiCity));
     if (isMultiCity) {
-      dispatch(setRoomCount(newRoomCount));
       dispatch(setRegroup(true));
       toast.info(
         "Attendees are from different cities. Room counts may be adjusted to match the number of cities.",
@@ -254,12 +250,43 @@ const BookingPage = () => {
         <div className="flex basis-1/3 flex-col items-center justify-center">
           <form onSubmit={handleSearch}>
             <h1 className="mb-4 text-center text-xl font-semibold md:text-start">
-              Book a Room
+              New Booking
             </h1>
             <div className="flex flex-col gap-3">
-              <h2 className="mt-4">Select Time</h2>
+              <h2 className="mt-4">Date and time:</h2>
               <ToggleSuggestedTime />
               {suggestedTimeMode ? <SuggestedTimeInput /> : <TimeDropdowns />}
+              <h2>Number of rooms:</h2>
+              <div className="text-sm text-gray-500">
+                Auto-determined for multi-city attendees
+              </div>
+              <UserRoomCountInput />
+              {searchOnce ? (
+                loading ? (
+                  <Loader />
+                ) : (
+                  <>
+                    <h2>Select rooms by attendee groups:</h2>
+                    <UserEmailGroup />
+                    <h2>Your assigned group:</h2>
+                    <LoggedInUserGroup />
+                  </>
+                )
+              ) : (
+                <>
+                  <h2>Enter all attendee emails:</h2>
+                  <div className="text-sm text-gray-500">
+                    You are automatically included
+                  </div>
+                  <UserEmailInput />
+                </>
+              )}
+              {searchOnce && !isMultiCity && (
+                <div>
+                  <h2>Auto-regroup:</h2>
+                  <ToggleRegroup />
+                </div>
+              )}
               {/* <h2>Meeting Type</h2>
             <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
               <div className="relative">
@@ -276,37 +303,10 @@ const BookingPage = () => {
                 </div>
               </div>
             </div> */}
-              <h2>Equipments</h2>
+              <h2>Room equipments:</h2>
               <UserEquipInput />
-              <h2>Priority</h2>
+              <h2>Sorting priorities:</h2>
               <DragAndDrop />
-
-              <h2>Number of Rooms </h2>
-              <UserRoomCountInput />
-              {searchOnce ? (
-                loading ? (
-                  <Loader />
-                ) : (
-                  <>
-                    <h2>Your assigned room: </h2>
-                    <LoggedInUserGroup />
-                    <h2>Enter user emails by group</h2>
-                    <UserEmailGroup />
-                  </>
-                )
-              ) : (
-                <>
-                  <h2>Enter all user emails</h2>
-                  <UserEmailInput />
-                </>
-              )}
-
-              {searchOnce && !isMultiCity && (
-                <div>
-                  <h2>Regroup</h2>
-                  <ToggleRegroup />
-                </div>
-              )}
               <div className="my-4 flex items-center justify-center">
                 <button
                   type="submit"
@@ -331,17 +331,17 @@ const BookingPage = () => {
             </div>
 
             <div className="flex items-start justify-center gap-4">
-              <ToogleRooms />
+              <ToggleRooms />
               {searchOnce && allGroupsHaveSelectedRoom ? (
                 <button
-                  className="rounded bg-theme-orange px-4 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                  className="rounded bg-theme-orange px-6 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
                   onClick={handleSubmit}
                 >
                   Submit
                 </button>
               ) : (
                 <button
-                  className="cursor-not-allowed rounded-md bg-gray-300 px-4 py-2 opacity-50"
+                  className="cursor-not-allowed rounded-md bg-gray-300 px-6 py-2 opacity-50"
                   disabled
                 >
                   Submit

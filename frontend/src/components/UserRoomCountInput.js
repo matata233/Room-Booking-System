@@ -4,7 +4,9 @@ import { setRoomCount } from "../slices/bookingSlice";
 
 const UserRoomCountInput = () => {
   const dispatch = useDispatch();
-  const roomCount = useSelector((state) => state.booking.roomCount);
+  const { roomCount, searchOnce, roomCountUpdateAfterSearch } = useSelector(
+    (state) => state.booking,
+  );
   const [roomCountLocal, setRoomCountLocal] = useState(roomCount);
 
   const handleChange = (e) => {
