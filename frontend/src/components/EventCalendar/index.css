@@ -8,12 +8,12 @@
 }
 
 .rbc-event {
-  border: 0 !important;
-  border-left: 4px solid #dd7832 !important;
+  /* border: 0 !important; */
+  /* border-left: 4px solid #dd7832 !important; */
 
   outline: none !important;
   border-radius: 0;
-  background-color: #f3a545d6 !important;
+  /* background-color: #f3a545d6 !important; */
   color: black;
   font-weight: 300;
   width: inherit !important;
