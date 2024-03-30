@@ -1,17 +1,9 @@
-import AbstractDTO from "./AbstractDTO";
-import {IsIn, IsOptional, IsString} from "class-validator";
+import AbstractDTO, {BOOKINGS_GET_AVAIL, ROOMS} from "./AbstractDTO";
+import {IsIn} from "class-validator";
 
 export default class EquipmentDTO extends AbstractDTO {
-    @IsString()
-    @IsIn(["AV", "VC"])
-    @IsOptional()
-    public equipmentId?: string;
+    @IsIn(["AV", "VC"], {groups: [ROOMS, BOOKINGS_GET_AVAIL]})
+    equipmentId?: string;
 
-    @IsString()
-    @IsOptional()
-    public description?: string;
-
-    constructor() {
-        super();
-    }
+    description?: string;
 }
