@@ -32,7 +32,9 @@ const UserEmailInputEdit = () => {
       userId: option.value,
       email: option.label,
     }));
-
+    if (editableAttendees.length !== ungroupedAttendees.length) {
+      selectedAttendees.push({userId: userInfo.userId, email: userInfo.email});
+    }
     dispatch(setUngroupedAttendees(selectedAttendees));
   };
 
