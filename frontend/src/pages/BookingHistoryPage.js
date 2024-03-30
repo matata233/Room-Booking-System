@@ -138,6 +138,31 @@ const BookingHistoryPage = () => {
     };
   }
 
+  function getCurrentLocalDateTime() {
+    const localTimeZone = moment.tz.guess();
+    const localDateTime = moment()
+      .tz(localTimeZone)
+      .format("YYYY-MM-DD HH:mm:ss z");
+    const [date, time, timezone] = localDateTime.split(" ");
+    return {
+      date: date,
+      time: time,
+      timezone: timezone,
+    };
+  }
+
+  function checkTime(utcTime) {
+    const formatDateTimeObj = formatDateTime(utcTime);
+    const localDateTimeObj = getCurrentLocalDateTime();
+
+    const formatDateTimeStr = `${formatDateTimeObj.date} ${formatDateTimeObj.time}`;
+    const localDateTimeStr = `${localDateTimeObj.date} ${localDateTimeObj.time}`;
+
+    return moment(localDateTimeStr, "YYYY-MM-DD HH:mm:ss").isBefore(
+      moment(formatDateTimeStr, "YYYY-MM-DD HH:mm:ss"),
+    );
+  }
+
   function getRooms(booking) {
     const rooms = [];
     booking.groups.forEach((group) => {
@@ -268,7 +293,7 @@ const BookingHistoryPage = () => {
                         </div>
                       </div>
                       {book.status === "confirmed" &&
-                        userInfo.email === book.users.email && (
+                        userInfo.email === book.users.email && checkTime(book.startTime) && (
                           <div className="mr-2 lg:mr-5">
                             <div className="flex justify-end">
                               <button
