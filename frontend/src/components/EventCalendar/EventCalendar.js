@@ -132,6 +132,28 @@ const EventCalendar = () => {
   //   console.log("second");
   // };
 
+  const eventStyleGetter = (event) => {
+    let newStyle = {
+      backgroundColor: "f3a545d6",
+      color: "black",
+      borderLeftStyle: "solid",
+      borderLeftWidth: "4px",
+      borderLeftColor: "#dd7832",
+    };
+
+    if (event.type === "event") {
+      newStyle.backgroundColor = "#f3a545d6";
+      newStyle.borderLeftColor = "#dd7832";
+    } else if (event.type === "booking") {
+      newStyle.backgroundColor = "#659FDF";
+      newStyle.borderLeftColor = "#0367fc";
+      newStyle.color = "white";
+    }
+    return {
+      style: newStyle,
+    };
+  };
+
   return (
     <div className="flex w-screen justify-center gap-10">
       <div className="flex w-screen flex-col lg:w-2/3 2xl:w-[1000px]">
@@ -159,6 +181,7 @@ const EventCalendar = () => {
             selectable
             onSelectEvent={handleSelectEvent}
             onSelectSlot={(date) => handleSelectDate(date.start)}
+            eventPropGetter={eventStyleGetter}
           />
         </div>
 

@@ -48,7 +48,7 @@ const AddBuilding = ({
           htmlFor="buildingCode"
           className="block text-sm font-medium text-gray-700"
         >
-          Building Code*
+          Building Number*
         </label>
         <input
           id="buildingCode"
