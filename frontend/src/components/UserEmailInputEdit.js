@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import Loader from "./Loader";
 import Message from "./Message";
-import { setUngroupedAttendees } from "../slices/bookingSlice";
-const UserEmailInputEdit = () => {
+const UserEmailInputEdit = ({ attendees, setAttendees }) => {
   const animatedComponents = makeAnimated();
   const {
     data: userEmails,
@@ -14,16 +13,14 @@ const UserEmailInputEdit = () => {
     isLoading,
     refetch,
   } = useGetAllEmailsQuery();
-  const dispatch = useDispatch();
 
   const { userInfo } = useSelector((state) => state.auth);
   const filteredEmails = userEmails?.result.filter(
     (user) => user.email !== userInfo.email,
   ); // Filter out the current user's email
 
-  const { ungroupedAttendees } = useSelector((state) => state.booking);
 
-  const editableAttendees = ungroupedAttendees.filter(
+  const editableAttendees = attendees.filter(
     (user) => user.email !== userInfo.email
   );
 
@@ -32,10 +29,10 @@ const UserEmailInputEdit = () => {
       userId: option.value,
       email: option.label,
     }));
-    if (editableAttendees.length !== ungroupedAttendees.length) {
+    if (editableAttendees.length !== attendees.length) {
       selectedAttendees.push({userId: userInfo.userId, email: userInfo.email});
     }
-    dispatch(setUngroupedAttendees(selectedAttendees));
+    setAttendees(selectedAttendees);
   };
 
   return isLoading ? (

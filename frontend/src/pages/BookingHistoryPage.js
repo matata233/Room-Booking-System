@@ -1,12 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
-import { Link } from "react-router-dom";
 import {
   useGetBookingCurrentUserQuery,
   useUpdateBookingMutation,
 } from "../slices/bookingApiSlice";
-import { setGroupedAttendees, setUngroupedAttendees } from "../slices/bookingSlice";
 import CheckIcon from "@mui/icons-material/Check";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Pagination from "../components/Pagination";
@@ -33,8 +31,6 @@ const BookingHistoryPage = () => {
   }, [isLoading, booking]);
 
   const [updateBooking] = useUpdateBookingMutation();
-  const dispatch = useDispatch();
-  const { ungroupedAttendees } = useSelector((state) => state.booking);
 
   mirage.register();
 
@@ -45,10 +41,11 @@ const BookingHistoryPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(0);
+  const [attendees, setAttendees] = useState();
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
 
   const handleEditBooking = (booking, index) => {
-    dispatch(setUngroupedAttendees(booking.groups[index].attendees));
+    setAttendees(booking.groups[index].attendees);
     setIsEditing(true);
     setSelectedBooking(booking);
     setSelectedGroup(index);
@@ -87,19 +84,12 @@ const BookingHistoryPage = () => {
 
   const handleSaveBooking = async () => {
     try {
-      console.log("selected booking", selectedBooking);
       const users = getAttendees(selectedBooking);
       const newAttendees = [];
-      ungroupedAttendees.map((attendee) => {
+      attendees.map((attendee) => {
         newAttendees.push(attendee.userId);
       });
       users[selectedGroup] = newAttendees;
-      const body = { 
-        status: "confirmed",
-        users:users,
-        rooms:getRooms(selectedBooking)
-      }
-      console.log(body);
       await updateBooking({
         bookingId: selectedBooking.bookingId,
         updatedBooking: { status: "confirmed", users: users, rooms: getRooms(selectedBooking) },
@@ -365,6 +355,8 @@ const BookingHistoryPage = () => {
         <EditBookingModal
           onUpdate={handleSaveBooking}
           onClose={handleCloseModal}
+          attendees={attendees}
+          setAttendees={setAttendees}
         />
       )}
       {isCancelConfirmOpen && (
