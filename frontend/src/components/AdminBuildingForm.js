@@ -22,7 +22,7 @@ const AdminBuildingForm = ({
     const errors = [];
 
     if (!Number.isInteger(data.code) || data.code < 0) {
-      errors.push("invalid building code");
+      errors.push("invalid building number");
     }
     return {
       isValid: errors.length === 0,
