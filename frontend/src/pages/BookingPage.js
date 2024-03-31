@@ -27,7 +27,10 @@ import {
   startSearch,
   stopLoading,
 } from "../slices/bookingSlice";
-import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
+import {
+  useGetAvailableRoomsMutation,
+  useGetSuggestedTimeMutation,
+} from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
 import Message from "../components/Message";
 import BookingRoomsDisplay from "../components/BookingRoomsDisplay";
@@ -66,9 +69,16 @@ const BookingPage = () => {
   const [getAvailableRooms, { isLoading, error }] =
     useGetAvailableRoomsMutation();
 
+  const [getSuggestedTime, { isLoading: suggestedTimeLoading }] =
+    useGetSuggestedTimeMutation();
+
   const handleSearch = async (e) => {
     try {
       e.preventDefault();
+      if (suggestedTimeMode) {
+        toast.warning("Please get a suggested time first");
+        return;
+      }
       dispatch(startLoading());
       // check if the user number <= room number
       if (!searchOnce) {
@@ -241,6 +251,10 @@ const BookingPage = () => {
     navigate("/bookingReview");
   };
 
+  const handleGetSuggestedTime = async () => {
+    const startDateTime = new Date(`${startDate}T${startTime}`).toISOString();
+  };
+
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
       <BookingStepper currentStage={1} />
@@ -256,31 +270,70 @@ const BookingPage = () => {
               <h2 className="mt-4">Date and time:</h2>
               <ToggleSuggestedTime />
               {suggestedTimeMode ? <SuggestedTimeInput /> : <TimeDropdowns />}
-              <h2>Number of rooms:</h2>
-              <div className="text-sm text-gray-500">
-                Auto-determined for multi-city attendees
-              </div>
-              <UserRoomCountInput />
-              {searchOnce ? (
-                loading ? (
-                  <Loader />
-                ) : (
-                  <>
-                    <h2>Select rooms by attendee groups:</h2>
-                    <UserEmailGroup />
-                    <h2>Your assigned group:</h2>
-                    <LoggedInUserGroup />
-                  </>
-                )
+              {suggestedTimeMode ? (
+                <>
+                  {searchOnce ? (
+                    loading ? (
+                      <Loader />
+                    ) : (
+                      <>
+                        <h2>Select rooms by attendee groups:</h2>
+                        <UserEmailGroup />
+                        <h2>Your assigned group:</h2>
+                        <LoggedInUserGroup />
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <h2>Enter all attendee emails:</h2>
+                      <div className="text-sm text-gray-500">
+                        You are automatically included
+                      </div>
+                      <UserEmailInput />
+                    </>
+                  )}
+                  <button
+                    onClick={handleGetSuggestedTime}
+                    className="mb-6 rounded bg-theme-orange px-6 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                  >
+                    Get Suggested Time!
+                  </button>
+                  <h2>Number of rooms:</h2>
+                  <div className="text-sm text-gray-500">
+                    Auto-determined for multi-city attendees
+                  </div>
+                  <UserRoomCountInput />
+                </>
               ) : (
                 <>
-                  <h2>Enter all attendee emails:</h2>
+                  <h2>Number of rooms:</h2>
                   <div className="text-sm text-gray-500">
-                    You are automatically included
+                    Auto-determined for multi-city attendees
                   </div>
-                  <UserEmailInput />
+                  <UserRoomCountInput />
+                  {searchOnce ? (
+                    loading ? (
+                      <Loader />
+                    ) : (
+                      <>
+                        <h2>Select rooms by attendee groups:</h2>
+                        <UserEmailGroup />
+                        <h2>Your assigned group:</h2>
+                        <LoggedInUserGroup />
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <h2>Enter all attendee emails:</h2>
+                      <div className="text-sm text-gray-500">
+                        You are automatically included
+                      </div>
+                      <UserEmailInput />
+                    </>
+                  )}
                 </>
               )}
+
               {searchOnce && !isMultiCity && (
                 <div>
                   <h2>Auto-regroup:</h2>

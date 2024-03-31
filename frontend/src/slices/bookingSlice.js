@@ -1,24 +1,19 @@
 // bookingSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
-import dayjs from "dayjs";
+import {
+  nextDay,
+  nextDayAtTen,
+  sevenDaysLaterAtTen,
+} from "../utils/getDateTime";
 
 const persistedUserInfo = localStorage.getItem("userInfo");
 const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;
 
-const getNextHour = () => {
-  const now = dayjs();
-  return now.minute() || now.second() || now.millisecond()
-    ? now.add(1, "hour").startOf("hour")
-    : now.startOf("hour");
-};
-
-const nextHour = getNextHour();
-
 const initialState = {
-  startDate: nextHour.format("YYYY-MM-DD"),
-  startTime: nextHour.format("HH:mm"),
-  endTime: "23:45",
+  startDate: nextDay.format("YYYY-MM-DD"),
+  startTime: "10:00",
+  endTime: "12:00",
   equipments: [],
   priority: [
     {
@@ -49,6 +44,12 @@ const initialState = {
   regroup: true,
   isMultiCity: false,
   suggestedTimeMode: true,
+  suggestedTimeInput: {
+    startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
+    endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
+    duration: 1,
+    unit: "hours",
+  },
 };
 
 export const bookingSlice = createSlice({
@@ -125,7 +126,6 @@ export const bookingSlice = createSlice({
     stopSearch: (state) => {
       state.searching = false;
     },
-    resetBooking: (state) => (state = initialState),
     toggleShowRecommended: (state) => {
       state.showRecommended = !state.showRecommended;
     },
@@ -138,6 +138,10 @@ export const bookingSlice = createSlice({
     toggleSuggestedTimeMode: (state) => {
       state.suggestedTimeMode = !state.suggestedTimeMode;
     },
+    setSuggestedTimeInput: (state, action) => {
+      state.suggestedTimeInput = action.payload;
+    },
+    resetBooking: (state) => (state = initialState),
   },
 });
 
@@ -165,6 +169,7 @@ export const {
   setRegroup,
   setIsMultiCity,
   toggleSuggestedTimeMode,
+  setSuggestedTimeInput,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;
