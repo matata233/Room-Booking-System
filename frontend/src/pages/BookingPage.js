@@ -279,7 +279,7 @@ const BookingPage = () => {
         duration: `${suggestedTimeInput.duration} ${suggestedTimeInput.unit}`,
         attendees: attendeesEmails,
         equipments: [], // TODO: remove when API changes
-        step_size: "15 minutes",
+        step_size: "30 minutes",
       };
       console.log("getSuggestedTime reqBody", reqBody);
       const suggestedTime = await getSuggestedTime(reqBody).unwrap();
