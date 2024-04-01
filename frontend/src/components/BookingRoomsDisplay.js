@@ -110,6 +110,15 @@ const BookingRoomsDisplay = () => {
     return rooms.filter((room) => {
       const searchValue = searchQuery.toLowerCase();
       switch (selectedSearchOption) {
+        case "all":
+          return (
+            room.cityId.toLowerCase().includes(searchValue) ||
+            room.buildingCode.toString().includes(searchValue) ||
+            room.floor.toString().includes(searchQuery) ||
+            room.roomCode.toString().includes(searchValue) ||
+            room.roomName.toLowerCase().includes(searchValue) ||
+            room.seats.toString().includes(searchQuery)
+          );
         case "cityId":
           return room.cityId.toLowerCase().includes(searchValue);
         case "buildingCode":
