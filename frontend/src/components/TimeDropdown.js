@@ -65,7 +65,7 @@ const TimeDropdowns = () => {
         value={startDate}
         min={getCurrentDate()}
         onChange={handleDateChange}
-        className="mb-4 block w-full cursor-pointer appearance-none rounded-md bg-white px-4 py-2 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+        className="mb-4 block w-full cursor-pointer appearance-none rounded-md bg-white p-2 pl-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
         required
       />
       <div>From:</div>
