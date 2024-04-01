@@ -12,6 +12,15 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
       providesTags: ["Booking"],
     }),
 
+    getSuggestedTime: builder.mutation({
+      query: (timeData) => ({
+        url: `${BOOKING_URL}/time-suggestion`,
+        method: "POST",
+        body: timeData,
+      }),
+      providesTags: ["Booking"],
+    }),
+
     confirmBooking: builder.mutation({
       query: (bookingData) => ({
         url: `${BOOKING_URL}/create`,
@@ -38,7 +47,7 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
     }),
 
     updateBooking: builder.mutation({
-      query: ({ bookingId, updatedBooking}) => ({
+      query: ({ bookingId, updatedBooking }) => ({
         url: `${BOOKING_URL}/${bookingId}`,
         method: "PUT",
         body: updatedBooking,
@@ -54,4 +63,5 @@ export const {
   useGetBookingCurrentUserQuery,
   useGetBookingQuery,
   useUpdateBookingMutation,
+  useGetSuggestedTimeMutation,
 } = bookingApiSlice;

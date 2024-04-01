@@ -14,10 +14,6 @@ import { toast } from "react-toastify";
 const BuildingManagementPage = () => {
   const { data: buildings, error, isLoading, refetch } = useGetBuildingsQuery();
 
-  //TODO: update room status
-  //   const [updateRoom, { isLoading: isUpdating, error: updateError }] =
-  //     useUpdateRoomMutation();
-
   const buildingsData = useMemo(() => {
     if (isLoading || !buildings || !buildings.result) {
       return [];

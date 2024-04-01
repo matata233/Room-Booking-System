@@ -5,7 +5,6 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { useNavigate } from "react-router-dom";
 
 const theme = createTheme({
   palette: {
@@ -17,7 +16,6 @@ const theme = createTheme({
 
 const BookingStepper = ({ currentStage }) => {
   const matches = useMediaQuery(theme.breakpoints.down("md"));
-  const navigate = useNavigate();
 
   const steps = ["Login", "Booking", "Review", "Complete"];
   const [activeStep, setActiveStep] = React.useState(currentStage);
