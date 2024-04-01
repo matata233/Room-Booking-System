@@ -99,6 +99,40 @@ export const bookingSlice = createSlice({
         }
       }
     },
+
+    updateRoomsAndSelectedRoomForGroup: (state, action) => {
+      const { groupId, rooms } = action.payload;
+      let flag = false; // flat to track the first group needing an update
+
+      state.groupedAttendees.forEach((group, index) => {
+        if (group.groupId === groupId) {
+          // update rooms for the matching group
+          group.rooms = rooms;
+
+          // Check if the selectedRoom exists in the updated rooms list
+          const selectedRoomExists = rooms.some(
+            (room) => room.roomId === group.selectedRoom.roomId,
+          );
+
+          // If the selectedRoom does not exist in the updated rooms list, set it to null
+          group.selectedRoom = selectedRoomExists ? group.selectedRoom : null;
+
+          // For the first group needing update of selectedRoom to null, set groupToDisplay and ensure this happens only once
+          if (!selectedRoomExists && !flag) {
+            state.groupToDisplay = groupId;
+            flag = true;
+          }
+
+          // check if the group being updated is the same as the loggedInUser's group
+          if (state.loggedInUser.group === groupId) {
+            state.loggedInUser.selectedRoom = selectedRoomExists
+              ? state.loggedInUser.selectedRoom
+              : null;
+          }
+        }
+      });
+    },
+
     setUngroupedAttendees: (state, action) => {
       state.ungroupedAttendees = action.payload;
     },
@@ -107,6 +141,14 @@ export const bookingSlice = createSlice({
     },
     setLoggedInUserGroup: (state, action) => {
       state.loggedInUser.group = action.payload;
+
+      // set the selectedRoom for the loggedInUser to updated group
+      const group = state.groupedAttendees.find(
+        (group) => group.groupId === action.payload,
+      );
+      if (group) {
+        state.loggedInUser.selectedRoom = group.selectedRoom;
+      }
     },
     setGroupToDisplay: (state, action) => {
       state.groupToDisplay = action.payload;
@@ -179,6 +221,7 @@ export const {
   setSuggestedTimeMode,
   setSuggestedTimeInput,
   setSuggestedTimeReceived,
+  updateRoomsAndSelectedRoomForGroup,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

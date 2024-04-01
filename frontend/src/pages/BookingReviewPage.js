@@ -9,19 +9,15 @@ import {
   useConfirmBookingMutation,
 } from "../slices/bookingApiSlice";
 import {
-  initializeGroupedAttendees,
   resetBooking,
-  setGroupToDisplay,
-  setIsMultiCity,
-  setLoggedInUserGroup,
-  setRegroup,
-  setRoomCount,
   startLoading,
   startSearch,
   stopLoading,
+  updateRoomsAndSelectedRoomForGroup,
 } from "../slices/bookingSlice";
 import { toast } from "react-toastify";
 import moment from "moment-timezone";
+import Loader from "../components/Loader";
 
 const BookingReviewPage = () => {
   const navigate = useNavigate();
@@ -133,14 +129,11 @@ const BookingReviewPage = () => {
         dispatch(startLoading());
         const reqBodyRooms = createRequestBodyForGetAvailableRooms();
         const availableRooms = await getAvailableRooms(reqBodyRooms).unwrap();
-        dispatch(
-          initializeGroupedAttendees(reorganizeAvailableRooms(availableRooms)),
-        );
+        updateGroupedAttendees(availableRooms.result.groups);
         dispatch(startSearch());
-        dispatch(setGroupToDisplay("Group1"));
-
         toast.error(err?.data?.error || "Failed to confirm booking");
       } catch (err) {
+        console.log(err);
         toast.error(err?.data?.error || "Failed to refetch available rooms");
       } finally {
         navigate("/booking");
@@ -149,61 +142,43 @@ const BookingReviewPage = () => {
     }
   };
 
-  const reorganizeAvailableRooms = (availableRooms) => {
-    let loggedInUserGroup = null;
-    const transformedResponse = availableRooms.result.groups.map(
-      (group, index) => {
-        // map over each attendee to create a new object with userId instead of user_id
-        const updatedAttendees = group.attendees
-          .map((attendee) => ({
-            userId: attendee.user_id,
-            user_id: undefined,
-            ...attendee,
-          }))
-          .filter((attendee) => attendee.email !== userInfo.email) // exclude logged-in user
-          .map(({ user_id, first_name, last_name, ...rest }) => rest); // remove user_id field
-
-        const filteredAttendees = updatedAttendees.filter(
-          (attendee) => attendee.email !== userInfo.email,
+  const updateGroupedAttendees = (newGroups) => {
+    groupedAttendees.forEach((localGroup) => {
+      const matchingGroup = findMatchingGroup(localGroup, newGroups);
+      if (matchingGroup) {
+        const updatedRooms = matchingGroup.rooms;
+        dispatch(
+          updateRoomsAndSelectedRoomForGroup({
+            groupId: localGroup.groupId,
+            rooms: updatedRooms,
+          }),
         );
-
-        if (
-          group.attendees.length !== filteredAttendees.length &&
-          !loggedInUserGroup
-        ) {
-          loggedInUserGroup = `Group${index + 1}`;
-        }
-
-        return {
-          groupId: `Group${index + 1}`,
-          attendees: filteredAttendees,
-          rooms: group.rooms,
-          selectedRoom: null,
-        };
-      },
-    );
-
-    const newRoomCount = availableRooms.result.groups.length;
-    const isMultiCity = availableRooms.result.isMultiCity;
-    dispatch(setRoomCount(newRoomCount));
-    dispatch(setIsMultiCity(isMultiCity));
-    if (isMultiCity) {
-      dispatch(setRegroup(true));
-      toast.info(
-        "Attendees are from different cities. Room counts may be adjusted to match the number of cities.",
-      );
-    }
-
-    if (loggedInUserGroup) {
-      dispatch(setLoggedInUserGroup(loggedInUserGroup));
-    }
-
-    transformedResponse.push({
-      groupId: "Ungrouped",
-      attendees: [],
+      }
     });
+  };
 
-    return transformedResponse;
+  const findMatchingGroup = (localGroup, newGroups) => {
+    if (localGroup.groupId !== "Ungrouped") {
+      if (localGroup.attendees.length > 0) {
+        const localFirstAttendeeId = localGroup.attendees[0].userId;
+        const matchedGroup = newGroups.find((newGroup) =>
+          newGroup.attendees.some(
+            (attendee) => attendee.user_id === localFirstAttendeeId,
+          ),
+        );
+        if (matchedGroup) {
+          return matchedGroup;
+        }
+      } else {
+        return newGroups.find((newGroup) =>
+          newGroup.attendees.some(
+            (attendee) => attendee.user_id === userInfo.userId,
+          ),
+        );
+      }
+    }
+
+    return null;
   };
 
   const displayableGroups = groupedAttendees.filter(
@@ -296,6 +271,9 @@ const BookingReviewPage = () => {
       </div>
 
       <div className="flex flex-col items-center">
+        <div className="mt-10 flex justify-center">
+          {getAvailableRoomsLoading && <Loader />}
+        </div>
         <div className="mt-10 flex justify-center">
           <button
             className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
