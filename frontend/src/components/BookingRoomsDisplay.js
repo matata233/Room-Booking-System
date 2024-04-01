@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { setSelectedRoomForGroup, stopSearch } from "../slices/bookingSlice";
 import { ImCheckboxUnchecked, ImCheckboxChecked } from "react-icons/im";
 import RoomSelectionModal from "./RoomSelectionModal";
+import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
 
 const BookingRoomsDisplay = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,21 @@ const BookingRoomsDisplay = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoomForModal, setSelectedRoomForModal] = useState(null);
   const [messageForModal, setMessageForModal] = useState(null);
+  const [selectedSearchOption, setSelectedSearchOption] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const searchPlaceholders = {
+    all: "Search in all fields...",
+    "city.cityId": "Enter city...",
+    "building.code": "Enter building number...",
+    roomCode: "Enter room number...",
+    roomName: "Enter room name...",
+    floorNumber: "Enter floor...",
+    numberOfSeats: "Enter capacity...",
+  };
+
+  const searchPlaceholder =
+    searchPlaceholders[selectedSearchOption] || "Search...";
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,14 +50,26 @@ const BookingRoomsDisplay = () => {
   const { groupedAttendees, groupToDisplay, searching, equipments } =
     useSelector((state) => state.booking);
 
-  // State for search query
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearchInputChange = (e) => {
-    setSearchQuery(e.target.value);
+  const handleSearchOptionChange = (event) => {
+    setSelectedSearchOption(event.target.value);
   };
 
-  const filteredRooms = useMemo(() => {
+  const handleSearchInputChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const [sortOption, setSortOption] = useState("");
+
+  const sortOptions = {
+    floorAsc: (a, b) => a.floor - b.floor,
+    floorDesc: (a, b) => b.floor - a.floor,
+    roomNumberAsc: (a, b) => a.roomCode.localeCompare(b.roomCode),
+    roomNumberDesc: (a, b) => b.roomCode.localeCompare(a.roomCode),
+    capacityAsc: (a, b) => a.seats - b.seats,
+    capacityDesc: (a, b) => b.seats - a.seats,
+  };
+
+  const availableRooms = useMemo(() => {
     // find the group by groupToDisplay
     const group = groupedAttendees.find((g) => g.groupId === groupToDisplay);
     let rooms = group ? (group.rooms ? group.rooms : []) : [];
@@ -75,10 +103,29 @@ const BookingRoomsDisplay = () => {
       dispatch(stopSearch());
     }
 
-    // Filter rooms based on search query
-    return rooms.filter((room) =>
-      room.roomName.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
+    if (sortOption && sortOptions[sortOption]) {
+      rooms.sort(sortOptions[sortOption]);
+    }
+
+    return rooms.filter((room) => {
+      const searchValue = searchQuery.toLowerCase();
+      switch (selectedSearchOption) {
+        case "city.cityId":
+          return room.cityId.toLowerCase().includes(searchValue);
+        case "building.code":
+          return room.buildingCode.toString().includes(searchValue);
+        case "floorNumber":
+          return room.floor.toString().includes(searchQuery);
+        case "roomCode":
+          return room.roomCode.toString().includes(searchValue);
+        case "roomName":
+          return room.roomName.toLowerCase().includes(searchValue);
+        case "numberOfSeats":
+          return room.seats.toString().includes(searchQuery);
+        default:
+          return true;
+      }
+    });
   }, [
     groupedAttendees,
     groupToDisplay,
@@ -86,12 +133,15 @@ const BookingRoomsDisplay = () => {
     searching,
     dispatch,
     searchQuery,
+    selectedSearchOption,
+    sortOption,
+    sortOptions,
   ]);
 
   // Calculate paginated data
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const paginatedData = filteredRooms.slice(startIndex, endIndex);
+  const paginatedData = availableRooms.slice(startIndex, endIndex);
 
   const handleRoomSelection = (room) => {
     return () => {
@@ -162,17 +212,66 @@ const BookingRoomsDisplay = () => {
   return (
     <div className="flex flex-col items-center justify-center sm:items-stretch">
       {/* Search Bar */}
-      <div className="my-4 flex items-center sm:m-0">
-        <label className="mr-2 sm:my-4">Search:</label>
-        <input
-          type="text"
-          placeholder="Enter room name..."
-          value={searchQuery}
-          onChange={handleSearchInputChange}
-          className="text-md h-9 w-60 rounded-lg border-2 border-gray-200 p-2  md:text-base"
-        />
+      <div className="my-4 flex flex-row items-center justify-between sm:m-0">
+        <div className="flex flex-row items-center ">
+          <label className="mr-2 sm:my-4">Search:</label>
+          <input
+            type="text"
+            placeholder={searchPlaceholder}
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+            className="text-md h-9 w-60 rounded-lg border-2 border-gray-200 p-2  focus:border-gray-500 focus:bg-white focus:outline-none md:text-base"
+          />
+          <div className="relative ml-2">
+            <select
+              className="text-md h-9 w-[170px] cursor-pointer appearance-none rounded-lg border-2 border-gray-200 pl-2 focus:border-gray-500 focus:bg-white focus:outline-none md:text-base"
+              name="searchBy"
+              id="searchBy"
+              value={selectedSearchOption}
+              onChange={handleSearchOptionChange}
+            >
+              <option value="all">All</option>
+              <option value="city.cityId">City</option>
+              <option value="building.code">Building Number</option>
+              <option value="roomCode">Room Number</option>
+              <option value="roomName">Room Name</option>
+              <option value="floorNumber">Floor</option>
+              <option value="numberOfSeats">Capacity</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <img
+                src={DropdownArrowSVG}
+                alt="Dropdown Arrow"
+                className="h-5 w-5"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative ml-2">
+          <select
+            className="text-md h-9 w-[200px] cursor-pointer appearance-none rounded-lg border-2 border-gray-200 pl-2 pr-8 focus:border-gray-500 focus:bg-white focus:outline-none md:text-base"
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+          >
+            <option value="">Sort By</option>
+            <option value="floorAsc">Floor (Low to High)</option>
+            <option value="floorDesc">Floor (High to Low)</option>
+            <option value="roomNumberAsc">Room Number (Low to High)</option>
+            <option value="roomNumberDesc">Room Number (High to Low)</option>
+            <option value="capacityAsc">Capacity (Low to High)</option>
+            <option value="capacityDesc">Capacity (High to Low)</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <img
+              src={DropdownArrowSVG}
+              alt="Dropdown Arrow"
+              className="h-5 w-5"
+            />
+          </div>
+        </div>
       </div>
-      {filteredRooms.length > 0 ? ( // If there are available rooms
+      {availableRooms.length > 0 ? ( // If there are available rooms
         <>
           <div className="flex h-[1400px] flex-col gap-4 overflow-y-auto">
             {paginatedData.map((room) => (
@@ -251,7 +350,7 @@ const BookingRoomsDisplay = () => {
             />
           )}
           <Pagination
-            count={filteredRooms.length}
+            count={availableRooms.length}
             rowsPerPage={rowsPerPage}
             currentPage={currentPage}
             handleChangePage={handleChangePage}

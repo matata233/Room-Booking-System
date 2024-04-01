@@ -8,12 +8,11 @@
 }
 
 .rbc-event {
-  /* border: 0 !important; */
-  /* border-left: 4px solid #dd7832 !important; */
-
+  /* border: 0 !important;
+  border-left: 4px solid #d3b5a9 !important;
+  background-color: #eacec3 !important; */
   outline: none !important;
   border-radius: 0;
-  /* background-color: #f3a545d6 !important; */
   color: black;
   font-weight: 300;
   z-index: 50 !important;
@@ -73,11 +72,11 @@
 }
 
 .rbc-today {
-  background-color: #f19e3826;
+  background-color: #fcd8a25c;
 }
 
 .rbc-off-range-bg {
-  background-color: #836f5818 !important;
+  background-color: #0000000a !important;
 }
 
 .rbc-current-time-indicator {
@@ -94,7 +93,7 @@
   transition: background-color 0.2s ease;
 }
 .rbc-day-bg:hover {
-  background-color: #f3a5452b;
+  background-color: #fcd8a25c;
   cursor: pointer;
 }
 
