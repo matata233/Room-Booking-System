@@ -22,8 +22,8 @@ const BookingRoomsDisplay = () => {
 
   const searchPlaceholders = {
     all: "Search in all fields...",
-    "city.cityId": "Enter city...",
-    "building.code": "Enter building number...",
+    cityId: "Enter city...",
+    buildingCode: "Enter building number...",
     roomCode: "Enter room number...",
     roomName: "Enter room name...",
     floorNumber: "Enter floor...",
@@ -110,9 +110,18 @@ const BookingRoomsDisplay = () => {
     return rooms.filter((room) => {
       const searchValue = searchQuery.toLowerCase();
       switch (selectedSearchOption) {
-        case "city.cityId":
+        case "all":
+          return (
+            room.cityId.toLowerCase().includes(searchValue) ||
+            room.buildingCode.toString().includes(searchValue) ||
+            room.floor.toString().includes(searchQuery) ||
+            room.roomCode.toString().includes(searchValue) ||
+            room.roomName.toLowerCase().includes(searchValue) ||
+            room.seats.toString().includes(searchQuery)
+          );
+        case "cityId":
           return room.cityId.toLowerCase().includes(searchValue);
-        case "building.code":
+        case "buildingCode":
           return room.buildingCode.toString().includes(searchValue);
         case "floorNumber":
           return room.floor.toString().includes(searchQuery);
@@ -212,27 +221,29 @@ const BookingRoomsDisplay = () => {
   return (
     <div className="flex flex-col items-center justify-center sm:items-stretch">
       {/* Search Bar */}
-      <div className="my-4 flex flex-row items-center justify-between sm:m-0">
-        <div className="flex flex-row items-center ">
-          <label className="mr-2 sm:my-4">Search:</label>
-          <input
-            type="text"
-            placeholder={searchPlaceholder}
-            value={searchQuery}
-            onChange={handleSearchInputChange}
-            className="text-md h-9 w-60 rounded-lg border-2 border-gray-200 p-2  focus:border-gray-500 focus:bg-white focus:outline-none md:text-base"
-          />
-          <div className="relative ml-2">
+      <div className="my-4 flex flex-col items-center justify-between gap-2 sm:m-0 sm:gap-0 lg:flex-row">
+        <div className="flex flex-row items-center">
+          <div className="flex flex-row items-center">
+            <label className="xl:text-md mr-2 text-sm sm:my-4">Search:</label>{" "}
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              value={searchQuery}
+              onChange={handleSearchInputChange}
+              className="xl:text-md h-8 w-36 rounded-lg border-2 border-gray-200 p-2 text-sm  focus:border-gray-500 focus:bg-white focus:outline-none xl:w-48"
+            />
+          </div>
+          <div className="relative ">
             <select
-              className="text-md h-9 w-[170px] cursor-pointer appearance-none rounded-lg border-2 border-gray-200 pl-2 focus:border-gray-500 focus:bg-white focus:outline-none md:text-base"
+              className="xl:text-md ml-2 h-8 w-24 cursor-pointer appearance-none rounded-lg border-2 border-gray-200 pl-2 pr-8 text-sm focus:border-gray-500 focus:bg-white focus:outline-none xl:w-[170px]"
               name="searchBy"
               id="searchBy"
               value={selectedSearchOption}
               onChange={handleSearchOptionChange}
             >
               <option value="all">All</option>
-              <option value="city.cityId">City</option>
-              <option value="building.code">Building Number</option>
+              <option value="cityId">City</option>
+              <option value="buildingCode">Building Number</option>
               <option value="roomCode">Room Number</option>
               <option value="roomName">Room Name</option>
               <option value="floorNumber">Floor</option>
@@ -248,26 +259,29 @@ const BookingRoomsDisplay = () => {
           </div>
         </div>
 
-        <div className="relative ml-2">
-          <select
-            className="text-md h-9 w-[200px] cursor-pointer appearance-none rounded-lg border-2 border-gray-200 pl-2 pr-8 focus:border-gray-500 focus:bg-white focus:outline-none md:text-base"
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
-          >
-            <option value="">Sort By</option>
-            <option value="floorAsc">Floor (Low to High)</option>
-            <option value="floorDesc">Floor (High to Low)</option>
-            <option value="roomNumberAsc">Room Number (Low to High)</option>
-            <option value="roomNumberDesc">Room Number (High to Low)</option>
-            <option value="capacityAsc">Capacity (Low to High)</option>
-            <option value="capacityDesc">Capacity (High to Low)</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <img
-              src={DropdownArrowSVG}
-              alt="Dropdown Arrow"
-              className="h-5 w-5"
-            />
+        <div className="flex flex-row items-center">
+          <label className="xl:text-md text-sm sm:my-4">Sort By:</label>
+          <div className="relative ml-2">
+            <select
+              className="xl:text-md h-8 w-[245px] cursor-pointer appearance-none rounded-lg border-2 border-gray-200 pl-2 pr-8 text-sm focus:border-gray-500 focus:bg-white focus:outline-none xl:w-[200px]"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
+              <option value="">Default</option>
+              <option value="floorAsc">Floor (Low to High)</option>
+              <option value="floorDesc">Floor (High to Low)</option>
+              <option value="roomNumberAsc">Room Number (Low to High)</option>
+              <option value="roomNumberDesc">Room Number (High to Low)</option>
+              <option value="capacityAsc">Capacity (Low to High)</option>
+              <option value="capacityDesc">Capacity (High to Low)</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <img
+                src={DropdownArrowSVG}
+                alt="Dropdown Arrow"
+                className="h-5 w-5"
+              />
+            </div>
           </div>
         </div>
       </div>
