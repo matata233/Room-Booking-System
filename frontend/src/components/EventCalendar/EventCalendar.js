@@ -43,11 +43,13 @@ const EventCalendar = () => {
     if (isGetBookingsLoading || !booking || !booking.result) {
       return [];
     }
-    return booking.result.map((booking) => ({
-      ...booking,
-      title: "Company Meeting",
-      type: "booking",
-    }));
+    return booking.result
+      .filter((booking) => booking.status === "confirmed")
+      .map((booking) => ({
+        ...booking,
+        title: "Company Meeting",
+        type: "booking",
+      }));
   }, [isGetBookingsLoading, booking]);
 
   const calendarEvents = useMemo(() => {
@@ -125,7 +127,7 @@ const EventCalendar = () => {
 
   // const handleTest = () => {
   //   bookingsData.forEach((book) => {
-  //     console.log("event", book);
+  //     console.log("event", book.status);
   //   });
   //   console.log("second");
   // };

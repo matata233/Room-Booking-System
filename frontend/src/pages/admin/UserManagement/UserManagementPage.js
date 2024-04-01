@@ -124,7 +124,7 @@ const UserManagementPage = () => {
               <option value="firstName">First Name</option>
               <option value="lastName">Last Name</option>
               <option value="city.cityId">City</option>
-              <option value="building.code">Building Code</option>
+              <option value="building.code">Building Number</option>
               <option value="floor">Floor</option>
               <option value="desk">Desk</option>
             </select>
@@ -205,7 +205,7 @@ const UserManagementPage = () => {
                     { key: "firstName", display: "First Name" },
                     { key: "lastName", display: "Last Name" },
                     { key: "city.cityId", display: "City" },
-                    { key: "building.code", display: "Building Code" },
+                    { key: "building.code", display: "Building Number" },
                     { key: "floor", display: "Floor" },
                     { key: "desk", display: "Desk" },
                     { key: "role", display: "Role" },

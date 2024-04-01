@@ -1,12 +1,12 @@
 // bookingSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
 import {
   nextDay,
   nextDayAtTen,
   sevenDaysLaterAtTen,
   nextDayAtNoon,
 } from "../utils/getDateTime";
+
 
 const persistedUserInfo = localStorage.getItem("userInfo");
 const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;

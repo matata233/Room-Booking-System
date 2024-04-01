@@ -4,7 +4,7 @@ import EventCalendar from "../components/EventCalendar/EventCalendar";
 
 const UserSchedulePage = () => {
   return (
-    <div className="flex items-center justify-center">
+    <div className="mb-36 flex items-center justify-center">
       <EventCalendar />
     </div>
   );
