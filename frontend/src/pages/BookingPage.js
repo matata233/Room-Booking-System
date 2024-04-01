@@ -1,15 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import BookingStepper from "../components/BookingStepper";
 import DragAndDrop from "../components/DragAndDrop";
 import UserEquipInput from "../components/UserEquipInput";
 import UserEmailInput from "../components/UserEmailInput";
-import TimeDropdowns from "../components/TimeDropdown";
+import UserTimeInput from "../components/UserTimeInput";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
-import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import LoggedInUserGroup from "../components/LoggedInUserGroup";
 import ToggleRooms from "../components/ToggleRooms";
 import ToggleRegroup from "../components/ToggleRegroup";
@@ -26,27 +25,29 @@ import {
   startLoading,
   startSearch,
   stopLoading,
+  setSuggestedTimeReceived,
 } from "../slices/bookingSlice";
-import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
+import {
+  useGetAvailableRoomsMutation,
+  useGetSuggestedTimeMutation,
+} from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
 import Message from "../components/Message";
 import BookingRoomsDisplay from "../components/BookingRoomsDisplay";
+import ToggleSuggestedTime from "../components/ToggleSuggestedTime";
+import SuggestedTimeInput from "../components/SuggestedTimeInput";
+import TimeSuggestionModal from "../components/TimeSuggestionModal";
+import moment from "moment";
 
 const BookingPage = () => {
-  const {
-    data: userEmails,
-    error: userEmailsError,
-    isLoading: userEmailsLoading,
-    refetch,
-  } = useGetAllEmailsQuery();
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     startTime,
     endTime,
-    startDate,
     equipments,
     priority,
     roomCount,
@@ -57,15 +58,24 @@ const BookingPage = () => {
     loggedInUser,
     regroup,
     isMultiCity,
+    suggestedTimeMode,
+    suggestedTimeInput,
   } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
   const [getAvailableRooms, { isLoading, error }] =
     useGetAvailableRoomsMutation();
 
+  const [getSuggestedTime, { isLoading: suggestedTimeLoading }] =
+    useGetSuggestedTimeMutation();
+
   const handleSearch = async (e) => {
     try {
       e.preventDefault();
+      if (suggestedTimeMode) {
+        toast.warning("Please get a suggested time first");
+        return;
+      }
       dispatch(startLoading());
       // check if the user number <= room number
       if (!searchOnce) {
@@ -91,8 +101,8 @@ const BookingPage = () => {
           return;
         }
       }
-      const startDateTime = new Date(`${startDate}T${startTime}`).toISOString();
-      const endDateTime = new Date(`${startDate}T${endTime}`).toISOString();
+      const startDateTime = new Date(startTime).toISOString();
+      const endDateTime = new Date(endTime).toISOString();
 
       const equipmentCodes = equipments.map((equip) => equip.id);
 
@@ -238,6 +248,72 @@ const BookingPage = () => {
     navigate("/bookingReview");
   };
 
+  const handleGetSuggestedTime = async (e) => {
+    try {
+      e.preventDefault();
+      dispatch(startLoading());
+
+      if (suggestedTimeInput.duration <= 0) {
+        toast.error("Duration must be greater than 0");
+        return;
+      }
+      const startDateTime = new Date(
+        suggestedTimeInput.startTime,
+      ).toISOString();
+      const endDateTime = new Date(suggestedTimeInput.endTime).toISOString();
+
+      let attendeesEmails = [];
+      if (!searchOnce) {
+        attendeesEmails = ungroupedAttendees.map((attendee) => attendee.email);
+      } else {
+        attendeesEmails = groupedAttendees.flatMap((group) =>
+          group.attendees.map((attendee) => attendee.email),
+        );
+      }
+
+      attendeesEmails = [...attendeesEmails, userInfo.email];
+
+      const reqBody = {
+        start_time: startDateTime,
+        end_time: endDateTime,
+        duration: `${suggestedTimeInput.duration} ${suggestedTimeInput.unit}`,
+        attendees: attendeesEmails,
+        equipments: [], // TODO: remove when API changes
+        step_size: "15 minutes",
+      };
+      console.log("getSuggestedTime reqBody", reqBody);
+      const suggestedTime = await getSuggestedTime(reqBody).unwrap();
+      dispatch(
+        setSuggestedTimeReceived(reorganizeSuggestedTime(suggestedTime)),
+      );
+      setIsModalOpen(true);
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.data?.error || "Failed to get suggested time");
+    } finally {
+      dispatch(stopLoading());
+    }
+  };
+
+  const reorganizeSuggestedTime = (suggestedTime) => {
+    const organizedTimes = {};
+
+    suggestedTime?.result?.forEach((timeSlot) => {
+      // convert UTC time to local time
+      const localStartTime = moment.utc(timeSlot.start_time).local();
+      const dateStr = localStartTime.format("YYYY-MM-DD");
+      const timeStr = localStartTime.format("HH:mm");
+
+      if (!organizedTimes[dateStr]) {
+        organizedTimes[dateStr] = [];
+      }
+
+      organizedTimes[dateStr].push(timeStr);
+    });
+
+    return organizedTimes;
+  };
+
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
       <BookingStepper currentStage={1} />
@@ -251,32 +327,79 @@ const BookingPage = () => {
             </h1>
             <div className="flex flex-col gap-3">
               <h2 className="mt-4">Date and time:</h2>
-              <TimeDropdowns />
-              <h2>Number of rooms:</h2>
-              <div className="text-sm text-gray-500">
-                Auto-determined for multi-city attendees
-              </div>
-              <UserRoomCountInput />
-              {searchOnce ? (
-                loading ? (
-                  <Loader />
-                ) : (
-                  <>
-                    <h2>Select rooms by attendee groups:</h2>
-                    <UserEmailGroup />
-                    <h2>Your assigned group:</h2>
-                    <LoggedInUserGroup />
-                  </>
-                )
+              <ToggleSuggestedTime />
+              {suggestedTimeMode ? <SuggestedTimeInput /> : <UserTimeInput />}
+              {suggestedTimeMode ? (
+                <>
+                  {searchOnce ? (
+                    loading ? (
+                      <Loader />
+                    ) : (
+                      <>
+                        <h2>Select rooms by attendee groups:</h2>
+                        <UserEmailGroup />
+                        <h2>Your assigned group:</h2>
+                        <LoggedInUserGroup />
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <h2>Enter all attendee emails:</h2>
+                      <div className="text-sm text-gray-500">
+                        You are automatically included
+                      </div>
+                      <UserEmailInput />
+                    </>
+                  )}
+                  <button
+                    onClick={handleGetSuggestedTime}
+                    className="relative mb-6 flex items-center justify-center rounded bg-theme-orange px-6 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                    disabled={suggestedTimeLoading}
+                  >
+                    <span>Get Suggested Time!</span>
+                    {suggestedTimeLoading && (
+                      <span className="ml-10 ">
+                        <Loader />
+                      </span>
+                    )}
+                  </button>
+
+                  <h2>Number of rooms:</h2>
+                  <div className="text-sm text-gray-500">
+                    Auto-determined for multi-city attendees
+                  </div>
+                  <UserRoomCountInput />
+                </>
               ) : (
                 <>
-                  <h2>Enter all attendee emails:</h2>
+                  <h2>Number of rooms:</h2>
                   <div className="text-sm text-gray-500">
-                    You are automatically included
+                    Auto-determined for multi-city attendees
                   </div>
-                  <UserEmailInput />
+                  <UserRoomCountInput />
+                  {searchOnce ? (
+                    loading ? (
+                      <Loader />
+                    ) : (
+                      <>
+                        <h2>Select rooms by attendee groups:</h2>
+                        <UserEmailGroup />
+                        <h2>Your assigned group:</h2>
+                        <LoggedInUserGroup />
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <h2>Enter all attendee emails:</h2>
+                      <div className="text-sm text-gray-500">
+                        You are automatically included
+                      </div>
+                      <UserEmailInput />
+                    </>
+                  )}
                 </>
               )}
+
               {searchOnce && !isMultiCity && (
                 <div>
                   <h2>Auto-regroup:</h2>
@@ -355,6 +478,12 @@ const BookingPage = () => {
           )}
         </div>
       </div>
+      {isModalOpen && !suggestedTimeLoading && (
+        <TimeSuggestionModal
+          onCancel={() => setIsModalOpen(false)}
+          setIsModalOpen={setIsModalOpen}
+        />
+      )}
     </div>
   );
 };

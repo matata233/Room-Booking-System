@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Outlet, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 // Outlet is what we want to return if we logged in
 // If we don't log in, we need Navigate to redirect us
 

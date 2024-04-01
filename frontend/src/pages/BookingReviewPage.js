@@ -12,12 +12,13 @@ const BookingReviewPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { startDate, startTime, endTime, groupedAttendees, loggedInUser } =
-    useSelector((state) => state.booking);
+  const { startTime, endTime, groupedAttendees, loggedInUser } = useSelector(
+    (state) => state.booking,
+  );
   const { userInfo } = useSelector((state) => state.auth);
 
-  const utcStartTime = new Date(`${startDate}T${startTime}`).toISOString();
-  const utcEndTime = new Date(`${startDate}T${endTime}`).toISOString();
+  const utcStartTime = new Date(startTime).toISOString();
+  const utcEndTime = new Date(endTime).toISOString();
 
   const formattedStartTime = moment(utcStartTime)
     .tz(moment.tz.guess())

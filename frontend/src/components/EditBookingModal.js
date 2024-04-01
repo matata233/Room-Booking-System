@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import CloseIconSVG from "../assets/close-icon.svg";
 import UserEmailInputEdit from "./UserEmailInputEdit";
 
 const EditBookingModal = ({ onClose, onUpdate, attendees, setAttendees }) => {
-
   const handleUpdate = (e) => {
     e.preventDefault(); // Prevent default form submission behavior
     onUpdate();
@@ -23,7 +22,10 @@ const EditBookingModal = ({ onClose, onUpdate, attendees, setAttendees }) => {
           <label className="mb-1 block">
             Attendee(s) <span className="text-red-600">*</span>
           </label>
-          <UserEmailInputEdit attendees={attendees} setAttendees={setAttendees}/>
+          <UserEmailInputEdit
+            attendees={attendees}
+            setAttendees={setAttendees}
+          />
           <div className="flex justify-center">
             <button
               type="submit"

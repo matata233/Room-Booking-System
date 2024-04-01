@@ -1,20 +1,18 @@
 // bookingSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import dayjs from "dayjs";
+import {
+  nextDay,
+  nextDayAtTen,
+  sevenDaysLaterAtTen,
+  nextDayAtNoon,
+} from "../utils/getDateTime";
 
 const persistedUserInfo = localStorage.getItem("userInfo");
 const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;
 
-const getNextDay = () => {
-  return dayjs().add(1, "day").startOf("day");
-};
-
-const nextDay = getNextDay();
-
 const initialState = {
-  startDate: nextDay.format("YYYY-MM-DD"),
-  startTime: "10:00",
-  endTime: "12:00",
+  startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
+  endTime: nextDayAtNoon.format("YYYY-MM-DD HH:mm"),
   equipments: [],
   priority: [
     {
@@ -44,15 +42,20 @@ const initialState = {
   showRecommended: true,
   regroup: true,
   isMultiCity: false,
+  suggestedTimeMode: true,
+  suggestedTimeInput: {
+    startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
+    endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
+    duration: 1,
+    unit: "hours",
+  },
+  suggestedTimeReceived: {},
 };
 
 export const bookingSlice = createSlice({
   name: "booking",
   initialState,
   reducers: {
-    setStartDate: (state, action) => {
-      state.startDate = action.payload;
-    },
     setStartTime: (state, action) => {
       state.startTime = action.payload;
     },
@@ -120,7 +123,6 @@ export const bookingSlice = createSlice({
     stopSearch: (state) => {
       state.searching = false;
     },
-    resetBooking: (state) => (state = initialState),
     toggleShowRecommended: (state) => {
       state.showRecommended = !state.showRecommended;
     },
@@ -130,11 +132,29 @@ export const bookingSlice = createSlice({
     setIsMultiCity: (state, action) => {
       state.isMultiCity = action.payload;
     },
+    setSuggestedTimeMode: (state, action) => {
+      state.suggestedTimeMode = action.payload;
+      if (action.payload) {
+        // reset suggestedTimeInput when switching to suggestedTimeMode
+        state.suggestedTimeInput = {
+          startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
+          endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
+          duration: 1,
+          unit: "hours",
+        };
+      }
+    },
+    setSuggestedTimeInput: (state, action) => {
+      state.suggestedTimeInput = action.payload;
+    },
+    setSuggestedTimeReceived: (state, action) => {
+      state.suggestedTimeReceived = action.payload;
+    },
+    resetBooking: (state) => (state = initialState),
   },
 });
 
 export const {
-  setStartDate,
   setStartTime,
   setEndTime,
   addEquipment,
@@ -156,6 +176,9 @@ export const {
   toggleShowRecommended,
   setRegroup,
   setIsMultiCity,
+  setSuggestedTimeMode,
+  setSuggestedTimeInput,
+  setSuggestedTimeReceived,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;
