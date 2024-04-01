@@ -33,6 +33,7 @@
     "react-scripts": "5.0.1",
     "react-select": "^5.8.0",
     "react-toastify": "^10.0.4",
+    "react-tooltip": "^5.26.3",
     "redux-persist": "^6.0.0",
     "rsuite": "^5.57.0",
     "uuid": "^9.0.1",
