@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { TextField } from "@mui/material";
 import { ThemeProvider } from "@mui/system";
 import PageTheme from "./PageTheme";
-import dummyBuildings from "../dummyData/dummyBuildings";
 import AutoDropdown from "./AutoDropdown";
 import ToggleBuilding from "./ToggleBuilding";
 import AddBuilding from "./AddBuilding";

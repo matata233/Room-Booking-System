@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import CloseIconSVG from "../assets/close-icon.svg";
 import UserEmailInputEdit from "./UserEmailInputEdit";
 
 const EditBookingModal = ({ onClose, onUpdate }) => {
-
   const handleUpdate = (e) => {
     e.preventDefault(); // Prevent default form submission behavior
     onUpdate();

@@ -5,15 +5,15 @@ import {
   nextDay,
   nextDayAtTen,
   sevenDaysLaterAtTen,
+  nextDayAtNoon,
 } from "../utils/getDateTime";
 
 const persistedUserInfo = localStorage.getItem("userInfo");
 const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;
 
 const initialState = {
-  startDate: nextDay.format("YYYY-MM-DD"),
-  startTime: "10:00",
-  endTime: "12:00",
+  startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
+  endTime: nextDayAtNoon.format("YYYY-MM-DD HH:mm"),
   equipments: [],
   priority: [
     {
@@ -50,15 +50,13 @@ const initialState = {
     duration: 1,
     unit: "hours",
   },
+  suggestedTimeReceived: {},
 };
 
 export const bookingSlice = createSlice({
   name: "booking",
   initialState,
   reducers: {
-    setStartDate: (state, action) => {
-      state.startDate = action.payload;
-    },
     setStartTime: (state, action) => {
       state.startTime = action.payload;
     },
@@ -135,18 +133,29 @@ export const bookingSlice = createSlice({
     setIsMultiCity: (state, action) => {
       state.isMultiCity = action.payload;
     },
-    toggleSuggestedTimeMode: (state) => {
-      state.suggestedTimeMode = !state.suggestedTimeMode;
+    setSuggestedTimeMode: (state, action) => {
+      state.suggestedTimeMode = action.payload;
+      if (action.payload) {
+        // reset suggestedTimeInput when switching to suggestedTimeMode
+        state.suggestedTimeInput = {
+          startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
+          endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
+          duration: 1,
+          unit: "hours",
+        };
+      }
     },
     setSuggestedTimeInput: (state, action) => {
       state.suggestedTimeInput = action.payload;
+    },
+    setSuggestedTimeReceived: (state, action) => {
+      state.suggestedTimeReceived = action.payload;
     },
     resetBooking: (state) => (state = initialState),
   },
 });
 
 export const {
-  setStartDate,
   setStartTime,
   setEndTime,
   addEquipment,
@@ -168,8 +177,9 @@ export const {
   toggleShowRecommended,
   setRegroup,
   setIsMultiCity,
-  toggleSuggestedTimeMode,
+  setSuggestedTimeMode,
   setSuggestedTimeInput,
+  setSuggestedTimeReceived,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

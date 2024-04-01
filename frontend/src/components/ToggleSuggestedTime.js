@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleSuggestedTimeMode } from "../slices/bookingSlice";
+import { setSuggestedTimeMode } from "../slices/bookingSlice";
 
 const ToggleSuggestedTime = () => {
   const dispatch = useDispatch();
@@ -16,7 +16,7 @@ const ToggleSuggestedTime = () => {
       <div
         className="relative cursor-pointer"
         onClick={() => {
-          dispatch(toggleSuggestedTimeMode());
+          dispatch(setSuggestedTimeMode(!suggestedTimeMode));
         }}
       >
         <div

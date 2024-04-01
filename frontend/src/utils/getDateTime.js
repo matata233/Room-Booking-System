@@ -18,4 +18,10 @@ const getSevenDaysFromNowWithTime = () => {
 
 const sevenDaysLaterAtTen = getSevenDaysFromNowWithTime();
 
-export { nextDay, nextDayAtTen, sevenDaysLaterAtTen };
+const getNextDayAtNoon = () => {
+  return dayjs().add(1, "day").startOf("day").hour(12);
+};
+
+const nextDayAtNoon = getNextDayAtNoon();
+
+export { nextDay, nextDayAtTen, sevenDaysLaterAtTen, nextDayAtNoon };

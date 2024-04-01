@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { Collapse } from "react-collapse";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
-import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
-import Loader from "./Loader";
 import { useSelector } from "react-redux";
 
 const Accordion = ({

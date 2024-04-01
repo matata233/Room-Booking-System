@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import Accordion from "./Accordion";
 import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import { useDispatch, useSelector } from "react-redux";

@@ -14,7 +14,7 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
 
     getSuggestedTime: builder.mutation({
       query: (timeData) => ({
-        url: `${BOOKING_URL}/suggested-time`,
+        url: `${BOOKING_URL}/time-suggestion`,
         method: "POST",
         body: timeData,
       }),

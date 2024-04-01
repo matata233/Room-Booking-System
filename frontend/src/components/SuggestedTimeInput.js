@@ -3,14 +3,10 @@ import { DateRangePicker } from "rsuite";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import { setSuggestedTimeInput } from "../slices/bookingSlice";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  nextDay,
-  nextDayAtTen,
-  sevenDaysLaterAtTen,
-} from "../utils/getDateTime";
+import { nextDayAtTen, sevenDaysLaterAtTen } from "../utils/getDateTime";
 import dayjs from "dayjs";
 
-const TimeDropdowns = () => {
+const SuggestedTimeInput = () => {
   const dispatch = useDispatch();
   const { suggestedTimeInput } = useSelector((state) => state.booking);
 
@@ -68,7 +64,7 @@ const TimeDropdowns = () => {
 
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-      <div className="mb-2">Date Range</div>
+      <div className="mb-2">Time Range</div>
       <DateRangePicker
         format="yyyy-MM-dd HH:mm"
         ranges={predefinedRanges}
@@ -105,4 +101,4 @@ const TimeDropdowns = () => {
   );
 };
 
-export default TimeDropdowns;
+export default SuggestedTimeInput;
