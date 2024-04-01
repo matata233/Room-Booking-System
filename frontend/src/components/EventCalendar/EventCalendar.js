@@ -35,6 +35,9 @@ const EventCalendar = () => {
     }
     return events.result.map((event) => ({
       ...event,
+      title: event.title.startsWith("Personal Event")
+        ? event.title
+        : `Personal Event: ${event.title}`,
       type: "event",
     }));
   }, [isGetEventsLoading, events]);
@@ -134,20 +137,16 @@ const EventCalendar = () => {
 
   const eventStyleGetter = (event) => {
     let newStyle = {
-      backgroundColor: "f3a545d6",
-      color: "black",
+      border: "0",
       borderLeftStyle: "solid",
       borderLeftWidth: "4px",
-      borderLeftColor: "#dd7832",
     };
-
     if (event.type === "event") {
-      newStyle.backgroundColor = "#f3a545d6";
-      newStyle.borderLeftColor = "#dd7832";
+      newStyle.backgroundColor = "#eacec3";
+      newStyle.borderLeftColor = "#d3b5a9";
     } else if (event.type === "booking") {
-      newStyle.backgroundColor = "#659FDF";
-      newStyle.borderLeftColor = "#0367fc";
-      newStyle.color = "white";
+      newStyle.backgroundColor = "#d8c7b3";
+      newStyle.borderLeftColor = "#b7a79b";
     }
     return {
       style: newStyle,
