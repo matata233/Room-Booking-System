@@ -286,6 +286,10 @@ const BookingPage = () => {
       dispatch(
         setSuggestedTimeReceived(reorganizeSuggestedTime(suggestedTime)),
       );
+      if (suggestedTime.result.length === 0) {
+        toast.info("No suggested time available");
+        return;
+      }
       setIsModalOpen(true);
     } catch (err) {
       console.log(err);
