@@ -184,7 +184,7 @@ const BookingPage = () => {
     let loggedInUserGroup = null;
     const transformedResponse = availableRooms.result.groups.map(
       (group, index) => {
-        // ,ap over each attendee to create a new object with userId instead of user_id
+        // map over each attendee to create a new object with userId instead of user_id
         const updatedAttendees = group.attendees
           .map((attendee) => ({
             userId: attendee.user_id,
