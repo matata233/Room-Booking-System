@@ -35,9 +35,6 @@ const EventCalendar = () => {
     }
     return events.result.map((event) => ({
       ...event,
-      title: event.title.startsWith("Personal Event")
-        ? event.title
-        : `Personal Event: ${event.title}`,
       type: "event",
     }));
   }, [isGetEventsLoading, events]);
