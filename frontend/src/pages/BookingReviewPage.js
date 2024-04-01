@@ -4,17 +4,34 @@ import MeetingRoomImg from "../assets/meeting-room.jpg";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useConfirmBookingMutation } from "../slices/bookingApiSlice";
-import { resetBooking } from "../slices/bookingSlice";
+import {
+  useGetAvailableRoomsMutation,
+  useConfirmBookingMutation,
+} from "../slices/bookingApiSlice";
+import {
+  resetBooking,
+  startLoading,
+  startSearch,
+  stopLoading,
+  updateRoomsAndSelectedRoomForGroup,
+} from "../slices/bookingSlice";
 import { toast } from "react-toastify";
 import moment from "moment-timezone";
+import Loader from "../components/Loader";
+
 const BookingReviewPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { startTime, endTime, groupedAttendees, loggedInUser } = useSelector(
-    (state) => state.booking,
-  );
+  const {
+    startTime,
+    endTime,
+    equipments,
+    priority,
+    roomCount,
+    groupedAttendees,
+    loggedInUser,
+  } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
   const utcStartTime = new Date(startTime).toISOString();
@@ -28,8 +45,12 @@ const BookingReviewPage = () => {
     .format("YYYY-MM-DD HH:mm z");
 
   const [confirmBooking, { isLoading, error }] = useConfirmBookingMutation();
+  const [
+    getAvailableRooms,
+    { isLoading: getAvailableRoomsLoading, error: getAvailableRoomsError },
+  ] = useGetAvailableRoomsMutation();
 
-  const createRequestBody = () => {
+  const createRequestBodyForConfirm = () => {
     const rooms = [];
     const users = [];
 
@@ -56,17 +77,108 @@ const BookingReviewPage = () => {
     return reqBody;
   };
 
+  const createRequestBodyForGetAvailableRooms = () => {
+    const startDateTime = new Date(startTime).toISOString();
+    const endDateTime = new Date(endTime).toISOString();
+
+    const equipmentCodes = equipments.map((equip) => equip.id);
+
+    let attendeeEmails = [];
+
+    groupedAttendees.forEach((group) => {
+      // check if the group has attendees
+      if (group.groupId !== "Ungrouped") {
+        const emails = group.attendees.map((attendee) => attendee.email);
+        attendeeEmails.push(emails);
+      }
+    });
+
+    // Check if logged in user has a group and add them to it
+    const loggedInUserGroupIndex = groupedAttendees.findIndex(
+      (group) => group.groupId === loggedInUser.group,
+    );
+    if (loggedInUserGroupIndex !== -1) {
+      attendeeEmails[loggedInUserGroupIndex].push(userInfo.email);
+    } else {
+      // unlikely to happen, but just in case
+      attendeeEmails.push([userInfo.email]);
+    }
+
+    const reqBody = {
+      startTime: startDateTime,
+      endTime: endDateTime,
+      attendees: attendeeEmails,
+      equipments: equipmentCodes,
+      roomCount: roomCount,
+      regroup: false,
+      priority: priority.map((entry) => entry.item),
+    };
+
+    return reqBody;
+  };
+
   const handleOnClick = async () => {
     try {
-      const reqBody = createRequestBody();
-      const response = await confirmBooking(reqBody).unwrap();
+      const reqBodyConfirm = createRequestBodyForConfirm();
+      const response = await confirmBooking(reqBodyConfirm).unwrap();
       dispatch(resetBooking());
       navigate("/bookingComplete", { state: response });
       toast.success("Booking confirmed successfully");
     } catch (err) {
-      navigate("/booking");
-      toast.error(err?.data?.error || "Failed to confirm booking");
+      try {
+        dispatch(startLoading());
+        const reqBodyRooms = createRequestBodyForGetAvailableRooms();
+        const availableRooms = await getAvailableRooms(reqBodyRooms).unwrap();
+        updateGroupedAttendees(availableRooms.result.groups);
+        dispatch(startSearch());
+        toast.error(err?.data?.error || "Failed to confirm booking");
+      } catch (err) {
+        console.log(err);
+        toast.error(err?.data?.error || "Failed to refetch available rooms");
+      } finally {
+        navigate("/booking");
+        dispatch(stopLoading());
+      }
     }
+  };
+
+  const updateGroupedAttendees = (newGroups) => {
+    groupedAttendees.forEach((localGroup) => {
+      const matchingGroup = findMatchingGroup(localGroup, newGroups);
+      if (matchingGroup) {
+        const updatedRooms = matchingGroup.rooms;
+        dispatch(
+          updateRoomsAndSelectedRoomForGroup({
+            groupId: localGroup.groupId,
+            rooms: updatedRooms,
+          }),
+        );
+      }
+    });
+  };
+
+  const findMatchingGroup = (localGroup, newGroups) => {
+    if (localGroup.groupId !== "Ungrouped") {
+      if (localGroup.attendees.length > 0) {
+        const localFirstAttendeeId = localGroup.attendees[0].userId;
+        const matchedGroup = newGroups.find((newGroup) =>
+          newGroup.attendees.some(
+            (attendee) => attendee.user_id === localFirstAttendeeId,
+          ),
+        );
+        if (matchedGroup) {
+          return matchedGroup;
+        }
+      } else {
+        return newGroups.find((newGroup) =>
+          newGroup.attendees.some(
+            (attendee) => attendee.user_id === userInfo.userId,
+          ),
+        );
+      }
+    }
+
+    return null;
   };
 
   const displayableGroups = groupedAttendees.filter(
@@ -111,19 +223,19 @@ const BookingReviewPage = () => {
               <div className="mt-6 flex flex-col  justify-start gap-1">
                 <div>
                   <span className=" text-theme-orange">Room: </span>{" "}
-                  {`${group.selectedRoom.cityId}${group.selectedRoom.buildingCode} ${group.selectedRoom.floor.toString().padStart(2, "0")}.${group.selectedRoom.roomCode} ${group.selectedRoom.roomName ? group.selectedRoom.roomName : ""} `}{" "}
+                  {`${group?.selectedRoom?.cityId}${group?.selectedRoom?.buildingCode} ${group?.selectedRoom?.floor.toString().padStart(2, "0")}.${group?.selectedRoom?.roomCode} ${group?.selectedRoom?.roomName ? group?.selectedRoom?.roomName : ""} `}{" "}
                 </div>
                 <div>
                   <span className=" text-theme-orange">Capacity: </span>
-                  {group.selectedRoom.seats}
+                  {group?.selectedRoom?.seats}
                 </div>
                 <div>
                   <span className=" text-theme-orange">Equipments: </span>
-                  {group.selectedRoom.hasAV && group.selectedRoom.hasVC
+                  {group?.selectedRoom?.hasAV && group?.selectedRoom?.hasVC
                     ? "AV / VC"
-                    : group.selectedRoom.hasAV
+                    : group?.selectedRoom?.hasAV
                       ? "AV"
-                      : group.selectedRoom.hasVC
+                      : group?.selectedRoom?.hasVC
                         ? "VC"
                         : "None"}
                 </div>
@@ -159,6 +271,9 @@ const BookingReviewPage = () => {
       </div>
 
       <div className="flex flex-col items-center">
+        <div className="mt-10 flex justify-center">
+          {getAvailableRoomsLoading && <Loader />}
+        </div>
         <div className="mt-10 flex justify-center">
           <button
             className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"

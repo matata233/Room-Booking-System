@@ -184,7 +184,7 @@ const BookingPage = () => {
     let loggedInUserGroup = null;
     const transformedResponse = availableRooms.result.groups.map(
       (group, index) => {
-        // ,ap over each attendee to create a new object with userId instead of user_id
+        // map over each attendee to create a new object with userId instead of user_id
         const updatedAttendees = group.attendees
           .map((attendee) => ({
             userId: attendee.user_id,
@@ -279,7 +279,7 @@ const BookingPage = () => {
         duration: `${suggestedTimeInput.duration} ${suggestedTimeInput.unit}`,
         attendees: attendeesEmails,
         equipments: [], // TODO: remove when API changes
-        step_size: "15 minutes",
+        step_size: "30 minutes",
       };
       console.log("getSuggestedTime reqBody", reqBody);
       const suggestedTime = await getSuggestedTime(reqBody).unwrap();
