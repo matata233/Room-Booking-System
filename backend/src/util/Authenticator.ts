@@ -30,15 +30,13 @@ export default class Authenticator {
         return Authenticator.instance;
     }
 
-    public isAdmin = (userDTO: UserDTO) => {
-        return userDTO.role === role.admin;
+    private isAdmin = (userDTO: UserDTO) => {
+        if (userDTO.role !== role.admin) {
+            throw new UnauthorizedError();
+        }
     };
 
-    public isStaff = (userDTO: UserDTO) => {
-        return userDTO.role === role.staff || userDTO.role === role.admin;
-    };
-
-    public getCurrentUser = async (header: string | undefined): Promise<UserDTO> => {
+    public getCurrentUser = async (header: string | undefined, roleAuth?: string): Promise<UserDTO> => {
         if (!header || !header.startsWith("Bearer ")) {
             return Promise.reject(new UnauthorizedError("No token provided or token does not have Bearer prefix"));
         }
@@ -46,7 +44,11 @@ export default class Authenticator {
         try {
             const payload = jwt.verify(token, "my_secret_key");
             if (typeof payload === "object" && payload !== null && "email" in payload) {
-                return await this.fetchUserByEmail(payload.email);
+                const currentUser = await this.fetchUserByEmail(payload.email);
+                if (roleAuth === role.admin) {
+                    this.isAdmin(currentUser);
+                }
+                return currentUser;
             } else {
                 throw new UnauthorizedError("Token payload does not include email");
             }
@@ -65,7 +67,7 @@ export default class Authenticator {
     };
 
     private validateGoogleToken = async (googleToken: string): Promise<UserDTO> => {
-        const CLIENT_ID: string = '682437365013-hcj4g0l2c042umnvr28kbikenhnjrrre.apps.googleusercontent.com';
+        const CLIENT_ID: string = "682437365013-hcj4g0l2c042umnvr28kbikenhnjrrre.apps.googleusercontent.com";
         const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
         if (!decodedUserInfo) {
             return Promise.reject(new UnauthorizedError(`Invalid token`));
@@ -79,7 +81,7 @@ export default class Authenticator {
             return Promise.reject(new UnauthorizedError(`Invalid audience`));
         }
         //check iss
-        if (!['accounts.google.com', 'https://accounts.google.com'].includes(decodedUserInfo.iss)) {
+        if (!["accounts.google.com", "https://accounts.google.com"].includes(decodedUserInfo.iss)) {
             return Promise.reject(new UnauthorizedError(`Invalid issuer (iss) in token`));
         }
 
