@@ -380,7 +380,7 @@ export default class BookingRepository extends AbstractRepository {
         }
     }
 
-    public async getGroupingSuggestion(attendees: string[], roomCount: number): Promise<string[][]> {
+    private async getGroupingSuggestion(attendees: string[], roomCount: number): Promise<string[][]> {
         if (roomCount === 1) {
             return [attendees];
         }
