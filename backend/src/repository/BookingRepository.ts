@@ -237,16 +237,49 @@ export default class BookingRepository extends AbstractRepository {
         }
         const uniqueBuildings = await this.getBuildingFloor(attendees);
         if (roomCount > uniqueBuildings.length) {
-            // TODO: replace with better algorithm
-            const res = [];
-            while (res.length < roomCount) {
-                res.push([attendees.pop()!]);
-            }
-            while (attendees.length !== 0) {
-                res[res.length - 1].push(attendees.pop()!);
-            }
-            return res;
+            return this.groupingUp(uniqueBuildings, roomCount, attendees.length);
+        } 
+        return this.groupingDown( uniqueBuildings, roomCount );
+        
+    }
+
+    private groupingUp(uniqueBuildings: AggregateAttendeeDTO[], roomCount: number, totalAttendees: number): string[][] {
+        let res: string[][] = [];
+        let divisor = totalAttendees / roomCount;
+        let roomsDistribution = uniqueBuildings.map( entry => Number(entry.num_users) / divisor );
+        let roomsAllocation = roomsDistribution.map( (entry: number) => entry < 1 ? 1 : Math.floor( entry ) );
+        let roomsRemainder = roomsDistribution.map( entry => entry < 1 ? 0 : entry - Math.floor( entry ) );
+
+        for( let i=roomsAllocation.reduce( ( acc, entry ) => acc + entry, 0 ); i < roomCount; i++ ) {
+            let j = roomsRemainder.indexOf( Math.max( ...roomsRemainder ) );
+            roomsRemainder[ j ] = 0;
+            roomsAllocation[ j ]++;
         }
+
+        for( let i = 0; i < roomsAllocation.length; i++ ) {
+            if(  roomsAllocation[ i ] == 1 ) {
+                res.push( uniqueBuildings[ i ].users! );
+                continue;
+            }
+
+            let numUsers = Number(uniqueBuildings[ i ].num_users);
+            let buildingDivisor = Math.ceil( numUsers / roomsAllocation[ i ] );
+            let leftoverUsers = numUsers % buildingDivisor;
+            if( leftoverUsers == 0 ) buildingDivisor++;
+
+            let count = 0;
+            for( let j = 0; j < roomsAllocation[ i ]; j++ ) {
+                let numInNextGroup = buildingDivisor - ( leftoverUsers > 0 ? 0 : 1 );
+                res.push( uniqueBuildings[ i ].users!.slice( count, count+numInNextGroup ) )
+                leftoverUsers--;
+                count += numInNextGroup;
+            }
+        }
+        
+        return res;
+    }
+
+    private groupingDown(uniqueBuildings: AggregateAttendeeDTO[], roomCount: number): string[][] {
         const remainingBuildings = uniqueBuildings.map((entry) => Number(entry.building_id));
         while (uniqueBuildings.length > roomCount) {
             const toRemove = uniqueBuildings.pop();
@@ -370,7 +403,7 @@ export default class BookingRepository extends AbstractRepository {
             WITH user_counts AS
                      (SELECT building_id,
                              COUNT(*) AS num_users,
-                             ARRAY_AGG(email) AS users
+                             ARRAY_AGG(email ORDER BY floor) AS users
                       FROM users
                       WHERE email IN (${emails})
                       GROUP BY building_id),
