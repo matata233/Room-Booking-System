@@ -61,8 +61,8 @@ export default class RoomRepository extends AbstractRepository {
                 data: {
                     building_id: dto.building!.buildingId!,
                     floor: dto.floorNumber!,
-                    code: dto.roomCode!,
-                    name: dto.roomName!,
+                    code: dto.roomCode!.trim(),
+                    name: dto.roomName!.trim(),
                     seats: dto.numberOfSeats!,
                     is_active: dto.isActive!
                 }
@@ -94,12 +94,12 @@ export default class RoomRepository extends AbstractRepository {
                     room_id: id
                 },
                 data: {
-                    building_id: dto.building!.buildingId,
-                    floor: dto.floorNumber,
-                    code: dto.roomCode,
-                    seats: dto.numberOfSeats,
-                    name: dto.roomName,
-                    is_active: dto.isActive,
+                    building_id: dto.building!.buildingId!,
+                    floor: dto.floorNumber!,
+                    code: dto.roomCode!.trim(),
+                    seats: dto.numberOfSeats!,
+                    name: dto.roomName!.trim(),
+                    is_active: dto.isActive!,
                     rooms_equipments: {
                         deleteMany: {},
                         create: dto.equipmentList!.map((equipment) => ({
@@ -120,6 +120,34 @@ export default class RoomRepository extends AbstractRepository {
                     }
                 }
             });
+            if (!updatedRoom.is_active) {
+                const relatedFutureBookings = await tx.users_bookings.findMany({
+                    where: {
+                        room_id: id,
+                        bookings: {
+                            start_time: {
+                                gt: new Date()
+                            },
+                            status: "confirmed"
+                        }
+                    },
+                    select: {
+                        booking_id: true
+                    }
+                });
+                if (relatedFutureBookings.length > 0) {
+                    await tx.bookings.updateMany({
+                        where: {
+                            booking_id: {
+                                in: relatedFutureBookings.map((booking) => booking.booking_id)
+                            }
+                        },
+                        data: {
+                            status: "canceled"
+                        }
+                    });
+                }
+            }
             return toRoomDTO(
                 updatedRoom,
                 updatedRoom.buildings.cities,

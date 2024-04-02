@@ -81,6 +81,7 @@ const UserManagementPage = () => {
         building: {
           buildingId: userToToggleStatus.building.buildingId,
         },
+        role: userToToggleStatus.role,
         isActive: !userToToggleStatus.isActive,
       };
 
@@ -402,7 +403,7 @@ const UserManagementPage = () => {
             <CancelConfirmationModal
               confirmButton={"confirm"}
               cancelButton={"close"}
-              message="Are you sure you want to change the status of the user?"
+              message="Are you sure you want to change the status of the user? Warning: If you are disabling this user, they will no longer be able to login again."
               onConfirm={handleConfirmToggleIsActive}
               onCancel={() => setIsModalOpen(false)}
               onClose={() => setIsModalOpen(false)}

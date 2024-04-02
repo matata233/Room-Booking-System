@@ -5,22 +5,15 @@ import { setSuggestedTimeInput } from "../slices/bookingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { nextDayAtTen, sevenDaysLaterAtTen } from "../utils/getDateTime";
 import dayjs from "dayjs";
+import { allowedMaxDays, beforeToday, combine } from "rsuite/cjs/DateRangePicker/disabledDateUtils";
 
 const SuggestedTimeInput = () => {
   const dispatch = useDispatch();
   const { suggestedTimeInput } = useSelector((state) => state.booking);
 
-  const beforeToday = () => {
-    return (date) => {
-      const startOfToday = new Date();
-      startOfToday.setHours(0, 0, 0, 0);
-      return date < startOfToday;
-    };
-  };
-
   const predefinedRanges = [
     {
-      label: "Today",
+      label: "Now",
       value: [new Date(), new Date()],
     },
     {
@@ -64,11 +57,11 @@ const SuggestedTimeInput = () => {
 
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-      <div className="mb-2">Time Range</div>
+      <div className="mb-2">Start Time Range</div>
       <DateRangePicker
-        format="yyyy-MM-dd HH:mm"
+        format="yy-MMM-d H:mm"
         ranges={predefinedRanges}
-        shouldDisableDate={beforeToday()}
+        shouldDisableDate={combine(beforeToday(), allowedMaxDays(30))}
         onChange={handleDateRangeChange}
         cleanable={false}
         value={[
@@ -94,7 +87,6 @@ const SuggestedTimeInput = () => {
         >
           <option value="minutes">Minutes</option>
           <option value="hours">Hours</option>
-          <option value="days">Days</option>
         </select>
       </div>
     </div>

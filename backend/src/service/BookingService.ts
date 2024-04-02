@@ -89,10 +89,15 @@ export default class BookingService extends AbstractService {
         endTime: Date,
         duration: string,
         attendees: string[],
-        equipments: string[],
         stepSize: string
     ): Promise<object> {
-        return this.bookingRepository.getSuggestedTimes(startTime, endTime, duration, attendees, equipments, stepSize);
+        if (startTime < new Date()) {
+            throw new BadRequestError("start time has already passed");
+        }
+        if (endTime <= startTime) {
+            throw new BadRequestError("end time must be greater than start time");
+        }
+        return this.bookingRepository.getSuggestedTimes(startTime, endTime, duration, attendees, stepSize);
     }
 
     private handlePrismaError(error: unknown) {

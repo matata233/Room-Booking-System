@@ -6,8 +6,8 @@ const UserEquipInput = () => {
   const dispatch = useDispatch();
   const selectedEquipments = useSelector((state) => state.booking.equipments);
   const equipments = [
-    { id: "AV", description: "Audio/Visual Equipment" },
-    { id: "VC", description: "Video Conference Equipment" },
+    { id: "AV", description: "Audio/Visual (AV)" },
+    { id: "VC", description: "Video Conference (VC)" },
   ];
   const handleEquipmentChange = (e, item) => {
     if (e.target.checked) {
