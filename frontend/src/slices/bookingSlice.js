@@ -18,14 +18,17 @@ const initialState = {
     {
       id: 1,
       item: "distance",
+      description: "Less Walking",
     },
     {
       id: 2,
       item: "seats",
+      description: "Right Capacity",
     },
     {
       id: 3,
       item: "equipments",
+      description: "Extra Equipments",
     },
   ],
   roomCount: 1,
@@ -37,7 +40,7 @@ const initialState = {
   },
   searchOnce: false,
   loading: false,
-  groupToDisplay: "Group1",
+  groupToDisplay: "Group 1",
   searching: false,
   showRecommended: true,
   regroup: true,
@@ -46,8 +49,8 @@ const initialState = {
   suggestedTimeInput: {
     startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
     endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
-    duration: 1,
-    unit: "hours",
+    duration: 30,
+    unit: "minutes",
   },
   suggestedTimeReceived: {},
 };
@@ -181,8 +184,8 @@ export const bookingSlice = createSlice({
         state.suggestedTimeInput = {
           startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
           endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
-          duration: 1,
-          unit: "hours",
+          duration: 30,
+          unit: "minutes",
         };
       }
     },
