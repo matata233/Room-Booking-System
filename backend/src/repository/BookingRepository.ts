@@ -103,7 +103,9 @@ export default class BookingRepository extends AbstractRepository {
             const curr = await tx.bookings.findUniqueOrThrow({
                 where: {booking_id: id, status: {not: "canceled"}}
             });
-
+            if (curr.start_time <= new Date()) {
+                throw new BadRequestError("start time has already passed");
+            }
             if (status === "canceled") {
                 await tx.bookings.update({where: {booking_id: id}, data: {status: status}});
                 return {};
@@ -157,23 +159,14 @@ export default class BookingRepository extends AbstractRepository {
         endTime: Date,
         duration: string,
         attendees: string[],
-        equipments: string[],
-        stepSize: string = "15 minutes"
+        stepSize: string = "30 minutes"
     ): Promise<object[]> {
         if (attendees.length <= 0) {
-            return Promise.reject(new BadRequestError("No attendees inputted"));
+            throw new BadRequestError("No attendees inputted");
         }
-        const city = await this.getCityId(attendees[0]);
-        const query = this.buildTimeSuggestionQuery(
-            startTime,
-            endTime,
-            duration,
-            attendees,
-            equipments,
-            stepSize,
-            city
+        return await this.db.$queryRawUnsafe(
+            this.buildTimeSuggestionQuery(startTime, endTime, duration, attendees, stepSize)
         );
-        return await this.db.$queryRawUnsafe(query);
     }
 
     private getUsersBookingData(attendees: number[][], rooms: number[], curr: bookings) {
@@ -233,49 +226,45 @@ export default class BookingRepository extends AbstractRepository {
             return [attendees];
         }
         if (roomCount > attendees.length) {
-            throw new BadRequestError("Number of rooms greater than users");
+            throw new BadRequestError("Number of rooms cannot be greater than the number of attendees");
         }
         const uniqueBuildings = await this.getBuildingFloor(attendees);
         if (roomCount > uniqueBuildings.length) {
             return this.groupingUp(uniqueBuildings, roomCount, attendees.length);
-        } 
-        return this.groupingDown( uniqueBuildings, roomCount );
-        
+        }
+        return this.groupingDown(uniqueBuildings, roomCount);
     }
 
     private groupingUp(uniqueBuildings: AggregateAttendeeDTO[], roomCount: number, totalAttendees: number): string[][] {
-        let res: string[][] = [];
-        let divisor = totalAttendees / roomCount;
-        let roomsDistribution = uniqueBuildings.map( entry => Number(entry.num_users) / divisor );
-        let roomsAllocation = roomsDistribution.map( (entry: number) => entry < 1 ? 1 : Math.floor( entry ) );
-        let roomsRemainder = roomsDistribution.map( entry => entry < 1 ? 0 : entry - Math.floor( entry ) );
-
-        for( let i=roomsAllocation.reduce( ( acc, entry ) => acc + entry, 0 ); i < roomCount; i++ ) {
-            let j = roomsRemainder.indexOf( Math.max( ...roomsRemainder ) );
-            roomsRemainder[ j ] = 0;
-            roomsAllocation[ j ]++;
+        const res: string[][] = [];
+        const divisor = totalAttendees / roomCount;
+        const roomsDistribution = uniqueBuildings.map((entry) => Number(entry.num_users) / divisor);
+        const roomsAllocation = roomsDistribution.map((entry: number) => (entry < 1 ? 1 : Math.floor(entry)));
+        const roomsRemainder = roomsDistribution.map((entry) => (entry < 1 ? 0 : entry - Math.floor(entry)));
+        for (let i = roomsAllocation.reduce((acc, entry) => acc + entry, 0); i < roomCount; i++) {
+            const j = roomsRemainder.indexOf(Math.max(...roomsRemainder));
+            roomsRemainder[j] = 0;
+            roomsAllocation[j]++;
         }
-
-        for( let i = 0; i < roomsAllocation.length; i++ ) {
-            if(  roomsAllocation[ i ] == 1 ) {
-                res.push( uniqueBuildings[ i ].users! );
+        for (let i = 0; i < roomsAllocation.length; i++) {
+            if (roomsAllocation[i] === 1) {
+                res.push(uniqueBuildings[i].users!);
                 continue;
             }
-
-            let numUsers = Number(uniqueBuildings[ i ].num_users);
-            let buildingDivisor = Math.ceil( numUsers / roomsAllocation[ i ] );
+            const numUsers = Number(uniqueBuildings[i].num_users);
+            let buildingDivisor = Math.ceil(numUsers / roomsAllocation[i]);
             let leftoverUsers = numUsers % buildingDivisor;
-            if( leftoverUsers == 0 ) buildingDivisor++;
-
+            if (leftoverUsers === 0) {
+                buildingDivisor++;
+            }
             let count = 0;
-            for( let j = 0; j < roomsAllocation[ i ]; j++ ) {
-                let numInNextGroup = buildingDivisor - ( leftoverUsers > 0 ? 0 : 1 );
-                res.push( uniqueBuildings[ i ].users!.slice( count, count+numInNextGroup ) )
+            for (let j = 0; j < roomsAllocation[i]; j++) {
+                const numInNextGroup = buildingDivisor - (leftoverUsers > 0 ? 0 : 1);
+                res.push(uniqueBuildings[i].users!.slice(count, count + numInNextGroup));
                 leftoverUsers--;
                 count += numInNextGroup;
             }
         }
-        
         return res;
     }
 
@@ -391,7 +380,7 @@ export default class BookingRepository extends AbstractRepository {
             include: {buildings: {select: {city_id: true}}}
         });
         if (res === null) {
-            throw new NotFoundError(`User ${email} not found`);
+            throw new NotFoundError(`user ${email} does not exist`);
         }
         return res.buildings.city_id;
     }
@@ -468,7 +457,7 @@ export default class BookingRepository extends AbstractRepository {
         });
         const sum = res.map((entry_1) => Number(entry_1.num_users)).reduce((a, b) => a + b);
         if (sum !== attendees.length) {
-            return Promise.reject(new NotFoundError("Some users not found"));
+            throw new NotFoundError("Some users not found");
         }
         return res;
     }
@@ -562,117 +551,54 @@ export default class BookingRepository extends AbstractRepository {
         //@formatter:on
     }
 
-    // TODO: add toISOString()
     private buildTimeSuggestionQuery(
         startTime: Date,
         endTime: Date,
         duration: string,
         attendees: string[],
-        equipments: string[],
-        stepSize: string,
-        city: string
+        stepSize: string
     ): string {
-        let userList = `(`;
-        for (let i = 0; i < attendees.length; i++) {
-            userList += `'${attendees[i]}'`;
-            if (i !== attendees.length - 1) {
-                userList += ",";
-            }
-        }
-        userList += `)`;
         //@formatter:off
-        let query = `
-            WITH RECURSIVE dates AS (
-              SELECT TIMESTAMP '${startTime}' AS dt
-              UNION ALL
-              SELECT dt + INTERVAL '${stepSize}'
-              FROM dates
-              WHERE dt + INTERVAL '${stepSize}' < TIMESTAMP '${endTime}'
-            ),
-            room_availability AS (
-              SELECT
-                DISTINCT r.room_id,
-                b2.start_time,
-                b2.end_time
-              FROM
-                rooms r
-                LEFT JOIN buildings b ON r.building_id = b.building_id
-                LEFT JOIN users_bookings ub ON r.room_id = ub.room_id
-                LEFT JOIN bookings b2 ON ub.booking_id = b2.booking_id
-              WHERE
-                b.city_id = '${city}' AND (b2.start_time < '${endTime}' OR b2.end_time > '${startTime}')
-            ),
-            user_ids AS (
-              SELECT u.user_id
-              FROM users u
-              WHERE u.email IN ${userList}
-            ),
-            user_bookings_overlap AS (
-              SELECT
-                ub.user_id,
-                b.start_time,
-                b.end_time
-              FROM
-                users_bookings ub
-                JOIN bookings b ON ub.booking_id = b.booking_id
-              WHERE
-                b.start_time < '${endTime}' AND b.end_time > '${startTime}' AND ub.user_id IN (SELECT user_id FROM user_ids)
-            ),
-            room_equipment_info AS (
-              SELECT
-                room_id
+        return `
+            WITH RECURSIVE
+                 dates AS
+                     (SELECT TIMESTAMP '${startTime.toISOString()}' AS dt
+                      UNION ALL
+                      SELECT dt + INTERVAL '${stepSize}'
+                      FROM dates
+                      WHERE dt + INTERVAL '${stepSize}' < TIMESTAMP '${endTime.toISOString()}'),
+                 user_ids AS
+                     (SELECT u.user_id
+                      FROM users u
+                      WHERE u.email IN (${attendees.map((attendee) => `'${attendee}'`).join(",")})),
+                 user_bookings_overlap AS
+                     (SELECT ub.user_id,
+                             b.start_time,
+                             b.end_time
+                      FROM users_bookings ub
+                               JOIN bookings b ON ub.booking_id = b.booking_id
+                      WHERE b.start_time < TIMESTAMP '${endTime.toISOString()}'
+                        AND b.end_time > TIMESTAMP '${startTime.toISOString()}'
+                        AND b.status != 'canceled'
+                        AND ub.user_id IN (SELECT user_id FROM user_ids)) ,
+                 user_events_overlap AS
+                     (SELECT e.created_by AS user_id,
+                             e.start_time,
+                             e.end_time
+                      FROM events e
+                      WHERE e.start_time < TIMESTAMP '${endTime.toISOString()}'
+                        AND e.end_time > TIMESTAMP '${startTime.toISOString()}'
+                        AND e.created_by IN (SELECT user_id FROM user_ids))
+            SELECT d.dt AS start_time,
+                   d.dt + INTERVAL '${duration}' AS end_time
+            FROM dates d
+            WHERE NOT EXISTS
+                (SELECT 1 FROM user_bookings_overlap ub
+                 WHERE (d.dt, d.dt + INTERVAL '${duration}') OVERLAPS (ub.start_time, ub.end_time))
+              AND NOT EXISTS
+                (SELECT 1 FROM user_events_overlap ue
+                 WHERE (d.dt, d.dt + INTERVAL '${duration}') OVERLAPS (ue.start_time, ue.end_time))
         `;
-        //@formatter:on
-        equipments.forEach((eq) => {
-            const toAdd = `,\n            bool_or(equipment_id='${eq}') AS has_${eq}`;
-            query += toAdd;
-        });
-
-        query += `
-            FROM rooms_equipments
-            GROUP by room_id
-        ),
-        room_equip AS (
-            SELECT r.room_id`;
-
-        if (equipments.length > 0) {
-            for (const eq of equipments) {
-                query += `,
-            COALESCE( re.has_${eq}, FALSE ) as has_${eq}`;
-            }
-        }
-
-        query += `
-            FROM rooms r
-            LEFT JOIN room_equipment_info re ON r.room_id = re.room_id`;
-
-        if (equipments.length > 0) {
-            query += `
-            WHERE re.has_${equipments[0]}
-                  AND r.seats >= ${attendees.length}`;
-
-            for (let i = 0; i < equipments.length; i++) {
-                query += ` AND re.has_${equipments[i]}`;
-            }
-        }
-
-        query += `
-        )
-        SELECT d.dt AS start_time, d.dt + INTERVAL '${duration}' AS end_time
-        FROM dates d
-        WHERE EXISTS(
-            SELECT 1 FROM room_equip r WHERE r.room_id NOT IN (
-                SELECT ra.room_id FROM room_availability ra WHERE
-                (d.dt, d.dt + INTERVAL '${duration}') OVERLAPS (ra.start_time, ra.end_time)
-            )
-            LIMIT 1
-        )
-        AND NOT EXISTS (
-            SELECT 1 FROM user_bookings_overlap AS ub
-            WHERE ( d.dt, d.dt + INTERVAL '${duration}' ) OVERLAPS (ub.start_time, ub.end_time)
-            LIMIT 1
-        )`;
-        return query;
     }
 
     private customIndexOf<T>(arr: T[], testF: (t: T) => boolean) {

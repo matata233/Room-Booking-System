@@ -23,9 +23,9 @@ export default class BuildingDTO extends AbstractDTO {
     @ValidateNested({groups: [BUILDINGS]})
     city?: CityDTO;
 
-    @IsNotEmpty({groups: [BUILDINGS]})
-    @IsInt({groups: [BUILDINGS]})
-    @Min(1, {groups: [BUILDINGS]})
+    @IsNotEmpty({groups: [BUILDINGS], message: "missing building number"})
+    @IsInt({groups: [BUILDINGS], message: "building number must be an integer"})
+    @Min(1, {groups: [BUILDINGS], message: "building number must be at least 1"})
     code?: number;
 
     @IsNotEmpty({groups: [BUILDINGS]})
