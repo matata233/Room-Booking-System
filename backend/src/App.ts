@@ -27,11 +27,12 @@ app.use(cors()); // Enable CORS for all routes, COURS is a security feature to p
 
 const database = new PrismaClient();
 
-export const authenticator = Authenticator.getInstance(new UserRepository(database));
+const userRepository = new UserRepository(database);
+export const authenticator = Authenticator.getInstance(userRepository);
 
 const bookingController = new BookingController(new BookingService(new BookingRepository(database)));
 const roomController = new RoomController(new RoomService(new RoomRepository(database)));
-const userController = new UserController(new UserService(new UserRepository(database)));
+const userController = new UserController(new UserService(userRepository));
 const buildingController = new BuildingController(new BuildingService(new BuildingRepository(database)));
 const eventController = new EventController(new EventService(new EventRepository(database)));
 const endpoint: string = "/aws-room-booking/api/v1";
@@ -56,17 +57,15 @@ app.post(`${endpoint}/users/login`, userController.login);
 // User routes
 app.get(`${endpoint}/users`, userController.getAll);
 app.get(`${endpoint}/users/all-email`, userController.getAllEmail);
-app.get(`${endpoint}/users/email`, userController.getByEmail); // register order matter in express
 app.get(`${endpoint}/users/:id`, userController.getById);
 app.post(`${endpoint}/users/create`, userController.create);
 app.put(`${endpoint}/users/update/:id`, userController.update);
 
 // User upload route
 const upload = multer({storage: multer.memoryStorage()}); // multer is a middleware to handle file upload
-app.post(`${endpoint}/users/upload`, upload.single(`file`), userController.upload);
+app.post(`${endpoint}/users/upload`, upload.single("file"), userController.upload);
 
 // Booking route
-app.get(`${endpoint}/booking`, bookingController.getAll);
 /*
     input:
     {
@@ -91,55 +90,9 @@ app.get(`${endpoint}/booking`, bookingController.getAll);
         },...
 */
 app.post(`${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTimes);
-/*
-    Currently taking the following input as parameter:
-    {
-        startTime: 'YYYY-MM-DDTHH:MM:SS.MMMZ',
-        endTime: 'YYYY-MM-DDTHH:MM:SS.MMMZ',
-        attendees: ['email1,email2,email3,...'],
-        equipments: ['eq1,eq2,eq3,...'],
-        priority: ['prio1,prio2,prio3,...']
-    }
-
-    out:
-    {
-    "groups":[
-        {
-            "attendees":[
-                {
-                "id":1,
-                "email":"attendee1@example.com"
-                },
-                {
-                "id":2,
-                "email":"attendee2@example.com"
-                },
-                {
-                "id":3,
-                "email":"attendee3@example.com"
-                }
-            ],
-            "rooms":[
-                {
-                "roomId":1,
-                "cityId":"YVR",
-                "buildingCode":32,
-                "floorNumber":1,
-                "roomCode":"101",
-                "roomName":"A",
-                "numberOfSeats":4,
-                "has_av": true,
-                },
-*/
 app.post(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
 app.get(`${endpoint}/booking/currentUser`, bookingController.getByCurrentUserId);
 app.get(`${endpoint}/booking/:id`, bookingController.getById);
-/*
-    new Date().now()
-    changes:
-        - backend is responsible for timeCreateAt
-
-*/
 app.post(`${endpoint}/booking/create`, bookingController.create);
 app.put(`${endpoint}/booking/:id`, bookingController.update);
 
@@ -147,6 +100,7 @@ app.put(`${endpoint}/booking/:id`, bookingController.update);
 app.get(`${endpoint}/buildings`, buildingController.getAll);
 app.get(`${endpoint}/buildings/:id`, buildingController.getById);
 app.post(`${endpoint}/buildings/create`, buildingController.create);
+app.put(`${endpoint}/buildings/:id`, buildingController.update);
 
 // Event routes
 app.get(`${endpoint}/events`, eventController.getAllByCurrentUser);

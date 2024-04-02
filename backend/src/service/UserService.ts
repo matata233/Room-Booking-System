@@ -3,6 +3,7 @@ import UserDTO from "../model/dto/UserDTO";
 import UserRepository from "../repository/UserRepository";
 import {BadRequestError, NotFoundError, RequestConflictError} from "../util/exception/AWSRoomBookingSystemError";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
+import {USERS, USERS_UPLOAD} from "../model/dto/AbstractDTO";
 
 export default class UserService extends AbstractService {
     private userRepo: UserRepository;
@@ -21,88 +22,69 @@ export default class UserService extends AbstractService {
     }
 
     public async getById(id: number): Promise<UserDTO> {
-        return await this.userRepo.findById(id);
-    }
-
-    public async getByEmail(email: string): Promise<UserDTO> {
-        return await this.userRepo.findByEmail(email);
+        this.validateId(id, "user");
+        try {
+            return await this.userRepo.findById(id);
+        } catch (error) {
+            this.convertPrismaError(error);
+            throw error;
+        }
     }
 
     public async create(user: UserDTO): Promise<UserDTO> {
-        await this.validateDTO(user);
+        await this.validateIncomingDTO(user, {groups: [USERS]});
         try {
             return await this.userRepo.create(user);
         } catch (error) {
-            this.handlePrismaClientKnownRequestError(error, user);
+            this.convertPrismaError(error);
             throw error;
         }
     }
 
-    public async update(userID: number, user: UserDTO): Promise<UserDTO> {
-        if (isNaN(userID)) {
-            throw new BadRequestError("invalid user ID");
-        }
-        await this.validateDTO(user);
+    public async update(id: number, user: UserDTO): Promise<UserDTO> {
+        this.validateId(id, "user");
+        await this.validateIncomingDTO(user, {groups: [USERS]});
         try {
-            return await this.userRepo.update(userID, user);
+            return await this.userRepo.update(id, user);
         } catch (error) {
-            this.handlePrismaClientKnownRequestError(error, user);
+            this.convertPrismaError(error);
             throw error;
         }
     }
 
-    public async upload(
-        username: string,
-        firstName: string,
-        lastName: string,
-        email: string,
-        building: string,
-        floor: number,
-        desk: number
-    ): Promise<UserDTO> {
-        if (!username || typeof username !== "string") {
-            throw new BadRequestError("Invalid username");
+    public async upload(users: UserDTO[]): Promise<UserDTO[]> {
+        if (users.length === 0) {
+            throw new BadRequestError("file contains no users");
         }
-        if (!firstName || typeof firstName !== "string") {
-            throw new BadRequestError("Invalid first name");
+        if (users.length > 1000) {
+            throw new BadRequestError("file contains too many rows, a maximum of 1000 users is supported");
         }
-        if (!lastName || typeof lastName !== "string") {
-            throw new BadRequestError("Invalid last name");
+        try {
+            await Promise.all(
+                users.map((user) => {
+                    return this.validateIncomingDTO(user, {groups: [USERS_UPLOAD]});
+                })
+            );
+            return await this.userRepo.upload(users);
+        } catch (error) {
+            try {
+                this.convertPrismaError(error);
+            } catch (converted) {
+                if (converted instanceof RequestConflictError || converted instanceof NotFoundError) {
+                    converted.message += ", no users were added";
+                }
+                throw converted;
+            }
+            if (error instanceof BadRequestError) {
+                error.message += ", no users were added";
+            }
+            throw error;
         }
-        if (!email || typeof email !== "string") {
-            throw new BadRequestError("Invalid email");
-        }
-        if (typeof floor !== "number") {
-            throw new BadRequestError("Invalid floor");
-        }
-        if (typeof desk !== "number") {
-            throw new BadRequestError("Invalid desk");
-        }
-        if (!building || typeof building !== "string") {
-            throw new BadRequestError("Invalid building");
-        }
-
-        const cityID = this.splitString(building).characters;
-        const buildingCode = this.splitString(building).number;
-
-        return this.userRepo.upload(username, firstName, lastName, email, floor, desk, cityID, buildingCode);
     }
 
-    private handlePrismaClientKnownRequestError(error: unknown, user: UserDTO) {
+    private convertPrismaError(error: unknown) {
         if (error instanceof PrismaClientKnownRequestError) {
-            if (error.code === "P2002") {
-                throw new RequestConflictError(`user ${user.username} or ${user.email} already exists`);
-            }
-            if (error.code === "P2003") {
-                throw new NotFoundError(`building does not exist`);
-            }
+            this.toKnownErrors(error, "user", "username or email", "building");
         }
-        throw error;
-    }
-
-    private splitString(input: string): {characters: string; number: number} {
-        const characters = input.match(/[a-zA-Z]+/g)?.join("") || "";
-        const number = parseInt(input.match(/\d+/g)?.join("") || "0", 10);
-        return {characters, number};
     }
 }

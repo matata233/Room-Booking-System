@@ -1,13 +1,10 @@
 import React, { useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
-import { Link } from "react-router-dom";
 import {
   useGetBookingCurrentUserQuery,
   useUpdateBookingMutation,
 } from "../slices/bookingApiSlice";
-import { FaEdit } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
-import { useSelector } from "react-redux";
 import CheckIcon from "@mui/icons-material/Check";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Pagination from "../components/Pagination";
@@ -30,7 +27,6 @@ const BookingHistoryPage = () => {
     if (isLoading || !booking || !booking.result) {
       return [];
     }
-    console.log("Got booking data");
     return booking.result;
   }, [isLoading, booking]);
 
@@ -38,19 +34,21 @@ const BookingHistoryPage = () => {
 
   mirage.register();
 
-  console.log("hi", bookingData);
-
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   //edit
   const [isEditing, setIsEditing] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState(0);
+  const [attendees, setAttendees] = useState();
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
 
-  const handleEditBooking = (book) => {
+  const handleEditBooking = (booking, index) => {
+    setAttendees(booking.groups[index].attendees);
     setIsEditing(true);
-    setSelectedBooking(book);
+    setSelectedBooking(booking);
+    setSelectedGroup(index);
   };
 
   const handleCloseModal = () => {
@@ -58,39 +56,51 @@ const BookingHistoryPage = () => {
     setIsEditing(false);
   };
 
-  const handleCancelConfirmOpen = () => {
+  const handleCancelConfirmOpen = (booking) => {
     setIsCancelConfirmOpen(true);
-    // setSelectedBooking(book);
+    setSelectedBooking(booking);
   };
 
   const handleCancelBooking = async () => {
     try {
       await updateBooking({
         bookingId: selectedBooking.bookingId,
-        updatedBooking: { status: "canceled", users: [], rooms: [] },
+        updatedBooking: {
+          status: "canceled",
+          users: getAttendees(selectedBooking),
+          rooms: getRooms(selectedBooking)
+        },
       }).unwrap();
       toast.success("Booking updated");
+      setIsCancelConfirmOpen(false);
       // bookingData = [];
       // Close the modal
     } catch (err) {
       // Display error toast message
+      console.log(err);
       toast.error(err?.data?.error || "Failed to save book");
     }
   };
 
-  const handleSaveBooking = async (book) => {
+  const handleSaveBooking = async () => {
     try {
-      if (isEditing) {
-        await updateBooking({
-          bookingId: selectedBooking.bookingId,
-          updatedBooking: book,
-        }).unwrap();
-        toast.success("Booking updated");
-      }
+      const users = getAttendees(selectedBooking);
+      const newAttendees = [];
+      attendees.map((attendee) => {
+        newAttendees.push(attendee.userId);
+      });
+      users[selectedGroup] = newAttendees;
+
+      await updateBooking({
+        bookingId: selectedBooking.bookingId,
+        updatedBooking: { status: "confirmed", users: users, rooms: getRooms(selectedBooking) },
+      }).unwrap();
+      toast.success("Booking updated");
       // Close the modal
       handleCloseModal();
     } catch (err) {
       // Display error toast message
+      console.log(err);
       toast.error(err?.data?.error || "Failed to save book");
     }
   };
@@ -119,6 +129,51 @@ const BookingHistoryPage = () => {
     };
   }
 
+  function getCurrentLocalDateTime() {
+    const localTimeZone = moment.tz.guess();
+    const localDateTime = moment()
+      .tz(localTimeZone)
+      .format("YYYY-MM-DD HH:mm:ss z");
+    const [date, time, timezone] = localDateTime.split(" ");
+    return {
+      date: date,
+      time: time,
+      timezone: timezone,
+    };
+  }
+
+  function checkTime(utcTime) {
+    const formatDateTimeObj = formatDateTime(utcTime);
+    const localDateTimeObj = getCurrentLocalDateTime();
+
+    const formatDateTimeStr = `${formatDateTimeObj.date} ${formatDateTimeObj.time}`;
+    const localDateTimeStr = `${localDateTimeObj.date} ${localDateTimeObj.time}`;
+
+    return moment(localDateTimeStr, "YYYY-MM-DD HH:mm:ss").isBefore(
+      moment(formatDateTimeStr, "YYYY-MM-DD HH:mm:ss"),
+    );
+  }
+
+  function getRooms(booking) {
+    const rooms = [];
+    booking.groups.forEach((group) => {
+      rooms.push(group.room.roomId);
+    })
+    return rooms;
+  }
+
+  function getAttendees(booking) {
+    const allAttendees = [];
+    booking.groups.forEach((group) => {
+      const attendees = [];
+      group.attendees.forEach((attendee) => {
+        attendees.push(attendee.userId);
+      });
+      allAttendees.push(attendees);
+    })
+    return allAttendees;
+  }
+
   const { userInfo } = useSelector((state) => state.auth);
 
   return (
@@ -126,7 +181,19 @@ const BookingHistoryPage = () => {
       <div className="flex w-full flex-col items-center gap-y-12 font-amazon-ember">
         <h1 className="text-center text-2xl font-semibold">Booking History</h1>
 
-        {bookingData.length > 0 ? (
+        {isLoading? (
+           <div className="flex flex-col items-center justify-center">
+           <div className="mt-20 text-center">
+             <l-mirage size="150" speed="2.5" color="orange"></l-mirage>{" "}
+             Searching...
+           </div>
+           <img
+             src={StartSearchGIF}
+             alt="Start Search"
+             className="h-96 w-96"
+           />
+         </div>
+        ) : bookingData.length > 0 ? (
           <>
             <div className="flex flex-col">
               {bookingData.map((book) => (
@@ -228,6 +295,34 @@ const BookingHistoryPage = () => {
                           </div>
                         </div>
                       </div>
+                      {book.status === "confirmed" &&
+                        userInfo.email === book.users.email && checkTime(book.startTime) && (
+                          <div className="mr-2 lg:mr-5">
+                            <div className="flex justify-end">
+                              <button
+                                type="submit"
+                                onClick={(e) => handleEditBooking(book, index)}
+                                className="rounded bg-theme-orange px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                              >
+                                Edit Attendee(s)
+                              </button>
+                            </div>
+                            {index === book.groups.length - 1 && (
+                              <div className="mt-3">
+                                <div className="w-full border-t border border-grey-700"></div>
+                                <div className="mt-3 flex justify-end">
+                                  <button
+                                    onClick={() => handleCancelConfirmOpen(book)}
+                                    className="rounded border border-theme-orange bg-white px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
+                                  >
+                                    Cancel Booking
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                       {book.groups.length > 1 &&
                         index < book.groups.length - 1 && (
                           <>
@@ -237,25 +332,6 @@ const BookingHistoryPage = () => {
                         )}
                     </div>
                   ))}
-                  {book.status == "confirmed" &&
-                    userInfo.email == book.users.email && (
-                      <div className="mb-3 mr-2 flex justify-end lg:mr-5">
-                        <div className="flex space-x-4 ">
-                          <button
-                            className="text-indigo-600 hover:text-indigo-900 "
-                            onClick={(e) => handleEditBooking(book)}
-                          >
-                            <FaEdit className="size-5" />
-                          </button>
-                          <button
-                            className="text-red-600 hover:text-red-900"
-                            onClick={() => setIsCancelConfirmOpen(true)}
-                          >
-                            <MdDelete className="size-5" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
                 </div>
               ))}
             </div>
@@ -270,29 +346,24 @@ const BookingHistoryPage = () => {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center">
-            <div className="mt-20 text-center">
-              <l-mirage size="150" speed="2.5" color="orange"></l-mirage>{" "}
-              Searching...
-            </div>
-            <img
-              src={StartSearchGIF}
-              alt="Start Search"
-              className="h-96 w-96"
-            />
+          <div className="text-center mt-20">
+            Looks like you don't have any bookings yet
           </div>
         )}
       </div>
 
       {isEditing && (
         <EditBookingModal
-          book={selectedBooking}
           onUpdate={handleSaveBooking}
           onClose={handleCloseModal}
+          attendees={attendees}
+          setAttendees={setAttendees}
         />
       )}
       {isCancelConfirmOpen && (
         <CancelConfirmationModal
+          confirmButton={"cancel"}
+          cancelButton={"close"}
           onCancel={() => setIsCancelConfirmOpen(false)}
           onClose={() => setIsCancelConfirmOpen(false)}
           onConfirm={handleCancelBooking}

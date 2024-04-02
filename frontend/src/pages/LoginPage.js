@@ -53,17 +53,21 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex  items-center justify-center font-amazon-ember">
-      <div className="group relative  shadow-xl ">
-        <div className="absolute inset-0  rounded-md  bg-theme-orange opacity-40 duration-300 group-hover:translate-x-3 group-hover:translate-y-3"></div>
-        {/* Google Login Button */}
-        <GoogleLogin
-          onSuccess={handleLogin}
-          onError={() => {
-            console.log("Login Failed");
-            // TODO: Handle the login failure
-          }}
-        />
+    <div className="fixed inset-0 z-20 flex items-center justify-center">
+      <div className="flex h-96 w-auto flex-col items-center  bg-white shadow-2xl">
+        <p className="w-80 border-b-[1.4px] border-zinc-400 px-5 py-4 text-center text-lg font-extralight text-zinc-500 opacity-60">
+          Log In and Get Started
+        </p>
+        <div className="group relative shadow-xl">
+          <div className="mt-7 rounded-md bg-theme-orange opacity-40 duration-300 group-hover:translate-x-3 group-hover:translate-y-3"></div>
+          {/* Google Login Button */}
+          <GoogleLogin
+            onSuccess={handleLogin}
+            onError={() => {
+              toast.error("Login failed");
+            }}
+          />
+        </div>
       </div>
     </div>
   );

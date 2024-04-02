@@ -74,17 +74,19 @@ describe("Building tests", function () {
                 })
             );
 
-            expect(await buildingService.getAll()).to.containSubset([{
-                buildingId: 8,
-                city: {
-                    cityId: "YVR"
-                },
-                code: 100,
-                lat: 49.282598,
-                lon: -123.11998,
-                address: "Address",
-                isActive: true
-            }]);
+            expect(await buildingService.getAll()).to.containSubset([
+                {
+                    buildingId: 8,
+                    city: {
+                        cityId: "YVR"
+                    },
+                    code: 100,
+                    lat: 49.282598,
+                    lon: -123.11998,
+                    address: "Address",
+                    isActive: true
+                }
+            ]);
         });
     });
 });

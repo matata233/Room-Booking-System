@@ -28,7 +28,7 @@ const AdminRoomForm = ({
   const [building, setBuilding] = useState(null);
   const [buildingId, setBuildingId] = useState(null);
   const [floorNumber, setFloorNumber] = useState(null);
-  const [roomCode, setRoomCode] = useState(null);
+  const [roomCode, setRoomCode] = useState("");
   const [equipmentIds, setEquipmentIds] = useState([]);
   const [roomName, setRoomName] = useState("");
   const [numberOfSeats, setNumberOfSeats] = useState(null);
@@ -95,7 +95,7 @@ const AdminRoomForm = ({
     const errors = [];
 
     if (!Number.isInteger(data.code) || data.code < 0) {
-      errors.push("invalid building code");
+      errors.push("invalid building number");
     }
     return {
       isValid: errors.length === 0,
@@ -207,31 +207,30 @@ const AdminRoomForm = ({
                     className: "text-sm md:text-base font-amazon-ember",
                   }}
                 />
-                <div className="w-full">
-                  <label
-                    htmlFor="capacity"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Capacity*
-                  </label>
-                  <input
-                    id="capacity"
-                    aria-label="capacity"
-                    required
-                    type="number"
-                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
-                    value={numberOfSeats}
-                    onChange={(event) => setNumberOfSeats(event.target.value)}
-                  />
-                </div>
+
+                <TextField
+                  id="roomCode"
+                  label="Room Code*"
+                  size="small"
+                  variant="standard"
+                  className="w-full"
+                  value={roomCode}
+                  onChange={(event) => setRoomCode(event.target.value)}
+                  InputLabelProps={{
+                    className: "text-sm md:text-base font-amazon-ember",
+                  }}
+                  inputProps={{
+                    className: "text-sm md:text-base font-amazon-ember",
+                  }}
+                />
               </div>
 
               {/* Toggle Existing/New building */}
-              <ToggleBuilding
+              {/* <ToggleBuilding
                 extBuilding={extBuilding}
                 setExtBuilding={setExtBuilding}
                 setBuilding={setBuilding}
-              />
+              /> */}
               {extBuilding ? (
                 <div className="relative">
                   <div className="flex justify-between">
@@ -305,19 +304,19 @@ const AdminRoomForm = ({
                 </div>
                 <div className="w-full">
                   <label
-                    htmlFor="roomCode"
+                    htmlFor="capacity"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Room Code*
+                    Capacity*
                   </label>
                   <input
-                    id="roomCode"
-                    aria-label="roomCode"
+                    id="capacity"
+                    aria-label="capacity"
                     required
                     type="number"
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
-                    value={roomCode}
-                    onChange={(event) => setRoomCode(event.target.value)}
+                    value={numberOfSeats}
+                    onChange={(event) => setNumberOfSeats(event.target.value)}
                   />
                 </div>
               </div>

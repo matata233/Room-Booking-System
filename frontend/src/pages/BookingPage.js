@@ -1,54 +1,53 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import BookingStepper from "../components/BookingStepper";
 import DragAndDrop from "../components/DragAndDrop";
 import UserEquipInput from "../components/UserEquipInput";
 import UserEmailInput from "../components/UserEmailInput";
-import TimeDropdowns from "../components/TimeDropdown";
-import { Link, useNavigate } from "react-router-dom";
+import UserTimeInput from "../components/UserTimeInput";
+import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import UserRoomCountInput from "../components/UserRoomCountInput";
 import UserEmailGroup from "../components/UserEmailGroup";
 import { useDispatch, useSelector } from "react-redux";
-import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
 import LoggedInUserGroup from "../components/LoggedInUserGroup";
-import ToogleRooms from "../components/ToggleRooms";
+import ToggleRooms from "../components/ToggleRooms";
 import ToggleRegroup from "../components/ToggleRegroup";
 import {
-  resetBooking,
-  setUngroupedAttendees,
-  setSearchOnce,
   initializeGroupedAttendees,
-  setLoggedInUserGroup,
-  setSelectedRoom,
-  startLoading,
-  stopLoading,
+  resetBooking,
   setGroupToDisplay,
-  startSearch,
-  stopSearch,
+  setIsMultiCity,
+  setLoggedInUserGroup,
   setRegroup,
   setRoomCount,
-  setIsMultiCity,
+  setSearchOnce,
+  setUngroupedAttendees,
+  startLoading,
+  startSearch,
+  stopLoading,
+  setSuggestedTimeReceived,
 } from "../slices/bookingSlice";
-import { useGetAvailableRoomsMutation } from "../slices/bookingApiSlice";
+import {
+  useGetAvailableRoomsMutation,
+  useGetSuggestedTimeMutation,
+} from "../slices/bookingApiSlice";
 import { toast } from "react-toastify";
 import Message from "../components/Message";
 import BookingRoomsDisplay from "../components/BookingRoomsDisplay";
+import ToggleSuggestedTime from "../components/ToggleSuggestedTime";
+import SuggestedTimeInput from "../components/SuggestedTimeInput";
+import TimeSuggestionModal from "../components/TimeSuggestionModal";
+import moment from "moment";
 
 const BookingPage = () => {
-  const {
-    data: userEmails,
-    error: userEmailsError,
-    isLoading: userEmailsLoading,
-    refetch,
-  } = useGetAllEmailsQuery();
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     startTime,
     endTime,
-    startDate,
     equipments,
     priority,
     roomCount,
@@ -59,15 +58,24 @@ const BookingPage = () => {
     loggedInUser,
     regroup,
     isMultiCity,
+    suggestedTimeMode,
+    suggestedTimeInput,
   } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
   const [getAvailableRooms, { isLoading, error }] =
     useGetAvailableRoomsMutation();
 
+  const [getSuggestedTime, { isLoading: suggestedTimeLoading }] =
+    useGetSuggestedTimeMutation();
+
   const handleSearch = async (e) => {
     try {
       e.preventDefault();
+      if (suggestedTimeMode) {
+        toast.warning("Please get a suggested time first");
+        return;
+      }
       dispatch(startLoading());
       // check if the user number <= room number
       if (!searchOnce) {
@@ -93,8 +101,8 @@ const BookingPage = () => {
           return;
         }
       }
-      const startDateTime = new Date(`${startDate}T${startTime}`).toISOString();
-      const endDateTime = new Date(`${startDate}T${endTime}`).toISOString();
+      const startDateTime = new Date(startTime).toISOString();
+      const endDateTime = new Date(endTime).toISOString();
 
       const equipmentCodes = equipments.map((equip) => equip.id);
 
@@ -103,7 +111,10 @@ const BookingPage = () => {
       if (searchOnce) {
         groupedAttendees.forEach((group) => {
           // check if the group has attendees
-          if (group.attendees.length > 0) {
+          if (
+            group.groupId !== "Ungrouped" ||
+            (group.groupId === "Ungrouped" && group.attendees.length > 0)
+          ) {
             const emails = group.attendees.map((attendee) => attendee.email);
             attendeeEmails.push(emails);
           }
@@ -146,21 +157,20 @@ const BookingPage = () => {
       console.log("reqBody", reqBody);
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
 
+      if (!searchOnce) {
+        dispatch(setUngroupedAttendees([]));
+        dispatch(setSearchOnce(true));
+      }
+      dispatch(setRegroup(false)); // always set to Same Group unless isMultiCity
       dispatch(
         initializeGroupedAttendees(reorganizeAvailableRooms(availableRooms)),
       );
       dispatch(startSearch());
 
       dispatch(setGroupToDisplay("Group1"));
-
-      if (!searchOnce) {
-        dispatch(setUngroupedAttendees([]));
-        dispatch(setSearchOnce(true));
-        dispatch(setRegroup(false));
-      }
     } catch (err) {
+      console.log(err);
       toast.error(err?.data?.error || "Failed to get available rooms");
-      console.log(err?.data?.error);
     } finally {
       dispatch(stopLoading());
     }
@@ -174,7 +184,7 @@ const BookingPage = () => {
     let loggedInUserGroup = null;
     const transformedResponse = availableRooms.result.groups.map(
       (group, index) => {
-        // ,ap over each attendee to create a new object with userId instead of user_id
+        // map over each attendee to create a new object with userId instead of user_id
         const updatedAttendees = group.attendees
           .map((attendee) => ({
             userId: attendee.user_id,
@@ -206,9 +216,9 @@ const BookingPage = () => {
 
     const newRoomCount = availableRooms.result.groups.length;
     const isMultiCity = availableRooms.result.isMultiCity;
+    dispatch(setRoomCount(newRoomCount));
     dispatch(setIsMultiCity(isMultiCity));
     if (isMultiCity) {
-      dispatch(setRoomCount(newRoomCount));
       dispatch(setRegroup(true));
       toast.info(
         "Attendees are from different cities. Room counts may be adjusted to match the number of cities.",
@@ -238,6 +248,76 @@ const BookingPage = () => {
     navigate("/bookingReview");
   };
 
+  const handleGetSuggestedTime = async (e) => {
+    try {
+      e.preventDefault();
+      dispatch(startLoading());
+
+      if (suggestedTimeInput.duration <= 0) {
+        toast.error("Duration must be greater than 0");
+        return;
+      }
+      const startDateTime = new Date(
+        suggestedTimeInput.startTime,
+      ).toISOString();
+      const endDateTime = new Date(suggestedTimeInput.endTime).toISOString();
+
+      let attendeesEmails = [];
+      if (!searchOnce) {
+        attendeesEmails = ungroupedAttendees.map((attendee) => attendee.email);
+      } else {
+        attendeesEmails = groupedAttendees.flatMap((group) =>
+          group.attendees.map((attendee) => attendee.email),
+        );
+      }
+
+      attendeesEmails = [...attendeesEmails, userInfo.email];
+
+      const reqBody = {
+        start_time: startDateTime,
+        end_time: endDateTime,
+        duration: `${suggestedTimeInput.duration} ${suggestedTimeInput.unit}`,
+        attendees: attendeesEmails,
+        equipments: [], // TODO: remove when API changes
+        step_size: "30 minutes",
+      };
+      console.log("getSuggestedTime reqBody", reqBody);
+      const suggestedTime = await getSuggestedTime(reqBody).unwrap();
+      dispatch(
+        setSuggestedTimeReceived(reorganizeSuggestedTime(suggestedTime)),
+      );
+      if (suggestedTime.result.length === 0) {
+        toast.info("No suggested time available");
+        return;
+      }
+      setIsModalOpen(true);
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.data?.error || "Failed to get suggested time");
+    } finally {
+      dispatch(stopLoading());
+    }
+  };
+
+  const reorganizeSuggestedTime = (suggestedTime) => {
+    const organizedTimes = {};
+
+    suggestedTime?.result?.forEach((timeSlot) => {
+      // convert UTC time to local time
+      const localStartTime = moment.utc(timeSlot.start_time).local();
+      const dateStr = localStartTime.format("YYYY-MM-DD");
+      const timeStr = localStartTime.format("HH:mm");
+
+      if (!organizedTimes[dateStr]) {
+        organizedTimes[dateStr] = [];
+      }
+
+      organizedTimes[dateStr].push(timeStr);
+    });
+
+    return organizedTimes;
+  };
+
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
       <BookingStepper currentStage={1} />
@@ -247,11 +327,89 @@ const BookingPage = () => {
         <div className="flex basis-1/3 flex-col items-center justify-center">
           <form onSubmit={handleSearch}>
             <h1 className="mb-4 text-center text-xl font-semibold md:text-start">
-              Book a Room
+              New Booking
             </h1>
             <div className="flex flex-col gap-3">
-              <h2 className="mt-4">Select Time</h2>
-              <TimeDropdowns />
+              <h2 className="mt-4">Date and time:</h2>
+              <ToggleSuggestedTime />
+              {suggestedTimeMode ? <SuggestedTimeInput /> : <UserTimeInput />}
+              {suggestedTimeMode ? (
+                <>
+                  {searchOnce ? (
+                    loading ? (
+                      <Loader />
+                    ) : (
+                      <>
+                        <h2>Select rooms by attendee groups:</h2>
+                        <UserEmailGroup />
+                        <h2>Your assigned group:</h2>
+                        <LoggedInUserGroup />
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <h2>Enter all attendee emails:</h2>
+                      <div className="text-sm text-gray-500">
+                        You are automatically included
+                      </div>
+                      <UserEmailInput />
+                    </>
+                  )}
+                  <button
+                    onClick={handleGetSuggestedTime}
+                    className="relative mb-6 flex items-center justify-center rounded bg-theme-orange px-6 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                    disabled={suggestedTimeLoading}
+                  >
+                    <span>Get Suggested Time!</span>
+                    {suggestedTimeLoading && (
+                      <span className="ml-10 ">
+                        <Loader />
+                      </span>
+                    )}
+                  </button>
+
+                  <h2>Number of rooms:</h2>
+                  <div className="text-sm text-gray-500">
+                    Auto-determined for multi-city attendees
+                  </div>
+                  <UserRoomCountInput />
+                </>
+              ) : (
+                <>
+                  <h2>Number of rooms:</h2>
+                  <div className="text-sm text-gray-500">
+                    Auto-determined for multi-city attendees
+                  </div>
+                  <UserRoomCountInput />
+                  {searchOnce ? (
+                    loading ? (
+                      <Loader />
+                    ) : (
+                      <>
+                        <h2>Select rooms by attendee groups:</h2>
+                        <UserEmailGroup />
+                        <h2>Your assigned group:</h2>
+                        <LoggedInUserGroup />
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <h2>Enter all attendee emails:</h2>
+                      <div className="text-sm text-gray-500">
+                        You are automatically included
+                      </div>
+                      <UserEmailInput />
+                    </>
+                  )}
+                </>
+              )}
+
+              {searchOnce && !isMultiCity && (
+                <div>
+                  <h2>Auto-regroup:</h2>
+                  <ToggleRegroup />
+                </div>
+              )}
               {/* <h2>Meeting Type</h2>
             <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
               <div className="relative">
@@ -268,37 +426,10 @@ const BookingPage = () => {
                 </div>
               </div>
             </div> */}
-              <h2>Equipments</h2>
+              <h2>Room equipments:</h2>
               <UserEquipInput />
-              <h2>Priority</h2>
+              <h2>Sorting priorities:</h2>
               <DragAndDrop />
-
-              <h2>Number of Rooms </h2>
-              <UserRoomCountInput />
-              {searchOnce ? (
-                loading ? (
-                  <Loader />
-                ) : (
-                  <>
-                    <h2>Your assigned room: </h2>
-                    <LoggedInUserGroup />
-                    <h2>Enter user emails by group</h2>
-                    <UserEmailGroup />
-                  </>
-                )
-              ) : (
-                <>
-                  <h2>Enter all user emails</h2>
-                  <UserEmailInput />
-                </>
-              )}
-
-              {searchOnce && !isMultiCity && (
-                <div>
-                  <h2>Regroup</h2>
-                  <ToggleRegroup />
-                </div>
-              )}
               <div className="my-4 flex items-center justify-center">
                 <button
                   type="submit"
@@ -323,17 +454,17 @@ const BookingPage = () => {
             </div>
 
             <div className="flex items-start justify-center gap-4">
-              <ToogleRooms />
+              <ToggleRooms />
               {searchOnce && allGroupsHaveSelectedRoom ? (
                 <button
-                  className="rounded bg-theme-orange px-4 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
+                  className="rounded bg-theme-orange px-6 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
                   onClick={handleSubmit}
                 >
                   Submit
                 </button>
               ) : (
                 <button
-                  className="cursor-not-allowed rounded-md bg-gray-300 px-4 py-2 opacity-50"
+                  className="cursor-not-allowed rounded-md bg-gray-300 px-6 py-2 opacity-50"
                   disabled
                 >
                   Submit
@@ -351,6 +482,12 @@ const BookingPage = () => {
           )}
         </div>
       </div>
+      {isModalOpen && !suggestedTimeLoading && (
+        <TimeSuggestionModal
+          onCancel={() => setIsModalOpen(false)}
+          setIsModalOpen={setIsModalOpen}
+        />
+      )}
     </div>
   );
 };

@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { Collapse } from "react-collapse";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
-import { useGetAllEmailsQuery } from "../slices/usersApiSlice";
-import Loader from "./Loader";
 import { useSelector } from "react-redux";
 
 const Accordion = ({
@@ -16,10 +14,23 @@ const Accordion = ({
   initialValue,
 }) => {
   const animatedComponents = makeAnimated();
-  const { groupedAttendees } = useSelector((state) => state.booking);
-  const selectedRoom =
-    groupedAttendees?.find((group) => group.groupId === groupId).selectedRoom ||
-    null;
+  const { groupedAttendees, loggedInUser } = useSelector(
+    (state) => state.booking,
+  );
+  // find the group by groupId
+  const group = groupedAttendees?.find((group) => group.groupId === groupId);
+
+  const initialAttendeesCount = group ? group.attendees.length : 0;
+
+  // if loggedInUser's group matches groupId and adjust count
+  const attendeesCount =
+    loggedInUser?.group === groupId
+      ? initialAttendeesCount + 1
+      : initialAttendeesCount;
+
+  // The selectedRoom logic remains unchanged
+  const selectedRoom = group?.selectedRoom || null;
+
   return (
     <>
       <div
@@ -28,6 +39,7 @@ const Accordion = ({
       >
         <div>
           <p className="font-semibold text-theme-orange">{groupId}</p>
+          <p className="mt-2 text-sm ">{`${attendeesCount} ${attendeesCount > 1 ? "Attendees" : "Attendee"} `}</p>
           {groupId !== "Ungrouped" ? (
             <p className="mt-2 text-sm ">
               {selectedRoom ? (

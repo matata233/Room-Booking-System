@@ -1,0 +1,38 @@
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setSuggestedTimeMode } from "../slices/bookingSlice";
+
+const ToggleSuggestedTime = () => {
+  const dispatch = useDispatch();
+  const { suggestedTimeMode } = useSelector((state) => state.booking);
+
+  return (
+    <div className="flex h-[40px] items-center justify-center">
+      <label
+        className={`mr-2 ${suggestedTimeMode ? "text-gray-400" : "text-black"}`}
+      >
+        Customized Time
+      </label>
+      <div
+        className="relative cursor-pointer"
+        onClick={() => {
+          dispatch(setSuggestedTimeMode(!suggestedTimeMode));
+        }}
+      >
+        <div
+          className={`block h-8 w-14 rounded-full ${suggestedTimeMode ? "bg-orange-300" : "bg-gray-300"}`}
+        ></div>
+        <div
+          className={`dot absolute left-1 top-1 h-6 w-6 rounded-full transition ${suggestedTimeMode ? "translate-x-6 transform bg-theme-dark-orange" : "bg-gray-400"}`}
+        ></div>
+      </div>
+      <label
+        className={`ml-2 ${suggestedTimeMode ? "text-theme-dark-orange" : "text-gray-400"}`}
+      >
+        Suggested Time
+      </label>
+    </div>
+  );
+};
+
+export default ToggleSuggestedTime;

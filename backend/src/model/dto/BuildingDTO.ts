@@ -1,12 +1,12 @@
-import AbstractDTO from "./AbstractDTO";
+import AbstractDTO, {BUILDINGS, ROOMS, USERS} from "./AbstractDTO";
 import CityDTO from "./CityDTO";
 import {
     IsBoolean,
     IsInt,
     IsLatitude,
     IsLongitude,
+    IsNotEmpty,
     IsNumber,
-    IsOptional,
     IsString,
     Min,
     ValidateNested
@@ -14,35 +14,35 @@ import {
 import {Type} from "class-transformer";
 
 export default class BuildingDTO extends AbstractDTO {
-    @IsInt()
-    @IsOptional()
+    @IsNotEmpty({groups: [ROOMS, USERS]})
+    @IsInt({groups: [ROOMS, USERS]})
     buildingId?: number;
 
+    @IsNotEmpty({groups: [BUILDINGS]})
     @Type(() => CityDTO)
-    @ValidateNested()
-    @IsOptional()
+    @ValidateNested({groups: [BUILDINGS]})
     city?: CityDTO;
 
-    @IsInt()
-    @Min(0)
-    @IsOptional()
+    @IsNotEmpty({groups: [BUILDINGS]})
+    @IsInt({groups: [BUILDINGS]})
+    @Min(1, {groups: [BUILDINGS]})
     code?: number;
 
-    @IsNumber()
-    @IsLatitude()
-    @IsOptional()
+    @IsNotEmpty({groups: [BUILDINGS]})
+    @IsNumber(undefined, {groups: [BUILDINGS]})
+    @IsLatitude({groups: [BUILDINGS], message: "invalid latitude range"})
     lat?: number;
 
-    @IsNumber()
-    @IsLongitude()
-    @IsOptional()
+    @IsNotEmpty({groups: [BUILDINGS]})
+    @IsNumber(undefined, {groups: [BUILDINGS]})
+    @IsLongitude({groups: [BUILDINGS], message: "invalid longitude range"})
     lon?: number;
 
-    @IsString()
-    @IsOptional()
+    @IsNotEmpty({groups: [BUILDINGS]})
+    @IsString({groups: [BUILDINGS]})
     address?: string;
 
-    @IsBoolean()
-    @IsOptional()
+    @IsNotEmpty({groups: [BUILDINGS]})
+    @IsBoolean({groups: [BUILDINGS]})
     isActive?: boolean;
 }

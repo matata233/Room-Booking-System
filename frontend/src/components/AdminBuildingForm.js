@@ -22,7 +22,7 @@ const AdminBuildingForm = ({
     const errors = [];
 
     if (!Number.isInteger(data.code) || data.code < 0) {
-      errors.push("invalid building code");
+      errors.push("invalid building number");
     }
     return {
       isValid: errors.length === 0,
@@ -47,7 +47,7 @@ const AdminBuildingForm = ({
       code: parseInt(buildingCode),
       address,
       lon: parseFloat(lon),
-      lat: parseInt(lon),
+      lat: parseFloat(lat),
       isActive: true,
     };
     const buildingValidation = validateBuildingData(buildingFormData);

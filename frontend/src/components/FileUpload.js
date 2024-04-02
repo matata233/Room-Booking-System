@@ -114,6 +114,8 @@ const FileUpload = () => {
       </div>
       {isModalOpen && selectedFile && (
         <CancelConfirmationModal
+          confirmButton={"confirm"}
+          cancelButton={"cancel"}
           message={`Are you sure you want to upload ${selectedFile.name}?`}
           onConfirm={handleSubmit}
           onCancel={() => setIsModalOpen(false)}
