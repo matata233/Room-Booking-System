@@ -16,7 +16,7 @@ const ToggleSuggestedTime = () => {
           }
         }}
       >
-        Enter Manually
+        Fixed
       </label>
       <div
         className="relative cursor-pointer"
@@ -39,7 +39,7 @@ const ToggleSuggestedTime = () => {
           }
         }}
       >
-        Use Suggested
+        Flexible
       </label>
     </div>
   );

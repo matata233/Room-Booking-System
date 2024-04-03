@@ -21,11 +21,11 @@ import {
   setRegroup,
   setRoomCount,
   setSearchOnce,
+  setSuggestedTimeReceived,
   setUngroupedAttendees,
   startLoading,
   startSearch,
   stopLoading,
-  setSuggestedTimeReceived,
 } from "../slices/bookingSlice";
 import {
   useGetAvailableRoomsMutation,
@@ -74,7 +74,7 @@ const BookingPage = () => {
       e.preventDefault();
       if (suggestedTimeMode) {
         toast.warning(
-          'Please get a suggested time first by clicking "When Is Everyone Available?"',
+          'Please get suggested timeslots first by clicking "When Is Everyone Available?"',
         );
         return;
       }
@@ -223,7 +223,7 @@ const BookingPage = () => {
     if (isMultiCity) {
       dispatch(setRegroup(true));
       toast.info(
-        "This is a multi-city booking. Attendees are auto-assigned into appropriate groups by their cities. Please remember to select any equipments needed for the meeting.",
+        "This is a multi-city booking! Room counts automatically adjusts to match the number of cities and attendees are auto-assigned into their city groups.",
       );
     }
 
@@ -333,7 +333,9 @@ const BookingPage = () => {
             <div className="flex flex-col gap-3">
               <h2 className="mt-4">Meeting Time:</h2>
               <ToggleSuggestedTime />
-              {suggestedTimeMode ? <SuggestedTimeInput /> : <UserTimeInput />}
+              {suggestedTimeMode ? (<><div className="text-sm text-gray-500">
+                Get suggested timeslots with everyone available
+              </div><SuggestedTimeInput /></>) : <UserTimeInput />}
               {suggestedTimeMode ? (
                 <>
                   {searchOnce ? (
@@ -392,6 +394,9 @@ const BookingPage = () => {
                     </>
                   )}
                   <h2>Room Count:</h2>
+                  <div className="text-sm text-gray-500">
+                    Auto-calculated for multi-city bookings
+                  </div>
                   <UserRoomCountInput />
                   {searchOnce && !isMultiCity && (
                     <div>
@@ -422,7 +427,7 @@ const BookingPage = () => {
             Reset
           </button>
         </div>
-        <div className="flex basis-2/3 flex-col text-center md:text-start md:max-w-[61%]">
+        <div className="flex basis-2/3 flex-col text-center md:max-w-[61%] md:text-start">
           <div className="flex flex-col md:flex-row md:justify-between">
             <div>
               <div className="mb-4 text-xl font-semibold">Available Rooms</div>
