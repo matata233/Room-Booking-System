@@ -31,6 +31,12 @@ export default class BookingService extends AbstractService {
         if (dto.endTime! <= dto.startTime!) {
             throw new BadRequestError("end time must be greater than start time");
         }
+        if (dto.endTime!.getTime() - dto.startTime!.getTime() < 15 * 1000 * 60) {
+            throw new BadRequestError("meeting cannot be shorter than 15 minutes");
+        }
+        if (dto.endTime!.getTime() - dto.startTime!.getTime() > 2 * 1000 * 60 * 60 * 24) {
+            throw new BadRequestError("meeting cannot be longer than 2 days");
+        }
         if (dto.roomDTOs!.length !== dto.userDTOs!.length) {
             throw new BadRequestError("number of rooms must be equal to number of attendee groups");
         }
@@ -73,6 +79,12 @@ export default class BookingService extends AbstractService {
         if (dto.endTime! <= dto.startTime!) {
             throw new BadRequestError("end time must be greater than start time");
         }
+        if (dto.endTime!.getTime() - dto.startTime!.getTime() < 15 * 1000 * 60) {
+            throw new BadRequestError("meeting cannot be shorter than 15 minutes");
+        }
+        if (dto.endTime!.getTime() - dto.startTime!.getTime() > 2 * 1000 * 60 * 60 * 24) {
+            throw new BadRequestError("meeting cannot be longer than 2 days");
+        }
         return this.bookingRepository.getAvailableRooms(
             dto.startTime!,
             dto.endTime!,
@@ -96,6 +108,9 @@ export default class BookingService extends AbstractService {
         }
         if (endTime <= startTime) {
             throw new BadRequestError("end time must be greater than start time");
+        }
+        if (endTime.getTime() - startTime.getTime() > 30 * 1000 * 60 * 60 * 24) {
+            throw new BadRequestError("flexible start time range cannot be greater than 30 days");
         }
         return this.bookingRepository.getSuggestedTimes(startTime, endTime, duration, attendees, stepSize);
     }

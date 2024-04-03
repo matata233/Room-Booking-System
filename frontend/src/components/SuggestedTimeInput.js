@@ -57,7 +57,7 @@ const SuggestedTimeInput = () => {
 
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-      <div className="mb-2">Start Time Range</div>
+      <div className="mb-2">Flexible Start Time Range</div>
       <DateRangePicker
         format="yy-MMM-d H:mm"
         ranges={predefinedRanges}
