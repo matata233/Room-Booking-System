@@ -179,15 +179,15 @@ export const bookingSlice = createSlice({
     },
     setSuggestedTimeMode: (state, action) => {
       state.suggestedTimeMode = action.payload;
-      if (action.payload) {
-        // reset suggestedTimeInput when switching to suggestedTimeMode
-        state.suggestedTimeInput = {
-          startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
-          endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
-          duration: 30,
-          unit: "minutes",
-        };
-      }
+      // if (action.payload) {
+      //   // reset suggestedTimeInput when switching to suggestedTimeMode
+      //   state.suggestedTimeInput = {
+      //     startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
+      //     endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
+      //     duration: 30,
+      //     unit: "minutes",
+      //   };
+      // }
     },
     setSuggestedTimeInput: (state, action) => {
       state.suggestedTimeInput = action.payload;
