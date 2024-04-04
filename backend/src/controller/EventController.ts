@@ -16,6 +16,7 @@ export default class EventController extends AbstractController {
 
     public getAll = async (req: Request, res: Response): Promise<Response> => {
         try {
+            await authenticator.getCurrentUser(req.headers.authorization, "admin");
             const events = await this.eventService.getAll();
             return super.onResolve(res, events);
         } catch (error) {

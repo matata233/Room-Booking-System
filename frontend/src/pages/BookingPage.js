@@ -21,11 +21,11 @@ import {
   setRegroup,
   setRoomCount,
   setSearchOnce,
+  setSuggestedTimeReceived,
   setUngroupedAttendees,
   startLoading,
   startSearch,
   stopLoading,
-  setSuggestedTimeReceived,
 } from "../slices/bookingSlice";
 import {
   useGetAvailableRoomsMutation,
@@ -73,7 +73,9 @@ const BookingPage = () => {
     try {
       e.preventDefault();
       if (suggestedTimeMode) {
-        toast.warning("Please get a suggested time first");
+        toast.warning(
+          'Please get suggested timeslots first by clicking "When Is Everyone Available?"',
+        );
         return;
       }
       dispatch(startLoading());
@@ -167,7 +169,7 @@ const BookingPage = () => {
       );
       dispatch(startSearch());
 
-      dispatch(setGroupToDisplay("Group1"));
+      dispatch(setGroupToDisplay("Group 1"));
     } catch (err) {
       console.log(err);
       toast.error(err?.data?.error || "Failed to get available rooms");
@@ -184,7 +186,7 @@ const BookingPage = () => {
     let loggedInUserGroup = null;
     const transformedResponse = availableRooms.result.groups.map(
       (group, index) => {
-        // ,ap over each attendee to create a new object with userId instead of user_id
+        // map over each attendee to create a new object with userId instead of user_id
         const updatedAttendees = group.attendees
           .map((attendee) => ({
             userId: attendee.user_id,
@@ -202,11 +204,11 @@ const BookingPage = () => {
           group.attendees.length !== filteredAttendees.length &&
           !loggedInUserGroup
         ) {
-          loggedInUserGroup = `Group${index + 1}`;
+          loggedInUserGroup = `Group ${index + 1}`;
         }
 
         return {
-          groupId: `Group${index + 1}`,
+          groupId: `Group ${index + 1}`,
           attendees: filteredAttendees,
           rooms: group.rooms,
           selectedRoom: null,
@@ -221,7 +223,7 @@ const BookingPage = () => {
     if (isMultiCity) {
       dispatch(setRegroup(true));
       toast.info(
-        "Attendees are from different cities. Room counts may be adjusted to match the number of cities.",
+        "This is a multi-city booking! Room counts automatically adjusts to match the number of cities and attendees are auto-assigned into their city groups.",
       );
     }
 
@@ -278,14 +280,17 @@ const BookingPage = () => {
         end_time: endDateTime,
         duration: `${suggestedTimeInput.duration} ${suggestedTimeInput.unit}`,
         attendees: attendeesEmails,
-        equipments: [], // TODO: remove when API changes
-        step_size: "15 minutes",
+        step_size: "30 minutes",
       };
       console.log("getSuggestedTime reqBody", reqBody);
       const suggestedTime = await getSuggestedTime(reqBody).unwrap();
       dispatch(
         setSuggestedTimeReceived(reorganizeSuggestedTime(suggestedTime)),
       );
+      if (suggestedTime.result.length === 0) {
+        toast.info("All attendees are not available in this range");
+        return;
+      }
       setIsModalOpen(true);
     } catch (err) {
       console.log(err);
@@ -318,7 +323,7 @@ const BookingPage = () => {
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
       <BookingStepper currentStage={1} />
 
-      <div className="flex w-full flex-col items-center gap-10 md:flex-row md:items-start md:justify-between">
+      <div className="flex w-full flex-col items-center gap-5 md:flex-row md:items-start md:justify-start">
         {/* Input Part */}
         <div className="flex basis-1/3 flex-col items-center justify-center">
           <form onSubmit={handleSearch}>
@@ -326,9 +331,11 @@ const BookingPage = () => {
               New Booking
             </h1>
             <div className="flex flex-col gap-3">
-              <h2 className="mt-4">Date and time:</h2>
+              <h2 className="mt-4">Meeting Time:</h2>
               <ToggleSuggestedTime />
-              {suggestedTimeMode ? <SuggestedTimeInput /> : <UserTimeInput />}
+              {suggestedTimeMode ? (<><div className="text-sm text-gray-500">
+                Get suggested timeslots with everyone available
+              </div><SuggestedTimeInput /></>) : <UserTimeInput />}
               {suggestedTimeMode ? (
                 <>
                   {searchOnce ? (
@@ -336,15 +343,15 @@ const BookingPage = () => {
                       <Loader />
                     ) : (
                       <>
-                        <h2>Select rooms by attendee groups:</h2>
+                        <h2>Select Rooms by Attendee Groups:</h2>
                         <UserEmailGroup />
-                        <h2>Your assigned group:</h2>
+                        <h2>You're In:</h2>
                         <LoggedInUserGroup />
                       </>
                     )
                   ) : (
                     <>
-                      <h2>Enter all attendee emails:</h2>
+                      <h2>Attendees:</h2>
                       <div className="text-sm text-gray-500">
                         You are automatically included
                       </div>
@@ -356,76 +363,53 @@ const BookingPage = () => {
                     className="relative mb-6 flex items-center justify-center rounded bg-theme-orange px-6 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white"
                     disabled={suggestedTimeLoading}
                   >
-                    <span>Get Suggested Time!</span>
+                    <span>When Is Everyone Available?</span>
                     {suggestedTimeLoading && (
                       <span className="ml-10 ">
                         <Loader />
                       </span>
                     )}
                   </button>
-
-                  <h2>Number of rooms:</h2>
-                  <div className="text-sm text-gray-500">
-                    Auto-determined for multi-city attendees
-                  </div>
-                  <UserRoomCountInput />
                 </>
               ) : (
                 <>
-                  <h2>Number of rooms:</h2>
-                  <div className="text-sm text-gray-500">
-                    Auto-determined for multi-city attendees
-                  </div>
-                  <UserRoomCountInput />
                   {searchOnce ? (
                     loading ? (
                       <Loader />
                     ) : (
                       <>
-                        <h2>Select rooms by attendee groups:</h2>
+                        <h2>Select Rooms by Attendee Groups:</h2>
                         <UserEmailGroup />
-                        <h2>Your assigned group:</h2>
+                        <h2>You're In:</h2>
                         <LoggedInUserGroup />
                       </>
                     )
                   ) : (
                     <>
-                      <h2>Enter all attendee emails:</h2>
+                      <h2>Attendees:</h2>
                       <div className="text-sm text-gray-500">
                         You are automatically included
                       </div>
                       <UserEmailInput />
                     </>
                   )}
+                  <h2>Room Count:</h2>
+                  <div className="text-sm text-gray-500">
+                    Auto-calculated for multi-city bookings
+                  </div>
+                  <UserRoomCountInput />
+                  {searchOnce && !isMultiCity && (
+                    <div>
+                      <h2>Auto-Regroup Attendees:</h2>
+                      <ToggleRegroup />
+                    </div>
+                  )}
+                  <h2>Equipment Needs:</h2>
+                  <UserEquipInput />
+                  <h2>Priorities for Recommendation:</h2>
+                  <DragAndDrop />
                 </>
               )}
-
-              {searchOnce && !isMultiCity && (
-                <div>
-                  <h2>Auto-regroup:</h2>
-                  <ToggleRegroup />
-                </div>
-              )}
-              {/* <h2>Meeting Type</h2>
-            <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-              <div className="relative">
-                <select className="block w-full appearance-none rounded-md bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none">
-                  <option value="local">Local</option>
-                  <option value="hybrid">Hybrid</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <img
-                    src={DropdownArrowSVG}
-                    alt="Dropdown Arrow"
-                    className="h-5 w-5"
-                  />
-                </div>
-              </div>
-            </div> */}
-              <h2>Room equipments:</h2>
-              <UserEquipInput />
-              <h2>Sorting priorities:</h2>
-              <DragAndDrop />
               <div className="my-4 flex items-center justify-center">
                 <button
                   type="submit"
@@ -443,7 +427,7 @@ const BookingPage = () => {
             Reset
           </button>
         </div>
-        <div className="flex basis-2/3 flex-col text-center md:text-start">
+        <div className="flex basis-2/3 flex-col text-center md:max-w-[61%] md:text-start">
           <div className="flex flex-col md:flex-row md:justify-between">
             <div>
               <div className="mb-4 text-xl font-semibold">Available Rooms</div>
@@ -462,6 +446,7 @@ const BookingPage = () => {
                 <button
                   className="cursor-not-allowed rounded-md bg-gray-300 px-6 py-2 opacity-50"
                   disabled
+                  title="Please select a room for every group"
                 >
                   Submit
                 </button>

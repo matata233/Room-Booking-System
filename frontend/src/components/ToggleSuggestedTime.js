@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setSuggestedTimeMode } from "../slices/bookingSlice";
+import { setSuggestedTimeMode, toggleShowRecommended } from "../slices/bookingSlice";
 
 const ToggleSuggestedTime = () => {
   const dispatch = useDispatch();
@@ -9,9 +9,14 @@ const ToggleSuggestedTime = () => {
   return (
     <div className="flex h-[40px] items-center justify-center">
       <label
-        className={`mr-2 ${suggestedTimeMode ? "text-gray-400" : "text-black"}`}
+        className={`mr-2 cursor-pointer ${suggestedTimeMode ? "text-gray-400" : "text-black"}`}
+        onClick={() => {
+          if (suggestedTimeMode) {
+            dispatch(setSuggestedTimeMode(!suggestedTimeMode));
+          }
+        }}
       >
-        Customized Time
+        Fixed
       </label>
       <div
         className="relative cursor-pointer"
@@ -27,9 +32,14 @@ const ToggleSuggestedTime = () => {
         ></div>
       </div>
       <label
-        className={`ml-2 ${suggestedTimeMode ? "text-theme-dark-orange" : "text-gray-400"}`}
+        className={`ml-2 cursor-pointer ${suggestedTimeMode ? "text-theme-dark-orange" : "text-gray-400"}`}
+        onClick={() => {
+          if (!suggestedTimeMode) {
+            dispatch(setSuggestedTimeMode(!suggestedTimeMode));
+          }
+        }}
       >
-        Suggested Time
+        Flexible
       </label>
     </div>
   );

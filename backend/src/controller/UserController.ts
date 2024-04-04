@@ -16,16 +16,18 @@ export default class UserController extends AbstractController {
         this.userService = userService;
     }
 
-    public getAll = async (_req: Request, res: Response): Promise<Response> => {
+    public getAll = async (req: Request, res: Response): Promise<Response> => {
         try {
+            await authenticator.getCurrentUser(req.headers.authorization, "admin");
             return super.onResolve(res, await this.userService.getAll());
         } catch (error) {
             return this.handleError(res, error);
         }
     };
 
-    public getAllEmail = async (_req: Request, res: Response): Promise<Response> => {
+    public getAllEmail = async (req: Request, res: Response): Promise<Response> => {
         try {
+            await authenticator.getCurrentUser(req.headers.authorization);
             return super.onResolve(res, await this.userService.getAllEmail());
         } catch (error) {
             return this.handleError(res, error);
@@ -34,6 +36,7 @@ export default class UserController extends AbstractController {
 
     public getById = async (req: Request, res: Response): Promise<Response> => {
         try {
+            await authenticator.getCurrentUser(req.headers.authorization, "admin");
             return super.onResolve(res, await this.userService.getById(parseInt(req.params.id)));
         } catch (error) {
             return this.handleError(res, error);
@@ -42,6 +45,7 @@ export default class UserController extends AbstractController {
 
     public create = async (req: Request, res: Response): Promise<Response> => {
         try {
+            await authenticator.getCurrentUser(req.headers.authorization, "admin");
             return super.onResolve(res, await this.userService.create(plainToInstance(UserDTO, req.body)));
         } catch (error) {
             return this.handleError(res, error);
@@ -50,6 +54,7 @@ export default class UserController extends AbstractController {
 
     public update = async (req: Request, res: Response): Promise<Response> => {
         try {
+            await authenticator.getCurrentUser(req.headers.authorization, "admin");
             return super.onResolve(
                 res,
                 await this.userService.update(parseInt(req.params.id), plainToInstance(UserDTO, req.body))
@@ -105,6 +110,7 @@ export default class UserController extends AbstractController {
             })
             .on("end", async () => {
                 try {
+                    await authenticator.getCurrentUser(req.headers.authorization, "admin");
                     return super.onResolve(res, await this.userService.upload(users));
                 } catch (error) {
                     return this.handleError(res, error);

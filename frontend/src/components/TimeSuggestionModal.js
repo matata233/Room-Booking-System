@@ -68,7 +68,7 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
               {timeSlots.map((time, index) => (
                 <button
                   key={index}
-                  className={`cursor-pointer rounded-lg py-1 text-sm transition-colors duration-300 ease-in-out hover:opacity-60 md:py-2  md:text-base
+                  className={`max-h-10 cursor-pointer rounded-lg py-1 text-sm transition-colors duration-300 ease-in-out hover:opacity-60 md:py-2  md:text-base
                     ${selectedTimeSlot === time ? "bg-[#dd7832] text-white" : "bg-[#ffe6c6] text-[#744400]"} `}
                   onClick={() => setSelectedTimeSlot(time)}
                 >
@@ -90,6 +90,10 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
             >
               Confirm
             </button>
+          </div>
+          <div className="mt-4 text-center text-sm text-gray-500 md:mx-6">
+            After you confirm, the timeslot you chose will be automatically
+            entered into the "Fixed" mode.
           </div>
         </div>
       </div>

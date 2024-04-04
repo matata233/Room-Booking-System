@@ -100,8 +100,8 @@ export default class UserRepository extends AbstractRepository {
                 building_id: user.building!.buildingId!,
                 floor: user.floor!,
                 desk: user.desk!,
-                role: user.role ?? "staff",
-                is_active: user.isActive ?? true
+                role: user.role!,
+                is_active: user.isActive!
             }
         });
         return toUserDTO(newUser);
@@ -130,6 +130,7 @@ export default class UserRepository extends AbstractRepository {
                 building_id: user.building!.buildingId!,
                 floor: user.floor!,
                 desk: user.desk!,
+                role: user.role!,
                 is_active: user.isActive!
             }
         });

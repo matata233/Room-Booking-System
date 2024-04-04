@@ -1,13 +1,11 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import useSearchData from "../../../hooks/useSearchData";
 import usePaginateData from "../../../hooks/usePaginateData";
 import useSortData from "../../../hooks/useSortData";
 import useRowSelection from "../../../hooks/useRowSelection";
 import { FaEdit } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
-import { FaSort, FaXmark, FaCheck } from "react-icons/fa6";
-import { PiSelectionAllFill } from "react-icons/pi";
+import { FaCheck, FaSort, FaXmark } from "react-icons/fa6";
 import Pagination from "../../../components/Pagination";
 import {
   useGetRoomsQuery,
@@ -405,8 +403,8 @@ const RoomManagementPage = () => {
           {isModalOpen && (
             <CancelConfirmationModal
               confirmButton={"confirm"}
-              cancelButton={"back"}
-              message="Are you sure you want to change the status of this room?"
+              cancelButton={"close"}
+              message="Are you sure you want to change the status of this room? Warning: If you are disabling this room, all future bookings associated with this room will be automatically canceled. This cannot be undone."
               onConfirm={handleConfirmToggleIsActive}
               onCancel={() => setIsModalOpen(false)}
               onClose={() => setIsModalOpen(false)}

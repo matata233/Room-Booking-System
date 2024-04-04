@@ -27,7 +27,7 @@ const EventCalendar = () => {
   const [updateEvent] = useUpdateEventMutation();
   const [deleteEvent] = useDeleteEventMutation();
 
-  const confirmDeleteMessage = "Are you sure you want to delete?";
+  const confirmDeleteMessage = "Are you sure you want to delete this event?";
 
   const eventsData = useMemo(() => {
     if (isGetEventsLoading || !events || !events.result) {

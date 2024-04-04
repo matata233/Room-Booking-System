@@ -18,14 +18,17 @@ const initialState = {
     {
       id: 1,
       item: "distance",
+      description: "Less Walking",
     },
     {
       id: 2,
       item: "seats",
+      description: "Right Capacity",
     },
     {
       id: 3,
       item: "equipments",
+      description: "Extra Equipments",
     },
   ],
   roomCount: 1,
@@ -37,7 +40,7 @@ const initialState = {
   },
   searchOnce: false,
   loading: false,
-  groupToDisplay: "Group1",
+  groupToDisplay: "Group 1",
   searching: false,
   showRecommended: true,
   regroup: true,
@@ -46,8 +49,8 @@ const initialState = {
   suggestedTimeInput: {
     startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
     endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
-    duration: 1,
-    unit: "hours",
+    duration: 30,
+    unit: "minutes",
   },
   suggestedTimeReceived: {},
 };
@@ -99,6 +102,40 @@ export const bookingSlice = createSlice({
         }
       }
     },
+
+    updateRoomsAndSelectedRoomForGroup: (state, action) => {
+      const { groupId, rooms } = action.payload;
+      let flag = false; // flat to track the first group needing an update
+
+      state.groupedAttendees.forEach((group, index) => {
+        if (group.groupId === groupId) {
+          // update rooms for the matching group
+          group.rooms = rooms;
+
+          // Check if the selectedRoom exists in the updated rooms list
+          const selectedRoomExists = rooms.some(
+            (room) => room.roomId === group.selectedRoom.roomId,
+          );
+
+          // If the selectedRoom does not exist in the updated rooms list, set it to null
+          group.selectedRoom = selectedRoomExists ? group.selectedRoom : null;
+
+          // For the first group needing update of selectedRoom to null, set groupToDisplay and ensure this happens only once
+          if (!selectedRoomExists && !flag) {
+            state.groupToDisplay = groupId;
+            flag = true;
+          }
+
+          // check if the group being updated is the same as the loggedInUser's group
+          if (state.loggedInUser.group === groupId) {
+            state.loggedInUser.selectedRoom = selectedRoomExists
+              ? state.loggedInUser.selectedRoom
+              : null;
+          }
+        }
+      });
+    },
+
     setUngroupedAttendees: (state, action) => {
       state.ungroupedAttendees = action.payload;
     },
@@ -107,6 +144,14 @@ export const bookingSlice = createSlice({
     },
     setLoggedInUserGroup: (state, action) => {
       state.loggedInUser.group = action.payload;
+
+      // set the selectedRoom for the loggedInUser to updated group
+      const group = state.groupedAttendees.find(
+        (group) => group.groupId === action.payload,
+      );
+      if (group) {
+        state.loggedInUser.selectedRoom = group.selectedRoom;
+      }
     },
     setGroupToDisplay: (state, action) => {
       state.groupToDisplay = action.payload;
@@ -134,15 +179,15 @@ export const bookingSlice = createSlice({
     },
     setSuggestedTimeMode: (state, action) => {
       state.suggestedTimeMode = action.payload;
-      if (action.payload) {
-        // reset suggestedTimeInput when switching to suggestedTimeMode
-        state.suggestedTimeInput = {
-          startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
-          endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
-          duration: 1,
-          unit: "hours",
-        };
-      }
+      // if (action.payload) {
+      //   // reset suggestedTimeInput when switching to suggestedTimeMode
+      //   state.suggestedTimeInput = {
+      //     startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
+      //     endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
+      //     duration: 30,
+      //     unit: "minutes",
+      //   };
+      // }
     },
     setSuggestedTimeInput: (state, action) => {
       state.suggestedTimeInput = action.payload;
@@ -179,6 +224,7 @@ export const {
   setSuggestedTimeMode,
   setSuggestedTimeInput,
   setSuggestedTimeReceived,
+  updateRoomsAndSelectedRoomForGroup,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

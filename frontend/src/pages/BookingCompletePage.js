@@ -7,8 +7,8 @@ import moment from "moment-timezone";
 const BookingCompletePage = () => {
   const location = useLocation();
   const bookingData = location.state;
-  const startTime = bookingData.result.startTime;
-  const endTime = bookingData.result.endTime;
+  const startTime = bookingData?.result.startTime;
+  const endTime = bookingData?.result.endTime;
 
   const formattedStartTime = moment(startTime)
     .tz(moment.tz.guess())
