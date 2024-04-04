@@ -15,8 +15,9 @@ export default class BookingController extends AbstractController {
         this.bookingService = bookingService;
     }
 
-    public getAll = async (_req: Request, res: Response): Promise<Response> => {
+    public getAll = async (req: Request, res: Response): Promise<Response> => {
         try {
+            await authenticator.getCurrentUser(req.headers.authorization, "admin");
             return super.onResolve(res, await this.bookingService.getAll());
         } catch (error) {
             return this.handleError(res, error);
@@ -25,6 +26,7 @@ export default class BookingController extends AbstractController {
 
     public getById = async (req: Request, res: Response): Promise<Response> => {
         try {
+            await authenticator.getCurrentUser(req.headers.authorization, "admin");
             return super.onResolve(res, await this.bookingService.getById(parseInt(req.params.id)));
         } catch (error) {
             return this.handleError(res, error);
@@ -33,6 +35,7 @@ export default class BookingController extends AbstractController {
 
     public getByCurrentUserId = async (req: Request, res: Response): Promise<Response> => {
         try {
+            await authenticator.getCurrentUser(req.headers.authorization);
             const currentUser = await authenticator.getCurrentUser(req.headers.authorization);
             return super.onResolve(res, await this.bookingService.getByUserId(currentUser.userId!));
         } catch (error) {
@@ -63,6 +66,7 @@ export default class BookingController extends AbstractController {
         dto.createdBy = req.body.createdBy;
         dto.createdAt = new Date();
         try {
+            await authenticator.getCurrentUser(req.headers.authorization);
             return super.onResolve(res, await this.bookingService.create(dto));
         } catch (error) {
             return this.handleError(res, error);
@@ -89,6 +93,7 @@ export default class BookingController extends AbstractController {
             bookingToUpdateDTO.roomDTOs.push(room);
         }
         try {
+            await authenticator.getCurrentUser(req.headers.authorization);
             return super.onResolve(res, await this.bookingService.update(parseInt(req.params.id), bookingToUpdateDTO));
         } catch (error) {
             return this.handleError(res, error);
@@ -102,6 +107,7 @@ export default class BookingController extends AbstractController {
         const attendees = req.body.attendees;
         const stepSize = req.body.stepSize;
         try {
+            await authenticator.getCurrentUser(req.headers.authorization);
             return super.onResolve(
                 res,
                 await this.bookingService.getSuggestedTimes(startTime, endTime, duration, attendees, stepSize)
@@ -135,6 +141,7 @@ export default class BookingController extends AbstractController {
         dto.roomCount = req.body.roomCount!;
         dto.regroup = req.body.regroup!;
         try {
+            await authenticator.getCurrentUser(req.headers.authorization);
             return super.onResolve(res, await this.bookingService.getAvailableRooms(dto));
         } catch (error) {
             return this.handleError(res, error);

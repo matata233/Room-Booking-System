@@ -95,12 +95,12 @@ const AdminBuildingForm = ({
               setLat={setLat}
             />
             <div className="relative mt-8">
-              <button className="mr-4 cursor-pointer rounded-lg bg-theme-orange px-2 py-1 font-amazon-ember text-sm text-theme-dark-blue transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:px-4 md:py-2 md:text-base">
+              <button className="mr-2 cursor-pointer rounded-lg bg-theme-orange px-2 py-1 font-amazon-ember text-sm text-theme-dark-blue transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white  md:px-4 md:py-2 md:text-base">
                 {buttonText}
               </button>
               <Link
                 to="/buildingManagementPage"
-                className="ml-4 rounded-lg bg-theme-dark-blue px-2 py-1.5 font-amazon-ember text-sm text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white md:px-12 md:py-2.5 md:text-base"
+                className="ml-4 rounded-lg bg-theme-dark-blue px-2 py-1.5 font-amazon-ember text-sm text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white md:px-9 md:py-2.5 md:text-base"
               >
                 Back
               </Link>
