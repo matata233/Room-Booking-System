@@ -79,16 +79,16 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
           </div>
           <div className="mt-4 flex justify-center gap-6">
             <button
-              className="h-8 w-24 rounded bg-green-500 text-white transition-colors  duration-300 ease-in-out hover:bg-green-600 xl:h-10 xl:w-28"
+              className="h-8 w-24 rounded border border-zinc-300 bg-white text-black transition-colors  duration-300 ease-in-out hover:bg-zinc-100  xl:h-10 xl:w-28"
+              onClick={onCancel}
+            >
+              Back
+            </button>
+            <button
+              className="h-8 w-24 rounded bg-theme-orange text-black transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white xl:h-10 xl:w-28"
               onClick={onConfirm}
             >
               Confirm
-            </button>
-            <button
-              className="h-8 w-24 rounded bg-rose-600 text-white transition-colors  duration-300 ease-in-out hover:bg-rose-700  xl:h-10 xl:w-28"
-              onClick={onCancel}
-            >
-              Cancel
             </button>
           </div>
         </div>

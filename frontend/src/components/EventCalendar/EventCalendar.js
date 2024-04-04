@@ -201,7 +201,7 @@ const EventCalendar = () => {
         {isConfirmed && (
           <CancelConfirmationModal
             confirmButton={"delete"}
-            cancelButton={"close"}
+            cancelButton={"back"}
             onConfirm={handleConfirmDelete}
             onClose={handleCloseModal}
             onCancel={handleCloseModal}

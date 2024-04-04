@@ -401,7 +401,7 @@ const UserManagementPage = () => {
           {isModalOpen && (
             <CancelConfirmationModal
               confirmButton={"confirm"}
-              cancelButton={"close"}
+              cancelButton={"back"}
               message="Are you sure you want to change the status of the user?"
               onConfirm={handleConfirmToggleIsActive}
               onCancel={() => setIsModalOpen(false)}
