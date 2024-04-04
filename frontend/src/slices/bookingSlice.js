@@ -11,8 +11,10 @@ const persistedUserInfo = localStorage.getItem("userInfo");
 const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;
 
 const initialState = {
-  startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
-  endTime: nextDayAtNoon.format("YYYY-MM-DD HH:mm"),
+  startDate: nextDayAtTen.format("YYYY-MM-DD"),
+  startTime: nextDayAtTen.format("HH:mm"),
+  duration: 30,
+  unit: "minutes",
   equipments: [],
   priority: [
     {
@@ -59,11 +61,18 @@ export const bookingSlice = createSlice({
   name: "booking",
   initialState,
   reducers: {
+    setStartDate: (state, action) => {
+      state.startDate = action.payload;
+    },
     setStartTime: (state, action) => {
       state.startTime = action.payload;
     },
-    setEndTime: (state, action) => {
-      state.endTime = action.payload;
+
+    setDuration: (state, action) => {
+      state.duration = action.payload;
+    },
+    setUnit: (state, action) => {
+      state.unit = action.payload;
     },
     addEquipment: (state, action) => {
       state.equipments = [...state.equipments, action.payload];
@@ -200,8 +209,10 @@ export const bookingSlice = createSlice({
 });
 
 export const {
+  setStartDate,
   setStartTime,
-  setEndTime,
+  setDuration,
+  setUnit,
   addEquipment,
   removeEquipment,
   setPriority,

@@ -3,7 +3,9 @@ import SuggestedTimeCalendar from "../components/SuggestedTime/SuggestedTimeCale
 import { useDispatch, useSelector } from "react-redux";
 import {
   setStartTime,
-  setEndTime,
+  setStartDate,
+  setDuration,
+  setUnit,
   setSuggestedTimeReceived,
   setSuggestedTimeMode,
 } from "../slices/bookingSlice";
@@ -33,19 +35,15 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
       return;
     }
 
-    const startTime = dayjs(
+    const startDateTime = dayjs(
       `${formattedSelectedDate} ${selectedTimeSlot}`,
       "YYYY-MM-DD HH:mm",
     );
 
-    // Add duration to get the end time
-    const endTime = startTime.add(
-      suggestedTimeInput.duration,
-      suggestedTimeInput.unit,
-    );
-
-    dispatch(setStartTime(startTime.format("YYYY-MM-DD HH:mm")));
-    dispatch(setEndTime(endTime.format("YYYY-MM-DD HH:mm")));
+    dispatch(setStartDate(startDateTime.format("YYYY-MM-DD")));
+    dispatch(setStartTime(startDateTime.format("HH:mm")));
+    dispatch(setDuration(suggestedTimeInput.duration));
+    dispatch(setUnit(suggestedTimeInput.unit));
 
     dispatch(setSuggestedTimeMode(false));
     dispatch(setSuggestedTimeReceived({}));

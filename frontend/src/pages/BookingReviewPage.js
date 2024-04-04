@@ -18,14 +18,17 @@ import {
 import { toast } from "react-toastify";
 import moment from "moment-timezone";
 import Loader from "../components/Loader";
+import dayjs from "dayjs";
 
 const BookingReviewPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const {
+    startDate,
     startTime,
-    endTime,
+    duration,
+    unit,
     equipments,
     priority,
     roomCount,
@@ -34,13 +37,16 @@ const BookingReviewPage = () => {
   } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
-  const utcStartTime = new Date(startTime).toISOString();
-  const utcEndTime = new Date(endTime).toISOString();
+  const startDateTime = dayjs(`${startDate} ${startTime}`, "YYYY-MM-DD HH:mm");
 
-  const formattedStartTime = moment(utcStartTime)
+  const startDateTimeUTC = startDateTime.toISOString();
+  const endDateTime = startDateTime.add(duration, unit);
+  const endDateTimeUTC = endDateTime.toISOString();
+
+  const formattedStartTime = moment(startDateTimeUTC)
     .tz(moment.tz.guess())
     .format("YYYY-MM-DD HH:mm z");
-  const formattedEndTime = moment(utcEndTime)
+  const formattedEndTime = moment(endDateTimeUTC)
     .tz(moment.tz.guess())
     .format("YYYY-MM-DD HH:mm z");
 
@@ -68,8 +74,8 @@ const BookingReviewPage = () => {
 
     const reqBody = {
       createdBy: userInfo.userId,
-      startTime: utcStartTime,
-      endTime: utcEndTime,
+      startTime: startDateTimeUTC,
+      endTime: endDateTimeUTC,
       rooms,
       users,
     };
@@ -78,9 +84,6 @@ const BookingReviewPage = () => {
   };
 
   const createRequestBodyForGetAvailableRooms = () => {
-    const startDateTime = new Date(startTime).toISOString();
-    const endDateTime = new Date(endTime).toISOString();
-
     const equipmentCodes = equipments.map((equip) => equip.id);
 
     let attendeeEmails = [];
@@ -105,8 +108,8 @@ const BookingReviewPage = () => {
     }
 
     const reqBody = {
-      startTime: startDateTime,
-      endTime: endDateTime,
+      startTime: startDateTimeUTC,
+      endTime: endDateTimeUTC,
       attendees: attendeeEmails,
       equipments: equipmentCodes,
       roomCount: roomCount,

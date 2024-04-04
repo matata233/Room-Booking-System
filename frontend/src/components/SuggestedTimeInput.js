@@ -5,7 +5,11 @@ import { setSuggestedTimeInput } from "../slices/bookingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { nextDayAtTen, sevenDaysLaterAtTen } from "../utils/getDateTime";
 import dayjs from "dayjs";
-import { allowedMaxDays, beforeToday, combine } from "rsuite/cjs/DateRangePicker/disabledDateUtils";
+import {
+  allowedMaxDays,
+  beforeToday,
+  combine,
+} from "rsuite/cjs/DateRangePicker/disabledDateUtils";
 
 const SuggestedTimeInput = () => {
   const dispatch = useDispatch();
@@ -76,7 +80,7 @@ const SuggestedTimeInput = () => {
           min="1"
           value={suggestedTimeInput?.duration}
           onChange={handleDurationChange}
-          className="rounded-lg border px-1 py-1 focus:outline-none"
+          className="w-48 rounded-lg border px-4 py-1 focus:outline-none"
           placeholder="Duration"
         />
 

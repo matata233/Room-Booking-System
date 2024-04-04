@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import BookingStepper from "../components/BookingStepper";
-import DragAndDrop from "../components/DragAndDrop";
 import UserEquipInput from "../components/UserEquipInput";
 import UserEmailInput from "../components/UserEmailInput";
 import UserTimeInput from "../components/UserTimeInput";
@@ -38,6 +37,7 @@ import ToggleSuggestedTime from "../components/ToggleSuggestedTime";
 import SuggestedTimeInput from "../components/SuggestedTimeInput";
 import TimeSuggestionModal from "../components/TimeSuggestionModal";
 import moment from "moment";
+import dayjs from "dayjs";
 
 const BookingPage = () => {
   const dispatch = useDispatch();
@@ -46,8 +46,10 @@ const BookingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
+    startDate,
     startTime,
-    endTime,
+    duration,
+    unit,
     equipments,
     priority,
     roomCount,
@@ -103,8 +105,14 @@ const BookingPage = () => {
           return;
         }
       }
-      const startDateTime = new Date(startTime).toISOString();
-      const endDateTime = new Date(endTime).toISOString();
+
+      const startDateTime = dayjs(
+        `${startDate} ${startTime}`,
+        "YYYY-MM-DD HH:mm",
+      );
+      const startDateTimeUTC = startDateTime.toISOString();
+      const endDateTime = startDateTime.add(duration, unit);
+      const endDateTimeUTC = endDateTime.toISOString();
 
       const equipmentCodes = equipments.map((equip) => equip.id);
 
@@ -147,8 +155,8 @@ const BookingPage = () => {
       }
 
       const reqBody = {
-        startTime: startDateTime,
-        endTime: endDateTime,
+        startTime: startDateTimeUTC,
+        endTime: endDateTimeUTC,
         attendees: attendeeEmails,
         equipments: equipmentCodes,
         roomCount: roomCount,
@@ -333,9 +341,16 @@ const BookingPage = () => {
             <div className="flex flex-col gap-3">
               <h2 className="mt-4">Meeting Time:</h2>
               <ToggleSuggestedTime />
-              {suggestedTimeMode ? (<><div className="text-sm text-gray-500">
-                Get suggested timeslots with everyone available
-              </div><SuggestedTimeInput /></>) : <UserTimeInput />}
+              {suggestedTimeMode ? (
+                <>
+                  <div className="text-sm text-gray-500">
+                    Get suggested timeslots with everyone available
+                  </div>
+                  <SuggestedTimeInput />
+                </>
+              ) : (
+                <UserTimeInput />
+              )}
               {suggestedTimeMode ? (
                 <>
                   {searchOnce ? (
@@ -406,8 +421,8 @@ const BookingPage = () => {
                   )}
                   <h2>Equipment Needs:</h2>
                   <UserEquipInput />
-                  <h2>Priorities for Recommendation:</h2>
-                  <DragAndDrop />
+                  {/* <h2>Priorities for Recommendation:</h2>
+                  <DragAndDrop /> */}
                 </>
               )}
               <div className="my-4 flex items-center justify-center">
