@@ -91,8 +91,9 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
               Cancel
             </button>
           </div>
-          <div className="text-sm text-gray-500">
-            After you confirm, the timeslot you chose will be automatically entered into the "Fixed" mode.
+          <div className="mt-4 text-center text-sm text-gray-500 md:mx-6">
+            After you confirm, the timeslot you chose will be automatically
+            entered into the "Fixed" mode.
           </div>
         </div>
       </div>
