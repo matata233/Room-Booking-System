@@ -7,9 +7,6 @@ import {
   nextDayAtNoon,
 } from "../utils/getDateTime";
 
-const persistedUserInfo = localStorage.getItem("userInfo");
-const userInfo = persistedUserInfo ? JSON.parse(persistedUserInfo) : null;
-
 const initialState = {
   startDate: nextDayAtTen.format("YYYY-MM-DD"),
   startTime: nextDayAtTen.format("HH:mm"),
@@ -123,7 +120,7 @@ export const bookingSlice = createSlice({
 
           // Check if the selectedRoom exists in the updated rooms list
           const selectedRoomExists = rooms.some(
-            (room) => room.roomId === group.selectedRoom.roomId,
+            (room) => room.roomId === group.selectedRoom?.roomId,
           );
 
           // If the selectedRoom does not exist in the updated rooms list, set it to null

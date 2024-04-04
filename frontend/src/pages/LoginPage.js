@@ -21,13 +21,13 @@ const LoginPage = () => {
   const handleLogin = async (res) => {
     try {
       const response = await login({ token: res.credential }).unwrap();
-      const decodedUserInfo = jwtDecode(response.token);
+      const decodedUserInfo = jwtDecode(response?.token);
       const avatarLink = jwtDecode(res.credential).picture; // get the user's avatar link from the token
       dispatch(
         setCredentials({
           ...decodedUserInfo,
           avatar: avatarLink,
-          token: response.token,
+          token: response?.token,
         }),
       );
 

@@ -84,7 +84,7 @@ const BookingRoomsDisplay = () => {
         .filter(
           (group) => group.groupId !== groupToDisplay && group.selectedRoom,
         )
-        .map((group) => group.selectedRoom.roomId),
+        .map((group) => group.selectedRoom?.roomId),
     );
     rooms = rooms.filter(
       (room) => !selectedRoomsInOtherGroups.has(room.roomId),

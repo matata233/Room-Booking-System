@@ -25,7 +25,7 @@ const BookingCompletePage = () => {
             <h1 className="mb-4 text-xl font-semibold">Booking Confirmation</h1>
             <p className="mb-4">
               You have successfully booked:{" "}
-              {bookingData.result.groups.map((group, index) => {
+              {bookingData?.result.groups.map((group, index) => {
                 const { room } = group;
                 const cityId = room.city.cityId;
                 const buildingCode = room.building.code;

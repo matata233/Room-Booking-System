@@ -17,8 +17,8 @@ const LoggedInUserGroup = () => {
     }));
 
   const defaultGroup = {
-    value: loggedInUser.group,
-    label: loggedInUser.group,
+    value: loggedInUser?.group,
+    label: loggedInUser?.group,
   };
   const handleChange = (selectedOption) => {
     dispatch(setLoggedInUserGroup(selectedOption?.value));

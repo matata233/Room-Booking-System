@@ -132,7 +132,7 @@ const BookingPage = () => {
 
         // Check if logged in user has a group and add them to it
         const loggedInUserGroupIndex = groupedAttendees.findIndex(
-          (group) => group.groupId === loggedInUser.group,
+          (group) => group.groupId === loggedInUser?.group,
         );
         if (loggedInUserGroupIndex !== -1) {
           attendeeEmails[loggedInUserGroupIndex].push(userInfo.email);
@@ -164,7 +164,6 @@ const BookingPage = () => {
         priority: priority.map((entry) => entry.item),
       };
 
-      console.log("reqBody", reqBody);
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
 
       if (!searchOnce) {
@@ -192,7 +191,7 @@ const BookingPage = () => {
 
   const reorganizeAvailableRooms = (availableRooms) => {
     let loggedInUserGroup = null;
-    const transformedResponse = availableRooms.result.groups.map(
+    const transformedResponse = availableRooms?.result.groups.map(
       (group, index) => {
         // map over each attendee to create a new object with userId instead of user_id
         const updatedAttendees = group.attendees
@@ -224,8 +223,8 @@ const BookingPage = () => {
       },
     );
 
-    const newRoomCount = availableRooms.result.groups.length;
-    const isMultiCity = availableRooms.result.isMultiCity;
+    const newRoomCount = availableRooms?.result.groups.length;
+    const isMultiCity = availableRooms?.result.isMultiCity;
     dispatch(setRoomCount(newRoomCount));
     dispatch(setIsMultiCity(isMultiCity));
     if (isMultiCity) {
@@ -252,7 +251,7 @@ const BookingPage = () => {
       group.groupId !== "Ungrouped"
         ? group.selectedRoom != null
         : group.attendees.length === 0,
-    ) && loggedInUser.selectedRoom != null;
+    ) && loggedInUser?.selectedRoom != null;
 
   const handleSubmit = () => {
     navigate("/bookingReview");
@@ -295,7 +294,7 @@ const BookingPage = () => {
       dispatch(
         setSuggestedTimeReceived(reorganizeSuggestedTime(suggestedTime)),
       );
-      if (suggestedTime.result.length === 0) {
+      if (suggestedTime?.result.length === 0) {
         toast.info("All attendees are not available in this range");
         return;
       }
