@@ -71,10 +71,10 @@ const BookingCompletePage = () => {
 
       <div className="mb-10 mt-10 flex justify-center">
         <Link
-          to="/"
+          to="/booking"
           className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
         >
-          Back to Home Page
+          Make Another Booking
         </Link>
       </div>
     </div>
