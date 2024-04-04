@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import StartSearchGIF from "../assets/start-search.gif";
 import Pagination from "../components/Pagination";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
@@ -217,6 +217,10 @@ const BookingRoomsDisplay = () => {
       }
     };
   };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [showRecommended, searchQuery, selectedSearchOption, sortOption]);
 
   return (
     <div className="flex flex-col items-center justify-center sm:items-stretch">

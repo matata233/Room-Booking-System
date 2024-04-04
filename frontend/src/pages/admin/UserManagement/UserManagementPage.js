@@ -414,13 +414,15 @@ const UserManagementPage = () => {
 
       {/* Pagination */}
       <div>
-        <Pagination
-          currentPage={currentPage}
-          rowsPerPage={rowsPerPage}
-          count={searchedData.length}
-          handleChangePage={handleChangePage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-        />
+        {displayedData.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            count={searchedData.length}
+            handleChangePage={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        )}
       </div>
     </div>
   );
