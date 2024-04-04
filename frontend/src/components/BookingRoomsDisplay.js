@@ -220,7 +220,7 @@ const BookingRoomsDisplay = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [showRecommended, searchQuery, selectedSearchOption, sortOption]);
+  }, [showRecommended, searchQuery, sortOption]);
 
   return (
     <div className="flex flex-col items-center justify-center sm:items-stretch">
