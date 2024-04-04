@@ -9,6 +9,7 @@ import { setSelectedRoomForGroup, stopSearch } from "../slices/bookingSlice";
 import { ImCheckboxUnchecked, ImCheckboxChecked } from "react-icons/im";
 import RoomSelectionModal from "./RoomSelectionModal";
 import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
+import MoreInfo from "./MoreInfo";
 
 const BookingRoomsDisplay = () => {
   const dispatch = useDispatch();
@@ -334,6 +335,9 @@ const BookingRoomsDisplay = () => {
                       {" "}
                       <ImCheckboxChecked className="size-6 text-theme-orange" />
                       <span className="ml-3 text-theme-orange">Select</span>
+                      <MoreInfo
+                      info={"The room that you choose will be displayed in the component on the left side of the group. If there are multiple groups, please select the corresponding group in the component on the left side first. After all selections are complete, please click the submit button."}
+                    />
                     </>
                   ) : (
                     <>
