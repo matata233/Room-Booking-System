@@ -120,7 +120,7 @@ const AdminUserForm = ({
       if (buildingValidation.isValid) {
         try {
           const buildingData = await createBuilding(buildingFormData).unwrap();
-          buildingIdLocal = buildingData.result.buildingId;
+          buildingIdLocal = buildingData?.result.buildingId;
         } catch (err) {
           toast.error(err?.data?.error || "Failed to create building");
           return;
