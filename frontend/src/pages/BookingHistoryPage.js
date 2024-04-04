@@ -68,7 +68,7 @@ const BookingHistoryPage = () => {
         updatedBooking: {
           status: "canceled",
           users: getAttendees(selectedBooking),
-          rooms: getRooms(selectedBooking)
+          rooms: getRooms(selectedBooking),
         },
       }).unwrap();
       toast.success("Booking updated");
@@ -93,7 +93,11 @@ const BookingHistoryPage = () => {
 
       await updateBooking({
         bookingId: selectedBooking.bookingId,
-        updatedBooking: { status: "confirmed", users: users, rooms: getRooms(selectedBooking) },
+        updatedBooking: {
+          status: "confirmed",
+          users: users,
+          rooms: getRooms(selectedBooking),
+        },
       }).unwrap();
       toast.success("Booking updated");
       // Close the modal
@@ -158,7 +162,7 @@ const BookingHistoryPage = () => {
     const rooms = [];
     booking.groups.forEach((group) => {
       rooms.push(group.room.roomId);
-    })
+    });
     return rooms;
   }
 
@@ -170,7 +174,7 @@ const BookingHistoryPage = () => {
         attendees.push(attendee.userId);
       });
       allAttendees.push(attendees);
-    })
+    });
     return allAttendees;
   }
 
@@ -181,18 +185,18 @@ const BookingHistoryPage = () => {
       <div className="flex w-full flex-col items-center gap-y-12 font-amazon-ember">
         <h1 className="text-center text-2xl font-semibold">Booking History</h1>
 
-        {isLoading? (
-           <div className="flex flex-col items-center justify-center">
-           <div className="mt-20 text-center">
-             <l-mirage size="150" speed="2.5" color="orange"></l-mirage>{" "}
-             Searching...
-           </div>
-           <img
-             src={StartSearchGIF}
-             alt="Start Search"
-             className="h-96 w-96"
-           />
-         </div>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center">
+            <div className="mt-20 text-center">
+              <l-mirage size="150" speed="2.5" color="orange"></l-mirage>{" "}
+              Searching...
+            </div>
+            <img
+              src={StartSearchGIF}
+              alt="Start Search"
+              className="h-96 w-96"
+            />
+          </div>
         ) : bookingData.length > 0 ? (
           <>
             <div className="flex flex-col">
@@ -296,7 +300,8 @@ const BookingHistoryPage = () => {
                         </div>
                       </div>
                       {book.status === "confirmed" &&
-                        userInfo.email === book.users.email && checkTime(book.startTime) && (
+                        userInfo.email === book.users.email &&
+                        checkTime(book.startTime) && (
                           <div className="mr-2 lg:mr-5">
                             <div className="flex justify-end">
                               <button
@@ -309,11 +314,13 @@ const BookingHistoryPage = () => {
                             </div>
                             {index === book.groups.length - 1 && (
                               <div className="mt-3">
-                                <div className="w-full border-t border border-grey-700"></div>
+                                <div className="border-grey-700 w-full border border-t"></div>
                                 <div className="mt-3 flex justify-end">
                                   <button
-                                    onClick={() => handleCancelConfirmOpen(book)}
-                                    className="rounded border border-theme-orange bg-white px-5 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
+                                    onClick={() =>
+                                      handleCancelConfirmOpen(book)
+                                    }
+                                    className="rounded bg-theme-dark-blue px-5 py-2 text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white"
                                   >
                                     Cancel Booking
                                   </button>
@@ -346,7 +353,7 @@ const BookingHistoryPage = () => {
             </div>
           </>
         ) : (
-          <div className="text-center mt-20">
+          <div className="mt-20 text-center">
             Looks like you don't have any bookings yet
           </div>
         )}
@@ -363,7 +370,7 @@ const BookingHistoryPage = () => {
       {isCancelConfirmOpen && (
         <CancelConfirmationModal
           confirmButton={"cancel"}
-          cancelButton={"close"}
+          cancelButton={"back"}
           onCancel={() => setIsCancelConfirmOpen(false)}
           onClose={() => setIsCancelConfirmOpen(false)}
           onConfirm={handleCancelBooking}
