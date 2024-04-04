@@ -19,7 +19,7 @@ function AdminHomePage() {
             <img src={RoomIconSVG} alt="Room Mngt Icon" className="h-10 w-16" />
           </div>
           <p className="w-96 px-4  text-center md:ml-10 md:w-[550px]  md:text-start lg:w-[770px]">
-            Room Management allows you to add/change/delete rooms into the
+            Room Management allows you to add/change/deactivate rooms into the
             system and record various features of the room.
           </p>
         </div>
@@ -28,9 +28,9 @@ function AdminHomePage() {
             <img src={UserIconSVG} alt="User Mngt Icon" className="h-10 w-16" />
           </div>
           <p className="w-96 px-4 text-center md:ml-10 md:w-[550px] md:text-start lg:w-[775px]">
-            Staff Management allows you to import and input user information (up
+            User Management allows you to import and input user information (up
             to 1000 users) into the profile database and to perform
-            change/delete staff information.
+            change/deactivate staff information.
           </p>
         </div>
       </div>
@@ -43,7 +43,7 @@ function AdminHomePage() {
           />
           <div className="flex flex-row items-center justify-center">
             <h2 className="p-3 text-2xl">Room Management</h2>
-            <Tooltip title="Manage your rooms effectively by adding, changing, or deleting room.">
+            <Tooltip title="Manage your rooms effectively by adding, changing, or deactivating room.">
               <img
                 className="size-5"
                 alt="question mark"
@@ -69,7 +69,7 @@ function AdminHomePage() {
           />
           <div className="flex items-center justify-center">
             <h2 className="p-3 text-2xl">User Management</h2>
-            <Tooltip title="Manage user profiles by importing user data, and performing updates or deletions.">
+            <Tooltip title="Manage user profiles by importing user data, and performing updates or deactivations.">
               <img
                 className="size-5"
                 alt="question mark"

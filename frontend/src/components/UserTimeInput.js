@@ -1,26 +1,22 @@
 import React from "react";
 import { DateRangePicker } from "rsuite";
 import "rsuite/dist/rsuite-no-reset.min.css";
-import { setStartTime, setEndTime } from "../slices/bookingSlice";
+import { setEndTime, setStartTime } from "../slices/bookingSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { nextDayAtTen, sevenDaysLaterAtTen } from "../utils/getDateTime";
 import dayjs from "dayjs";
+import {
+  allowedMaxDays,
+  beforeToday,
+  combine,
+} from "rsuite/cjs/DateRangePicker/disabledDateUtils";
 
 const UserTimeInput = () => {
   const dispatch = useDispatch();
   const { startTime, endTime } = useSelector((state) => state.booking);
 
-  const beforeToday = () => {
-    return (date) => {
-      const startOfToday = new Date();
-      startOfToday.setHours(0, 0, 0, 0);
-      return date < startOfToday;
-    };
-  };
-
   const predefinedRanges = [
     {
-      label: "Today",
+      label: "Now",
       value: [new Date(), new Date()],
     },
   ];
@@ -35,11 +31,11 @@ const UserTimeInput = () => {
 
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-      <div className="mb-2">Time Range</div>
+      <div className="mb-2">Start & End Time</div>
       <DateRangePicker
-        format="yyyy-MM-dd HH:mm"
+        format="yy-MMM-d H:mm"
         ranges={predefinedRanges}
-        shouldDisableDate={beforeToday()}
+        shouldDisableDate={combine(beforeToday(), allowedMaxDays(2))}
         onChange={handleDateRangeChange}
         cleanable={false}
         value={[new Date(startTime), new Date(endTime)]}

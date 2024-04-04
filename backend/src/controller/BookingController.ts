@@ -48,7 +48,6 @@ export default class BookingController extends AbstractController {
         dto.startTime = new Date(req.body.startTime!);
         dto.endTime = new Date(req.body.endTime!);
         dto.userDTOs = [];
-        // create an array of UserDTOs for each group of participants
         for (const group of req.body.users) {
             const groupDTO = [];
             for (const participantID of group) {
@@ -58,17 +57,14 @@ export default class BookingController extends AbstractController {
             }
             dto.userDTOs.push(groupDTO);
         }
-
         dto.roomDTOs = [];
         for (const roomID of req.body.rooms) {
             const room = new RoomDTO();
             room.roomId = roomID;
             dto.roomDTOs.push(room);
         }
-
         dto.createdBy = req.body.createdBy;
         dto.createdAt = new Date();
-
         try {
             await authenticator.getCurrentUser(req.headers.authorization);
             return super.onResolve(res, await this.bookingService.create(dto));
@@ -77,17 +73,11 @@ export default class BookingController extends AbstractController {
         }
     };
 
-    /*
-    params from frontend for update:
-    - bookingId: number; status: string; users: number[][]; rooms: number[];
-    */
     public update = async (req: Request, res: Response): Promise<Response> => {
         const bookingToUpdateDTO = new BookingDTO();
         bookingToUpdateDTO.status = req.body.status;
-        // create 2D array of UserDTOs for each group of participants
         bookingToUpdateDTO.userDTOs = [];
         for (const group of req.body.users) {
-            // note: req.body.users is 2D array of user IDs
             const groupUserDTO: UserDTO[] = [];
             for (const participantID of group) {
                 const participant = new UserDTO();
@@ -96,7 +86,6 @@ export default class BookingController extends AbstractController {
             }
             bookingToUpdateDTO.userDTOs.push(groupUserDTO);
         }
-        // create an array of RoomDTOs
         bookingToUpdateDTO.roomDTOs = [];
         for (const roomID of req.body.rooms) {
             const room = new RoomDTO();
@@ -112,25 +101,16 @@ export default class BookingController extends AbstractController {
     };
 
     public getSuggestedTimes = async (req: Request, res: Response): Promise<Response> => {
+        const startTime = new Date(req.body.start_time);
+        const endTime = new Date(req.body.end_time);
+        const duration = req.body.duration;
+        const attendees = req.body.attendees;
+        const stepSize = req.body.stepSize;
         try {
             await authenticator.getCurrentUser(req.headers.authorization);
-            const startTime = req.body.start_time;
-            const endTime = req.body.end_time;
-            const duration = req.body.duration;
-            const attendees = req.body.attendees;
-            const equipments = req.body.equipments;
-            const stepSize = req.body.step_size;
-
             return super.onResolve(
                 res,
-                await this.bookingService.getSuggestedTimes(
-                    startTime,
-                    endTime,
-                    duration,
-                    attendees,
-                    equipments,
-                    stepSize
-                )
+                await this.bookingService.getSuggestedTimes(startTime, endTime, duration, attendees, stepSize)
             );
         } catch (error) {
             return this.handleError(res, error);
@@ -139,11 +119,9 @@ export default class BookingController extends AbstractController {
 
     public getAvailableRooms = async (req: Request, res: Response): Promise<Response> => {
         const dto = new BookingDTO();
-
         dto.startTime = new Date(req.body.startTime!);
         dto.endTime = new Date(req.body.endTime!);
         dto.userDTOs = [];
-        // create an array of UserDTOs for each group of participants
         for (const group of req.body.attendees) {
             const groupDTO = [];
             for (const participantID of group) {
@@ -153,14 +131,12 @@ export default class BookingController extends AbstractController {
             }
             dto.userDTOs.push(groupDTO);
         }
-
         dto.equipments = [];
         for (const equipment of req.body.equipments) {
             const eq = new EquipmentDTO();
             eq.equipmentId = equipment;
             dto.equipments.push(eq);
         }
-
         dto.priority = req.body.priority!;
         dto.roomCount = req.body.roomCount!;
         dto.regroup = req.body.regroup!;

@@ -77,7 +77,7 @@ const DrapAndDrop = () => {
           strategy={verticalListSortingStrategy}
         >
           {priority.map((item) => (
-            <SortableItem key={item.id} id={item.id} item={item.item} />
+            <SortableItem key={item.id} id={item.id} item={item.description} />
           ))}
         </SortableContext>
       </div>

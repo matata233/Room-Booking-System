@@ -24,7 +24,7 @@ const BookingRoomsDisplay = () => {
     all: "Search in all fields...",
     cityId: "Enter city...",
     buildingCode: "Enter building number...",
-    roomCode: "Enter room number...",
+    roomCode: "Enter room code...",
     roomName: "Enter room name...",
     floorNumber: "Enter floor...",
     numberOfSeats: "Enter capacity...",
@@ -244,7 +244,7 @@ const BookingRoomsDisplay = () => {
               <option value="all">All</option>
               <option value="cityId">City</option>
               <option value="buildingCode">Building Number</option>
-              <option value="roomCode">Room Number</option>
+              <option value="roomCode">Room Code</option>
               <option value="roomName">Room Name</option>
               <option value="floorNumber">Floor</option>
               <option value="numberOfSeats">Capacity</option>
@@ -267,11 +267,11 @@ const BookingRoomsDisplay = () => {
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
             >
-              <option value="">Default</option>
+              <option value="">Recommendations</option>
               <option value="floorAsc">Floor (Low to High)</option>
               <option value="floorDesc">Floor (High to Low)</option>
-              <option value="roomNumberAsc">Room Number (Low to High)</option>
-              <option value="roomNumberDesc">Room Number (High to Low)</option>
+              <option value="roomNumberAsc">Room Code (Low to High)</option>
+              <option value="roomNumberDesc">Room Code (High to Low)</option>
               <option value="capacityAsc">Capacity (Low to High)</option>
               <option value="capacityDesc">Capacity (High to Low)</option>
             </select>
@@ -298,7 +298,7 @@ const BookingRoomsDisplay = () => {
                     <img
                       src={MeetingRoomImg}
                       alt="meeting room"
-                      className="h-[25vh] object-cover"
+                      className="h-[20vh] object-cover"
                     />
                   </div>
                   <div className="mt-6 flex flex-col xl:ml-6 xl:mt-0">

@@ -9,7 +9,6 @@ import {
     IsEnum,
     IsInt,
     IsNotEmpty,
-    IsOptional,
     IsString,
     Matches,
     Min,
@@ -55,9 +54,8 @@ export default class UserDTO extends AbstractDTO {
     @IsBoolean({groups: [USERS]})
     isActive?: boolean;
 
-    // TODO: Add role validation once frontend finishes role selection
-    @IsEnum(role)
-    @IsOptional()
+    @IsNotEmpty({groups: [USERS]})
+    @IsEnum(role, {groups: [USERS]})
     role?: role;
 
     city?: CityDTO;
