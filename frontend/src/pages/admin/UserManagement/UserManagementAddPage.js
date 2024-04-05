@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 const UserManagementAddPage = () => {
   const firstlyHeader = "User Management";
   const secondaryHeader = "Add User";
-  const buttonText = "Add New User";
+  const buttonText = "Confirm";
 
   const navigate = useNavigate();
 

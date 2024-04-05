@@ -31,7 +31,7 @@ const AddBuilding = ({
       />
 
       <TextField
-        label="City Code"
+        label="City (Airport Code)"
         value={cityId}
         size="small"
         required

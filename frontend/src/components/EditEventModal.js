@@ -117,7 +117,7 @@ const EditEventModal = ({ event, onClose, onUpdate }) => {
               type="submit"
               className="mb-3 mt-5 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white lg:mb-4"
             >
-              Edit
+              Confirm
             </button>
           </div>
         </form>

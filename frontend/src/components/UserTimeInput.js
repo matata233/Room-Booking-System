@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  setStartTime,
-  setStartDate,
   setDuration,
+  setStartDate,
+  setStartTime,
   setUnit,
 } from "../slices/bookingSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,18 +37,19 @@ const UserTimeInput = () => {
     let startHour = 0;
     let startMinute = 0;
 
-    if (selectedDate === currentDate) {
-      // If the selected date is the current date, start from the next 15-minute interval
-      startHour = dayjs().hour();
-      startMinute = Math.ceil(dayjs().minute() / 15) * 15;
-      if (startMinute === 60) {
-        startHour++;
-        startMinute = 0;
-      }
-    }
+    // This has caused a bug
+    // if (selectedDate === currentDate) {
+    //   // If the selected date is the current date, start from the next 30-minute interval
+    //   startHour = dayjs().hour();
+    //   startMinute = Math.ceil(dayjs().minute() / 30) * 30;
+    //   if (startMinute === 60) {
+    //     startHour++;
+    //     startMinute = 0;
+    //   }
+    // }
 
     for (let i = startHour; i < 24; i++) {
-      for (let j = startMinute; j < 60; j += 15) {
+      for (let j = startMinute; j < 60; j += 30) {
         const hour = i < 10 ? `0${i}` : `${i}`;
         const minute = j < 10 ? `0${j}` : `${j}`;
         options.push(`${hour}:${minute}`);
@@ -112,11 +113,12 @@ const UserTimeInput = () => {
       <div className="flex  items-center justify-between">
         <input
           type="number"
-          min="1"
+          min="0"
           value={duration}
           onChange={handleDurationChange}
           className="w-48 rounded-lg border  px-4 py-1 focus:outline-none"
           placeholder="Duration"
+          step={unit === "hours" ? ".5" : "30"}
         />
 
         <select

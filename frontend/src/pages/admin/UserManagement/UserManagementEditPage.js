@@ -10,7 +10,7 @@ import { useNavigate, useParams } from "react-router-dom";
 const UserManagementEditPage = () => {
   const firstlyHeader = "User Management";
   const secondaryHeader = "Edit User";
-  const buttonText = "Complete";
+  const buttonText = "Confirm";
 
   const { id: userId } = useParams();
 

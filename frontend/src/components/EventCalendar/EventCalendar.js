@@ -155,13 +155,13 @@ const EventCalendar = () => {
       <div className="flex w-screen flex-col lg:w-2/3 2xl:w-[1000px]">
         <div className="mb-6 flex items-center justify-between px-5 lg:mb-10">
           <h1 className="font-natural text-2xl md:font-semibold">
-            Add Your Schedule
+            My Schedule
           </h1>
           <button
             className="text-md rounded bg-theme-orange px-3 py-1 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange  hover:text-white md:px-5 md:py-1 xl:px-6"
             onClick={(date) => handleSelectDate(date.start)}
           >
-            Add Event
+            New Event
           </button>
         </div>
         <div className="h-[550px] px-5 md:h-[800px]">
@@ -200,8 +200,8 @@ const EventCalendar = () => {
 
         {isConfirmed && (
           <CancelConfirmationModal
-            confirmButton={"delete"}
-            cancelButton={"back"}
+            confirmButton={"Confirm"}
+            cancelButton={"Back"}
             onConfirm={handleConfirmDelete}
             onClose={handleCloseModal}
             onCancel={handleCloseModal}

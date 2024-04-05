@@ -264,7 +264,7 @@ const AdminRoomForm = ({
                     </div>
 
                     <MoreInfo
-                      info={"Nearest airport code | Building number "}
+                      info={"City (Airport Code) | Building Number"}
                     />
                   </div>
                 </div>

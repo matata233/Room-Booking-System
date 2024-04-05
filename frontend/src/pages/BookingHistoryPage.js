@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
 import {
   useGetBookingCurrentUserQuery,
@@ -7,6 +7,7 @@ import {
 } from "../slices/bookingApiSlice";
 import CheckIcon from "@mui/icons-material/Check";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { CalendarIcon } from "@mui/x-date-pickers";
 import Pagination from "../components/Pagination";
 import { mirage } from "ldrs";
 import StartSearchGIF from "../assets/start-search.gif";
@@ -183,7 +184,7 @@ const BookingHistoryPage = () => {
   return (
     <div>
       <div className="flex w-full flex-col items-center gap-y-12 font-amazon-ember">
-        <h1 className="text-center text-2xl font-semibold">Booking History</h1>
+        <h1 className="text-center text-2xl font-semibold">My Bookings</h1>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center">
@@ -214,7 +215,7 @@ const BookingHistoryPage = () => {
                       >
                         <div className="w-full bg-theme-orange px-5 py-1 lg:absolute lg:-left-10 lg:top-7 lg:w-auto">
                           <div>
-                            <span className="font-semibold">Time:</span>{" "}
+                            <span className="font-semibold">Meeting Time:</span>{" "}
                             {`${formatDateTime(book.startTime).date} ` +
                               `${formatDateTime(book.startTime).time} ` +
                               (formatDateTime(book.startTime).date ===
@@ -224,20 +225,33 @@ const BookingHistoryPage = () => {
                           </div>
 
                           <div>
-                            <span className="font-semibold">Booked by:</span>{" "}
-                            {book.users.email}
+                            <span className="font-semibold">Created By:</span>{" "}
+                            {userInfo.userId === book.users.userId
+                              ? "Myself"
+                              : book.users.email}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Created At:</span>{" "}
+                            {`${formatDateTime(book.endTime).date} ${formatDateTime(book.createdAt).time} ${formatDateTime(book.endTime).timezone}`}
                           </div>
                         </div>
 
-                        {index == 0 && (
+                        {index === 0 && (
                           <div className="text-md mt-4 flex w-full justify-end pr-2 font-semibold lg:absolute lg:right-5 lg:top-7">
-                            {book.status == "confirmed" ? (
-                              <div className="text-green-500">
-                                {" "}
-                                Confirmed <CheckIcon />{" "}
-                              </div>
+                            {book.status === "confirmed" ? (
+                              checkTime(book.startTime) ? (
+                                <div className="text-green-500">
+                                  {" "}
+                                  Confirmed <CheckIcon />{" "}
+                                </div>
+                              ) : (
+                                <div className="text-gray-500">
+                                  {" "}
+                                  Past <CalendarIcon />{" "}
+                                </div>
+                              )
                             ) : (
-                              <div className="text-red-500">
+                              <div className="text-gray-500">
                                 {" "}
                                 Canceled <CancelIcon />{" "}
                               </div>
@@ -287,20 +301,24 @@ const BookingHistoryPage = () => {
                         {/* Attendees */}
                         <div className="my-6 flex flex-col sm:mx-5 lg:mt-2">
                           <div className="m-2 border-b-2 border-zinc-200 text-left font-semibold">
-                            <h2>Attendee(s):</h2>
+                            <h2>{`${group.attendees.length} Attendee(s):`}</h2>
                           </div>
                           <div className=" w-72 px-2">
                             {group.attendees.map((attendee) => (
                               <div className="flex items-center">
                                 <div className="h-2 w-2 rounded-full bg-theme-orange"></div>
-                                <div className="ml-2">{attendee.email}</div>
+                                <div className="ml-2">
+                                  {userInfo.userId === attendee.userId
+                                    ? "Myself"
+                                    : attendee.email}
+                                </div>
                               </div>
                             ))}
                           </div>
                         </div>
                       </div>
                       {book.status === "confirmed" &&
-                        userInfo.email === book.users.email &&
+                        userInfo.userId === book.users.userId &&
                         checkTime(book.startTime) && (
                           <div className="mr-2 lg:mr-5">
                             <div className="flex justify-end">
@@ -320,7 +338,7 @@ const BookingHistoryPage = () => {
                                     onClick={() =>
                                       handleCancelConfirmOpen(book)
                                     }
-                                    className="rounded bg-theme-dark-blue px-5 py-2 text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white"
+                                    className="h-8 rounded border border-theme-orange bg-white px-4 text-black transition-colors duration-300 ease-in-out  hover:bg-zinc-100 xl:h-10 xl:min-w-28"
                                   >
                                     Cancel Booking
                                   </button>
@@ -369,8 +387,8 @@ const BookingHistoryPage = () => {
       )}
       {isCancelConfirmOpen && (
         <CancelConfirmationModal
-          confirmButton={"cancel"}
-          cancelButton={"back"}
+          confirmButton={"Confirm"}
+          cancelButton={"Back"}
           onCancel={() => setIsCancelConfirmOpen(false)}
           onClose={() => setIsCancelConfirmOpen(false)}
           onConfirm={handleCancelBooking}

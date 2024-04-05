@@ -254,6 +254,45 @@ const BookingPage = () => {
     ) && loggedInUser?.selectedRoom != null;
 
   const handleSubmit = () => {
+    if (duration <= 0) {
+      toast.error("Duration must be greater than 0");
+      return;
+    }
+    if (
+      unit === "minutes" &&
+      duration < 30
+    ) {
+      toast.error("Meeting cannot be shorter than 30 minutes");
+      return;
+    }
+    if (
+      unit === "minutes" &&
+      duration > 1440
+    ) {
+      toast.error("Meeting cannot be longer than 1 day");
+      return;
+    }
+    if (
+      unit === "hours" &&
+      duration > 24
+    ) {
+      toast.error("Meeting cannot be longer than 1 day");
+      return;
+    }
+    if (
+      unit === "minutes" &&
+      duration % 30 !== 0
+    ) {
+      toast.error("Meeting duration must be a multiple of 30 minutes");
+      return;
+    }
+    if (
+      unit === "hours" &&
+      duration % 0.5 !== 0
+    ) {
+      toast.error("Meeting duration must be a multiple of 30 minutes");
+      return;
+    }
     navigate("/bookingReview");
   };
 
@@ -264,6 +303,41 @@ const BookingPage = () => {
 
       if (suggestedTimeInput.duration <= 0) {
         toast.error("Duration must be greater than 0");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "minutes" &&
+        suggestedTimeInput.duration < 30
+      ) {
+        toast.error("Meeting cannot be shorter than 30 minutes");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "minutes" &&
+        suggestedTimeInput.duration > 1440
+      ) {
+        toast.error("Meeting cannot be longer than 1 day");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "hours" &&
+        suggestedTimeInput.duration > 24
+      ) {
+        toast.error("Meeting cannot be longer than 1 day");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "minutes" &&
+        suggestedTimeInput.duration % 30 !== 0
+      ) {
+        toast.error("Meeting duration must be a multiple of 30 minutes");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "hours" &&
+        suggestedTimeInput.duration % 0.5 !== 0
+      ) {
+        toast.error("Meeting duration must be a multiple of 30 minutes");
         return;
       }
       const startDateTime = new Date(

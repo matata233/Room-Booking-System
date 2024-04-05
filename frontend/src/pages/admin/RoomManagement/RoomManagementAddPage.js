@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const RoomManagementAddPage = () => {
   const firstlyHeader = "Room Management";
   const secondaryHeader = "Add Room";
-  const buttonText = "Add New Room";
+  const buttonText = "Confirm";
 
   const navigate = useNavigate();
 
