@@ -46,7 +46,7 @@ const UserEmailGroup = () => {
         {isLoading ? (
           <Loader />
         ) : error ? (
-          <Message variant="error">{error.message}</Message>
+          <Message severity="error">{error.message}</Message>
         ) : (
           groupedAttendees.map((group, index) => {
             const initialSelected = group.attendees.map((attendee) => ({

@@ -3,7 +3,9 @@ import SuggestedTimeCalendar from "../components/SuggestedTime/SuggestedTimeCale
 import { useDispatch, useSelector } from "react-redux";
 import {
   setStartTime,
-  setEndTime,
+  setStartDate,
+  setDuration,
+  setUnit,
   setSuggestedTimeReceived,
   setSuggestedTimeMode,
 } from "../slices/bookingSlice";
@@ -33,19 +35,15 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
       return;
     }
 
-    const startTime = dayjs(
+    const startDateTime = dayjs(
       `${formattedSelectedDate} ${selectedTimeSlot}`,
       "YYYY-MM-DD HH:mm",
     );
 
-    // Add duration to get the end time
-    const endTime = startTime.add(
-      suggestedTimeInput.duration,
-      suggestedTimeInput.unit,
-    );
-
-    dispatch(setStartTime(startTime.format("YYYY-MM-DD HH:mm")));
-    dispatch(setEndTime(endTime.format("YYYY-MM-DD HH:mm")));
+    dispatch(setStartDate(startDateTime.format("YYYY-MM-DD")));
+    dispatch(setStartTime(startDateTime.format("HH:mm")));
+    dispatch(setDuration(suggestedTimeInput.duration));
+    dispatch(setUnit(suggestedTimeInput.unit));
 
     dispatch(setSuggestedTimeMode(false));
     dispatch(setSuggestedTimeReceived({}));
@@ -68,7 +66,7 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
               {timeSlots.map((time, index) => (
                 <button
                   key={index}
-                  className={`max-h-10 cursor-pointer rounded-lg py-1 text-sm transition-colors duration-300 ease-in-out hover:opacity-60 md:py-2  md:text-base
+                  className={`cursor-pointer rounded-lg py-1 text-sm transition-colors duration-300 ease-in-out hover:opacity-60 md:py-2  md:text-base
                     ${selectedTimeSlot === time ? "bg-[#dd7832] text-white" : "bg-[#ffe6c6] text-[#744400]"} `}
                   onClick={() => setSelectedTimeSlot(time)}
                 >
@@ -79,20 +77,21 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
           </div>
           <div className="mt-4 flex justify-center gap-6">
             <button
-              className="h-8 w-24 rounded bg-green-500 text-white transition-colors  duration-300 ease-in-out hover:bg-green-600 xl:h-10 xl:w-28"
+              className="h-8 w-24 rounded bg-theme-orange text-black transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white xl:h-10 xl:w-28"
               onClick={onConfirm}
             >
               Confirm
             </button>
             <button
-              className="h-8 w-24 rounded bg-rose-600 text-white transition-colors  duration-300 ease-in-out hover:bg-rose-700  xl:h-10 xl:w-28"
+              className="h-8 w-24 rounded bg-theme-dark-blue text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white xl:h-10 xl:w-28"
               onClick={onCancel}
             >
-              Cancel
+              Back
             </button>
           </div>
-          <div className="text-sm text-gray-500">
-            After you confirm, the timeslot you chose will be automatically entered into the "Fixed" mode.
+          <div className="mt-4 text-center text-sm text-gray-500 md:mx-6">
+            After you confirm, the timeslot you chose will be automatically
+            entered into the "Fixed" mode.
           </div>
         </div>
       </div>

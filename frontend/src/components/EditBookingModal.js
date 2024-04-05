@@ -20,7 +20,7 @@ const EditBookingModal = ({ onClose, onUpdate, attendees, setAttendees }) => {
             Edit Attendee(s)
           </h1>
           <label className="mb-1 block">
-            Attendee(s) <span className="text-red-600">*</span>
+            Attendee(s) excluding yourself <span className="text-red-600">*</span>
           </label>
           <UserEmailInputEdit
             attendees={attendees}
@@ -31,7 +31,7 @@ const EditBookingModal = ({ onClose, onUpdate, attendees, setAttendees }) => {
               type="submit"
               className="mb-3 mt-5 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white lg:mb-4"
             >
-              Edit
+              Confirm
             </button>
           </div>
         </form>

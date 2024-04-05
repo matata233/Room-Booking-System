@@ -5,7 +5,12 @@ import { setSuggestedTimeInput } from "../slices/bookingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { nextDayAtTen, sevenDaysLaterAtTen } from "../utils/getDateTime";
 import dayjs from "dayjs";
-import { allowedMaxDays, beforeToday, combine } from "rsuite/cjs/DateRangePicker/disabledDateUtils";
+import {
+  allowedMaxDays,
+  beforeToday,
+  combine,
+} from "rsuite/cjs/DateRangePicker/disabledDateUtils";
+import MoreInfo from "./MoreInfo";
 
 const SuggestedTimeInput = () => {
   const dispatch = useDispatch();
@@ -57,7 +62,15 @@ const SuggestedTimeInput = () => {
 
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-      <div className="mb-2">Flexible Start Time Range</div>
+      <div className="mb-2 flex items-center justify-start">
+        <div className="mr-2">Flexible Start Time Range</div>
+        <MoreInfo
+          info={
+            "Please note that you need to select the start time in the left panel and the end time in the right panel. If you need to select a time range within the same day, please click on the same date twice to ensure that both the start and end dates are selected."
+          }
+        />
+      </div>
+
       <DateRangePicker
         format="yy-MMM-d H:mm"
         ranges={predefinedRanges}
@@ -76,7 +89,7 @@ const SuggestedTimeInput = () => {
           min="1"
           value={suggestedTimeInput?.duration}
           onChange={handleDurationChange}
-          className="rounded-lg border px-1 py-1 focus:outline-none"
+          className="w-48 rounded-lg border px-4 py-1 focus:outline-none"
           placeholder="Duration"
         />
 

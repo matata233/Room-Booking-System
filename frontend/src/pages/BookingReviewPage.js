@@ -1,12 +1,11 @@
 import React from "react";
 import BookingStepper from "../components/BookingStepper";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  useGetAvailableRoomsMutation,
   useConfirmBookingMutation,
+  useGetAvailableRoomsMutation,
 } from "../slices/bookingApiSlice";
 import {
   resetBooking,
@@ -18,14 +17,17 @@ import {
 import { toast } from "react-toastify";
 import moment from "moment-timezone";
 import Loader from "../components/Loader";
+import dayjs from "dayjs";
 
 const BookingReviewPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const {
+    startDate,
     startTime,
-    endTime,
+    duration,
+    unit,
     equipments,
     priority,
     roomCount,
@@ -34,13 +36,16 @@ const BookingReviewPage = () => {
   } = useSelector((state) => state.booking);
   const { userInfo } = useSelector((state) => state.auth);
 
-  const utcStartTime = new Date(startTime).toISOString();
-  const utcEndTime = new Date(endTime).toISOString();
+  const startDateTime = dayjs(`${startDate} ${startTime}`, "YYYY-MM-DD HH:mm");
 
-  const formattedStartTime = moment(utcStartTime)
+  const startDateTimeUTC = startDateTime.toISOString();
+  const endDateTime = startDateTime.add(duration, unit);
+  const endDateTimeUTC = endDateTime.toISOString();
+
+  const formattedStartTime = moment(startDateTimeUTC)
     .tz(moment.tz.guess())
     .format("YYYY-MM-DD HH:mm z");
-  const formattedEndTime = moment(utcEndTime)
+  const formattedEndTime = moment(endDateTimeUTC)
     .tz(moment.tz.guess())
     .format("YYYY-MM-DD HH:mm z");
 
@@ -56,9 +61,9 @@ const BookingReviewPage = () => {
 
     groupedAttendees.forEach((group) => {
       if (group.selectedRoom) {
-        rooms.push(group.selectedRoom.roomId);
+        rooms.push(group.selectedRoom?.roomId);
         const groupUsers =
-          group.groupId === loggedInUser.group ? [userInfo.userId] : [];
+          group.groupId === loggedInUser?.group ? [userInfo.userId] : [];
         group.attendees.forEach((attendee) => {
           groupUsers.push(attendee.userId);
         });
@@ -68,8 +73,8 @@ const BookingReviewPage = () => {
 
     const reqBody = {
       createdBy: userInfo.userId,
-      startTime: utcStartTime,
-      endTime: utcEndTime,
+      startTime: startDateTimeUTC,
+      endTime: endDateTimeUTC,
       rooms,
       users,
     };
@@ -78,9 +83,6 @@ const BookingReviewPage = () => {
   };
 
   const createRequestBodyForGetAvailableRooms = () => {
-    const startDateTime = new Date(startTime).toISOString();
-    const endDateTime = new Date(endTime).toISOString();
-
     const equipmentCodes = equipments.map((equip) => equip.id);
 
     let attendeeEmails = [];
@@ -95,7 +97,7 @@ const BookingReviewPage = () => {
 
     // Check if logged in user has a group and add them to it
     const loggedInUserGroupIndex = groupedAttendees.findIndex(
-      (group) => group.groupId === loggedInUser.group,
+      (group) => group.groupId === loggedInUser?.group,
     );
     if (loggedInUserGroupIndex !== -1) {
       attendeeEmails[loggedInUserGroupIndex].push(userInfo.email);
@@ -105,8 +107,8 @@ const BookingReviewPage = () => {
     }
 
     const reqBody = {
-      startTime: startDateTime,
-      endTime: endDateTime,
+      startTime: startDateTimeUTC,
+      endTime: endDateTimeUTC,
       attendees: attendeeEmails,
       equipments: equipmentCodes,
       roomCount: roomCount,
@@ -129,7 +131,7 @@ const BookingReviewPage = () => {
         dispatch(startLoading());
         const reqBodyRooms = createRequestBodyForGetAvailableRooms();
         const availableRooms = await getAvailableRooms(reqBodyRooms).unwrap();
-        updateGroupedAttendees(availableRooms.result.groups);
+        updateGroupedAttendees(availableRooms?.result.groups);
         dispatch(startSearch());
         toast.error(err?.data?.error || "Failed to confirm booking");
       } catch (err) {
@@ -245,12 +247,12 @@ const BookingReviewPage = () => {
                 <div className="mb-2 text-center font-semibold">
                   {/* Calculate total attendees and determine singular or plural form */}
                   <h2>
-                    {`${group.groupId === loggedInUser.group ? group.attendees.length + 1 : group.attendees.length} Attendee${group.groupId === loggedInUser.group ? (group.attendees.length + 1 !== 1 ? "s" : "") : group.attendees.length !== 1 ? "s" : ""}`}
+                    {`${group.groupId === loggedInUser?.group ? group.attendees.length + 1 : group.attendees.length} Attendee${group.groupId === loggedInUser.group ? (group.attendees.length + 1 !== 1 ? "s" : "") : group.attendees.length !== 1 ? "s" : ""}`}
                   </h2>
                 </div>
                 <div className="h-32 w-80 overflow-y-auto rounded-lg bg-gray-200 pl-4 pt-2">
                   {/* Check if the logged-in user is in this group and display them */}
-                  {group.groupId === loggedInUser.group && (
+                  {group.groupId === loggedInUser?.group && (
                     <div className="flex items-center">
                       <div className="h-2 w-2 rounded-full bg-theme-orange"></div>
                       <div className="ml-2">{userInfo.email}</div>
@@ -285,9 +287,9 @@ const BookingReviewPage = () => {
         <div className="my-2 flex justify-center">
           <Link
             to="/booking"
-            className="rounded bg-theme-dark-blue px-[52px] py-2 text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white"
+            className="rounded bg-theme-dark-blue px-[59px] py-2 text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white"
           >
-            Cancel
+            Back
           </Link>
         </div>
       </div>

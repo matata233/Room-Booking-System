@@ -7,7 +7,7 @@ import { useCreateBuildingMutation } from "../../../slices/buildingsApiSlice";
 const BuildingManagementAddPage = () => {
   const firstlyHeader = "Building Management";
   const secondaryHeader = "Add Building";
-  const buttonText = "Add New Building";
+  const buttonText = "Confirm";
 
   const navigate = useNavigate();
 

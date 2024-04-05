@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 const BuildingManagementEditPage = () => {
   const firstlyHeader = "Building Management";
   const secondaryHeader = "Edit Building";
-  const buttonText = "Complete";
+  const buttonText = "Confirm";
 
   const { id: buildingId } = useParams();
 

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import BookingStepper from "../components/BookingStepper";
-import DragAndDrop from "../components/DragAndDrop";
 import UserEquipInput from "../components/UserEquipInput";
 import UserEmailInput from "../components/UserEmailInput";
 import UserTimeInput from "../components/UserTimeInput";
@@ -38,6 +37,7 @@ import ToggleSuggestedTime from "../components/ToggleSuggestedTime";
 import SuggestedTimeInput from "../components/SuggestedTimeInput";
 import TimeSuggestionModal from "../components/TimeSuggestionModal";
 import moment from "moment";
+import dayjs from "dayjs";
 
 const BookingPage = () => {
   const dispatch = useDispatch();
@@ -46,8 +46,10 @@ const BookingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
+    startDate,
     startTime,
-    endTime,
+    duration,
+    unit,
     equipments,
     priority,
     roomCount,
@@ -103,8 +105,14 @@ const BookingPage = () => {
           return;
         }
       }
-      const startDateTime = new Date(startTime).toISOString();
-      const endDateTime = new Date(endTime).toISOString();
+
+      const startDateTime = dayjs(
+        `${startDate} ${startTime}`,
+        "YYYY-MM-DD HH:mm",
+      );
+      const startDateTimeUTC = startDateTime.toISOString();
+      const endDateTime = startDateTime.add(duration, unit);
+      const endDateTimeUTC = endDateTime.toISOString();
 
       const equipmentCodes = equipments.map((equip) => equip.id);
 
@@ -124,7 +132,7 @@ const BookingPage = () => {
 
         // Check if logged in user has a group and add them to it
         const loggedInUserGroupIndex = groupedAttendees.findIndex(
-          (group) => group.groupId === loggedInUser.group,
+          (group) => group.groupId === loggedInUser?.group,
         );
         if (loggedInUserGroupIndex !== -1) {
           attendeeEmails[loggedInUserGroupIndex].push(userInfo.email);
@@ -147,8 +155,8 @@ const BookingPage = () => {
       }
 
       const reqBody = {
-        startTime: startDateTime,
-        endTime: endDateTime,
+        startTime: startDateTimeUTC,
+        endTime: endDateTimeUTC,
         attendees: attendeeEmails,
         equipments: equipmentCodes,
         roomCount: roomCount,
@@ -156,7 +164,6 @@ const BookingPage = () => {
         priority: priority.map((entry) => entry.item),
       };
 
-      console.log("reqBody", reqBody);
       const availableRooms = await getAvailableRooms(reqBody).unwrap();
 
       if (!searchOnce) {
@@ -184,7 +191,7 @@ const BookingPage = () => {
 
   const reorganizeAvailableRooms = (availableRooms) => {
     let loggedInUserGroup = null;
-    const transformedResponse = availableRooms.result.groups.map(
+    const transformedResponse = availableRooms?.result.groups.map(
       (group, index) => {
         // map over each attendee to create a new object with userId instead of user_id
         const updatedAttendees = group.attendees
@@ -216,8 +223,8 @@ const BookingPage = () => {
       },
     );
 
-    const newRoomCount = availableRooms.result.groups.length;
-    const isMultiCity = availableRooms.result.isMultiCity;
+    const newRoomCount = availableRooms?.result.groups.length;
+    const isMultiCity = availableRooms?.result.isMultiCity;
     dispatch(setRoomCount(newRoomCount));
     dispatch(setIsMultiCity(isMultiCity));
     if (isMultiCity) {
@@ -244,9 +251,48 @@ const BookingPage = () => {
       group.groupId !== "Ungrouped"
         ? group.selectedRoom != null
         : group.attendees.length === 0,
-    ) && loggedInUser.selectedRoom != null;
+    ) && loggedInUser?.selectedRoom != null;
 
   const handleSubmit = () => {
+    if (duration <= 0) {
+      toast.error("Duration must be greater than 0");
+      return;
+    }
+    if (
+      unit === "minutes" &&
+      duration < 30
+    ) {
+      toast.error("Meeting cannot be shorter than 30 minutes");
+      return;
+    }
+    if (
+      unit === "minutes" &&
+      duration > 1440
+    ) {
+      toast.error("Meeting cannot be longer than 1 day");
+      return;
+    }
+    if (
+      unit === "hours" &&
+      duration > 24
+    ) {
+      toast.error("Meeting cannot be longer than 1 day");
+      return;
+    }
+    if (
+      unit === "minutes" &&
+      duration % 30 !== 0
+    ) {
+      toast.error("Meeting duration must be a multiple of 30 minutes");
+      return;
+    }
+    if (
+      unit === "hours" &&
+      duration % 0.5 !== 0
+    ) {
+      toast.error("Meeting duration must be a multiple of 30 minutes");
+      return;
+    }
     navigate("/bookingReview");
   };
 
@@ -257,6 +303,41 @@ const BookingPage = () => {
 
       if (suggestedTimeInput.duration <= 0) {
         toast.error("Duration must be greater than 0");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "minutes" &&
+        suggestedTimeInput.duration < 30
+      ) {
+        toast.error("Meeting cannot be shorter than 30 minutes");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "minutes" &&
+        suggestedTimeInput.duration > 1440
+      ) {
+        toast.error("Meeting cannot be longer than 1 day");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "hours" &&
+        suggestedTimeInput.duration > 24
+      ) {
+        toast.error("Meeting cannot be longer than 1 day");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "minutes" &&
+        suggestedTimeInput.duration % 30 !== 0
+      ) {
+        toast.error("Meeting duration must be a multiple of 30 minutes");
+        return;
+      }
+      if (
+        suggestedTimeInput.unit === "hours" &&
+        suggestedTimeInput.duration % 0.5 !== 0
+      ) {
+        toast.error("Meeting duration must be a multiple of 30 minutes");
         return;
       }
       const startDateTime = new Date(
@@ -287,7 +368,7 @@ const BookingPage = () => {
       dispatch(
         setSuggestedTimeReceived(reorganizeSuggestedTime(suggestedTime)),
       );
-      if (suggestedTime.result.length === 0) {
+      if (suggestedTime?.result.length === 0) {
         toast.info("All attendees are not available in this range");
         return;
       }
@@ -333,9 +414,16 @@ const BookingPage = () => {
             <div className="flex flex-col gap-3">
               <h2 className="mt-4">Meeting Time:</h2>
               <ToggleSuggestedTime />
-              {suggestedTimeMode ? (<><div className="text-sm text-gray-500">
-                Get suggested timeslots with everyone available
-              </div><SuggestedTimeInput /></>) : <UserTimeInput />}
+              {suggestedTimeMode ? (
+                <>
+                  <div className="text-sm text-gray-500">
+                    Get suggested timeslots with everyone available
+                  </div>
+                  <SuggestedTimeInput />
+                </>
+              ) : (
+                <UserTimeInput />
+              )}
               {suggestedTimeMode ? (
                 <>
                   {searchOnce ? (
@@ -406,8 +494,8 @@ const BookingPage = () => {
                   )}
                   <h2>Equipment Needs:</h2>
                   <UserEquipInput />
-                  <h2>Priorities for Recommendation:</h2>
-                  <DragAndDrop />
+                  {/* <h2>Priorities for Recommendation:</h2>
+                  <DragAndDrop /> */}
                 </>
               )}
               <div className="my-4 flex items-center justify-center">

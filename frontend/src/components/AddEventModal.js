@@ -62,7 +62,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
           className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg lg:w-96"
         >
           <h1 className="font-natural mb-5 mt-1 text-2xl lg:mt-2 ">
-            Add New Event
+            New Event
           </h1>
           <label className="mb-1 block">
             Title <span className="text-red-600">*</span>
@@ -126,7 +126,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
               type="submit"
               className="mb-3 mt-5 rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white lg:mb-4"
             >
-              Add
+              Confirm
             </button>
           </div>
         </form>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import StartSearchGIF from "../assets/start-search.gif";
 import Pagination from "../components/Pagination";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
@@ -9,6 +9,7 @@ import { setSelectedRoomForGroup, stopSearch } from "../slices/bookingSlice";
 import { ImCheckboxUnchecked, ImCheckboxChecked } from "react-icons/im";
 import RoomSelectionModal from "./RoomSelectionModal";
 import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
+import MoreInfo from "./MoreInfo";
 
 const BookingRoomsDisplay = () => {
   const dispatch = useDispatch();
@@ -84,7 +85,7 @@ const BookingRoomsDisplay = () => {
         .filter(
           (group) => group.groupId !== groupToDisplay && group.selectedRoom,
         )
-        .map((group) => group.selectedRoom.roomId),
+        .map((group) => group.selectedRoom?.roomId),
     );
     rooms = rooms.filter(
       (room) => !selectedRoomsInOtherGroups.has(room.roomId),
@@ -218,6 +219,10 @@ const BookingRoomsDisplay = () => {
     };
   };
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [showRecommended, searchQuery, sortOption]);
+
   return (
     <div className="flex flex-col items-center justify-center sm:items-stretch">
       {/* Search Bar */}
@@ -259,7 +264,7 @@ const BookingRoomsDisplay = () => {
           </div>
         </div>
 
-        <div className="flex flex-row items-center">
+        <div className="ml-2 flex flex-row items-center">
           <label className="xl:text-md text-sm sm:my-4">Sort By:</label>
           <div className="relative ml-2">
             <select
@@ -267,7 +272,7 @@ const BookingRoomsDisplay = () => {
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
             >
-              <option value="">Recommendations</option>
+              <option value="">Default</option>
               <option value="floorAsc">Floor (Low to High)</option>
               <option value="floorDesc">Floor (High to Low)</option>
               <option value="roomNumberAsc">Room Code (Low to High)</option>
@@ -283,6 +288,11 @@ const BookingRoomsDisplay = () => {
               />
             </div>
           </div>
+          <MoreInfo
+            info={
+              "By default, rooms are sorted by distance, capacity, and equipment."
+            }
+          />
         </div>
       </div>
       {availableRooms.length > 0 ? ( // If there are available rooms
@@ -330,11 +340,15 @@ const BookingRoomsDisplay = () => {
                   {groupedAttendees.find(
                     (group) => group.groupId === groupToDisplay,
                   )?.selectedRoom?.roomId === room.roomId ? (
-                    <>
-                      {" "}
+                    <div className="flex items-center justify-center">
                       <ImCheckboxChecked className="size-6 text-theme-orange" />
-                      <span className="ml-3 text-theme-orange">Select</span>
-                    </>
+                      <span className="mx-3 text-theme-orange">Select</span>
+                      <MoreInfo
+                        info={
+                          "The room that you choose will be displayed in the component on the left side of the group. If there are multiple groups, please select the corresponding group in the component on the left side first. After all selections are complete, please click the submit button."
+                        }
+                      />
+                    </div>
                   ) : (
                     <>
                       <ImCheckboxUnchecked className="size-6 group-hover:text-theme-orange" />{" "}

@@ -1,5 +1,6 @@
 import React from "react";
 import { TextField } from "@mui/material";
+import MoreInfo from "./MoreInfo";
 const AddBuilding = ({
   cityId,
   setCityId,
@@ -30,7 +31,7 @@ const AddBuilding = ({
       />
 
       <TextField
-        label="City Code"
+        label="City (Airport Code)"
         value={cityId}
         size="small"
         required
@@ -62,12 +63,16 @@ const AddBuilding = ({
       </div>
 
       <div className="relative w-full">
-        <label
-          htmlFor="longitude"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Longitude*
-        </label>
+        <div className="flex items-center justify-start">
+          <label
+            htmlFor="longitude"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Longitude*
+          </label>
+          <MoreInfo info="You may get the longitude from Google Maps" />
+        </div>
+
         <input
           id="longitude"
           aria-label="longitude"
@@ -80,12 +85,15 @@ const AddBuilding = ({
         />
       </div>
       <div className="relative w-full">
-        <label
-          htmlFor="latitude"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Latitude*
-        </label>
+        <div className="flex items-center justify-start">
+          <label
+            htmlFor="latitude"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Latitude*
+          </label>
+          <MoreInfo info="You may get the latitude from Google Maps" />
+        </div>
         <input
           id="latitude"
           aria-label="latitude"

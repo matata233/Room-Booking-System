@@ -86,16 +86,16 @@ const BuildingManagementPage = () => {
         {/* Add New Building + Select All (mobile)  + Delete Selected */}
         <div className="flex justify-start gap-x-4 ">
           <Link
+            to="/buildingManagementAddPage"
+            className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-sm text-theme-dark-blue transition-colors duration-300 ease-in-out  hover:bg-theme-dark-orange hover:text-white   md:h-10 md:text-base"
+          >
+            New Building
+          </Link>
+          <Link
             to="/roomManagementPage"
             className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-dark-blue px-4 py-2 font-amazon-ember text-sm text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white md:h-10 md:text-base"
           >
             Back
-          </Link>
-          <Link
-            to="/buildingManagementAddPage"
-            className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-sm text-theme-dark-blue transition-colors duration-300 ease-in-out  hover:bg-theme-dark-orange hover:text-white   md:h-10 md:text-base"
-          >
-            Add New Building
           </Link>
         </div>
       </div>
@@ -233,13 +233,15 @@ const BuildingManagementPage = () => {
 
       {/* Pagination */}
       <div>
-        <Pagination
-          currentPage={currentPage}
-          rowsPerPage={rowsPerPage}
-          count={searchedData.length}
-          handleChangePage={handleChangePage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-        />
+        {displayedData.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            count={searchedData.length}
+            handleChangePage={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        )}
       </div>
     </div>
   );

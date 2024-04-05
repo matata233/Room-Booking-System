@@ -120,7 +120,7 @@ const AdminUserForm = ({
       if (buildingValidation.isValid) {
         try {
           const buildingData = await createBuilding(buildingFormData).unwrap();
-          buildingIdLocal = buildingData.result.buildingId;
+          buildingIdLocal = buildingData?.result.buildingId;
         } catch (err) {
           toast.error(err?.data?.error || "Failed to create building");
           return;
@@ -237,7 +237,7 @@ const AdminUserForm = ({
               <div className="relative">
                 <TextField
                   id="username"
-                  label="Username"
+                  label="UNIX Username"
                   size="small"
                   type="text"
                   required
@@ -326,7 +326,7 @@ const AdminUserForm = ({
                     </div>
 
                     <MoreInfo
-                      info={"Nearest airport code | Building number "}
+                      info={"City (Airport Code) | Building Number"}
                     />
                   </div>
                 </div>

@@ -25,7 +25,7 @@ const BookingCompletePage = () => {
             <h1 className="mb-4 text-xl font-semibold">Booking Confirmation</h1>
             <p className="mb-4">
               You have successfully booked:{" "}
-              {bookingData.result.groups.map((group, index) => {
+              {bookingData?.result.groups.map((group, index) => {
                 const { room } = group;
                 const cityId = room.city.cityId;
                 const buildingCode = room.building.code;
@@ -71,10 +71,10 @@ const BookingCompletePage = () => {
 
       <div className="mb-10 mt-10 flex justify-center">
         <Link
-          to="/"
+          to="/booking"
           className="rounded bg-theme-orange px-12 py-2 text-black transition-colors duration-300  ease-in-out hover:bg-theme-dark-orange hover:text-white"
         >
-          Back to Home Page
+          Make Another Booking
         </Link>
       </div>
     </div>

@@ -135,13 +135,13 @@ const RoomManagementPage = () => {
             to="/roomManagementAddPage"
             className="cursor-pointer rounded-lg bg-theme-orange px-2 py-1 text-sm text-theme-dark-blue transition-colors duration-300 ease-in-out  hover:bg-theme-dark-orange hover:text-white   md:px-4 md:py-2 md:text-base"
           >
-            Add New Room
+            New Room
           </Link>
           <Link
             to="/buildingManagementPage"
             className="cursor-pointer rounded-lg bg-theme-dark-blue px-2 py-1 text-sm text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white md:px-4 md:py-2 md:text-base"
           >
-            Building Management
+            Manage Buildings
           </Link>
           {/* <a
             href="#"
@@ -402,8 +402,8 @@ const RoomManagementPage = () => {
           </div>
           {isModalOpen && (
             <CancelConfirmationModal
-              confirmButton={"confirm"}
-              cancelButton={"close"}
+              confirmButton={"Confirm"}
+              cancelButton={"Back"}
               message="Are you sure you want to change the status of this room? Warning: If you are disabling this room, all future bookings associated with this room will be automatically canceled. This cannot be undone."
               onConfirm={handleConfirmToggleIsActive}
               onCancel={() => setIsModalOpen(false)}
@@ -415,13 +415,15 @@ const RoomManagementPage = () => {
 
       {/* Pagination */}
       <div>
-        <Pagination
-          currentPage={currentPage}
-          rowsPerPage={rowsPerPage}
-          count={searchedData.length}
-          handleChangePage={handleChangePage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-        />
+        {displayedData.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            count={searchedData.length}
+            handleChangePage={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        )}
       </div>
     </div>
   );
