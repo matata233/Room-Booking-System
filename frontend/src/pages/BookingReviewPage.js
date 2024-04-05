@@ -287,7 +287,7 @@ const BookingReviewPage = () => {
         <div className="my-2 flex justify-center">
           <Link
             to="/booking"
-            className="rounded bg-theme-dark-blue px-[52px] py-2 text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white"
+            className="rounded bg-theme-dark-blue px-[59px] py-2 text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white"
           >
             Back
           </Link>

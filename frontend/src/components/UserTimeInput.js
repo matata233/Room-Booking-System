@@ -37,16 +37,17 @@ const UserTimeInput = () => {
     let startHour = 0;
     let startMinute = 0;
 
-    // This has caused a bug
-    // if (selectedDate === currentDate) {
-    //   // If the selected date is the current date, start from the next 30-minute interval
-    //   startHour = dayjs().hour();
-    //   startMinute = Math.ceil(dayjs().minute() / 30) * 30;
-    //   if (startMinute === 60) {
-    //     startHour++;
-    //     startMinute = 0;
-    //   }
-    // }
+    if (selectedDate === currentDate) {
+      // If the selected date is the current date, start from the next 30-minute interval
+      startHour = dayjs().hour();
+      startMinute = Math.ceil(dayjs().minute() / 30) * 30;
+      if (startMinute === 60) {
+        startHour++;
+        startMinute = 0;
+      }
+
+      dispatch(setStartTime(`${startHour}:${startMinute}`));
+    }
 
     for (let i = startHour; i < 24; i++) {
       for (let j = startMinute; j < 60; j += 30) {
