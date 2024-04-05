@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import StartSearchGIF from "../assets/start-search.gif";
 import Pagination from "../components/Pagination";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setSelectedRoomForGroup, stopSearch } from "../slices/bookingSlice";
-import { ImCheckboxUnchecked, ImCheckboxChecked } from "react-icons/im";
+import { ImCheckboxChecked, ImCheckboxUnchecked } from "react-icons/im";
 import JSXMsgModal from "./JSXMsgModal";
 import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
 import MoreInfo from "./MoreInfo";
@@ -235,12 +235,12 @@ const BookingRoomsDisplay = () => {
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={handleSearchInputChange}
-              className="xl:text-md h-8 w-36 rounded-lg border-2 border-gray-200 p-2 text-sm  focus:border-gray-500 focus:bg-white focus:outline-none xl:w-48"
+              className="xl:text-md h-8 w-36 rounded-lg border-2 border-gray-200 p-2 text-sm  focus:border-gray-500 focus:bg-white focus:outline-none xl:w-44"
             />
           </div>
           <div className="relative ">
             <select
-              className="xl:text-md ml-2 h-8 w-24 cursor-pointer appearance-none rounded-lg border-2 border-gray-200 pl-2 pr-8 text-sm focus:border-gray-500 focus:bg-white focus:outline-none xl:w-[170px]"
+              className="xl:text-md ml-2 h-8 w-24 cursor-pointer appearance-none rounded-lg border-2 border-gray-200 pl-2 pr-8 text-sm focus:border-gray-500 focus:bg-white focus:outline-none xl:w-[125px]"
               name="searchBy"
               id="searchBy"
               value={selectedSearchOption}
@@ -248,7 +248,7 @@ const BookingRoomsDisplay = () => {
             >
               <option value="all">All</option>
               <option value="cityId">City</option>
-              <option value="buildingCode">Building Number</option>
+              <option value="buildingCode">Building #</option>
               <option value="roomCode">Room Code</option>
               <option value="roomName">Room Name</option>
               <option value="floorNumber">Floor</option>
@@ -272,7 +272,7 @@ const BookingRoomsDisplay = () => {
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
             >
-              <option value="">Default</option>
+              <option value="">Default (Smart)</option>
               <option value="floorAsc">Floor (Low to High)</option>
               <option value="floorDesc">Floor (High to Low)</option>
               <option value="roomNumberAsc">Room Code (Low to High)</option>
@@ -290,7 +290,7 @@ const BookingRoomsDisplay = () => {
           </div>
           <MoreInfo
             info={
-              "By default, rooms are sorted by distance, capacity, and equipment."
+              "By default, rooms are sorted by a smart distance index (low to high), then capacity (low to high), and finally by equipment variety (high to low). This is the best option for most scenarios."
             }
           />
         </div>
@@ -345,7 +345,7 @@ const BookingRoomsDisplay = () => {
                       <span className="mx-3 text-theme-orange">Select</span>
                       <MoreInfo
                         info={
-                          "The room that you choose will be displayed in the component on the left side of the group. If there are multiple groups, please select the corresponding group in the component on the left side first. After all selections are complete, please click the submit button."
+                          "For multi-room bookings, please go to the next group on the 'Attendee Groups' panel on the left for room selection. After all selections are complete, please click 'Submit' to review your booking details."
                         }
                       />
                     </div>
