@@ -22,8 +22,8 @@ import multer from "multer";
 
 const app = express();
 // Registers middleware
-app.use(express.json()); // Enable JSON body parsing for all routes
-app.use(cors()); // Enable CORS for all routes, COURS is a security feature to prevent unauthorized access to the server
+app.use(express.json());
+app.use(cors());
 
 const database = new PrismaClient();
 
@@ -66,29 +66,6 @@ const upload = multer({storage: multer.memoryStorage()}); // multer is a middlew
 app.post(`${endpoint}/users/upload`, upload.single("file"), userController.upload);
 
 // Booking route
-/*
-    input:
-    {
-        "start_time": "YYYY-MM-DDTHH:MM:SS.MMMZ",
-        "end_time": "YYYY-MM-DDTHH:MM:SS.MMMZ",
-        "duration": "TT UNIT", //e.g. 2 hours
-        "attendees": [ "email1", "email2", ... ],
-        "equipments": [ "eq1", "eq2", ... ],
-        "step_size": "TT UNIT" //optional, e.g. 15 minutes
-    }
-
-    returns:
-    {
-    "result": [
-        {
-            "start_time": "2024-03-26T00:00:00.000Z",
-            "end_time": "2024-03-26T01:30:00.000Z"
-        },
-        {
-            "start_time": "2024-03-26T02:00:00.000Z",
-            "end_time": "2024-03-26T03:30:00.000Z"
-        },...
-*/
 app.post(`${endpoint}/booking/time-suggestion`, bookingController.getSuggestedTimes);
 app.post(`${endpoint}/booking/available-room`, bookingController.getAvailableRooms);
 app.get(`${endpoint}/booking/currentUser`, bookingController.getByCurrentUserId);

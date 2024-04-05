@@ -42,7 +42,7 @@ export default class Authenticator {
         }
         const token = header.substring(7);
         try {
-            const payload = jwt.verify(token, "my_secret_key");
+            const payload = jwt.verify(token, "9gAEG7DfpqsMmDEnyXJI3rAh4HIA70fK");
             if (typeof payload === "object" && payload !== null && "email" in payload) {
                 const currentUser = await this.fetchUserByEmail(payload.email);
                 if (roleAuth === role.admin) {
@@ -122,7 +122,7 @@ export default class Authenticator {
             role: userDTO.role
         };
         return new Promise((resolve, reject) => {
-            jwt.sign(payload, "my_secret_key", {expiresIn: "1h"}, (err, token) => {
+            jwt.sign(payload, "9gAEG7DfpqsMmDEnyXJI3rAh4HIA70fK", {expiresIn: "1h"}, (err, token) => {
                 if (err || !token) {
                     reject(err);
                 } else {
