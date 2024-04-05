@@ -297,6 +297,7 @@ const AdminRoomForm = ({
                     aria-label="floorNumber"
                     required
                     type="number"
+                    min={1}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
                     value={floorNumber}
                     onChange={(event) => setFloorNumber(event.target.value)}
@@ -314,6 +315,7 @@ const AdminRoomForm = ({
                     aria-label="capacity"
                     required
                     type="number"
+                    min={1}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
                     value={numberOfSeats}
                     onChange={(event) => setNumberOfSeats(event.target.value)}

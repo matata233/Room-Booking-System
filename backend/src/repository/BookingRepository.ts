@@ -166,12 +166,10 @@ export default class BookingRepository extends AbstractRepository {
                 flatAttendees.filter((_, i) => attendeeCityIds[i] === cityId)
             );
         } else {
-            if (!regroup && roomCount !== attendees.length) {
-                throw new BadRequestError(
-                    "please turn on auto-regroup to reassign attendees as you either have an empty group or changed the number of rooms"
-                );
-            }
-            attendeeGroups = regroup ? await this.getGroupingSuggestion(flatAttendees, roomCount) : attendees;
+            attendeeGroups =
+                regroup || roomCount !== attendees.length
+                    ? await this.getGroupingSuggestion(flatAttendees, roomCount)
+                    : attendees;
         }
         const roomSearchResults = await Promise.all(
             attendeeGroups.map((group) => this.searchForRooms(group, startTime, endTime, equipments, priority))
@@ -297,7 +295,7 @@ export default class BookingRepository extends AbstractRepository {
     }
 
     private groupingUp(uniqueBuildings: AggregateAttendeeDTO[], roomCount: number, totalAttendees: number): string[][] {
-        const res: string[][] = [];
+        let res: string[][] = [];
         const divisor = totalAttendees / roomCount;
         const roomsDistribution = uniqueBuildings.map((entry) => Number(entry.num_users) / divisor);
         const roomsAllocation = roomsDistribution.map((entry: number) => (entry < 1 ? 1 : Math.floor(entry)));
@@ -325,6 +323,15 @@ export default class BookingRepository extends AbstractRepository {
                 leftoverUsers--;
                 count += numInNextGroup;
             }
+        }
+        res = res.filter((group) => group.length > 0);
+        while (res.length < roomCount) {
+            res.sort((a, b) => b.length - a.length);
+            res.push(res[0].splice(Math.ceil(res[0].length / 2)));
+        }
+        while (res.length > roomCount) {
+            res.sort((a, b) => a.length - b.length);
+            res.splice(0, 2, res[0].concat(res[1]));
         }
         return res;
     }

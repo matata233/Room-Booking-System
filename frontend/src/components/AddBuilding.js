@@ -56,6 +56,7 @@ const AddBuilding = ({
           aria-label="buildingCode"
           required
           type="number"
+          min={1}
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
           value={buildingCode}
           onChange={(event) => setBuildingCode(event.target.value)}

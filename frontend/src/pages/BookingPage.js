@@ -417,7 +417,7 @@ const BookingPage = () => {
                       <Loader />
                     ) : (
                       <>
-                        <h2>Select Rooms by Attendee Groups:</h2>
+                        <h2>Attendee Groups:</h2>
                         <UserEmailGroup />
                         <h2>You're In:</h2>
                         <LoggedInUserGroup />
@@ -452,7 +452,7 @@ const BookingPage = () => {
                       <Loader />
                     ) : (
                       <>
-                        <h2>Select Rooms by Attendee Groups:</h2>
+                        <h2>Attendee Groups:</h2>
                         <UserEmailGroup />
                         <h2>You're In:</h2>
                         <LoggedInUserGroup />
@@ -476,7 +476,7 @@ const BookingPage = () => {
                     <div>
                       <div className="flex items-center justify-start">
                         <h2 className="mr-2">Auto-Regroup Attendees:</h2>
-                        <MoreInfo info={"xxxx"} />
+                        <MoreInfo info={"Turn this on to re-assign attendees into the most-appropriate groups for them based on their locations."} />
                       </div>
                       <ToggleRegroup />
                     </div>

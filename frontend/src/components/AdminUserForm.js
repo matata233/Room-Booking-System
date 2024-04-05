@@ -360,6 +360,7 @@ const AdminUserForm = ({
                     aria-label="Floor"
                     required
                     type="number"
+                    min={1}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
                     value={floor}
                     onChange={(event) => setFloor(event.target.value)}
@@ -377,6 +378,7 @@ const AdminUserForm = ({
                     aria-label="Desk"
                     required
                     type="number"
+                    min={1}
                     className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 placeholder-gray-400 shadow-sm focus:border-theme-orange focus:outline-none focus:ring-theme-orange sm:text-sm"
                     value={desk}
                     onChange={(event) => setDesk(event.target.value)}

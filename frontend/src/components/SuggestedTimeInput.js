@@ -63,10 +63,10 @@ const SuggestedTimeInput = () => {
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
       <div className="mb-2 flex items-center justify-start">
-        <div className="mr-2">Flexible Start Time Range</div>
+        <div className="mr-2">Flexible Range for Start Time</div>
         <MoreInfo
           info={
-            "Please note that you need to select the start time in the left panel and the end time in the right panel. If you need to select a time range within the same day, please click on the same date twice to ensure that both the start and end dates are selected."
+            "Select the (range) start time on the left panel and the end time on the right. If you need to select a range within the same day, please click on the same date twice."
           }
         />
       </div>
@@ -82,7 +82,14 @@ const SuggestedTimeInput = () => {
           new Date(suggestedTimeInput?.endTime),
         ]}
       />
-      <div className="mb-2 mt-4">Duration</div>
+      <div className="mb-2 flex items-center justify-start">
+      <div className="mr-2">Duration</div>
+      <MoreInfo
+        info={
+          "30 minutes minimum up to 24 hours in half-hour increments."
+        }
+      />
+      </div>
       <div className="flex items-center justify-between">
         <input
           type="number"

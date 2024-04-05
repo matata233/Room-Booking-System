@@ -8,6 +8,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
 import dayjs from "dayjs";
+import MoreInfo from "./MoreInfo";
 
 const UserTimeInput = () => {
   const dispatch = useDispatch();
@@ -109,8 +110,14 @@ const UserTimeInput = () => {
           />
         </div>
       </div>
-
-      <div className="mb-2 mt-4">Duration</div>
+      <div className="mb-2 flex items-center justify-start">
+      <div className="mr-2">Duration</div>
+      <MoreInfo
+        info={
+          "30 minutes minimum up to 24 hours in half-hour increments."
+        }
+      />
+      </div>
       <div className="flex  items-center justify-between">
         <input
           type="number"
