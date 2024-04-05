@@ -138,7 +138,7 @@ const UserManagementPage = () => {
             to="/userManagementAddPage"
             className="flex h-8 cursor-pointer items-center rounded-lg bg-theme-orange px-4 py-2 font-amazon-ember text-sm text-theme-dark-blue transition-colors duration-300 ease-in-out  hover:bg-theme-dark-orange hover:text-white   md:h-10 md:text-base"
           >
-            Add New User
+            New User
           </Link>
           {/* <a
             href="#"
@@ -401,8 +401,8 @@ const UserManagementPage = () => {
           </div>
           {isModalOpen && (
             <CancelConfirmationModal
-              confirmButton={"confirm"}
-              cancelButton={"close"}
+              confirmButton={"Confirm"}
+              cancelButton={"Back"}
               message="Are you sure you want to change the status of the user? Warning: If you are disabling this user, they will no longer be able to login again."
               onConfirm={handleConfirmToggleIsActive}
               onCancel={() => setIsModalOpen(false)}

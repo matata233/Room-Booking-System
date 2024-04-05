@@ -10,7 +10,7 @@ import { useNavigate, useParams } from "react-router-dom";
 const RoomManagementEditPage = () => {
   const firstlyHeader = "Room Management";
   const secondaryHeader = "Edit Room";
-  const buttonText = "Complete";
+  const buttonText = "Confirm";
 
   const { id: roomId } = useParams();
 

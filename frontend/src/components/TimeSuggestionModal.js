@@ -66,7 +66,7 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
               {timeSlots.map((time, index) => (
                 <button
                   key={index}
-                  className={`max-h-10 cursor-pointer rounded-lg py-1 text-sm transition-colors duration-300 ease-in-out hover:opacity-60 md:py-2  md:text-base
+                  className={`cursor-pointer rounded-lg py-1 text-sm transition-colors duration-300 ease-in-out hover:opacity-60 md:py-2  md:text-base
                     ${selectedTimeSlot === time ? "bg-[#dd7832] text-white" : "bg-[#ffe6c6] text-[#744400]"} `}
                   onClick={() => setSelectedTimeSlot(time)}
                 >
@@ -77,16 +77,16 @@ const TimeSuggestionModal = ({ onCancel, setIsModalOpen }) => {
           </div>
           <div className="mt-4 flex justify-center gap-6">
             <button
-              className="h-8 w-24 rounded border border-zinc-300 bg-white text-black transition-colors  duration-300 ease-in-out hover:bg-zinc-100  xl:h-10 xl:w-28"
-              onClick={onCancel}
-            >
-              Back
-            </button>
-            <button
               className="h-8 w-24 rounded bg-theme-orange text-black transition-colors  duration-300 ease-in-out hover:bg-theme-dark-orange hover:text-white xl:h-10 xl:w-28"
               onClick={onConfirm}
             >
               Confirm
+            </button>
+            <button
+              className="h-8 w-24 rounded bg-theme-dark-blue text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white xl:h-10 xl:w-28"
+              onClick={onCancel}
+            >
+              Back
             </button>
           </div>
           <div className="mt-4 text-center text-sm text-gray-500 md:mx-6">

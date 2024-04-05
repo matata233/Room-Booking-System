@@ -237,7 +237,7 @@ const AdminUserForm = ({
               <div className="relative">
                 <TextField
                   id="username"
-                  label="Username"
+                  label="UNIX Username"
                   size="small"
                   type="text"
                   required
@@ -326,7 +326,7 @@ const AdminUserForm = ({
                     </div>
 
                     <MoreInfo
-                      info={"Nearest airport code | Building number "}
+                      info={"City (Airport Code) | Building Number"}
                     />
                   </div>
                 </div>

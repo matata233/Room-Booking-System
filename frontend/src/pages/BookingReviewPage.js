@@ -1,12 +1,11 @@
 import React from "react";
 import BookingStepper from "../components/BookingStepper";
 import MeetingRoomImg from "../assets/meeting-room.jpg";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  useGetAvailableRoomsMutation,
   useConfirmBookingMutation,
+  useGetAvailableRoomsMutation,
 } from "../slices/bookingApiSlice";
 import {
   resetBooking,
@@ -290,7 +289,7 @@ const BookingReviewPage = () => {
             to="/booking"
             className="rounded bg-theme-dark-blue px-[52px] py-2 text-white transition-colors duration-300 ease-in-out hover:bg-theme-blue hover:text-white"
           >
-            Cancel
+            Back
           </Link>
         </div>
       </div>
