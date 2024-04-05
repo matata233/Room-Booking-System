@@ -38,6 +38,7 @@ import SuggestedTimeInput from "../components/SuggestedTimeInput";
 import TimeSuggestionModal from "../components/TimeSuggestionModal";
 import moment from "moment";
 import dayjs from "dayjs";
+import MoreInfo from "../components/MoreInfo";
 
 const BookingPage = () => {
   const dispatch = useDispatch();
@@ -258,38 +259,23 @@ const BookingPage = () => {
       toast.error("Duration must be greater than 0");
       return;
     }
-    if (
-      unit === "minutes" &&
-      duration < 30
-    ) {
+    if (unit === "minutes" && duration < 30) {
       toast.error("Meeting cannot be shorter than 30 minutes");
       return;
     }
-    if (
-      unit === "minutes" &&
-      duration > 1440
-    ) {
+    if (unit === "minutes" && duration > 1440) {
       toast.error("Meeting cannot be longer than 1 day");
       return;
     }
-    if (
-      unit === "hours" &&
-      duration > 24
-    ) {
+    if (unit === "hours" && duration > 24) {
       toast.error("Meeting cannot be longer than 1 day");
       return;
     }
-    if (
-      unit === "minutes" &&
-      duration % 30 !== 0
-    ) {
+    if (unit === "minutes" && duration % 30 !== 0) {
       toast.error("Meeting duration must be a multiple of 30 minutes");
       return;
     }
-    if (
-      unit === "hours" &&
-      duration % 0.5 !== 0
-    ) {
+    if (unit === "hours" && duration % 0.5 !== 0) {
       toast.error("Meeting duration must be a multiple of 30 minutes");
       return;
     }
@@ -488,7 +474,10 @@ const BookingPage = () => {
                   <UserRoomCountInput />
                   {searchOnce && !isMultiCity && (
                     <div>
-                      <h2>Auto-Regroup Attendees:</h2>
+                      <div className="flex items-center justify-start">
+                        <h2 className="mr-2">Auto-Regroup Attendees:</h2>
+                        <MoreInfo info={"xxxx"} />
+                      </div>
                       <ToggleRegroup />
                     </div>
                   )}

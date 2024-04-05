@@ -14,7 +14,7 @@ import Loader from "../../../components/Loader";
 import Message from "../../../components/Message";
 import { useUpdateUserMutation } from "../../../slices/usersApiSlice";
 import { toast } from "react-toastify";
-import CancelConfirmationModal from "../../../components/CancelConfirmationModal";
+import JSXMsgModal from "../../../components/JSXMsgModal";
 
 const UserManagementPage = () => {
   const { data: users, error, isLoading, refetch } = useGetUsersQuery();
@@ -400,13 +400,20 @@ const UserManagementPage = () => {
             )}
           </div>
           {isModalOpen && (
-            <CancelConfirmationModal
-              confirmButton={"Confirm"}
-              cancelButton={"Back"}
-              message="Are you sure you want to change the status of the user? Warning: If you are disabling this user, they will no longer be able to login again."
+            <JSXMsgModal
+              message={
+                <>
+                  <div>
+                    Are you sure you want to change the status of the user?{" "}
+                  </div>
+                  <div className="mt-4 text-yellow-400">
+                    Warning: If you are disabling this user, they will no longer
+                    be able to login again.
+                  </div>
+                </>
+              }
               onConfirm={handleConfirmToggleIsActive}
               onCancel={() => setIsModalOpen(false)}
-              onClose={() => setIsModalOpen(false)}
             />
           )}
         </>
