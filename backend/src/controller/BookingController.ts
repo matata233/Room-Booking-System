@@ -44,6 +44,9 @@ export default class BookingController extends AbstractController {
     };
 
     public create = async (req: Request, res: Response): Promise<Response> => {
+        await new Promise((res) => {
+            setTimeout(res, Math.random() * 200);
+        });
         const dto = new BookingDTO();
         dto.startTime = new Date(req.body.startTime!);
         dto.endTime = new Date(req.body.endTime!);
@@ -101,8 +104,8 @@ export default class BookingController extends AbstractController {
     };
 
     public getSuggestedTimes = async (req: Request, res: Response): Promise<Response> => {
-        const startTime = new Date(req.body.start_time);
-        const endTime = new Date(req.body.end_time);
+        const startTime = new Date(req.body.startTime);
+        const endTime = new Date(req.body.endTime);
         const duration = req.body.duration;
         const attendees = req.body.attendees;
         const stepSize = req.body.stepSize;

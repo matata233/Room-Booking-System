@@ -1,7 +1,7 @@
 import AbstractRepository from "./AbstractRepository";
 import BookingDTO from "../model/dto/BookingDTO";
 import AggregateAttendeeDTO from "../model/dto/AggregateAttendeeDTO";
-import {bookings, PrismaClient} from "@prisma/client";
+import {bookings, Prisma, PrismaClient} from "@prisma/client";
 import {
     BadRequestError,
     NotFoundError,
@@ -9,6 +9,7 @@ import {
     UnavailableAttendeesError
 } from "../util/exception/AWSRoomBookingSystemError";
 import {toAvailableRoomDTO, toBookingDTO} from "../util/Mapper/BookingMapper";
+import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
 
 export default class BookingRepository extends AbstractRepository {
     constructor(database: PrismaClient) {
@@ -68,33 +69,57 @@ export default class BookingRepository extends AbstractRepository {
         rooms: number[],
         attendees: number[][]
     ): Promise<BookingDTO> {
-        const newBooking = await this.db.$transaction(async (tx) => {
-            await Promise.all([
-                this.checkAttendeeAvail(attendees.flat(), "user_id", startTime, endTime, null),
-                this.checkRoomAvail(rooms, endTime, startTime)
-            ]);
+        const MAX_RETRIES = 3;
+        let retries = 0;
+        let newBooking;
+        while (retries < MAX_RETRIES) {
+            try {
+                // eslint-disable-next-line no-await-in-loop
+                newBooking = await this.db.$transaction(
+                    async (tx) => {
+                        await Promise.all([
+                            this.checkAttendeeAvail(attendees.flat(), "user_id", startTime, endTime, null),
+                            this.checkRoomAvail(rooms, endTime, startTime)
+                        ]);
 
-            const booking = await tx.bookings.create({
-                data: {
-                    created_by: createdBy,
-                    created_at: createdAt,
-                    start_time: startTime,
-                    end_time: endTime,
-                    status: "confirmed"
+                        const booking = await tx.bookings.create({
+                            data: {
+                                created_by: createdBy,
+                                created_at: createdAt,
+                                start_time: startTime,
+                                end_time: endTime,
+                                status: "confirmed"
+                            }
+                        });
+
+                        await tx.users_bookings.createMany({data: this.getUsersBookingData(attendees, rooms, booking)});
+
+                        return tx.bookings.findUniqueOrThrow({
+                            where: {booking_id: booking.booking_id},
+                            include: {
+                                users: true,
+                                users_bookings: {
+                                    include: {users: true, rooms: {include: {buildings: {include: {cities: true}}}}}
+                                }
+                            }
+                        });
+                    },
+                    {isolationLevel: Prisma.TransactionIsolationLevel.Serializable}
+                );
+                break;
+            } catch (error) {
+                if (error instanceof PrismaClientKnownRequestError) {
+                    if (error.code === "P2034") {
+                        retries++;
+                        continue;
+                    }
                 }
-            });
-
-            await tx.users_bookings.createMany({data: this.getUsersBookingData(attendees, rooms, booking)});
-
-            return tx.bookings.findUniqueOrThrow({
-                where: {booking_id: booking.booking_id},
-                include: {
-                    users: true,
-                    users_bookings: {include: {users: true, rooms: {include: {buildings: {include: {cities: true}}}}}}
-                }
-            });
-        });
-
+                throw error;
+            }
+        }
+        if (!newBooking) {
+            throw new RequestConflictError("too many users are trying to book the same rooms, please try again later");
+        }
         return toBookingDTO(newBooking, newBooking.users, newBooking.users_bookings);
     }
 
@@ -159,14 +184,50 @@ export default class BookingRepository extends AbstractRepository {
         endTime: Date,
         duration: string,
         attendees: string[],
-        stepSize: string = "30 minutes"
+        stepSize: string
     ): Promise<object[]> {
-        if (attendees.length <= 0) {
-            throw new BadRequestError("No attendees inputted");
-        }
-        return await this.db.$queryRawUnsafe(
-            this.buildTimeSuggestionQuery(startTime, endTime, duration, attendees, stepSize)
-        );
+        //@formatter:off
+        return await this.db.$queryRawUnsafe(`
+            WITH RECURSIVE
+                 dates AS
+                     (SELECT TIMESTAMP '${startTime.toISOString()}' AS dt
+                      UNION ALL
+                      SELECT dt + INTERVAL '${stepSize}'
+                      FROM dates
+                      WHERE dt + INTERVAL '${stepSize}' < TIMESTAMP '${endTime.toISOString()}'),
+                 user_ids AS
+                     (SELECT u.user_id
+                      FROM users u
+                      WHERE u.email IN (${attendees.map((attendee) => `'${attendee}'`).join(",")})),
+                 user_bookings_overlap AS
+                     (SELECT ub.user_id,
+                             b.start_time,
+                             b.end_time
+                      FROM users_bookings ub
+                               JOIN bookings b ON ub.booking_id = b.booking_id
+                      WHERE b.start_time < TIMESTAMP '${endTime.toISOString()}'
+                        AND b.end_time > TIMESTAMP '${startTime.toISOString()}'
+                        AND b.status != 'canceled'
+                        AND ub.user_id IN (SELECT user_id FROM user_ids)) ,
+                 user_events_overlap AS
+                     (SELECT e.created_by AS user_id,
+                             e.start_time,
+                             e.end_time
+                      FROM events e
+                      WHERE e.start_time < TIMESTAMP '${endTime.toISOString()}'
+                        AND e.end_time > TIMESTAMP '${startTime.toISOString()}'
+                        AND e.created_by IN (SELECT user_id FROM user_ids))
+            SELECT d.dt AS start_time,
+                   d.dt + INTERVAL '${duration}' AS end_time
+            FROM dates d
+            WHERE NOT EXISTS
+                (SELECT 1 FROM user_bookings_overlap ub
+                 WHERE (d.dt, d.dt + INTERVAL '${duration}') OVERLAPS (ub.start_time, ub.end_time))
+              AND NOT EXISTS
+                (SELECT 1 FROM user_events_overlap ue
+                 WHERE (d.dt, d.dt + INTERVAL '${duration}') OVERLAPS (ue.start_time, ue.end_time))
+        `);
+        //@formatter:on
     }
 
     private getUsersBookingData(attendees: number[][], rooms: number[], curr: bookings) {
@@ -549,56 +610,6 @@ export default class BookingRepository extends AbstractRepository {
             ORDER BY ${orderBy[0]}, ${orderBy[1]}, ${orderBy[2]}
         `;
         //@formatter:on
-    }
-
-    private buildTimeSuggestionQuery(
-        startTime: Date,
-        endTime: Date,
-        duration: string,
-        attendees: string[],
-        stepSize: string
-    ): string {
-        //@formatter:off
-        return `
-            WITH RECURSIVE
-                 dates AS
-                     (SELECT TIMESTAMP '${startTime.toISOString()}' AS dt
-                      UNION ALL
-                      SELECT dt + INTERVAL '${stepSize}'
-                      FROM dates
-                      WHERE dt + INTERVAL '${stepSize}' < TIMESTAMP '${endTime.toISOString()}'),
-                 user_ids AS
-                     (SELECT u.user_id
-                      FROM users u
-                      WHERE u.email IN (${attendees.map((attendee) => `'${attendee}'`).join(",")})),
-                 user_bookings_overlap AS
-                     (SELECT ub.user_id,
-                             b.start_time,
-                             b.end_time
-                      FROM users_bookings ub
-                               JOIN bookings b ON ub.booking_id = b.booking_id
-                      WHERE b.start_time < TIMESTAMP '${endTime.toISOString()}'
-                        AND b.end_time > TIMESTAMP '${startTime.toISOString()}'
-                        AND b.status != 'canceled'
-                        AND ub.user_id IN (SELECT user_id FROM user_ids)) ,
-                 user_events_overlap AS
-                     (SELECT e.created_by AS user_id,
-                             e.start_time,
-                             e.end_time
-                      FROM events e
-                      WHERE e.start_time < TIMESTAMP '${endTime.toISOString()}'
-                        AND e.end_time > TIMESTAMP '${startTime.toISOString()}'
-                        AND e.created_by IN (SELECT user_id FROM user_ids))
-            SELECT d.dt AS start_time,
-                   d.dt + INTERVAL '${duration}' AS end_time
-            FROM dates d
-            WHERE NOT EXISTS
-                (SELECT 1 FROM user_bookings_overlap ub
-                 WHERE (d.dt, d.dt + INTERVAL '${duration}') OVERLAPS (ub.start_time, ub.end_time))
-              AND NOT EXISTS
-                (SELECT 1 FROM user_events_overlap ue
-                 WHERE (d.dt, d.dt + INTERVAL '${duration}') OVERLAPS (ue.start_time, ue.end_time))
-        `;
     }
 
     private customIndexOf<T>(arr: T[], testF: (t: T) => boolean) {

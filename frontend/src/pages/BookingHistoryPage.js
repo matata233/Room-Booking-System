@@ -227,12 +227,12 @@ const BookingHistoryPage = () => {
                           <div>
                             <span className="font-semibold">Created By:</span>{" "}
                             {userInfo.userId === book.users.userId
-                              ? "Myself"
+                              ? `${book.users.email} (Me)`
                               : book.users.email}
                           </div>
                           <div>
                             <span className="font-semibold">Created At:</span>{" "}
-                            {`${formatDateTime(book.endTime).date} ${formatDateTime(book.createdAt).time} ${formatDateTime(book.endTime).timezone}`}
+                            {`${formatDateTime(book.createdAt).date} ${formatDateTime(book.createdAt).time} ${formatDateTime(book.createdAt).timezone}`}
                           </div>
                         </div>
 
@@ -309,7 +309,7 @@ const BookingHistoryPage = () => {
                                 <div className="h-2 w-2 rounded-full bg-theme-orange"></div>
                                 <div className="ml-2">
                                   {userInfo.userId === attendee.userId
-                                    ? "Myself"
+                                    ? `${attendee.email} (Me)`
                                     : attendee.email}
                                 </div>
                               </div>

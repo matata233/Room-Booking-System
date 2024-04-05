@@ -47,7 +47,7 @@ const EventCalendar = () => {
       .filter((booking) => booking.status === "confirmed")
       .map((booking) => ({
         ...booking,
-        title: "Company Meeting",
+        title: "AWS Meeting",
         type: "booking",
       }));
   }, [isGetBookingsLoading, booking]);

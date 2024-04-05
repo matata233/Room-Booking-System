@@ -86,11 +86,13 @@ const SuggestedTimeInput = () => {
       <div className="flex items-center justify-between">
         <input
           type="number"
-          min="1"
+          min={suggestedTimeInput.unit === "hours" ? ".5" : "30"}
+          max={suggestedTimeInput.unit === "hours" ? "24" : "1440"}
           value={suggestedTimeInput?.duration}
           onChange={handleDurationChange}
           className="w-48 rounded-lg border px-4 py-1 focus:outline-none"
           placeholder="Duration"
+          step={suggestedTimeInput.unit === "hours" ? ".5" : "30"}
         />
 
         <select
