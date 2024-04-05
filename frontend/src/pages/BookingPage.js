@@ -357,11 +357,11 @@ const BookingPage = () => {
       attendeesEmails = [...attendeesEmails, userInfo.email];
 
       const reqBody = {
-        start_time: startDateTime,
-        end_time: endDateTime,
+        startTime: startDateTime,
+        endTime: endDateTime,
         duration: `${suggestedTimeInput.duration} ${suggestedTimeInput.unit}`,
         attendees: attendeesEmails,
-        step_size: "30 minutes",
+        stepSize: "30 minutes",
       };
       console.log("getSuggestedTime reqBody", reqBody);
       const suggestedTime = await getSuggestedTime(reqBody).unwrap();

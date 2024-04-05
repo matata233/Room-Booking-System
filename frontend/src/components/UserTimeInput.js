@@ -113,7 +113,8 @@ const UserTimeInput = () => {
       <div className="flex  items-center justify-between">
         <input
           type="number"
-          min="0"
+          min={unit === "hours" ? ".5" : "30"}
+          max={unit === "hours" ? "24" : "1440"}
           value={duration}
           onChange={handleDurationChange}
           className="w-48 rounded-lg border  px-4 py-1 focus:outline-none"

@@ -255,7 +255,7 @@ const BookingReviewPage = () => {
                   {group.groupId === loggedInUser?.group && (
                     <div className="flex items-center">
                       <div className="h-2 w-2 rounded-full bg-theme-orange"></div>
-                      <div className="ml-2">{userInfo.email}</div>
+                      <div className="ml-2">{`${userInfo.email} (Me)`}</div>
                     </div>
                   )}
                   {/* Map over attendees to display each */}

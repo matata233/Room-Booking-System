@@ -114,8 +114,8 @@ const FileUpload = () => {
       </div>
       {isModalOpen && selectedFile && (
         <CancelConfirmationModal
-          confirmButton={"confirm"}
-          cancelButton={"cancel"}
+          confirmButton={"Confirm"}
+          cancelButton={"Back"}
           message={`Are you sure you want to import all users in ${selectedFile.name}? This cannot be undone.`}
           onConfirm={handleSubmit}
           onCancel={() => setIsModalOpen(false)}

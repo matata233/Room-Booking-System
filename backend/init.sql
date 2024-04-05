@@ -1099,7 +1099,6 @@ VALUES (339, 7, 1, '007.A', '', 10, TRUE),
 SELECT setval('rooms_room_id_seq', (SELECT MAX(room_id) FROM rooms));
 
 INSERT INTO users (user_id, username, first_name, last_name, email, building_id, floor, desk, role, is_active)
-
 VALUES (1, 'team7awsome01', 'AdminOne', 'Test', 'team7awsome01@gmail.com', 1, 10, 1, 'admin', TRUE),
        (2, 'team7awsome02', 'AdminTwo', 'Test', 'team7awsome02@gmail.com', 2, 3, 1, 'admin', TRUE),
        (3, 'team7awsome098', 'AdminThree', 'Test', 'team7awsome98@gmail.com', 3, 5, 1, 'admin', TRUE),
@@ -1128,27 +1127,9 @@ VALUES (1, 'team7awsome01', 'AdminOne', 'Test', 'team7awsome01@gmail.com', 1, 10
        (26, 'YYZ34_01_3', 'First', 'Last', 'YYZ34_01_3@aws.ca', 6, 1, 100, 'staff', TRUE),
        (27, 'YUL22_01_1', 'First', 'Last', 'YUL22_01_1@aws.ca', 7, 1, 100, 'staff', TRUE),
        (28, 'YUL22_01_2', 'First', 'Last', 'YUL22_01_2@aws.ca', 7, 1, 100, 'staff', TRUE),
-       (29, 'YUL22_01_3', 'First', 'Last', 'YUL22_01_3@aws.ca', 7, 1, 100, 'staff', TRUE),
-       (30, 'michelle', 'Michelle', 'Chen', 'hsiangyi1025@gmail.com', 5, 1, 102, 'admin', TRUE);
+       (29, 'YUL22_01_3', 'First', 'Last', 'YUL22_01_3@aws.ca', 7, 1, 100, 'staff', TRUE);
 
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
-
--- INSERT INTO bookings (booking_id, created_by, created_at, start_time, end_time, status)
--- VALUES (1, 1, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed'),
---        (2, 1, '2024-03-23T12:00Z', '2025-03-26T19:00Z', '2025-03-26T20:00Z', 'canceled'),
---        (3, 2, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'canceled'),
---        (4, 4, '2024-03-23T12:00Z', '2024-03-26T19:00Z', '2024-03-26T20:00Z', 'confirmed');
---
--- SELECT setval('bookings_booking_id_seq', (SELECT MAX(booking_id) FROM bookings));
---
--- INSERT INTO users_bookings(user_id, booking_id, room_id)
--- VALUES (1, 1, 1),
---        (1, 2, 2),
---        (2, 2, 3),
---        (3, 2, 4),
---        (4, 2, 4),
---        (2, 3, 2),
---        (4, 4, 2);
 
 INSERT INTO distances (building_id_from, building_id_to, distance)
 VALUES (1, 1, 0),

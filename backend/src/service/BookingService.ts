@@ -28,15 +28,7 @@ export default class BookingService extends AbstractService {
 
     public async create(dto: BookingDTO): Promise<BookingDTO> {
         await this.validateIncomingDTO(dto, {groups: [BOOKINGS_CREATE]});
-        if (dto.endTime! <= dto.startTime!) {
-            throw new BadRequestError("end time must be greater than start time");
-        }
-        if (dto.endTime!.getTime() - dto.startTime!.getTime() < 15 * 1000 * 60) {
-            throw new BadRequestError("meeting cannot be shorter than 15 minutes");
-        }
-        if (dto.endTime!.getTime() - dto.startTime!.getTime() > 2 * 1000 * 60 * 60 * 24) {
-            throw new BadRequestError("meeting cannot be longer than 2 days");
-        }
+        this.validateMeetingDuration(dto);
         if (dto.roomDTOs!.length !== dto.userDTOs!.length) {
             throw new BadRequestError("number of rooms must be equal to number of attendee groups");
         }
@@ -76,15 +68,7 @@ export default class BookingService extends AbstractService {
 
     public async getAvailableRooms(dto: BookingDTO): Promise<object> {
         await this.validateIncomingDTO(dto, {groups: [BOOKINGS_GET_AVAIL]});
-        if (dto.endTime! <= dto.startTime!) {
-            throw new BadRequestError("end time must be greater than start time");
-        }
-        if (dto.endTime!.getTime() - dto.startTime!.getTime() < 15 * 1000 * 60) {
-            throw new BadRequestError("meeting cannot be shorter than 15 minutes");
-        }
-        if (dto.endTime!.getTime() - dto.startTime!.getTime() > 2 * 1000 * 60 * 60 * 24) {
-            throw new BadRequestError("meeting cannot be longer than 2 days");
-        }
+        this.validateMeetingDuration(dto);
         return this.bookingRepository.getAvailableRooms(
             dto.startTime!,
             dto.endTime!,
@@ -103,16 +87,37 @@ export default class BookingService extends AbstractService {
         attendees: string[],
         stepSize: string
     ): Promise<object> {
+        if (attendees.length <= 0) {
+            throw new BadRequestError("No attendees inputted");
+        }
         if (startTime < new Date()) {
             throw new BadRequestError("start time has already passed");
         }
-        if (endTime <= startTime) {
-            throw new BadRequestError("end time must be greater than start time");
+        if (endTime.getTime() - startTime.getTime() < 30 * 1000 * 60) {
+            throw new BadRequestError("flexible start time range cannot be shorter than 30 minutes");
         }
         if (endTime.getTime() - startTime.getTime() > 30 * 1000 * 60 * 60 * 24) {
             throw new BadRequestError("flexible start time range cannot be greater than 30 days");
         }
+        const minutes = startTime.getUTCMinutes();
+        if (minutes > 0 && minutes < 30) {
+            startTime.setUTCMinutes(30);
+        } else if (minutes > 30) {
+            startTime.setUTCMinutes(60);
+        }
         return this.bookingRepository.getSuggestedTimes(startTime, endTime, duration, attendees, stepSize);
+    }
+
+    private validateMeetingDuration(dto: BookingDTO) {
+        if ((dto.endTime!.getTime() - dto.startTime!.getTime()) % (30 * 1000 * 60) !== 0) {
+            throw new BadRequestError("meeting duration must be a multiple of 30 minutes");
+        }
+        if (dto.endTime!.getTime() - dto.startTime!.getTime() < 30 * 1000 * 60) {
+            throw new BadRequestError("meeting cannot be shorter than 30 minutes");
+        }
+        if (dto.endTime!.getTime() - dto.startTime!.getTime() > 1000 * 60 * 60 * 24) {
+            throw new BadRequestError("meeting cannot be longer than 1 day");
+        }
     }
 
     private handlePrismaError(error: unknown) {
