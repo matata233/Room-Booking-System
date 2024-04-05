@@ -14,7 +14,7 @@ import {
 import Loader from "../../../components/Loader";
 import Message from "../../../components/Message";
 import { toast } from "react-toastify";
-import CancelConfirmationModal from "../../../components/CancelConfirmationModal";
+import JSXMsgModal from "../../../components/JSXMsgModal";
 
 const RoomManagementPage = () => {
   const { data: rooms, error, isLoading, refetch } = useGetRoomsQuery();
@@ -401,13 +401,21 @@ const RoomManagementPage = () => {
             )}
           </div>
           {isModalOpen && (
-            <CancelConfirmationModal
-              confirmButton={"Confirm"}
-              cancelButton={"Back"}
-              message="Are you sure you want to change the status of this room? Warning: If you are disabling this room, all future bookings associated with this room will be automatically canceled. This cannot be undone."
+            <JSXMsgModal
+              message={
+                <>
+                  <div>
+                    Are you sure you want to change the status of this room?{" "}
+                  </div>
+                  <div className="mt-4 text-yellow-400">
+                    Warning: If you are disabling this room, all future bookings
+                    associated with this room will be automatically canceled.
+                    This cannot be undone.
+                  </div>
+                </>
+              }
               onConfirm={handleConfirmToggleIsActive}
               onCancel={() => setIsModalOpen(false)}
-              onClose={() => setIsModalOpen(false)}
             />
           )}
         </>

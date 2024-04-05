@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setSelectedRoomForGroup, stopSearch } from "../slices/bookingSlice";
 import { ImCheckboxUnchecked, ImCheckboxChecked } from "react-icons/im";
-import RoomSelectionModal from "./RoomSelectionModal";
+import JSXMsgModal from "./JSXMsgModal";
 import DropdownArrowSVG from "../assets/dropdown-arrow.svg";
 import MoreInfo from "./MoreInfo";
 
@@ -205,7 +205,7 @@ const BookingRoomsDisplay = () => {
                 <ul className="my-6 text-theme-blue">{warnings}</ul>
               </div>
             )}
-            <p className="text-red-400">
+            <p className="text-yellow-400">
               This room is not recommended. Are you sure you want to select it?
             </p>
           </div>
@@ -362,7 +362,7 @@ const BookingRoomsDisplay = () => {
             ))}
           </div>
           {isModalOpen && (
-            <RoomSelectionModal
+            <JSXMsgModal
               message={messageForModal}
               onConfirm={() => {
                 dispatch(
@@ -374,7 +374,6 @@ const BookingRoomsDisplay = () => {
                 setIsModalOpen(false);
               }}
               onCancel={() => setIsModalOpen(false)}
-              onClose={() => setIsModalOpen(false)}
             />
           )}
           <Pagination
