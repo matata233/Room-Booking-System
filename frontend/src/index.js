@@ -34,6 +34,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { StyledEngineProvider } from "@mui/material/styles";
 import BookingHistoryPage from "./pages/BookingHistoryPage";
 import UserSchedulePage from "./pages/UserSchedulePage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -87,6 +88,7 @@ const router = createBrowserRouter(
           element={<BuildingManagementEditPage />}
         />
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Route>,
   ),
 );
