@@ -1,12 +1,11 @@
 // parent to other API slices (needed for api/backend request)
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "../constants";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: BASE_URL,
+  baseUrl: process.env.REACT_APP_BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth?.userInfo?.token;
     if (token) {

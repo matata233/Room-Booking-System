@@ -1099,12 +1099,12 @@ VALUES (339, 7, 1, '007.A', '', 10, TRUE),
 SELECT setval('rooms_room_id_seq', (SELECT MAX(room_id) FROM rooms));
 
 INSERT INTO users (user_id, username, first_name, last_name, email, building_id, floor, desk, role, is_active)
-VALUES (1, 'team7awsome01', 'AdminOne', 'Test', 'team7awsome01@gmail.com', 1, 10, 1, 'admin', TRUE),
-       (2, 'team7awsome02', 'AdminTwo', 'Test', 'team7awsome02@gmail.com', 2, 3, 1, 'admin', TRUE),
-       (3, 'team7awsome098', 'AdminThree', 'Test', 'team7awsome98@gmail.com', 3, 5, 1, 'admin', TRUE),
-       (4, 'team7awsomeuser01', 'StaffOne', 'Test', 'team7awsomeuser01@gmail.com', 4, 2, 1, 'staff', TRUE),
-       (5, 'team7awsomeuser12', 'StaffTwo', 'Test', 'team7awsomeuser12@gmail.com', 5, 4, 1, 'staff', TRUE),
-       (6, 'team7awsomeuser22', 'StaffThree', 'Test', 'team7awsomeuser22@gmail.com', 6, 6, 1, 'staff', TRUE),
+VALUES (1, 'team7awsome01', 'AdminOne', 'Test', 'team7awsome01@gmail.com', 1, 10, 100, 'admin', TRUE),
+       (2, 'team7awsome02', 'AdminTwo', 'Test', 'team7awsome02@gmail.com', 2, 3, 100, 'admin', TRUE),
+       (3, 'team7awsome098', 'AdminThree', 'Test', 'team7awsome98@gmail.com', 3, 5, 100, 'admin', TRUE),
+       (4, 'team7awsomeuser01', 'StaffOne', 'Test', 'team7awsomeuser01@gmail.com', 4, 2, 100, 'staff', TRUE),
+       (5, 'team7awsomeuser12', 'StaffTwo', 'Test', 'team7awsomeuser12@gmail.com', 5, 4, 100, 'staff', TRUE),
+       (6, 'team7awsomeuser22', 'StaffThree', 'Test', 'team7awsomeuser22@gmail.com', 5, 6, 100, 'staff', TRUE),
        (7, 'YVR32_01_1', 'First', 'Last', 'YVR32_01_1@aws.ca', 1, 1, 100, 'staff', TRUE),
        (8, 'YVR32_01_2', 'First', 'Last', 'YVR32_01_2@aws.ca', 1, 1, 100, 'staff', TRUE),
        (9, 'YVR32_01_off', 'First', 'Last', 'YVR32_01_off@aws.ca', 1, 1, 100, 'staff', FALSE),

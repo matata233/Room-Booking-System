@@ -1,4 +1,4 @@
-import {bookings, rooms_equipments, users} from "@prisma/client";
+import {bookings, users} from "@prisma/client";
 import BookingDTO, {Group} from "../../model/dto/BookingDTO";
 import UserDTO from "../../model/dto/UserDTO";
 import {toUserDTO} from "./UserMapper";

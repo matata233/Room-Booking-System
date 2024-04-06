@@ -272,7 +272,7 @@ const BookingRoomsDisplay = () => {
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
             >
-              <option value="">Default (Smart)</option>
+              <option value="">Smart (Default)</option>
               <option value="floorAsc">Floor (Low to High)</option>
               <option value="floorDesc">Floor (High to Low)</option>
               <option value="roomNumberAsc">Room Code (Low to High)</option>
@@ -290,7 +290,7 @@ const BookingRoomsDisplay = () => {
           </div>
           <MoreInfo
             info={
-              "By default, rooms are sorted by a smart distance index (low to high), then capacity (low to high), and finally by equipment variety (high to low). This is the best option for most scenarios."
+              "By default, rooms are smartly sorted prioritizing proximity (closest floors and buildings for all attendees), capacity (most suitable first), and equipment variety (most diverse first). This optimizes your search results, making it the ideal choice for most scenarios."
             }
           />
         </div>

@@ -184,7 +184,7 @@ describe("Room tests", function () {
             );
             return expect(result).to.eventually.be.rejectedWith(
                 RequestConflictError,
-                "Conflict: another room with the same building, floor, and code already exists"
+                "onflict: another room with the same building, floor, and room code already exists"
             );
         });
 
@@ -298,7 +298,7 @@ describe("Room tests", function () {
         });
 
         it("should update room with complete info 1", async function () {
-            const updateResult = await roomService.update(
+            await roomService.update(
                 1,
                 plainToInstance(RoomDTO, {
                     floorNumber: 200,
@@ -437,7 +437,7 @@ describe("Room tests", function () {
             );
             return expect(result).to.eventually.be.rejectedWith(
                 RequestConflictError,
-                "Conflict: another room with the same building, floor, and code already exists"
+                "Conflict: another room with the same building, floor, and room code already exists"
             );
         });
     });

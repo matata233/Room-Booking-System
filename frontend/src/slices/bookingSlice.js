@@ -1,11 +1,6 @@
 // bookingSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import {
-  nextDay,
-  nextDayAtTen,
-  sevenDaysLaterAtTen,
-  nextDayAtNoon,
-} from "../utils/getDateTime";
+import { nextDayAtTen, sevenDaysLaterAtMidnight } from "../utils/getDateTime";
 
 const initialState = {
   startDate: nextDayAtTen.format("YYYY-MM-DD"),
@@ -44,10 +39,10 @@ const initialState = {
   showRecommended: true,
   regroup: true,
   isMultiCity: false,
-  suggestedTimeMode: true,
+  suggestedTimeMode: false,
   suggestedTimeInput: {
     startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
-    endTime: sevenDaysLaterAtTen.format("YYYY-MM-DD HH:mm"),
+    endTime: sevenDaysLaterAtMidnight.format("YYYY-MM-DD HH:mm"),
     duration: 30,
     unit: "minutes",
   },

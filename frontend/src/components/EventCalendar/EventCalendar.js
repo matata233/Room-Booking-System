@@ -161,7 +161,7 @@ const EventCalendar = () => {
             className="text-md rounded bg-theme-orange px-3 py-1 text-black transition-colors duration-300 ease-in-out hover:bg-theme-dark-orange  hover:text-white md:px-5 md:py-1 xl:px-6"
             onClick={(date) => handleSelectDate(date.start)}
           >
-            New Event
+            New Personal Event
           </button>
         </div>
         <div className="h-[550px] px-5 md:h-[800px]">

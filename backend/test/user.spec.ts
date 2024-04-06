@@ -34,10 +34,11 @@ describe("User tests", function () {
                     building: {
                         buildingId: 1
                     },
+                    role: "staff",
                     isActive: true
                 })
             );
-            const result = await userService.getById(31);
+            const result = await userService.getById(30);
             expect(result).to.containSubset({
                 username: "newUser",
                 firstName: "First",
@@ -48,6 +49,7 @@ describe("User tests", function () {
                 building: {
                     buildingId: 1
                 },
+                role: "staff",
                 isActive: true
             });
         });

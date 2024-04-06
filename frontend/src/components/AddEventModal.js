@@ -62,7 +62,7 @@ const AddEventModal = ({ onAdd, onClose, selectedDate }) => {
           className="relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg lg:w-96"
         >
           <h1 className="font-natural mb-5 mt-1 text-2xl lg:mt-2 ">
-            New Event
+            New Personal Event
           </h1>
           <label className="mb-1 block">
             Title <span className="text-red-600">*</span>
