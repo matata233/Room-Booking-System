@@ -285,6 +285,7 @@ const AdminUserForm = ({
                 >
                   Admin
                 </label>
+                <MoreInfo info={"You can promote a staff user to an admin at any time. However, once a user is an admin, their role cannot be changed, and they cannot be edited/deactivated by another admin."} />
               </div>
 
               {/* Toggle Existing/New building */}

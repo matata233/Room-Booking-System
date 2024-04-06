@@ -39,7 +39,7 @@ function LandingPage() {
             <p className="md:ml-8">
               Find the perfect meeting space with advanced search tools,
               allowing customization based on room size, A/V facilities, and
-              location
+              location.
             </p>
           </div>
 
@@ -67,7 +67,7 @@ function LandingPage() {
               />
             </div>
             <p className="md:ml-8">
-              Adaptable across AWS locations in Canada and the US
+              Book meeting rooms across AWS locations in Canada and the US.
             </p>
           </div>
 
@@ -80,8 +80,8 @@ function LandingPage() {
               />
             </div>
             <p className="md:ml-8">
-              We offer a variety of booking spaces: Small Rooms, Meeting Rooms,
-              & Conference Room
+              We offer a variety of meeting spaces: small rooms, regular meeting rooms,
+              & conference rooms.
             </p>
           </div>
 
@@ -94,8 +94,7 @@ function LandingPage() {
               />
             </div>
             <p className="md:ml-8">
-              Enjoy high speed Wi-Fi, unlimited coffee, on-site support, and
-              more.
+              Enjoy high speed Wi-Fi, on-site support, and more during your meeting.
             </p>
           </div>
         </div>

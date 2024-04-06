@@ -30,12 +30,6 @@ export default class Authenticator {
         return Authenticator.instance;
     }
 
-    private isAdmin = (userDTO: UserDTO) => {
-        if (userDTO.role !== role.admin) {
-            throw new UnauthorizedError();
-        }
-    };
-
     public getCurrentUser = async (header: string | undefined, roleAuth?: string): Promise<UserDTO> => {
         if (!header || !header.startsWith("Bearer ")) {
             return Promise.reject(new UnauthorizedError("No token provided or token does not have Bearer prefix"));
@@ -66,8 +60,14 @@ export default class Authenticator {
         return await this.generateJwtToken(userData);
     };
 
+    private isAdmin = (userDTO: UserDTO) => {
+        if (userDTO.role !== role.admin) {
+            throw new UnauthorizedError();
+        }
+    };
+
     private validateGoogleToken = async (googleToken: string): Promise<UserDTO> => {
-        const CLIENT_ID: string = "682437365013-hcj4g0l2c042umnvr28kbikenhnjrrre.apps.googleusercontent.com";
+        const CLIENT_ID: string = process.env.CLIENT_ID!;
         const decodedUserInfo: GoogleUser = jwtDecode(googleToken);
         if (!decodedUserInfo) {
             return Promise.reject(new UnauthorizedError(`Invalid token`));

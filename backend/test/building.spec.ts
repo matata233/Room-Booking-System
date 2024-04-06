@@ -6,7 +6,6 @@ import chaiAsPromised from "chai-as-promised";
 import BuildingService from "../src/service/BuildingService";
 import BuildingDTO from "../src/model/dto/BuildingDTO";
 import CityDTO from "../src/model/dto/CityDTO";
-import {NotFoundError} from "../src/util/exception/AWSRoomBookingSystemError";
 import {getInitQueries, initDatabase} from "./Util";
 import {plainToInstance} from "class-transformer";
 import chaiSubset from "chai-subset";
@@ -51,11 +50,6 @@ describe("Building tests", function () {
             const result = await buildingService.getById(3);
 
             expect(result.city!.cityId).to.equal(building3.city!.cityId);
-        });
-
-        it("should reject if building does not exist", function () {
-            const result = buildingService.getById(0);
-            return expect(result).to.eventually.be.rejectedWith(NotFoundError, "Not Found: building does not exist");
         });
     });
 

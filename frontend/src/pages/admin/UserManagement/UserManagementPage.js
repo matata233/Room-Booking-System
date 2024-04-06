@@ -404,11 +404,11 @@ const UserManagementPage = () => {
               message={
                 <>
                   <div>
-                    Are you sure you want to change the status of the user?{" "}
+                    Are you sure you want to change the status of this user?{" "}
                   </div>
                   <div className="mt-4 text-yellow-400">
                     Warning: If you are disabling this user, they will no longer
-                    be able to login again.
+                    be able to login again or be invited to meetings.
                   </div>
                 </>
               }

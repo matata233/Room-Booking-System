@@ -56,7 +56,7 @@ const ToggleRooms = () => {
       </div>
       {/* Disable the toggle button if ungrouped has attendees */}
       {ungroupedHasAttendees && (
-        <div className="text-sm text-red-500">
+        <div className="text-sm text-yellow-400">
           To turn off, please remove ungrouped attendees
         </div>
       )}

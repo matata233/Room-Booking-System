@@ -401,9 +401,6 @@ const BookingPage = () => {
               <ToggleSuggestedTime />
               {suggestedTimeMode ? (
                 <>
-                  <div className="text-sm text-gray-500">
-                    Get suggested timeslots with everyone available
-                  </div>
                   <SuggestedTimeInput />
                 </>
               ) : (
@@ -426,7 +423,7 @@ const BookingPage = () => {
                     <>
                       <h2>Attendees:</h2>
                       <div className="text-sm text-gray-500">
-                        You are automatically included
+                        You will be automatically included
                       </div>
                       <UserEmailInput />
                     </>
@@ -461,30 +458,34 @@ const BookingPage = () => {
                     <>
                       <h2>Attendees:</h2>
                       <div className="text-sm text-gray-500">
-                        You are automatically included
+                        You will be automatically included
                       </div>
                       <UserEmailInput />
                     </>
                   )}
-                  <h2>Room Count:</h2>
-                  <div className="text-sm text-gray-500">
-                    Auto-calculated for multi-city bookings
+                  <div className="flex items-center justify-start">
+                    <h2 className="mr-1">Room Count:</h2>
+                    <MoreInfo
+                      info={
+                        "For multi-city bookings, the room count is auto-calculated to match the number of cities and changing it has no effect."
+                      }
+                    />
                   </div>
                   <UserRoomCountInput />
                   {searchOnce && !isMultiCity && (
                     <div>
                       <div className="flex items-center justify-start">
-                        <h2 className="mr-2">Auto-Regroup Attendees:</h2>
+                        <h2 className="mr-1">Auto-Regroup Attendees:</h2>
                         <MoreInfo
                           info={
-                            "Turn this on to re-assign attendees into the most-appropriate groups for them based on their locations."
+                            "Enable this to automatically re-assign attendees into groups that match the room count and are optimized for their locations, ensuring they are placed close to their peers."
                           }
                         />
                       </div>
                       <ToggleRegroup />
                     </div>
                   )}
-                  <h2>Equipment Needs:</h2>
+                  <h2>Has Equipments:</h2>
                   <UserEquipInput />
                   {/* <h2>Priorities for Recommendation:</h2>
                   <DragAndDrop /> */}

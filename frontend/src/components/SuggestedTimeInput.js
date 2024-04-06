@@ -3,7 +3,7 @@ import { DateRangePicker } from "rsuite";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import { setSuggestedTimeInput } from "../slices/bookingSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { nextDayAtTen, sevenDaysLaterAtTen } from "../utils/getDateTime";
+import { nextDayAtTen, sevenDaysLaterAtMidnight } from "../utils/getDateTime";
 import dayjs from "dayjs";
 import {
   allowedMaxDays,
@@ -18,12 +18,8 @@ const SuggestedTimeInput = () => {
 
   const predefinedRanges = [
     {
-      label: "Now",
-      value: [new Date(), new Date()],
-    },
-    {
       label: "Next 7 Days",
-      value: [nextDayAtTen, sevenDaysLaterAtTen],
+      value: [nextDayAtTen, sevenDaysLaterAtMidnight],
     },
   ];
 
@@ -63,7 +59,7 @@ const SuggestedTimeInput = () => {
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
       <div className="mb-2 flex items-center justify-start">
-        <div className="mr-2">Flexible Range for Start Time</div>
+        <div className="mr-1">Flexible Start Time Range:</div>
         <MoreInfo
           info={
             "Select the (range) start time on the left panel and the end time on the right. If you need to select a range within the same day, please click on the same date twice."
@@ -72,7 +68,7 @@ const SuggestedTimeInput = () => {
       </div>
 
       <DateRangePicker
-        format="yy-MMM-d H:mm"
+        format="yy-MMM-dd HH:mm"
         ranges={predefinedRanges}
         shouldDisableDate={combine(beforeToday(), allowedMaxDays(30))}
         onChange={handleDateRangeChange}
@@ -83,12 +79,12 @@ const SuggestedTimeInput = () => {
         ]}
       />
       <div className="mb-2 flex items-center justify-start">
-      <div className="mr-2">Duration</div>
-      <MoreInfo
-        info={
-          "30 minutes minimum up to 24 hours in half-hour increments."
-        }
-      />
+        <div className="mr-1">Duration:</div>
+        <MoreInfo
+          info={
+            "Meeting durations can range from a minimum of 30 minutes to a maximum of 24 hours, in increments of 30 minutes."
+          }
+        />
       </div>
       <div className="flex items-center justify-between">
         <input

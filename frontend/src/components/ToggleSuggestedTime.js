@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSuggestedTimeMode, toggleShowRecommended } from "../slices/bookingSlice";
+import MoreInfo from "./MoreInfo";
 
 const ToggleSuggestedTime = () => {
   const dispatch = useDispatch();
@@ -41,6 +42,7 @@ const ToggleSuggestedTime = () => {
       >
         Flexible
       </label>
+      <MoreInfo info={"Specify a flexible start time range for the meeting and enter all attendees. The system will then generate a list of timeslots where all attendees are available."} />
     </div>
   );
 };

@@ -408,9 +408,10 @@ const RoomManagementPage = () => {
                     Are you sure you want to change the status of this room?{" "}
                   </div>
                   <div className="mt-4 text-yellow-400">
-                    Warning: If you are disabling this room, all future bookings
-                    associated with this room will be automatically canceled.
-                    This cannot be undone.
+                    Warning: If you are disabling this room,
+                    it can no longer be booked and all existing future bookings
+                    for this room will be automatically canceled.
+                    Once a booking is canceled, it cannot be reversed.
                   </div>
                 </>
               }

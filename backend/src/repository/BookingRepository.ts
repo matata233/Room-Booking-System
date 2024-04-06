@@ -69,7 +69,7 @@ export default class BookingRepository extends AbstractRepository {
         rooms: number[],
         attendees: number[][]
     ): Promise<BookingDTO> {
-        const MAX_RETRIES = 3;
+        const MAX_RETRIES = 5;
         let retries = 0;
         let newBooking;
         while (retries < MAX_RETRIES) {
@@ -166,10 +166,12 @@ export default class BookingRepository extends AbstractRepository {
                 flatAttendees.filter((_, i) => attendeeCityIds[i] === cityId)
             );
         } else {
-            attendeeGroups =
-                regroup || roomCount !== attendees.length
-                    ? await this.getGroupingSuggestion(flatAttendees, roomCount)
-                    : attendees;
+            if (!regroup && roomCount !== attendees.length) {
+                throw new BadRequestError(
+                    "room count does not match the current attendee group structure, please enable 'Auto-Regroup' to re-assign attendees to match the room count"
+                );
+            }
+            attendeeGroups = regroup ? await this.getGroupingSuggestion(flatAttendees, roomCount) : attendees;
         }
         const roomSearchResults = await Promise.all(
             attendeeGroups.map((group) => this.searchForRooms(group, startTime, endTime, equipments, priority))
@@ -295,7 +297,7 @@ export default class BookingRepository extends AbstractRepository {
     }
 
     private groupingUp(uniqueBuildings: AggregateAttendeeDTO[], roomCount: number, totalAttendees: number): string[][] {
-        let res: string[][] = [];
+        const res: string[][] = [];
         const divisor = totalAttendees / roomCount;
         const roomsDistribution = uniqueBuildings.map((entry) => Number(entry.num_users) / divisor);
         const roomsAllocation = roomsDistribution.map((entry: number) => (entry < 1 ? 1 : Math.floor(entry)));
@@ -311,27 +313,16 @@ export default class BookingRepository extends AbstractRepository {
                 continue;
             }
             const numUsers = Number(uniqueBuildings[i].num_users);
-            let buildingDivisor = Math.ceil(numUsers / roomsAllocation[i]);
-            let leftoverUsers = numUsers % buildingDivisor;
-            if (leftoverUsers === 0) {
-                buildingDivisor++;
-            }
+            const buildingDivisor = Math.floor(numUsers / roomsAllocation[i]);
+            let leftoverUsers = numUsers % roomsAllocation[i];
             let count = 0;
             for (let j = 0; j < roomsAllocation[i]; j++) {
-                const numInNextGroup = buildingDivisor - (leftoverUsers > 0 ? 0 : 1);
+                const extraUser = leftoverUsers > 0 ? 1 : 0;
+                const numInNextGroup = buildingDivisor + extraUser;
                 res.push(uniqueBuildings[i].users!.slice(count, count + numInNextGroup));
-                leftoverUsers--;
                 count += numInNextGroup;
+                leftoverUsers -= extraUser;
             }
-        }
-        res = res.filter((group) => group.length > 0);
-        while (res.length < roomCount) {
-            res.sort((a, b) => b.length - a.length);
-            res.push(res[0].splice(Math.ceil(res[0].length / 2)));
-        }
-        while (res.length > roomCount) {
-            res.sort((a, b) => a.length - b.length);
-            res.splice(0, 2, res[0].concat(res[1]));
         }
         return res;
     }

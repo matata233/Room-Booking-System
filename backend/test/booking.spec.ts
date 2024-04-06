@@ -12,8 +12,6 @@ import {
     UnavailableAttendeesError
 } from "../src/util/exception/AWSRoomBookingSystemError";
 import BookingDTO from "../src/model/dto/BookingDTO";
-import EventService from "../src/service/EventService";
-import EventRepository from "../src/repository/EventRepository";
 import {plainToInstance} from "class-transformer";
 
 use(chaiAsPromised);
@@ -22,7 +20,6 @@ describe("Booking tests", () => {
     const db = new PrismaClient();
     const initQueries = getInitQueries();
     const bookingService = new BookingService(new BookingRepository(db));
-    const eventService = new EventService(new EventRepository(db));
 
     beforeEach(async () => {
         await initDatabase(initQueries, db);
@@ -292,7 +289,7 @@ describe("Booking tests", () => {
             );
             return expect(result).to.eventually.be.rejectedWith(
                 UnavailableAttendeesError,
-                "Attendee(s) Unavailable: YVR32_01_1 YVR32_01_1 (YVR32_01_1@aws.ca)"
+                "Attendee(s) Unavailable: First Last (YVR32_01_1@aws.ca)"
             );
         });
 
@@ -319,7 +316,7 @@ describe("Booking tests", () => {
             );
             return expect(result).to.eventually.be.rejectedWith(
                 UnavailableAttendeesError,
-                "Attendee(s) Unavailable: YVR32_01_off YVR32_01_off (YVR32_01_off@aws.ca) has been deactivated"
+                "Attendee(s) Unavailable: First Last (YVR32_01_off@aws.ca) has been deactivated"
             );
         });
 
@@ -512,7 +509,7 @@ describe("Booking tests", () => {
 
             return expect(result).to.be.eventually.rejectedWith(
                 BadRequestError,
-                "Bad Request: end time must be greater than start time"
+                "Bad Request: meeting cannot be shorter than 30 minutes"
             );
         });
     });

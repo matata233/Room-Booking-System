@@ -80,7 +80,7 @@ const UserTimeInput = () => {
 
   return (
     <div className="flex w-80 flex-col rounded-lg bg-gray-200 p-4">
-      <div className="mb-2">Start Date</div>
+      <div className="mb-2">Start Date:</div>
       <input
         type="date"
         value={startDate}
@@ -89,7 +89,7 @@ const UserTimeInput = () => {
         className="w-full cursor-pointer appearance-none rounded-md bg-white px-4 py-2 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
         required
       />
-      <div className="mb-2 mt-4">Start Time</div>
+      <div className="mb-2 mt-4">Start Time:</div>
       <div className="relative">
         <select
           className="w-full cursor-pointer appearance-none rounded-md bg-white px-4 py-2  leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
@@ -111,10 +111,10 @@ const UserTimeInput = () => {
         </div>
       </div>
       <div className="mb-2 flex items-center justify-start">
-      <div className="mr-2">Duration</div>
+      <div className="mr-1">Duration:</div>
       <MoreInfo
         info={
-          "30 minutes minimum up to 24 hours in half-hour increments."
+          "Meeting durations can range from a minimum of 30 minutes to a maximum of 24 hours, in increments of 30 minutes."
         }
       />
       </div>
