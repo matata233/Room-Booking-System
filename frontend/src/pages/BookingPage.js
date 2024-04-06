@@ -349,7 +349,6 @@ const BookingPage = () => {
         attendees: attendeesEmails,
         stepSize: "30 minutes",
       };
-      console.log("getSuggestedTime reqBody", reqBody);
       const suggestedTime = await getSuggestedTime(reqBody).unwrap();
       dispatch(
         setSuggestedTimeReceived(reorganizeSuggestedTime(suggestedTime)),
@@ -476,7 +475,11 @@ const BookingPage = () => {
                     <div>
                       <div className="flex items-center justify-start">
                         <h2 className="mr-2">Auto-Regroup Attendees:</h2>
-                        <MoreInfo info={"Turn this on to re-assign attendees into the most-appropriate groups for them based on their locations."} />
+                        <MoreInfo
+                          info={
+                            "Turn this on to re-assign attendees into the most-appropriate groups for them based on their locations."
+                          }
+                        />
                       </div>
                       <ToggleRegroup />
                     </div>

@@ -47,7 +47,6 @@ const FileUpload = () => {
     // prepare the file to be sent to the server
     const formData = new FormData();
     formData.append("file", selectedFile);
-    console.log("formData", formData);
     try {
       const response = await uploadUserCSV(formData).unwrap();
       toast.success(`${selectedFile.name} uploaded successfully!`);
