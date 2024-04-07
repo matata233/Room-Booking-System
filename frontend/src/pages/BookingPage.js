@@ -385,6 +385,9 @@ const BookingPage = () => {
     return organizedTimes;
   };
 
+  const manualGroupingInfo =
+    "For manual grouping, the recommended approach is to first change the room count based on the number of groups you need. After triggering a search, you can update attendees and groupings as needed.";
+
   return (
     <div className="flex w-full flex-col gap-y-12 font-amazon-ember">
       <BookingStepper currentStage={1} />
@@ -413,7 +416,10 @@ const BookingPage = () => {
                       <Loader />
                     ) : (
                       <>
-                        <h2>Attendee Groups:</h2>
+                        <div className="flex items-center justify-start">
+                          <h2 className="mr-1">Attendee Groups:</h2>
+                          <MoreInfo info={manualGroupingInfo} />
+                        </div>
                         <UserEmailGroup />
                         <h2>You're In:</h2>
                         <LoggedInUserGroup />
@@ -448,7 +454,10 @@ const BookingPage = () => {
                       <Loader />
                     ) : (
                       <>
-                        <h2>Attendee Groups:</h2>
+                        <div className="flex items-center justify-start">
+                          <h2 className="mr-1">Attendee Groups:</h2>
+                          <MoreInfo info={manualGroupingInfo} />
+                        </div>
                         <UserEmailGroup />
                         <h2>You're In:</h2>
                         <LoggedInUserGroup />
@@ -456,7 +465,10 @@ const BookingPage = () => {
                     )
                   ) : (
                     <>
-                      <h2>Attendees:</h2>
+                      <div className="flex items-center justify-start">
+                        <h2 className="mr-1">Attendees</h2>
+                        <MoreInfo info={manualGroupingInfo} />
+                      </div>
                       <div className="text-sm text-gray-500">
                         You will be automatically included
                       </div>
