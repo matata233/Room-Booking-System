@@ -3,6 +3,7 @@ import BuildingRepository from "../repository/BuildingRepository";
 import BuildingDTO from "../model/dto/BuildingDTO";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
 import {BUILDINGS} from "../model/dto/AbstractDTO";
+import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class BuildingService extends AbstractService {
     private buildingRepo: BuildingRepository;
@@ -23,6 +24,9 @@ export default class BuildingService extends AbstractService {
 
     public async create(dto: BuildingDTO): Promise<BuildingDTO> {
         await this.validateIncomingDTO(dto, {groups: [BUILDINGS]});
+        if (dto.address!.trim().length === 0) {
+            throw new BadRequestError("address cannot be empty");
+        }
         try {
             return await this.buildingRepo.create(dto);
         } catch (error) {
@@ -34,6 +38,9 @@ export default class BuildingService extends AbstractService {
     public async update(id: number, dto: BuildingDTO): Promise<BuildingDTO> {
         this.validateId(id, "building");
         await this.validateIncomingDTO(dto, {groups: [BUILDINGS]});
+        if (dto.address!.trim().length === 0) {
+            throw new BadRequestError("address cannot be empty");
+        }
         try {
             return await this.buildingRepo.updateById(id, dto);
         } catch (error) {

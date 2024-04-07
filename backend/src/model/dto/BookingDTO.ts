@@ -12,6 +12,7 @@ import {
     IsInt,
     IsNotEmpty,
     IsOptional,
+    Max,
     Min,
     MinDate,
     ValidateNested
@@ -52,6 +53,7 @@ export default class BookingDTO extends AbstractDTO {
     @IsNotEmpty({groups: [BOOKINGS_GET_AVAIL]})
     @IsInt({groups: [BOOKINGS_GET_AVAIL]})
     @Min(1, {groups: [BOOKINGS_GET_AVAIL]})
+    @Max(1000, {groups: [BOOKINGS_GET_AVAIL]})
     roomCount?: number;
 
     @IsNotEmpty({groups: [BOOKINGS_GET_AVAIL, BOOKINGS_CREATE, BOOKINGS_UPDATE]})

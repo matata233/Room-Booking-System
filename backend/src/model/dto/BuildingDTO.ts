@@ -8,6 +8,8 @@ import {
     IsNotEmpty,
     IsNumber,
     IsString,
+    Max,
+    MaxLength,
     Min,
     ValidateNested
 } from "class-validator";
@@ -26,6 +28,7 @@ export default class BuildingDTO extends AbstractDTO {
     @IsNotEmpty({groups: [BUILDINGS], message: "missing building number"})
     @IsInt({groups: [BUILDINGS], message: "building number must be an integer"})
     @Min(1, {groups: [BUILDINGS], message: "building number must be at least 1"})
+    @Max(1000, {groups: [BUILDINGS], message: "building number must be at most 1000"})
     code?: number;
 
     @IsNotEmpty({groups: [BUILDINGS]})
@@ -40,6 +43,7 @@ export default class BuildingDTO extends AbstractDTO {
 
     @IsNotEmpty({groups: [BUILDINGS]})
     @IsString({groups: [BUILDINGS]})
+    @MaxLength(100, {groups: [BUILDINGS]})
     address?: string;
 
     @IsNotEmpty({groups: [BUILDINGS]})
