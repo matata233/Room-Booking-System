@@ -65,7 +65,6 @@ const Pagination = ({
       <div>
         <label className="mr-2 text-sm md:text-base">Rows per page</label>
         <select
-          defaultValue={rowsPerPage}
           value={rowsPerPage}
           onChange={(event) => handleChangeRowsPerPage(event)}
           className="rounded-md border border-gray-300 px-2 py-1  text-sm md:text-base"

@@ -487,8 +487,6 @@ const BookingPage = () => {
                   )}
                   <h2>Has Equipments:</h2>
                   <UserEquipInput />
-                  {/* <h2>Priorities for Recommendation:</h2>
-                  <DragAndDrop /> */}
                 </>
               )}
               <div className="my-4 flex items-center justify-center">

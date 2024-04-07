@@ -41,8 +41,8 @@ const initialState = {
   isMultiCity: false,
   suggestedTimeMode: false,
   suggestedTimeInput: {
-    startTime: nextDayAtTen,
-    endTime: sevenDaysLaterAtMidnight,
+    startTime: nextDayAtTen.format("YYYY-MM-DD HH:mm"),
+    endTime: sevenDaysLaterAtMidnight.format("YYYY-MM-DD HH:mm"),
     duration: 30,
     unit: "minutes",
   },
