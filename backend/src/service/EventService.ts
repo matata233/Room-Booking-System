@@ -32,6 +32,9 @@ export default class EventService extends AbstractService {
         if (!dto.title || dto.title.trim().length === 0) {
             throw new BadRequestError("Invalid title");
         }
+        if (dto.title.trim().length > 100) {
+            throw new BadRequestError("Title cannot be more than 100 characters");
+        }
         if (!dto.startTime) {
             throw new BadRequestError("Start time cannot be empty");
         }

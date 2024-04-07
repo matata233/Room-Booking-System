@@ -151,7 +151,7 @@ export default class UserRepository extends AbstractRepository {
                     });
 
                     if (!building) {
-                        throw new NotFoundError("building does not exist");
+                        throw new NotFoundError("building does not exist, no users were added");
                     }
 
                     return tx.users.create({

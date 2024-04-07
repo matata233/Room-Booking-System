@@ -3,6 +3,7 @@ import RoomRepository from "../repository/RoomRepository";
 import RoomDTO from "../model/dto/RoomDTO";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
 import {ROOMS} from "../model/dto/AbstractDTO";
+import {BadRequestError} from "../util/exception/AWSRoomBookingSystemError";
 
 export default class RoomService extends AbstractService {
     private roomRepo: RoomRepository;
@@ -28,6 +29,9 @@ export default class RoomService extends AbstractService {
 
     public async create(dto: RoomDTO): Promise<RoomDTO> {
         await this.validateIncomingDTO(dto, {groups: [ROOMS]});
+        if (dto.roomCode!.trim().length === 0) {
+            throw new BadRequestError("room code cannot be empty");
+        }
         try {
             return await this.roomRepo.create(dto);
         } catch (error) {
@@ -39,6 +43,9 @@ export default class RoomService extends AbstractService {
     public async update(id: number, dto: RoomDTO): Promise<RoomDTO> {
         this.validateId(id, "room");
         await this.validateIncomingDTO(dto, {groups: [ROOMS]});
+        if (dto.roomCode!.trim().length === 0) {
+            throw new BadRequestError("room code cannot be empty");
+        }
         try {
             return await this.roomRepo.updateById(id, dto);
         } catch (error) {

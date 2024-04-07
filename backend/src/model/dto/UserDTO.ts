@@ -11,6 +11,8 @@ import {
     IsNotEmpty,
     IsString,
     Matches,
+    Max,
+    MaxLength,
     Min,
     ValidateNested
 } from "class-validator";
@@ -24,30 +26,36 @@ export default class UserDTO extends AbstractDTO {
     @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
     @IsString({groups: [USERS, USERS_UPLOAD]})
     @Matches("^[a-zA-Z][a-zA-Z0-9_-]*$", undefined, {groups: [USERS, USERS_UPLOAD]})
+    @MaxLength(100, {groups: [USERS, USERS_UPLOAD]})
     username?: string;
 
     @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
     @IsString({groups: [USERS, USERS_UPLOAD]})
     @IsAlpha(undefined, {groups: [USERS, USERS_UPLOAD]})
+    @MaxLength(100, {groups: [USERS, USERS_UPLOAD]})
     firstName?: string;
 
     @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
     @IsString({groups: [USERS, USERS_UPLOAD]})
     @IsAlpha(undefined, {groups: [USERS, USERS_UPLOAD]})
+    @MaxLength(100, {groups: [USERS, USERS_UPLOAD]})
     lastName?: string;
 
     @IsNotEmpty({groups: [BOOKINGS_GET_AVAIL, USERS, USERS_UPLOAD]})
-    @IsEmail(undefined, {groups: [BOOKINGS_GET_AVAIL, USERS, USERS_UPLOAD]})
+    @IsEmail(undefined, {groups: [BOOKINGS_GET_AVAIL, USERS, USERS_UPLOAD], message: "invalid email address format"})
+    @MaxLength(100, {groups: [BOOKINGS_GET_AVAIL, USERS, USERS_UPLOAD]})
     email?: string;
 
     @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
     @IsInt({groups: [USERS, USERS_UPLOAD]})
     @Min(1, {groups: [USERS, USERS_UPLOAD]})
+    @Max(1000, {groups: [USERS, USERS_UPLOAD]})
     floor?: number;
 
     @IsNotEmpty({groups: [USERS, USERS_UPLOAD]})
     @IsInt({groups: [USERS, USERS_UPLOAD]})
     @Min(1, {groups: [USERS, USERS_UPLOAD]})
+    @Max(1000, {groups: [USERS, USERS_UPLOAD]})
     desk?: number;
 
     @IsNotEmpty({groups: [USERS]})
