@@ -136,13 +136,46 @@ const BookingReviewPage = () => {
         toast.error(err?.data?.error || "Failed to confirm booking");
       } catch (err) {
         console.log(err);
-        toast.error(err?.data?.error || "Failed to refetch available rooms");
+        const errorMessage = formatUnavailableMessage(err?.data?.error);
+        toast.error(errorMessage || "Failed to refetch available rooms");
       } finally {
         navigate("/booking");
         dispatch(stopLoading());
       }
     }
   };
+  function formatUnavailableMessage(message) {
+    if (!message) return "Failed to get available rooms";
+    const match = message.match(/Attendee\(s\) Unavailable: (.+)/);
+    if (!match) return message;
+    const participantString = match[1];
+    const participants = participantString.split(", ");
+    let otherParticipants = [];
+    let loggedInUserUnavailable = false;
+
+    participants.forEach((participant) => {
+      const [name, emailWithParentheses] = participant.split(" (");
+      const email = emailWithParentheses.slice(0, -1);
+
+      if (email === userInfo.email) {
+        loggedInUserUnavailable = true;
+      } else {
+        otherParticipants.push(`${name} (${email})`);
+      }
+    });
+
+    if (!loggedInUserUnavailable) {
+      return message;
+    }
+
+    if (otherParticipants.length === 0) {
+      return "You aren't available during this time.";
+    }
+
+    const others = otherParticipants.join(", ");
+    const areOrIs = otherParticipants.length > 1 ? "are" : "is";
+    return `You aren't available during this time and ${others} ${areOrIs} also unavailable.`;
+  }
 
   const updateGroupedAttendees = (newGroups) => {
     groupedAttendees.forEach((localGroup) => {

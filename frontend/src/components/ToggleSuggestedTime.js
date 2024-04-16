@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setSuggestedTimeMode, toggleShowRecommended } from "../slices/bookingSlice";
+import {
+  setSuggestedTimeMode,
+  toggleShowRecommended,
+} from "../slices/bookingSlice";
 import MoreInfo from "./MoreInfo";
 
 const ToggleSuggestedTime = () => {
@@ -10,7 +13,7 @@ const ToggleSuggestedTime = () => {
   return (
     <div className="flex h-[40px] items-center justify-center">
       <label
-        className={`mr-2 cursor-pointer ${suggestedTimeMode ? "text-gray-400" : "text-black"}`}
+        className={`mr-2 cursor-pointer ${suggestedTimeMode ? "text-gray-400" : "text-theme-blue"}`}
         onClick={() => {
           if (suggestedTimeMode) {
             dispatch(setSuggestedTimeMode(!suggestedTimeMode));
@@ -26,10 +29,10 @@ const ToggleSuggestedTime = () => {
         }}
       >
         <div
-          className={`block h-8 w-14 rounded-full ${suggestedTimeMode ? "bg-orange-300" : "bg-gray-300"}`}
+          className={`block h-8 w-14 rounded-full ${suggestedTimeMode ? "bg-orange-300" : "bg-blue-300"}`}
         ></div>
         <div
-          className={`dot absolute left-1 top-1 h-6 w-6 rounded-full transition ${suggestedTimeMode ? "translate-x-6 transform bg-theme-dark-orange" : "bg-gray-400"}`}
+          className={`dot absolute left-1 top-1 h-6 w-6 rounded-full transition ${suggestedTimeMode ? "translate-x-6 transform bg-theme-dark-orange" : "bg-theme-blue"}`}
         ></div>
       </div>
       <label
@@ -42,7 +45,11 @@ const ToggleSuggestedTime = () => {
       >
         Flexible
       </label>
-      <MoreInfo info={"Specify a flexible start time range for the meeting and enter all attendees. The system will then generate a list of timeslots where all attendees are available."} />
+      <MoreInfo
+        info={
+          "Specify a flexible start time range for the meeting and enter all attendees. The system will then generate a list of timeslots where all attendees are available."
+        }
+      />
     </div>
   );
 };
