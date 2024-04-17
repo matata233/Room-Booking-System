@@ -72,6 +72,7 @@ const BookingHistoryPage = () => {
           rooms: getRooms(selectedBooking),
         },
       }).unwrap();
+      refetch();
       toast.success("Booking updated");
       setIsCancelConfirmOpen(false);
       // bookingData = [];
@@ -100,6 +101,7 @@ const BookingHistoryPage = () => {
           rooms: getRooms(selectedBooking),
         },
       }).unwrap();
+      refetch();
       toast.success("Booking updated");
       // Close the modal
       handleCloseModal();

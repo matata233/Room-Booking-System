@@ -120,34 +120,47 @@ const Header = () => {
         {userInfo ? (
           <div
             id="avatar-dropdown"
-            className="relative hidden  items-center justify-end lg:flex "
+            className="relative hidden items-center justify-end lg:flex"
           >
             <div
-              className="hidden cursor-pointer items-center justify-end  rounded p-2 text-center  text-theme-orange hover:border-2 hover:border-theme-blue lg:flex"
+              className="hidden cursor-pointer items-center justify-end rounded p-2 text-center text-theme-orange hover:border-2 hover:border-theme-blue lg:flex"
               onClick={toggleDropdown}
             >
               <IoMdArrowDropdown className="size-4 lg:size-6" />
               <div className="mr-2 text-sm lg:mr-4 lg:text-base">{`Hi, ${userInfo.firstName}`}</div>
               <div className="size-8 overflow-hidden rounded-full lg:size-10">
-                <img src={userInfo.avatar} alt="google picture" />
+                <img src={userInfo.avatar} alt="User Avatar" />
               </div>
             </div>
 
             <div
               className={
                 showDropdown
-                  ? "absolute right-0 top-16 z-20 w-40  divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+                  ? "absolute right-0 top-full z-20 mt-2 w-64 divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
                   : "hidden"
               }
             >
-              <div className="py-1">
-                <div
-                  className="cursor-pointer px-4 py-2 text-sm  text-white hover:text-red-500 lg:text-gray-500"
-                  id="logout"
-                  onClick={handleLogout}
-                >
-                  Log Out
+              <div className="px-4 py-2">
+                <div className="mb-2 font-bold">{`${userInfo.firstName} ${userInfo.lastName}`}</div>
+                <div className="text-sm">
+                  <span className="font-bold text-theme-dark-orange">
+                    Email:
+                  </span>{" "}
+                  {userInfo.email}
                 </div>
+                <div className="text-sm">
+                  <span className="font-bold  text-theme-dark-orange">
+                    Username:
+                  </span>{" "}
+                  {userInfo.username}
+                </div>
+              </div>
+              <div
+                className="cursor-pointer px-4 py-2 text-sm text-gray-500 hover:text-red-500"
+                id="logout"
+                onClick={handleLogout}
+              >
+                Log Out
               </div>
             </div>
           </div>
@@ -183,31 +196,6 @@ const Header = () => {
       >
         {userInfo ? (
           <>
-            {/* <Link to="/bookingHistory" onClick={handleClick}>
-              {" "}
-              <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
-                Booking History
-              </div>
-            </Link>
-            <Link to="/myFavourite" onClick={handleClick}>
-              {" "}
-              <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
-                My Favourite
-              </div>
-            </Link>
-            <Link to="/userManagementPage" onClick={handleClick}>
-              {" "}
-              <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
-                User Management
-              </div>
-            </Link>
-            <Link to="/roomManagementPage" onClick={handleClick}>
-              {" "}
-              <div className="my-4 flex h-16 w-full cursor-pointer items-center justify-center bg-theme-dark-blue p-4 text-center text-white">
-                Room Management
-              </div>
-            </Link> */}
-
             <div className="w-full  divide-y divide-gray-100  bg-theme-dark-blue">
               <Navbar
                 handleLogout={handleLogout}
@@ -218,27 +206,49 @@ const Header = () => {
 
             <div
               id="avatar-dropdown"
-              className="relative items-center justify-center "
+              className="relative flex w-full items-center justify-center lg:hidden "
             >
-              <div className="my-4 flex h-16 w-full  items-center justify-center gap-6 p-4 text-center text-theme-orange">
-                <div> {`Hi, ${userInfo.firstName}`}</div>
-                <div className="h-10 w-10 overflow-hidden rounded-full">
-                  <img src={userInfo.avatar} alt="google picture" />
+              <div
+                className="my-1 flex w-full cursor-pointer items-center justify-center rounded py-2 text-center text-theme-orange hover:ring-2 hover:ring-theme-blue lg:hidden"
+                onClick={toggleDropdown}
+              >
+                <IoMdArrowDropdown className="size-4" />
+                <div className="mr-2">{`Hi, ${userInfo.firstName}`}</div>
+                <div className="size-8 overflow-hidden rounded-full">
+                  <img src={userInfo.avatar} alt="User Avatar" />
                 </div>
               </div>
-
-              {/* <div
+              <div
                 className={
                   showDropdown
-                    ? "absolute  top-24 z-20 w-full  divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+                    ? "absolute right-0 top-14 z-20 w-full divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
                     : "hidden"
                 }
               >
-                <AvatarDropdown
-                  handleLogout={handleLogout}
-                  toggleDropdown={toggleDropdown}
-                />
-              </div> */}
+                <div
+                  className={
+                    showDropdown
+                      ? "absolute right-0 top-4 z-20 w-full divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+                      : "hidden"
+                  }
+                >
+                  <div className="p-4">
+                    <div className="mb-2 font-bold">{`${userInfo.firstName} ${userInfo.lastName}`}</div>
+                    <div className="text-sm">
+                      <span className="font-bold text-theme-dark-orange">
+                        Email:
+                      </span>{" "}
+                      {userInfo.email}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-bold  text-theme-dark-orange">
+                        Username:
+                      </span>{" "}
+                      {userInfo.username}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </>
         ) : (
